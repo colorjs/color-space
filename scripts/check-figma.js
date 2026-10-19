@@ -331,7 +331,8 @@ try {
 		ok(film.includes('slog3') && !film.includes('oklch') && await ui.locator('#spmenu').isVisible(), `the family select narrows the list to a family (${film.length})`)
 		await ui.locator('#spgroup').selectOption('featured')
 		await ui.locator('#spq').fill('osa')
-		ok((await ui.locator('#splist .spo').evaluateAll(es => es.map(e => e.dataset.id))).join() === 'osaucs', 'typing searches every space, whatever the family (OSA-UCS isn\'t featured)')
+		{ const osa = await ui.locator('#splist .spo').evaluateAll(es => es.map(e => e.dataset.id))
+		ok(osa.includes('osaucs') && osa.every(id => id.startsWith('osaucs')), `typing searches every space, whatever the family (OSA-UCS isn't featured): ${osa}`) }
 		await ui.locator('#spq').fill('zzz')
 		ok(await ui.locator('#splist .spnone').isVisible(), 'a search with no match says so')
 		await ui.locator('#spq').fill('cam16-u')

@@ -114,6 +114,7 @@ try {
 	assert.doesNotMatch(initialGradient, /\d(?:\.\d+)?%\s+\d(?:\.\d+)?%/, 'smooth mode has interpolated stops, not hard sampled bands')
 	// one Limit cuts every slider – the catalog's as the dossier's: the display's own by default (sRGB where it can't show
 	// P3 – the prerender's, so a first paint is what the page keeps there)
+	await page.waitForFunction(()=>{ const g=matchMedia('(color-gamut: p3)').matches?'p3':'srgb'; return [...document.querySelectorAll('.ent[data-g]')].every(el=>new RegExp(`:${g}(?::|$)`).test(el.dataset.g)) },null,{timeout:8000}).catch(()=>{})   // the rows within reach (a screen each way) repaint from the pool as it answers
 	const mainLensesBefore=await page.locator('.ent[data-g]').evaluateAll(els=>els.map(el=>el.dataset.g)), shows=await page.evaluate(()=>matchMedia('(color-gamut: p3)').matches?'p3':'srgb')
 	assert.equal(mainLensesBefore.length>1&&mainLensesBefore.every(key=>new RegExp(`:${shows}(?::|$)`).test(key)),true,'every populated catalog slider renders under the Limit – the display\'s gamut by default')
 	await page.evaluate(()=>document.querySelector('.ent[data-s="p3"]').scrollIntoView({block:'center'}))
@@ -366,7 +367,7 @@ try {
 	assert.equal(+(await page.locator('.ent.tr .c-year').first().innerText()) >= +years.at(-1), true, 'and again, newest first')
 	assert.equal(await page.evaluate(() => localStorage.csView), 'list', 'the view is kept for the next visit')
 	{ const r = page.locator('.ent.tr').nth(2), s = await r.getAttribute('data-s'); await r.locator('.c-year').click()   // not the name: any cell of the row
-		await page.waitForSelector('#modal:not([hidden]) #dtitle')
+		await page.waitForSelector('#modal:not([hidden]) #dtitle'); await page.waitForFunction(s => location.pathname.endsWith('/' + s), s, { timeout: 3000 }).catch(() => {})   // the URL follows the card's first frame
 		assert.equal(await page.evaluate(() => location.pathname.split('/').pop()), s, 'a List row opens its dossier from any cell')
 		await page.locator('#mx').click(); await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true) }
 	await layout(page,'grid')

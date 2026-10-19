@@ -261,7 +261,7 @@ body.mopen :is(.mhead,.hcolor){ animation:none }
 .mhead.many>.medge,.hero.many::before{ background:var(--stops) center / 100% 100% no-repeat }   /* many colors in hand: their run is the edge, whole */
 @media(max-width:640px){ body.mopen .mhead:not(.wide) .cells{ background:var(--paper) } body.mopen .mhead::after{ animation:none; inset-inline-start:0 } }   /* a phone's sheet under the row: over a card the row is paper, all of it – not the scroll timeline's call: a page that can't scroll under the card (Safari) reads its start, clear */
 body.mopen.mdock .hcolor{ position:fixed; inset:0 0 auto; margin-block:0; z-index:calc(var(--z-modal) + 2) }   /* a card over a docked color: the color stays in the row, live; over the hero it stays in the hero, under the card */
-body.mopen .page>:not(.mhead,.hcolor,.dpop),body.mopen .page>:not(.mhead,.hcolor,.dpop) *{ pointer-events:none }   /* the page behind a card sleeps: no pointer reaches it, nor any part of it that takes the pointer of its own (the rail's titles, the hero's marks) – a press off the card lands on the page itself, the backdrop's close (js), the keyboard's focus sent back to the card (js). Not inert: Safari restyled and repainted the whole page for it, a second of frames at every open */
+body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-modal) - 3) } body.mopen .hcolor{ z-index:calc(var(--z-modal) - 2) }   /* the page behind a card sleeps under one sheet: no pointer reaches it – a press there lands on the body, the backdrop's close (js), a wheel there turns the card (js), the keyboard's focus is sent back to the card (js); the row and the color stand over it, live. A sheet, not a rule over the page: inert restyled and repainted the whole page in Safari (a second of frames at every open), pointer-events on its sections restyled all 8,000 elements in Chrome (45 ms an open, as much a close) */
 /* the card over the row: scrolled up, it passes above the row – its shadow on it – the row live beside it (the card's
    empty field lets the pointer through; its wheel turns the card, js); the top color's line over all (.mtop). A phone's sheet is the whole screen under the row, as it was */
 @media(min-width:641px){ body.mopen .mhead{ z-index:calc(var(--z-modal) - 2) } body.mopen.mdock .hcolor{ z-index:calc(var(--z-modal) - 1) }
@@ -1124,6 +1124,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
 .pl3d .marker3{ z-index:3 } .pl3d.busy canvas{ visibility:hidden }   /* a solid not yet drawn shows nothing – never the last one's */
+.pl3d.busy::after{ content:''; position:absolute; inset:22% 18%; border-radius:50%; background:var(--hair); animation:busy 1.1s var(--ease-out) infinite alternate }   /* …but where it will stand, a soft disc pulsing: the image row's and the plates' busy, the compositor's to run while the page works */
 /* full channel names, set along the direction of increase: x rightward, y upward */
 .pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }
 .pl button:is(.laby,.labx){ z-index:2; padding:0; font-family:inherit; line-height:inherit; color:inherit; background:none; border:0; cursor:pointer; pointer-events:auto; text-underline-offset:var(--ulo) } .pl button:is(.laby,.labx):hover{ text-decoration:underline }   /* the dossier's: an axis's name turns it (buildDetail) – a link's underline says so */
@@ -1681,7 +1682,7 @@ import { definitionOf, rowsOf, ocioMatrix, formula, constants } from './js/defin
 import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath, GXY, limPath, heroLocus, heroNames, heroAt, HERO_LIMS } from './js/locus.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
-import { softGL, warmKernels, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
+import { softGL, warmKernels, glLinking, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -2597,15 +2598,19 @@ const urlHash=()=>{ const hx=hex(RGB()).toLowerCase()   // the hash speaks the c
 // through, shedding only the boot flags (?sw service-worker probe, ?s= 404 bounce)
 const keepSearch=()=>{ try{ const sp=new URLSearchParams(location.search); sp.delete('sw'); sp.delete('s'); const s2=sp.toString(); return s2?'?'+s2:'' }catch{ return '' } }
 let urlTT=0, PEEK=false   // PEEK: a suggestion shown on the page, not taken
+// the URL is written once the frame it changed in has painted: Chrome took 80–90 ms over a replaceState once a dossier had
+// been open – inside the click, the card waited for it. urlLast is the URL written or about to be; urlPend, one on its way
+let urlPend=false
+const urlWrite=u=>{ urlLast=u; if(urlPend) return; urlPend=true; requestAnimationFrame(()=>setTimeout(()=>{ urlPend=false; history.replaceState(null,'',urlLast) })) }
 function syncURL(hx){ const now=performance.now(), wait=250-(now-urlT)
 	if(wait>0){ clearTimeout(urlTT); urlTT=setTimeout(()=>{ if(!PDOWN) syncURL() },wait); return }   // a throttle keeps its trailing write – the last color of a burst (typing, a click) must reach the URL
 	// a hash we did not write is a NAVIGATION in flight (a FAQ specimen link, the boot
 	// arrival) – route() owns it until consumed; writing here rewrote the link to the
 	// current color's canon before hashchange could fire, and CI's slower frames lost
 	// the notation switch every time
-	if(location.hash&&location.hash!==(urlLast.split('#')[1]!=null?'#'+urlLast.split('#')[1]:'')) return
+	if(!urlPend&&location.hash&&location.hash!==(urlLast.split('#')[1]!=null?'#'+urlLast.split('#')[1]:'')) return   // (a write of ours on its way is no navigation)
 	const u=spaceURL(open()?selected:'')+keepSearch()+'#'+urlHash()
-	if(u===urlLast) return; urlT=now; urlLast=u; history.replaceState(null,'',u) }
+	if(u===urlLast) return; urlT=now; urlWrite(u) }
 function chanVals(s,v){ const cls=classify(s); return v.map((x,i)=>`${cls.ch[i].sym}${fmtn(x,cls.ch[i])}${unit(cls.ch[i])}`).join(' ') }
 // the row's value notation, picked from its chevron's list — the parser
 // accepts every form regardless, so the field round-trips whatever it shows
@@ -3189,7 +3194,7 @@ function openModal(s){ behindSeen=null
 	// hero, under the card. Everything else behind the card sleeps
 	if(modal.hidden) document.body.classList.toggle('mdock',cxEl.getBoundingClientRect().top<stripEl.querySelector('.cells').getBoundingClientRect().bottom)
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
-	urlLast=spaceURL(s)+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
+	urlWrite(spaceURL(s)+keepSearch()+colorHash())
 	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
@@ -3203,13 +3208,16 @@ function openModal(s){ behindSeen=null
 		detail.querySelectorAll('.catprev').forEach(el=>el.textContent=secName(pc)); detail.querySelectorAll('.mprevc').forEach(el=>el.textContent=disp(pc.spaces[0]))
 		detail.querySelectorAll('.catnext').forEach(el=>el.textContent=secName(nc)); detail.querySelectorAll('.mnextc').forEach(el=>el.textContent=disp(nc.spaces[0])) }
 	requestAnimationFrame(()=>detail.focus({preventScroll:true}))
-	// warm the walk: the neighbours' programs – prev, next, and a second step the way the walk goes (nav) – once this space's
-	// own have linked, so it keeps first claim on the GPU; prev/next then opens straight into full-quality paint. Barred
-	// neighbours have no GL; a card shut before then is no walk (the build's bake opens and shuts 205 a language)
-	if(!b){ const dir=openModal.dir||1, walk=()=>{ if(selected!==s||modal.hidden) return
-			if(planeGLStatus(s)==='pending'){ setTimeout(walk,50); return }
-			for(const s2 of new Set([ord[(k+dir+n)%n],ord[(k-dir+n)%n],ord[(k+2*dir+2*n)%n]])) if(!isBarred(s2)){ warmGL(s2); warmMesh3(s2,GM) } }
-		ric(walk,{ timeout:150 }) }
+	// warm the walk: the neighbours' programs – next, prev, and a second step the way the walk goes (nav) – one neighbour at a
+	// time, each once nothing else is linking and no hand is on an instrument: so this space keeps first claim on the GPU,
+	// and a slider taken right after the open never waits behind a dozen compiles (all three at once once stalled Chrome's
+	// frames a second or two). prev/next then opens straight into full-quality paint. Barred neighbours have no GL; a card
+	// shut before then is no walk (the build's bake opens and shuts 205 a language)
+	if(!b){ const dir=openModal.dir||1, todo=[...new Set([ord[(k+dir+n)%n],ord[(k-dir+n)%n],ord[(k+2*dir+2*n)%n]])].filter(s2=>!isBarred(s2))
+		const walk=()=>{ if(selected!==s||modal.hidden||!todo.length) return
+			if(PDOWN||glLinking()||performance.now()-scrollAt<SCROLL_QUIET){ setTimeout(walk,250); return }
+			const s2=todo.shift(); warmGL(s2); warmMesh3(s2,GM); setTimeout(()=>ric(walk,{ timeout:1000 }),250) }
+		setTimeout(()=>ric(walk,{ timeout:1000 }),400) }
 	openModal.dir=0 }
 function buildBarred(b){
 	const host=b.url.replace(/^https?:\/\/(www\.)?/,'').replace(/\/$/,'')
@@ -3227,7 +3235,7 @@ function buildBarred(b){
 function closeModal(){ if(EMBED) return   // an embedded card is the whole document – Esc, backdrop and ✕ have nothing to return to
 	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
 	paintCatalogVals(screenEnts()); paintCatalogGrad(); ric(()=>paintCatalogVals())   // the catalog slept behind the dossier — catch it up to whatever the modal picked: what shows now, its strips from the pool, the band's numbers at idle
-	urlLast=spaceURL('')+keepSearch()+colorHash(); history.replaceState(null,'',urlLast)
+	urlWrite(spaceURL('')+keepSearch()+colorHash())
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 // over the row the card's empty field lets the pointer through (.modal, CSS): a press there lands on the sleeping page –
 // the backdrop's close – and a wheel anywhere off the card turns the card, as its own scroller would. A close is a press
@@ -4142,9 +4150,11 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	el.onpointercancel=el.onpointerup
 	el.ondblclick=()=>{ rot3={a:-0.65,b:0.5}; snap3=null; spinV3=SPIN3; draw3d(); spin3() }
 	draw3d(); spin3() }
-	if(gpu3) build()
-	else{ mesh3=null; const tok=++wire3dTok   // heavy JS mesh (munsell's iterative caps): build off the open path
-		setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() },30) } }
+	// the mesh built off the open path – the GPU's a frame after the card shows (its lattice and programs took a dossier's
+	// click 100 ms and more), the JS one's (munsell's iterative caps) a beat later; the solid pulses till then (.busy)
+	mesh3=null; el.classList.add('busy'); const tok=++wire3dTok
+	if(gpu3) requestAnimationFrame(()=>setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() }))
+	else setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() },30) }
 function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
 	// multisampled on a GPU; a software rasterizer's multisampled context cost 2 s to create, every solid drawn this way
 	const opt={ alpha:true, antialias:!softGL(), stencil:true }, gl=cv.getContext('webgl',opt)||cv.getContext('experimental-webgl',opt)

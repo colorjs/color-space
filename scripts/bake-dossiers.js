@@ -81,12 +81,12 @@ export async function bakeDossiers(site, i18n) {
 			// paints queued behind it nothing to draw (software GL spent ~4 s a dossier on them).
 			// A click on a row not yet wired is a no-op – with the last dossier closed it captures
 			// nothing (left open, it once baked another space's dossier into 132 of 168 name views):
-			// the click repeats until the router names THIS space (openModal's replaceState runs in
-			// the same click as buildDetail), or the build fails
+			// the click repeats until the dossier built is THIS space's (buildDetail marks it, detail._s, in
+			// the same click), or the build fails
 			const capture = () => page.waitForFunction((s2) => {
 				document.querySelector(`.ent[data-s="${CSS.escape(s2)}"] .nm`)?.click()
 				const m = document.getElementById('modal')
-				if (!m || m.hidden || !location.pathname.endsWith('/' + s2) || !document.getElementById('dtitle')?.textContent.trim()) return false
+				if (!m || m.hidden || document.getElementById('detail')._s !== s2 || !document.getElementById('dtitle')?.textContent.trim()) return false   // the dossier built for THIS space (buildDetail's detail._s; the URL follows a frame later)
 				const h = document.getElementById('detail').innerHTML
 				document.getElementById('mx').click()
 				return h

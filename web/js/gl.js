@@ -49,12 +49,18 @@ export const setGLReady = fn => { readyCb = fn }
 // async link tracking: create+link now, read status later (no compile stall).
 // ONE shared poller walks every linking program — a timer per program meant a
 // sync GPU-process round trip per program per 25ms while the driver was busiest.
+// A program is asked about only once a fence after its link has passed: the fence's status is read without a round trip
+// (WebGL 2 updates it between tasks), and the program's own query, a round trip, then finds the GPU process done with
+// it – asked earlier, Chrome's waited out the whole compile queue behind it: 0.8 s of a dossier's open in one call
 const linking = new Set()
 let linkT = 0
+/** How many programs are still linking: background work waits for none (index.html's walk) */
+export const glLinking = () => linking.size
 function pollLinks() {
 	linkT = 0
 	for (const st of linking) {
 		const gl = st.gl
+		if (st.sync) { if (gl.getSyncParameter(st.sync, gl.SYNC_STATUS) !== gl.SIGNALED) continue; gl.deleteSync(st.sync); st.sync = null }
 		const ext = gl._pcExt !== undefined ? gl._pcExt : (gl._pcExt = gl.getExtension('KHR_parallel_shader_compile'))
 		if (ext && !gl.getProgramParameter(st.pr, ext.COMPLETION_STATUS_KHR)) continue
 		linking.delete(st)
@@ -71,6 +77,8 @@ function pollLinks() {
 }
 function track(gl, pr, resolve, st = {}) {
 	st.pr = pr; st.pending = true; st.bad = false; st.gl = gl; st.resolve = resolve
+	if (st.sync) gl.deleteSync(st.sync)
+	if (gl.fenceSync) { st.sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0); gl.flush() }   // WebGL 2; a WebGL 1 context asks the program at once
 	linking.add(st)
 	if (!linkT) linkT = setTimeout(pollLinks, 0)
 	return st
@@ -648,7 +656,8 @@ const cutCV = (w, h) => [0, CV.height - h, w, h]
  *  that once landed inside a dossier's first open. To the dossier's largest plate, the xy plate's (≈ 420 × 462 CSS px at
  *  the widest), at the screen's density. On a GPU only: a software rasterizer paints the JS paths */
 export const warmKernels = () => { if (!G || softGL() || globalThis.matchMedia?.('(pointer: coarse)').matches) return   // a phone keeps its GPU memory for a card it may never open
-	const d = globalThis.devicePixelRatio || 1; fitCV(Math.min(2048, Math.ceil(420 * d)), Math.min(2048, Math.ceil(462 * d))) }
+	const d = globalThis.devicePixelRatio || 1; fitCV(Math.min(2048, Math.ceil(420 * d)), Math.min(2048, Math.ceil(462 * d)))
+	setTimeout(() => mesh3Canvas() && mesh3State(mesh3Canvas()), 500) }   // the solid's context and lattices too, a beat later: 80 ms that sat inside a first dossier's click
 // the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end: the kernel encodes them
 // (uEnc) into CV's sRGB buffer, and they go across as they are – read out, put in as a P3 image (flushCells), never a
 // color-managed copy. CV's buffer itself stays sRGB: switched to display-p3 and back, Chromium went on copying it out as
