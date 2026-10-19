@@ -1,7 +1,7 @@
 /**
- * OkHWB is the whiteness-blackness counterpart to OkHSV, extending Björn Ottosson's 2021
+ * Okhwb is the whiteness-blackness counterpart to Okhsv, extending Björn Ottosson's 2021
  * family of Oklab-based color pickers. As in HWB, a color is a pure hue mixed with some white
- * and some black, the way painters mix tints and shades. Built on OkHSV, it inherits that
+ * and some black, the way painters mix tints and shades. Built on Okhsv, it inherits that
  * space's perceptual evenness and stays within sRGB.
  *
  * @see {@link https://bottosson.github.io/posts/colorpicker/#okhwb}

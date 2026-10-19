@@ -1,5 +1,5 @@
 /**
- * MacLeod-Boynton (MB) chromaticity — the cone-excitation diagram MacLeod & Boynton introduced
+ * MacLeod–Boynton (MB) chromaticity — the cone-excitation diagram MacLeod & Boynton introduced
  * in 1979, plotting color as relative long- and short-wavelength cone excitation on a
  * constant-luminance plane. It isolates chromaticity at the cones themselves, not at the
  * tristimulus values a display uses.

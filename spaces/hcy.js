@@ -2,9 +2,8 @@
  * HCY — Hue, Chroma, Luma, a cylindrical color model devised by Kuzma Shapran and popularized
  * by Chilliant for real-time shader use. Unlike HSI or HSL, its Y channel is the color's
  * actual Rec. 601 luma rather than an average or extremum of the RGB channels, and chroma is
- * scaled to the largest chroma the hue can reach at that luma. The result is that two colors
- * with equal Y share a luma, which tracks brightness better than HSL's lightness or HSV's
- * value, though luma is not perceived lightness.
+ * scaled to the largest chroma the hue can reach at that luma. So Y tracks brightness better
+ * than HSL's lightness or HSV's value, though luma is not perceived lightness.
  *
  * @see {@link http://chilliant.blogspot.com/2012/08/rgbhcy-in-hlsl.html}
  * @year 2012

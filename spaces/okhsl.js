@@ -1,8 +1,8 @@
 /**
- * OkHSL is Björn Ottosson's 2021 hue-saturation-lightness remapping of Oklab for ordinary
+ * Okhsl is Björn Ottosson's 2021 hue-saturation-lightness remapping of Oklab for ordinary
  * color pickers. Saturation is rescaled per hue and lightness so 100% always lands on the sRGB
  * gamut edge, as in HSL; unlike HSL, built on gamma-encoded RGB, its lightness and hue track
- * perception. Its siblings are OkHSV and OkHWB.
+ * perception. Its siblings are Okhsv and Okhwb.
  *
  * @see {@link https://bottosson.github.io/posts/colorpicker/#okhsl}
  * @year 2021

@@ -1,7 +1,7 @@
 /**
  * IPT-PQ-C2 is Dolby's PQ-coded form of IPT, the signal of Dolby Vision profile 5,
  * standardized as SMPTE ST 2128. Rec. 2100 linear RGB goes to LMS through a
- * Hunt-Pointer-Estévez cone matrix with 2 % crosstalk, each cone is PQ-coded as in ICtCp, and
+ * Hunt–Pointer–Estévez cone matrix with 2 % crosstalk, each cone is PQ-coded as in ICtCp, and
  * Ebner and Fairchild's IPT matrix forms I, P and T. ST 2128 rules out mastering and
  * production interchange.
  *

@@ -11,7 +11,7 @@
  * @see {@link https://onlinemanual.insta360.com/lunaultra/en-us/operation-tutorials/shooting-preview/shooting-specs/i-log}
  * @year 2026
  * @by Insta360
- * @use Insta360's 10-bit I-Log cameras (X6, Luna Ultra), graded with its official I-Log LUTs.
+ * @use Footage from Insta360's 10-bit I-Log cameras (X6, Luna Ultra), graded with Insta360's official I-Log LUTs.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

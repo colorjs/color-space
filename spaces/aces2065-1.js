@@ -3,7 +3,7 @@
  * AP0 primaries that enclose the whole visible gamut, with a white near D60. Like ACEScg, it
  * stores scene-referred light linearly, with values far past nominal white to keep highlight
  * detail for later grading or rendering. AMPAS made it the long-term, camera-agnostic exchange
- * format for finished masters; day-to-day rendering uses ACEScg's smaller AP1 primaries.
+ * format for finished masters; day-to-day rendering uses ACEScg's smaller AP1 gamut.
  *
  * @see {@link https://docs.acescentral.com/encodings/aces2065-1/}
  * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACES2065-1}

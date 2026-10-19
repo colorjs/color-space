@@ -1,7 +1,7 @@
 /**
  * The Ohta color space, introduced by Yu-Ichi Ohta, Takeo Kanade and Toshiyuki Sakai in 1980,
  * decorrelates RGB into an intensity and two opponent chroma channels, chosen empirically to
- * approximate the Karhunen-Loève transform (the statistically optimal decorrelation) of
+ * approximate the Karhunen–Loève transform (the statistically optimal decorrelation) of
  * typical natural images. As an exact, invertible linear transform of RGB, it is cheap in both
  * directions while still packing most of an image's variance into one channel. In segmentation
  * of vegetation, fruit, flames and skin, that decorrelation makes thresholding more reliable

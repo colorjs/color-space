@@ -1,7 +1,7 @@
 /**
  * Rec. 2020 — the ITU-R BT.2020 standard for the gamut and transfer function of
  * ultra-high-definition television. Its curve keeps Rec. 709's piecewise shape; its far wider
- * primaries, close to the limits of human vision, are the target for 4K and 8K broadcast and
+ * gamut, close to the limits of human vision, is the target for 4K and 8K broadcast and
  * streaming.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020}

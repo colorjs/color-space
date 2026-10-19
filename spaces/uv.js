@@ -1,5 +1,5 @@
 /**
- * CIE 1976 UCS (u', v') — the more perceptually uniform successor to the 1960 chromaticity
+ * CIE 1976 UCS (u′, v′) — the more perceptually uniform successor to the 1960 chromaticity
  * diagram, standardized in CIE 15:2004. Equal distances on the u′v′ plane match equal
  * perceived color differences more closely than on CIE xy, which is why white-point tolerances
  * (Δu′v′) and colorimeter reports use it.

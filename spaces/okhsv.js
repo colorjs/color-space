@@ -1,5 +1,5 @@
 /**
- * OkHSV is Björn Ottosson's 2021 hue-saturation-value counterpart to OkHSL, built on Oklab.
+ * Okhsv is Björn Ottosson's 2021 hue-saturation-value counterpart to Okhsl, built on Oklab.
  * Saturation and value are shaped so the space forms a cone that fits exactly inside the sRGB
  * gamut. It keeps HSV's layout, with pure hues at full saturation and value, while lightness
  * and chroma underneath are perceptually even.

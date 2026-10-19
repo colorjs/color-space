@@ -1,5 +1,5 @@
 /**
- * The Kim-Weyrich-Kautz model is a color appearance model published at SIGGRAPH 2009 from
+ * The Kim–Weyrich–Kautz model is a color appearance model published at SIGGRAPH 2009 from
  * psychophysical data gathered at luminance levels up to 16,860 cd/m². It keeps CIECAM02's
  * CAT02 adaptation but feeds absolute cone signals through a sigmoid set by the adapting
  * luminance, then reads lightness through a media-dependent factor (LCD, transparency, CRT,

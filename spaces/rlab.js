@@ -2,7 +2,7 @@
  * RLAB is the color appearance model Mark Fairchild published in 1996 to predict how colors
  * reproduce across media and viewing conditions, such as matching a print to how the image
  * looked on a display. It adapts cone responses to a reference viewing condition with a von
- * Kries-style transform through Hunt-Pointer-Estévez fundamentals, then maps them into a
+ * Kries-style transform through Hunt–Pointer–Estévez fundamentals, then maps them into a
  * CIELAB-like lightness and opponent space, keeping CIELAB's structure while accounting for
  * the surround and adaptation effects plain CIELAB ignores. It was among the first appearance
  * models built for cross-media reproduction.
