@@ -1,15 +1,14 @@
 /**
  * S-Log2 — Sony's second log curve, a rescaled S-Log that captures more of the camera's
- * dynamic range and improves shadows. It shares the S-Gamut primaries with S-Log and S-Log3,
- * sitting between them in time and capability, and still appears in workflows built around
- * older Sony firmware.
+ * dynamic range and improves shadows. It shares the S-Gamut primaries with S-Log and S-Log3.
+ * Sony offers it beside S-Log3, not replaced by it, on many cameras, for finer gradation in
+ * the mid-to-high tones.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog2.html}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2012
  * @by Sony
  * @use Sony's second-generation cinema log (F65, F55 and F5 era).
- * @successor slog3 Sony moved to S-Log3, modeled on film's Cineon curve
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue
@@ -22,6 +21,8 @@
  * @dynamic hdr
  */
 // Implementation notes:
+// No @successor: Sony's S-Gamut3.Cine/S-Log3 technical FAQ (2014) answers "No" to S-Log3 succeeding
+// S-Log2, and its current support pages still offer both (Sony support article 00145908).
 // S-Gamut shares S-Gamut3's primaries; matrix in sgamut3.js. Wraps base S-Log with a
 // 155/219 scene scaling and the in-reflection (÷0.9) + legal-range code-value
 // convention. 18% grey → 0.3395.

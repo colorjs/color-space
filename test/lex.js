@@ -48,7 +48,7 @@ test('lex: every plate the page ships – tokens inside their text, in order, ne
 	const page = readFileSync(new URL('../web/index.html', import.meta.url), 'utf8')
 	const text = (h) => h.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
 	const plates = [...page.matchAll(/<pre(?: data-lang="(\w+)")?>([\s\S]*?)<\/pre>/g)].map(([, g, h]) => [text(h), g])
-	is(plates.length >= 9, true, `the Usage plates (${plates.length})`)
+	is(plates.length >= 8, true, `the Usage plates (${plates.length}) – the plugin and the extension have store buttons, no plates`)
 	for (const [src, g] of plates) {
 		const t = lex(src, g)
 		is(t.every(([a, b], i) => a >= 0 && b > a && b <= src.length && (i === 0 || a >= t[i - 1][1])), true, `${src.slice(0, 30).replace(/\n/g, ' ')}…: ${t.length} tokens, well-formed`)

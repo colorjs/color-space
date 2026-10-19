@@ -21,6 +21,8 @@
  * @dynamic hdr
  */
 // Implementation notes:
+// Cineon-derived, as @use says: colour-science's T-Log cites FilmLight (Siragusano 2018) for "a cineon
+// driven log tone-curve", similar to Cineon's LogC function.
 // Constants derive from w=128 (linear value mapping to 1.0), g=16 (gradient at 0),
 // o=0.075 (offset at 0). 18% grey → 0.3966. Gamut: E-Gamut, matrix in egamut.js.
 import xyz from './xyz.js';

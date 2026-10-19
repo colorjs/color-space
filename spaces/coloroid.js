@@ -12,7 +12,7 @@
  * @use Architectural and urban color planning; standardized as MSZ 7300, still used in Hungary.
  * @channel {A} 10 77 Hue grade
  * @channel {T} 0 100 Saturation
- * @channel {V} 0 100 Luminosity
+ * @channel {V} 0 100 Lightness
  * @method system
  * @encoding perceptual
  * @illuminant D65
@@ -221,7 +221,7 @@ var y0 = Yn / (Xn + Yn + Zn);
  */
 xyy.coloroid = function (x, y, Y) {
 	// Input: x/y chromaticity, Y luminance (0-100)
-	// coloroid luminosity is the same as hunter-lab lightness
+	// coloroid lightness V is the same as hunter-lab lightness L
 	// V = 10*sqrt(Y) where Y is in 0-100 range
 	var V = 10 * Math.sqrt(Y);
 

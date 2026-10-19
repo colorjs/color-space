@@ -1908,7 +1908,7 @@ test('historical — the catalog reads the library: replaced (@successor) or ret
 	const { HISTORICAL, ending, run } = await import('../web/js/render.js')
 	is([...HISTORICAL].sort(), Object.keys(meta).filter(n => meta[n].successor || meta[n].retired).sort(), 'historical = replaced ∪ retired')
 	is(HISTORICAL.has('ryb'), false, 'RYB, still taught (its own @use), is not historical')
-	is([run('slog2'), ending('slog2').by], ['2012–2014', 'slog3'], 'a replaced space runs to its successor’s year')
+	is([run('slog'), ending('slog').by], ['2008–2012', 'slog2'], 'a replaced space runs to its successor’s year')
 	is([run('panalog'), ending('panalog').y, !!ending('panalog').why], ['2005', undefined, true], 'a retired one keeps its year alone, and says why')
 	is(ending('oklab'), null, 'a current space has no ending')
 	is([run('anlab', true), run('cmy', true), run('cie-rgb')], ['1942–76', '1868–1906', '1931'], 'a card shortens an end year within its century; one replaced the year it came reads that year alone')
