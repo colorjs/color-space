@@ -40,6 +40,7 @@ import { scanCode } from '../plugins/vscode/src/code.js'
 import { scanData } from '../plugins/vscode/src/data.js'
 import { readAse } from '../plugins/vscode/src/ase.js'
 import { mock, requireWith } from './vscode-mock.js'
+import { declarations } from '../plugins/figma/build.js'
 
 const dir = fileURLToPath(new URL('../plugins/vscode/', import.meta.url))
 execFileSync(process.execPath, [dir + 'build.js'], { stdio: 'inherit' })
@@ -274,6 +275,16 @@ const oklabOf = l => space[l.space].oklab(...l.v)
 
 /* ---------- 2. the extension ---------- */
 
+// the panel's tokens, read from web/tokens.css (plugins/figma/build.js declarations): a value runs to its own ';' – a data:
+// URL's ';', a string's, a function's are inside it – or to the block's end; none, nothing
+{
+	const d = declarations('\t--a:1px;\n\t--checker:url(data:image/png;base64,AA==) 0 0/12px var(--panel);   /* a; b */\n\t--q:"x;y";\n\t--f:calc(1px + min(2px, 3px));\n\t--last: 4px ')
+	ok(JSON.stringify([...d]) === JSON.stringify([['--a', '1px'], ['--checker', 'url(data:image/png;base64,AA==) 0 0/12px var(--panel)'], ['--q', '"x;y"'], ['--f', 'calc(1px + min(2px, 3px))'], ['--last', '4px']]), `tokens read whole, a data: URL's ';' kept: ${JSON.stringify([...d])}`)
+	ok(declarations('').size === 0 && declarations('\tcolor: red;').size === 0, 'no custom property, nothing read')
+	const e = declarations('\t--e:"a\\";b";\n\t--f:x\\;y;\n\t--g:1')
+	ok(JSON.stringify([...e]) === JSON.stringify([['--e', '"a\\";b"'], ['--f', 'x\\;y'], ['--g', '1']]), `an escaped quote or ';' kept, a lone value to its end: ${JSON.stringify([...e])}`)
+}
+
 // the manifest: the panel in a container of its own in the secondary side bar (a VS Code without that container moves
 // it to the Explorer); every %key% it names in package.nls.json, every translation's key one of those; each l10n bundle
 // keyed by a message src/extension.js asks for; the package carries them
@@ -411,6 +422,12 @@ try {
 		ok(await s.page.locator('#notes').innerText() === 'Dots are the other colors and image pixels.', `the notes, said to screen readers, in VS Code's words: ${await s.page.locator('#notes').innerText()}`)
 		ok(await s.page.locator('#grip').isHidden(), 'no size grip: the sidebar sets the width')
 		ok(await s.page.locator('#drop').isVisible() === await s.page.evaluate(() => 'EyeDropper' in window), 'the eyedropper wherever the webview has one (VS Code\'s has)')
+		// the panel's spacing and type scale resolve, and the checker's data: URL is whole: a token read to the first ';' once cut
+		// that URL short (web/tokens.css --checker), and its open url( swallowed every spacing token after it
+		const scale = await s.page.evaluate(() => { const r = getComputedStyle(document.documentElement), css = [...document.querySelectorAll('style')].map(e => e.textContent).join('\n')
+			const names = [...new Set([...css.matchAll(/(--(?:s\d+|t\d|space-[\w-]+))\s*:/g)].map(m => m[1]))]
+			return { names: names.length, empty: names.filter(k => !r.getPropertyValue(k).trim()), checker: /^url\(data:image\/png;base64,[\w+/=]+\) /.test(r.getPropertyValue('--checker').trim()) } })
+		ok(scale.names >= 10 && !scale.empty.length && scale.checker, `the spacing and type scale resolve, the checker's data: URL whole: ${JSON.stringify(scale)}`)
 		ok(await s.page.locator('#spq').evaluate(q => q.scrollWidth <= q.clientWidth + 1) && await s.page.locator('#cells input').evaluateAll(xs => xs.every(c => c.scrollWidth <= c.clientWidth + 1)), 'in the workbench\'s face too, the space\'s name and every value fit')
 		ok(!(await s.page.content()).includes('font-family:Inter;') && /-apple-system/.test(await s.page.evaluate(() => getComputedStyle(document.body).fontFamily)), 'VS Code: the workbench\'s face, Inter not bundled')
 		ok(await s.page.locator('#marks .dm').count() >= 5, `the other colors are dots: ${await s.page.locator('#marks .dm').count()}`)

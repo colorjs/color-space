@@ -8,7 +8,7 @@
  * @see {@link https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf}
  * @year 2017
  * @by RED Digital Cinema
- * @use Scene-linear camera gamut beneath Log3G10 and Log3G12 for RED footage in VFX and grading; current on RED's IPP2 cameras.
+ * @use Scene-linear gamut under Log3G10 and Log3G12 for VFX and grading on RED's IPP2 cameras.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

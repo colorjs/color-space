@@ -9,7 +9,7 @@
  * @see {@link https://doi.org/10.1002/col.10066}
  * @year 2002
  * @by Cui, Luo, Rigg, Roesler & Witt
- * @use Euclidean color-difference evaluation (blue-corrected DIN99 variant); research, not part of DIN 6176.
+ * @use Euclidean color-difference research; not part of DIN 6176.
  * @channel {L} 0 100 Lightness
  * @channel {a} -40 50 Green-Red axis
  * @channel {b} -50 50 Blue-Yellow axis

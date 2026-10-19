@@ -1,15 +1,13 @@
 /**
- * Absolute XYZ (D65) — CIE XYZ expressed in real physical units, candela per square
- * meter, instead of the usual 0-100 relative scale. Relative XYZ only says how a color
- * compares to a normalized white; absolute XYZ ties every value to an actual measurable
- * brightness, which HDR workflows need since the same relative color can sit at very
- * different real-world luminances. The two scales meet at ITU-R BT.2100's HDR reference
- * white.
+ * Absolute XYZ (D65) — CIE XYZ in candela per square meter instead of the usual relative 0–100
+ * scale. Relative XYZ only compares a color to a normalized white; absolute XYZ ties each
+ * value to measurable luminance, which HDR needs, since one relative color can sit at very
+ * different real luminances. The two scales meet at ITU-R BT.2100's HDR reference white.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @year 2016
  * @by ITU-R
- * @use Absolute-luminance XYZ anchored to BT.2100's 203 cd/m² HDR reference white; current HDR analysis tooling.
+ * @use HDR analysis tools; anchored to BT.2100's 203 cd/m² reference white.
  * @channel {Xa} 0 192.9 Absolute X
  * @channel {Ya} 0 203 Absolute Y
  * @channel {Za} 0 221.1 Absolute Z

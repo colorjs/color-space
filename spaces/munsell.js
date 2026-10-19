@@ -1,21 +1,16 @@
 /**
- * The Munsell color system was devised by the American painter and art teacher
- * Albert Munsell around 1905 as a way to organize colors by how they actually look,
- * rather than by how pigments mix or lights combine. It arranges every color along
- * three perceptually spaced axes — hue, value (lightness) and chroma (saturation) —
- * notated like "5R 5/10" for hue 5R, value 5, chroma 10, so that equal numerical
- * steps in any one axis look equally spaced to the eye. The system was later refined
- * through extensive visual experiments into the 1943 Munsell Renotation, the dataset
- * still used today as its authoritative reference. It remains a standard for
- * perceptually meaningful color specification in fields such as soil science,
- * geology, and paint and pigment matching.
+ * The Munsell color system was devised by the American painter and art teacher Albert Munsell
+ * around 1905 to order colors by how they look, not by how pigments mix or lights combine. Its
+ * three axes are hue, value (lightness) and chroma, spaced so equal steps along any one look
+ * equal; a color is written “5R 5/10” for hue 5R, value 5, chroma 10. Visual experiments
+ * refined it into the 1943 Munsell Renotation, still its authoritative reference dataset.
  *
  * @see {@link https://www.rit.edu/science/munsell-color-science-lab-educational-resources}
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.20715} Centore 2012 (inversion)
  * @wiki {@link https://en.wikipedia.org/wiki/Munsell_color_system}
  * @year 1905
  * @by Albert H. Munsell (renotation OSA)
- * @use Perceptual color-order system for soil, geology, and pigment/paint specification; still an active industry standard.
+ * @use Soil, geology and pigment/paint specification; still an active industry standard.
  * @channel {H} 0 100 Hue
  * @channel {V} 0 10 Value
  * @channel {C} 0 38 Chroma

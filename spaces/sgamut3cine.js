@@ -1,17 +1,16 @@
 /**
- * S-Gamut3.Cine — Sony's cinema variant of S-Gamut3, carried here with its paired
- * S-Log3 curve the way cameras record it (menu name "S-Gamut3.Cine/S-Log3"). Its
- * primaries are pulled in toward DCI-P3 — a gamut designed after negative film,
- * slightly wider than the P3 target — so footage grades to DCI-P3 or Rec.709 with
- * less correction than full S-Gamut3 needs. That convenience made it the common
- * pick on Alpha and FX-line cameras when a production skips a heavy grade; full
- * S-Gamut3 (see slog3) remains the wide-archive choice.
+ * S-Gamut3.Cine — Sony's cinema variant of S-Gamut3, carried here with the S-Log3 curve it is
+ * recorded with (menu name “S-Gamut3.Cine/S-Log3”). Sony designed it to resemble a
+ * negative-film scan and to sit slightly wider than DCI-P3, so footage grades to DCI-P3 or
+ * Rec. 709 with less correction than full S-Gamut3 needs. That made it the common pick on
+ * Alpha and FX-line cameras when a production skips a heavy grade; full S-Gamut3 (see slog3)
+ * stays the wide-archive choice.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.RGB_COLOURSPACE_S_GAMUT3_CINE.html}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2014
  * @by Sony
- * @use S-Log3 recording on the narrower S-Gamut3.Cine primaries; Sony's common cine setting for P3/709-bound grades.
+ * @use Sony's common cine setting for grades bound for P3 or 709, recorded with S-Log3.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

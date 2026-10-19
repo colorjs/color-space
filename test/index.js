@@ -1849,7 +1849,7 @@ test('hct: Material viewing conditions (vs colorjs.io)', () => {
 		is(space.hct.rgb(...space.rgb.hct(...c)).map(round(0)), c, `roundtrip ${c}`);
 });
 
-test('hsm: D(m) bounds S to 100 (Bianconi 2009)', () => {
+test('hsm: D(m) bounds S to 100 (Severino & Gonzaga 2009)', () => {
 	is(space.rgb.hsm(255, 0, 0).map(round(4)), [0, 100, 57.1429]);
 	// the bug: S exceeded 100 (was 106.3% for [30,255,255]); now bounded
 	let smax = 0; for (let r = 0; r <= 255; r += 17) for (let g = 0; g <= 255; g += 17) for (let b = 0; b <= 255; b += 17) smax = Math.max(smax, space.rgb.hsm(r, g, b)[1]);

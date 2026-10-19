@@ -1,15 +1,13 @@
 /**
  * hdr-CIELAB — Fairchild & Wyble's 2010/2011 extension of CIELAB to high-dynamic-range
- * imagery. CIELAB's cube-root lightness response was fit to ordinary display luminance
- * and breaks down across HDR's wider range, so hdr-CIELAB substitutes a Michaelis-Menten
- * response whose exponent adapts to scene luminance, in the spirit of human visual
- * adaptation. It keeps CIELAB's familiar L*, a* and b* lightness and red-green/yellow-blue
- * structure while extending it to HDR content.
+ * imagery. CIELAB's cube-root lightness response was fit to ordinary display luminance and
+ * breaks down over HDR's wider range, so hdr-CIELAB swaps in a Michaelis–Menten response whose
+ * exponent adapts to scene luminance, echoing the eye's own adaptation.
  *
  * @see {@link https://library.imaging.org/cic/articles/18/1/art00057} Fairchild & Wyble 2010
  * @year 2010
  * @by Mark Fairchild & Garrett Wyble
- * @use HDR-adapted CIELAB for wide-luminance-range image-difference work; academic, superseded in practice by ICtCp/Jzazbz.
+ * @use Image-difference work across wide luminance ranges; academic.
  * @successor ictcp HDR image-difference work moved to HDR-native spaces such as ICtCp and Jzazbz
  * @channel {L} 0 100 Lightness
  * @channel {a} -100 100 Red-Green

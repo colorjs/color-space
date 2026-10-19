@@ -1,16 +1,14 @@
 /**
- * MacLeod-Boynton (MB) chromaticity — the cone-excitation diagram MacLeod & Boynton
- * introduced in 1979, plotting color as relative long- and short-wavelength cone
- * excitation on a constant-luminance plane. Isolating chromaticity at the level of the
- * cones themselves, rather than at the tristimulus values a display uses, made it the
- * foundation of the DKL cardinal-axis space and a staple of chromatic-discrimination
- * research in vision science.
+ * MacLeod-Boynton (MB) chromaticity — the cone-excitation diagram MacLeod & Boynton introduced
+ * in 1979, plotting color as relative long- and short-wavelength cone excitation on a
+ * constant-luminance plane. It isolates chromaticity at the cones themselves, not at the
+ * tristimulus values a display uses.
  *
  * @see {@link https://doi.org/10.1364/JOSA.69.001183} MacLeod & Boynton 1979
  * @see {@link http://www.cvrl.org/database/text/ccs/spmb.htm} CVRL Smith-Pokorny MB coordinates
  * @year 1979
  * @by Donald MacLeod & Robert Boynton
- * @use Cone-excitation chromaticity diagram for chromatic-discrimination vision research; academic, foundation of the DKL space.
+ * @use Chromatic-discrimination research; the foundation of the DKL space.
  * @channel {l} 0.4 1 Red-green chromaticity
  * @channel {s} 0 1 Tritan chromaticity
  * @channel {Y} 0 100 Luminance

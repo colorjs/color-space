@@ -1,16 +1,14 @@
 /**
- * IHLS, Improved HLS, is a 3D-polar remapping of RGB introduced by Allan Hanbury in
- * 2003, building on a 2002 technical report with Jean Serra. Hue is the exact angle in
- * the chromatic plane, saturation is max(R,G,B) − min(R,G,B) and brightness is Rec. 709
- * weighted luma. Saturation therefore stays small for every near-gray and does not depend
- * on brightness, whereas HLS divides by lightness and can call a near-black color fully
- * saturated. It was designed for image analysis: hue statistics, saturation-weighted hue
- * histograms and color morphology.
+ * IHLS, Improved HLS, is a 3D-polar remapping of RGB introduced by Allan Hanbury in 2003,
+ * building on a 2002 technical report with Jean Serra. Hue is the exact angle in the chromatic
+ * plane, saturation is max(R,G,B) − min(R,G,B) and brightness is Rec. 709 weighted luma.
+ * Saturation therefore stays small for every near-gray and does not depend on brightness,
+ * whereas HLS divides by lightness and can call a near-black color fully saturated.
  *
  * @see {@link https://doi.org/10.1007/3-540-45103-X_107} Hanbury 2003, Image Analysis (SCIA 2003, Springer LNCS), 804-811
  * @year 2003
  * @by Hanbury
- * @use Hue/saturation features for image analysis and color morphology; research niche.
+ * @use Image analysis and color morphology; research niche.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {Y} 0 1 Luma
  * @channel {S} 0 1 Saturation (max − min)

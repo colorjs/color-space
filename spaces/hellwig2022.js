@@ -1,18 +1,16 @@
 /**
- * The Hellwig-Fairchild model, published in 2022, is the CIE-recommended refinement
- * of CAM16 and the mathematical basis of CIECAM16 (CIE 248:2022). It keeps CAM16's
- * chromatic-adaptation transform, opponent-color dimensions, and lightness correlate
- * largely intact, but revises the achromatic response and brightness equations for
- * more consistent behavior across the model's full range. Like CAM16 it reports
- * lightness, colorfulness, and hue as its core correlates — a close drop-in
- * successor wherever a CIE-endorsed appearance model is called for.
+ * The Hellwig–Fairchild model, published in 2022, is a proposed refinement of CAM16, the model
+ * the CIE adopted as CIECAM16 (CIE 248:2022). It keeps CAM16's chromatic-adaptation transform,
+ * opponent-color dimensions and lightness correlate largely intact, and makes brightness a
+ * linear function of lightness, with revised chroma, colorfulness and saturation equations to
+ * match.
  *
  * @see {@link https://doi.org/10.1002/col.22792} Hellwig & Fairchild 2022
  * @year 2022
  * @by Luke Hellwig & Mark Fairchild
- * @use CIE-recommended color-appearance model succeeding CAM16; current mathematical basis of CIECAM16 (CIE 248:2022).
+ * @use Color-appearance modeling as a proposed refinement of CAM16; a simplified form drives the JMh space of ACES 2's output transform.
  * @channel {J} 0 100 Lightness
- * @channel {M} 0 60 Colourfulness
+ * @channel {M} 0 60 Colorfulness
  * @channel {h} 0 360 Hue angle
  * @method appearance
  * @encoding perceptual

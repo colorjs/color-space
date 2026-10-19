@@ -8,7 +8,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/YCbCr}
  * @year 1982
  * @by ITU-R (CCIR)
- * @use Unambiguous 525-line/NTSC-family BT.601 limited-range Y′CbCr for SD video.
+ * @use NTSC-family SD video, as unambiguous BT.601 Y′CbCr.
  * @channel {Y} 16 235 Luma code value
  * @channel {Cb} 16 240 Blue-difference chroma code value
  * @channel {Cr} 16 240 Red-difference chroma code value

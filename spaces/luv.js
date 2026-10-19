@@ -1,19 +1,15 @@
 /**
- * CIE L*u*v* (CIELUV) is the CIE's 1976 companion to CIELAB, an alternative
- * attempt at perceptual uniformity built from a projected version of the CIE
- * chromaticity diagram rather than Lab's opponent differencing. Its defining
- * property is additivity: in its u′v′ chromaticity diagram (the CIE 1976 UCS), a
- * mixture of two lights falls on the straight line between them, something Lab's
- * a*b* plane cannot offer.
- * That has made LUV the traditional choice for additive-color contexts like
- * displays and stage lighting, while Lab remains dominant for reflective and print
- * color.
+ * CIE L*u*v* (CIELUV) is the CIE's 1976 companion to CIELAB, another attempt at perceptual
+ * uniformity, built from a projected version of the CIE chromaticity diagram instead of Lab's
+ * opponent differencing. Its defining property is additivity: in its u′v′ chromaticity diagram
+ * (the CIE 1976 UCS), a mixture of two lights falls on the straight line between them, which
+ * Lab's a*b* plane cannot offer.
  *
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2018
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV}
  * @year 1976
  * @by CIE
- * @use Additive-mixture-accurate perceptual space for displays and stage lighting; still used, less common than CIELAB.
+ * @use Displays and stage lighting; still used, less common than CIELAB.
  * @channel {L} 0 100 Lightness
  * @channel {U} -215 215 U chrominance
  * @channel {V} -215 215 V chrominance

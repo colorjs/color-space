@@ -1,16 +1,14 @@
 /**
- * Panalog — the log curve for the Panavision Genesis, a digital cinema camera
- * developed jointly with Sony and released in 2005. Modeled on Kodak's Cineon
- * printing-density curve with its own black and white reference points, it let
- * Genesis footage slot into film-style, Cineon-based post pipelines, much like
- * RED's REDLogFilm did later for RED footage. Panavision never published a native
- * color gamut for the format, so it's handled here as a curve over linear RGB
- * rather than a distinct primaries set.
+ * Panalog — the log curve of the Panavision Genesis, a digital cinema camera developed with
+ * Sony and released in 2005. Modeled on Kodak's Cineon printing-density curve with its own
+ * black and white points, it let Genesis footage drop into Cineon-based post pipelines, as
+ * RED's REDLogFilm later did for RED footage. Panavision never published a gamut for it, so
+ * here it is a curve over linear RGB.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Panalog.html}
  * @year 2005
  * @by Panavision / Sony
- * @use Log curve for the Panavision Genesis digital cinema camera; legacy/historical.
+ * @use Panavision Genesis digital cinema footage.
  * @retired Recorded only by the Panavision Genesis
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

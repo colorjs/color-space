@@ -1,17 +1,13 @@
 /**
- * CIE 1960 UCS is a uniform chromaticity space devised by MacAdam, an early
- * attempt to make equal distances on a chromaticity diagram correspond to equal
- * perceived color differences. It was extended into CIE 1964 U*V*W* by adding a
- * lightness dimension, then superseded outright by CIELUV in 1976. Its underlying
- * (u, v) chromaticity coordinates are still the basis for
- * correlated-color-temperature calculations today, which makes it more a piece of
- * color-science history than a working color space.
+ * CIE 1960 UCS is MacAdam's uniform chromaticity space, an early attempt to make equal
+ * distances on a chromaticity diagram match equal perceived color differences. Adding a
+ * lightness dimension extended it into CIE 1964 U*V*W*; CIELUV superseded it in 1976.
  *
  * @see {@link https://doi.org/10.1364/JOSA.27.000294} MacAdam 1937, JOSA 27, 294
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1960_color_space}
  * @year 1960
  * @by David MacAdam / CIE
- * @use Historical uniform chromaticity diagram, basis for correlated-color-temperature calculations; superseded by CIE 1976 u'v'.
+ * @use Correlated-color-temperature calculations.
  * @successor uv The CIE stretched its v axis by 1.5 for better uniformity: u′v′
  * @channel {U} 0 64 U coordinate
  * @channel {V} 0 100 V coordinate

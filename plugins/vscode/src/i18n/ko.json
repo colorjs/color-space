@@ -44,8 +44,8 @@
     "h": "aa15a325"
   },
   "nls:description": {
-    "t": "파일의 모든 색을 한 평면에서, OKLCH, HCT, CAM16, Display P3 등 205개 색공간 중 어느 것으로든 다룹니다. CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, 디자인 토큰, 테마, 팔레트의 색은 각자의 표기로 다시 씁니다.",
-    "h": "d583de89"
+    "t": "코드의 색을 OKLCH, Display P3 등 205개 색공간 어디에서나 편집합니다.",
+    "h": "9504e8f3"
   },
   "nls:gamut.description": {
     "t": "더 넓은 색역의 색을 나타낼 수 있는 표기(`oklch()`, `lab()`, `color(display-p3 …)` 등)에서 색 선택기가 쓰는 색역입니다. `#hex`, `rgb()`, `hsl()`, `hwb()`는 항상 sRGB 안으로 씁니다.",

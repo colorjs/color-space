@@ -9,7 +9,7 @@
  * @see {@link https://doi.org/10.1364/OE.510196} Li & Luo 2024, Opt. Express 32(3), 3100-3122
  * @year 2024
  * @by Li & Luo
- * @use Lightweight appearance correlates (lightness, colorfulness, hue) on top of sUCS; new/emerging.
+ * @use Lightweight appearance correlates.
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 25 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

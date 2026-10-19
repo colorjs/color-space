@@ -1,15 +1,13 @@
 /**
- * Yrg — Richard Kirk's 2019 luminance/chromaticity space, built at FilmLight on CIE 2006
- * cone fundamentals and tuned so that hues land at even spacing around the wheel,
- * matching the classical Munsell color order. Y carries cone-weighted luminance while r
- * and g are chromaticity coordinates derived affinely from the cone responses,
- * separating "how bright" from "what hue and how saturated" in a way suited to color
- * grading. It's the chromaticity basis of darktable's color-balance module.
+ * Yrg — Richard Kirk's 2019 luminance/chromaticity space, built at FilmLight on CIE 2006 cone
+ * fundamentals and tuned so hues sit evenly around the wheel, matching the classical Munsell
+ * order. Y is cone-weighted luminance; r and g are chromaticity coordinates derived affinely
+ * from the cone responses, which keeps brightness apart from hue and saturation.
  *
  * @see {@link https://doi.org/10.2352/issn.2169-2629.2019.27.38} Kirk 2019
  * @year 2019
  * @by Richard Kirk
- * @use Luminance/chromaticity space for color grading, basis of darktable's color-balance module; current, niche.
+ * @use Color grading, as the basis of darktable's color-balance module; niche.
  * @channel {Y} 0 1.06 Luminance
  * @channel {r} 0.02 0.64 Red chromaticity
  * @channel {g} 0.21 0.78 Green chromaticity

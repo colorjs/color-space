@@ -94,7 +94,9 @@ const entTip = s => { const p = PURPOSE[s]?.[0]; return attr([lede(s) || (p && c
 const entHead = s => attr([meta[s].by, run(s)].filter(Boolean).join(', '))   // the maker whole – the card's line shortens it, and a narrow card cuts it – and the year
 const entTags = s => [...['geo', 'curve', 'sig', 'range'].map(k => { const v = KIND[k](s); return v && `${kindKey(v)}|${cap(tagL(k === 'sig' ? v + '-referred' : v))}` }), meta[s].illuminant && `|${tagL(meta[s].illuminant)}`].filter(Boolean).join(' · ')
 // a lead card's story – the lore's "made for" line in the page's language, as a sentence
-const lede = s => { const f = LORE[s]?.for; if (!f) return ''; const x = cap(t(`lore.${s}.for`, f)); return /[.!?…]$/.test(x) ? x : x + '.' }
+// a fragment closed as a sentence, with the language's own full stop – 。 in ja and zh-Hans, । in hi
+export const close = x => /[.!?…。！？।؟]$/u.test(x) ? x : x + ({ ja: '。', 'zh-Hans': '。', hi: '।' }[LANG] || '.')
+const lede = s => { const f = LORE[s]?.for; if (!f) return ''; return close(cap(t(`lore.${s}.for`, f))) }
 // the maker, short (no asides in parentheses; past two names, the first et al.), then the year – the year ends the line,
 // at the card's corner; a maker still too long gives way (ellipsis), the year never. The whole maker is the tip's
 const shortBy = by => { const x = by.replace(/\s*\([^)]*\)/g, '').trim(), n = x.split(/\s*[,&;]\s*/); return n.length > 2 ? `${n[0]} et al.` : x }

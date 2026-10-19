@@ -1,20 +1,17 @@
 /**
- * The lαβ color space was introduced by Ruderman, Cronin and Chiao in 1998 to
- * decorrelate natural-scene color statistics, and became widely known as the working
- * space behind Reinhard et al.'s 2001 color-transfer technique. It converts RGB into
- * LMS cone responses, takes their logarithm to compress the eye's wide dynamic range
- * the way the visual system itself does, and then rotates the result into three
- * near-uncorrelated axes: l for achromatic lightness, α for the yellow-blue axis, and
- * β for the red-green axis. Because natural images tend to vary almost independently
- * along these three axes, shifting one image's per-channel mean and spread to match
- * another's — entirely in lαβ — transfers the color mood of one photograph onto
- * another with minimal cross-channel artifacts.
+ * lαβ is the color space Ruderman, Cronin and Chiao introduced in 1998 to decorrelate
+ * natural-scene color statistics, best known as the working space of Reinhard et al.'s 2001
+ * color transfer. It converts RGB to LMS cone responses, takes their logarithm to compress
+ * dynamic range as the visual system does, then rotates them into three near-uncorrelated
+ * axes. Because natural images vary almost independently along these axes, matching one
+ * image's per-channel mean and spread to another's transfers the color mood of one photograph
+ * onto the other with minimal cross-channel artifacts.
  *
  * @see {@link https://doi.org/10.1109/38.946629} Reinhard et al. 2001; Ruderman et al. 1998
  * @year 1998
  * @by Ruderman, Cronin & Chiao
- * @use Natural-image color-statistics decorrelation for color transfer between photographs; still used in image-processing research (popularized by Reinhard et al. 2001).
- * @channel {l} -6 0 log-luminance
+ * @use Color transfer between photographs; still used in image-processing research, popularized by Reinhard et al. (2001).
+ * @channel {l} -6 0 Log luminance
  * @channel {α} -1 0.9 Yellow-Blue
  * @channel {β} -0.21 0.21 Red-Green
  * @method opponent

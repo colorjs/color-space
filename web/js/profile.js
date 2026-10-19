@@ -51,6 +51,7 @@ export const CURVES = {
 	g18:    { name: 'Pure gamma', x: 'V ** 1.8', f: E => E**1.8 },
 	g22:    { name: 'Pure gamma', x: 'V ** 2.2', f: E => E**2.2 },
 	g26:    { name: 'Pure gamma', spec: 'SMPTE RP 431-2', x: 'V ** 2.6', f: E => E**2.6 },
+	g28:    { name: 'Pure gamma', spec: 'ITU-R BT.470-6', x: 'V ** 2.8', f: E => E**2.8 },
 	romm:   { name: 'ROMM piecewise', spec: 'ISO 22028-2', x: 'V < 0.03125 ? V / 16 : V ** 1.8',
 		f: E => E < 16/512 ? E/16 : E**1.8 },
 	rimm:   { name: 'RIMM scene curve', spec: 'ISO 22028-3', x: 's * V < 0.081 ? s * V / 4.5 : ((s * V + 0.099) / 1.099) ** (1 / 0.45)', k: { s: 1.4022786 },
@@ -74,11 +75,8 @@ export const CURVES = {
 	cineon: { name: 'Cineon printing density', spec: 'Kodak', x: '(10 ** ((1023 * V - 685) * 0.002 / 0.6) - b) / (1 - b)', k: { b: 0.0107977516 },
 		f: E => { const bo = 10**((95 - 685)*0.002/0.6); return (10**((E*1023 - 685)*0.002/0.6) - bo)/(1 - bo) } },
 }
-// pal is deliberately unmapped: the implementation carries pure γ 2.2 while ITU-R BT.470
-// nominates 2.8 for 625-line PAL — until that intent is settled in the library, printing
-// either number as verified reference would mislead.
 export const TRCMAP = { rgb: 'srgb', p3: 'srgb', rec709: 'bt709', rec2020: 'bt709', 'smpte-240m': 's240',
-	a98rgb: 'g22a', 'apple-rgb': 'g18', ntsc: 'g22', 'dci-p3': 'g26', prophoto: 'romm', rimm: 'rimm',
+	a98rgb: 'g22a', 'apple-rgb': 'g18', ntsc: 'g22', pal: 'g28', 'dci-p3': 'g26', prophoto: 'romm', rimm: 'rimm',
 	'rec2100-pq': 'pq', 'rec2100-hlg': 'hlg', logc3: 'logc3', slog3: 'slog3', acescc: 'acescc', acescct: 'acescct', cineon: 'cineon' }
 
 const TRCV = new Map()

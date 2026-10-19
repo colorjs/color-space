@@ -1,16 +1,14 @@
 /**
  * ERIMM RGB — Kodak's Extended Reference Input Medium Metric RGB, a log-encoded,
- * scene-referred format standardized in ISO 22028-3 as the extended-range member of
- * the ROMM/RIMM family. It shares the wide ROMM (ProPhoto) primaries and D50 white
- * point with ProPhoto RGB, but its logarithmic curve lets it hold a much larger
- * range of scene exposures — well beyond diffuse white — than a linear or
- * gamma-encoded format could, which suits archiving raw, high-dynamic-range
- * scene data.
+ * scene-referred format standardized in ISO 22028-3 as the extended-range member of the
+ * ROMM/RIMM family. It has ProPhoto RGB's wide primaries and D50 white, but its log curve
+ * holds scene exposures well beyond diffuse white, a much larger range than a linear or
+ * gamma-encoded format could hold.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3 / Spaulding et al. 2000
  * @year 2000
  * @by Kodak (Spaulding, Woolfe & Giorgianni)
- * @use Archival log scene-referred encoding for raw HDR scene data; niche/historical, part of the Kodak ROMM/RIMM family.
+ * @use Log archives of raw HDR scene data; niche and historical, one of Kodak's ROMM/RIMM family.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

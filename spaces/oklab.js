@@ -1,18 +1,15 @@
 /**
- * Oklab is Björn Ottosson's 2020 perceptual color space, created as a practical
- * replacement for CIELAB in graphics and design work. It models color starting from
- * how the eye's cone cells respond to light, then reshapes that signal so equal
- * numeric steps correspond to equal perceived change in lightness, hue and chroma.
- * That uniformity avoids the hue drift and desaturation that CIELAB and HSL produce
- * when interpolating between colors, which is why Oklab now underlies CSS Color 4's
- * oklab() and oklch() functions and much of the tooling built for gradients and
- * palette generation.
+ * Oklab is Björn Ottosson's 2020 perceptual color space, a practical replacement for CIELAB in
+ * graphics and design work. It starts from how the eye's cone cells respond to light, then
+ * reshapes that signal so equal numeric steps look like equal changes in lightness, hue and
+ * chroma. Interpolating in it avoids the hue drift and desaturation that CIELAB and HSL
+ * produce.
  *
  * @see {@link https://bottosson.github.io/posts/oklab/}
  * @wiki {@link https://en.wikipedia.org/wiki/Oklab_color_space}
  * @year 2020
  * @by Björn Ottosson
- * @use Perceptual color space for gradients and design tooling; current, underlies CSS Color 4's oklab()/oklch().
+ * @use Gradients and design tooling; underlies CSS Color 4's oklab() and oklch().
  * @channel {L} 0 1 Lightness
  * @channel {a} -0.4 0.4 Green-Red axis
  * @channel {b} -0.4 0.4 Blue-Yellow axis

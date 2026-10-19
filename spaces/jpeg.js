@@ -1,11 +1,9 @@
 /**
- * The full-range YCbCr color space defined for JPEG still-image compression (ITU-T
- * T.871 / JFIF), also called PC-range or full-swing YCbCr. Unlike broadcast YCbCr —
- * which reserves the extremes of its 8-bit range as headroom and footroom for analog
- * signal overshoot — JPEG YCbCr uses the full 0-255 range on all three channels,
- * matching how still images are stored and displayed on computers. Y carries luma
- * while Cb and Cr are blue-difference and red-difference chroma, using the same
- * BT.601-derived coefficients as standard-definition video.
+ * JPEG YCbCr is the full-range YCbCr color space defined for JPEG still-image compression
+ * (ITU-T T.871 / JFIF), also called PC-range or full-swing YCbCr. Broadcast YCbCr reserves the
+ * ends of its 8-bit range as headroom and footroom for analog signal overshoot; JPEG YCbCr
+ * uses the full 0–255 range on all three channels, as computers store and display still
+ * images. Its coefficients are derived from BT.601, as in standard-definition video.
  *
  * @module  color-space/jpeg
  *
@@ -13,7 +11,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/YCbCr#JPEG_conversion}
  * @year 1992
  * @by Eric Hamilton / C-Cube Microsystems (JFIF)
- * @use Full-range YCbCr for JPEG/JFIF still-image storage; current, ubiquitous (later formalized as ITU-T T.871).
+ * @use JPEG/JFIF still images; formalized later as ITU-T T.871.
  * @channel {Y} 0 255 Luma
  * @channel {Cb} 0 255 Blue-difference chroma
  * @channel {Cr} 0 255 Red-difference chroma

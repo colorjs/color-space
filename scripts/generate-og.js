@@ -56,7 +56,7 @@ body{ overflow:hidden }
 .ow .facts .pdm{ width:1.1em; text-align:center; rotate:180deg; font-weight:500 }
 </style><body style="--cur:${HUES}"><div class="mtop"></div>
 <section class="hero"><div class="og">${heroLocus('', 'Surface', 'Light').replace('class="hlocus"', 'class="hlocus lit"')}
-<div class="ow"><p class="kick">A reference guide</p><h1 class="hh">color-space.io</h1>
+<div class="ow"><p class="kick">A guide</p><h1 class="hh">color-space.io</h1>
 <p class="sl"><span>Open atlas of color spaces: from web to print,</span><span>pickers to research, ${Y.y0} to ${Y.y1}.</span></p>
 <ul class="facts"><li>${spaceCount} spaces</li><li>${shield}verified</li><li><span class="pdm" aria-hidden="true">©</span>public domain</li></ul></div></div></section>
 <script type="module">

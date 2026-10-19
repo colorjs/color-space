@@ -1,18 +1,14 @@
 /**
- * CIE 1964 U*V*W* is Wyszecki's extension of the CIE 1960 UCS chromaticity diagram
- * into a full three-dimensional color space, adding a cube-root lightness
- * dimension on top of the earlier system's uniform chromaticity coordinates. It
- * was one of several perceptual color spaces proposed during the 1960s, all
- * trying to make Euclidean distance track perceived color difference better than
- * raw XYZ did. CIELUV superseded it outright in 1976, so today it's mainly of
- * historical interest, marking the transition between the 1960 chromaticity
- * diagram and the modern CIE 1976 spaces.
+ * CIE 1964 U*V*W* is Wyszecki's extension of the CIE 1960 UCS diagram into three dimensions,
+ * adding a cube-root lightness axis over the earlier uniform chromaticity coordinates. It was
+ * one of several 1960s spaces trying to make Euclidean distance track perceived color
+ * difference better than raw XYZ did.
  *
  * @see {@link https://doi.org/10.1364/JOSA.53.001318} Wyszecki 1963, JOSA 53, 1318
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1964_color_space}
  * @year 1964
  * @by Günther Wyszecki / CIE
- * @use 3-D extension of CIE 1960 UCS; superseded by CIELUV in 1976, now historical only.
+ * @use 3-D extension of CIE 1960 UCS.
  * @successor luv The CIE adopted CIELUV, built on the improved u′v′ diagram
  * @channel {U} -85 175 U* chrominance
  * @channel {V} -90 75 V* chrominance

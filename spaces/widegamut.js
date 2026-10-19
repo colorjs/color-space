@@ -1,16 +1,15 @@
 /**
- * Adobe Wide Gamut RGB – a Photoshop working space from Adobe Systems whose primaries sit
- * on or near the spectral locus at 700, 525 and 450 nm, referenced to D50. It encloses
- * 77.6% of the CIELAB gamut in Lindbloom's comparison, against 50.6% for Adobe RGB
- * (1998), so it keeps saturated film and print colors that smaller spaces clip. The price
- * is coarse 8-bit steps and about 8% of code values that encode no real color, so 16-bit
- * editing is recommended. It shares Adobe RGB (1998)'s 563/256 power-law encoding.
+ * Adobe Wide Gamut RGB – a Photoshop working space from Adobe Systems whose primaries sit on
+ * or near the spectral locus at 700, 525 and 450 nm, referenced to D50. It encloses 77.6% of
+ * the CIELAB gamut in Lindbloom's comparison, against 50.6% for Adobe RGB (1998), so it keeps
+ * saturated film and print colors that smaller spaces clip. It shares Adobe RGB (1998)'s
+ * 563/256 power-law encoding.
  *
  * @see {@link https://www.babelcolor.com/index_htm_files/A%20review%20of%20RGB%20color%20spaces.pdf} Pascale (2003), A Review of RGB Color Spaces, Table 5
  * @wiki {@link https://en.wikipedia.org/wiki/Wide-gamut_RGB_color_space}
  * @year 1998
  * @by Adobe Systems
- * @use Very wide Photoshop RGB working space for 16-bit photo editing; legacy.
+ * @use 16-bit photo editing; legacy.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

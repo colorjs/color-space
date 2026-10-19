@@ -1,17 +1,15 @@
 /**
- * YDbDr is the luma/chrominance encoding used by SECAM ("Séquentiel Couleur à
- * Mémoire"), the analog color television standard developed in France and adopted
- * across parts of Eastern Europe, the former Soviet Union, and Africa. Like YUV (its
- * PAL counterpart) and YIQ (NTSC), it keeps a luma channel Y for backward
- * compatibility with monochrome broadcasts, pairing it with two scaled
- * color-difference channels, Db and Dr, derived from blue-minus-luma and
- * red-minus-luma respectively.
+ * YDbDr is the luma/chroma encoding of SECAM (“Séquentiel Couleur à Mémoire”), the analog
+ * color TV standard developed in France and adopted in parts of Eastern Europe, the former
+ * Soviet Union and Africa. Like YUV for PAL and YIQ for NTSC, it keeps a luma channel Y for
+ * monochrome sets and adds two scaled color differences, Db from blue minus luma and Dr from
+ * red minus luma.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470} ITU-R BT.470 (SECAM)
  * @wiki {@link https://en.wikipedia.org/wiki/YDbDr}
  * @year 1967
  * @by Henri de France
- * @use Legacy analog SECAM television luma/chroma encoding (France, E. Europe, ex-USSR); historical.
+ * @use Analog SECAM television in France, Eastern Europe and the former USSR; historical.
  * @channel {Y} 0 1 Luma
  * @channel {Db} -1.333 1.333 Blue difference
  * @channel {Dr} -1.333 1.333 Red difference

@@ -9,7 +9,7 @@
  * @see {@link https://documents.blackmagicdesign.com/InformationNotes/DaVinci_Resolve_17_Wide_Gamut_Intermediate.pdf}
  * @year 2020
  * @by Blackmagic Design
- * @use Scene-linear camera-agnostic working gamut beneath DaVinci Intermediate; current in DaVinci Resolve's color-managed pipeline.
+ * @use Scene-linear working gamut under DaVinci Intermediate.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -1,15 +1,13 @@
 /**
- * HSP — Hue, Saturation, Perceived brightness, a cylindrical color model designed to
- * fix a known flaw in HSL and HSV, where lightness and value don't match how bright
- * colors actually look to the human eye. Perceived brightness is instead computed
- * from a weighted mix of the red, green and blue channels that reflects the eye's
- * differing sensitivity to each, so two colors with the same P value look equally
- * bright regardless of hue.
+ * HSP — Hue, Saturation, Perceived brightness, a cylindrical color model built to fix HSL and
+ * HSV, whose lightness and value don't match how bright colors look. P weights R, G and B by
+ * the eye's sensitivity to each, so two colors with the same P look roughly equally bright,
+ * far closer than HSL or HSV get.
  *
  * @see {@link https://alienryderflex.com/hsp.html}
  * @year 2006
  * @by Darel Rex Finley
- * @use Perceived-brightness color picker alternative to HSL/HSV; niche hobbyist and creative-coding use.
+ * @use Hobbyist and creative-coding color pickers; niche.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {P} 0 100 Perceived brightness percentage

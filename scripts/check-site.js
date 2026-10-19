@@ -122,6 +122,15 @@ try {
 	assert.match(await page.locator('.ent[data-s="p3"]').getAttribute('data-g'),/:srgb(?::|$)/,'the Limit repaints the catalog\'s sliders')
 	await lens(page,'g','vis'); await keyed('p3',/:vis(?::|$)/)
 	assert.match(await page.locator('.ent[data-s="p3"]').getAttribute('data-g'),/:vis(?::|$)/,'and back')
+	// the Limit menu marks what this screen can't show: on an sRGB screen P3 and wider, on a P3 one Rec. 2020 and wider
+	const clipped=pg=>pg.evaluate(()=>Object.fromEntries([...document.querySelectorAll('#m-view .mseg[data-lens="g"] button')].map(b=>[b.dataset.v,/\n/.test(b.title||b.dataset.tip||'')])))
+	assert.deepEqual(await clipped(page),{ srgb:false, p3:true, rec2020:true, vis:true, locus:true },'an sRGB screen: every Limit past sRGB says it shows clipped')
+	{ const p3Context=await browser.newContext({ viewport:{ width:1440, height:900 }, reducedMotion:'reduce' }), p3=await p3Context.newPage()
+	  await (await p3Context.newCDPSession(p3)).send('Emulation.setEmulatedMedia',{ features:[{ name:'color-gamut', value:'p3' }] })
+	  await p3.goto(`${server.origin}/?cb=${Date.now()}`,{ waitUntil:'networkidle' })
+	  assert.deepEqual(await p3.evaluate(()=>[document.querySelector('#m-view .mseg[data-lens="g"] button.on')?.dataset.v, localStorage.csGm??null]),['p3',null],'a P3 screen, nothing picked: the Limit is P3')
+	  assert.deepEqual(await clipped(p3),{ srgb:false, p3:false, rec2020:true, vis:true, locus:true },'…and only the Limits past P3 say they show clipped')
+	  await p3Context.close() }
 	assert.equal(await page.locator('#cd').inputValue(), '#808080', 'undefined color starts neutral gray')
 	await page.locator('#him').click(); await page.waitForSelector('#uppop:popover-open .upim')
 	const specimens=page.locator('#uppop .upim:not(.upld)')
@@ -500,6 +509,7 @@ try {
 	await page.mouse.up()
 	for(const [i,v] of [[0,'0.60'],[1,'0'],[2,'90']]) await page.locator('#bigch .nv').nth(i).fill(v)
 	await page.waitForTimeout(50)
+	await page.evaluate(()=>document.querySelector('#figseg button[data-v="tc"]').click()); await page.waitForFunction(()=>document.querySelector('#tcap').textContent.trim())   // the transfer curve shown: a figure draws where it is seen
 	const smoothNeighbor=page.locator('.bar2[data-i="1"] .bgc'), smoothBefore=await smoothNeighbor.evaluate(el=>el.toDataURL()), transferBefore=await page.locator('#tcap').innerText()
 	const backPicker=page.locator('.ent[data-s="oklab"] .nrg').first(), backValue=page.locator('.ent[data-s="oklab"] .cv').first(), backLane=page.locator('.ent[data-s="oklab"] .ch').first()
 	const smoothL=page.locator('.bar2[data-i="0"]'), smoothLR=await smoothL.boundingBox()
@@ -510,6 +520,7 @@ try {
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.46','dossier numeric input follows a smooth drag live')
 	assert.notEqual(await smoothNeighbor.evaluate(el=>el.toDataURL()),smoothMid||smoothBefore,'dossier neighboring gradients follow the active space live')
 	assert.notEqual(await page.locator('#tcap').innerText(),transferBefore,'transfer picker follows a held drag')
+	await page.evaluate(()=>{ document.querySelector('#figseg button[data-v="3d"]').click(); try{ localStorage.removeItem('csFig') }catch{} })   // the solid back, as the checks below found it
 	assert.notEqual(await backPicker.inputValue(),backMid.picker,'dossier drag updates every background catalog picker immediately')
 	assert.notEqual(await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),backMid.pickerColor,'dossier drag updates every background picker color immediately')
 	assert.equal((await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toLowerCase())),(await page.locator('#cd').inputValue()).toLowerCase(),'background picker colors match the modal drag color')
@@ -677,8 +688,8 @@ try {
 	// the definition a searcher comes for: the channels at the head of the record's first column, the origin beside them;
 	// the primaries (x and y named as a channel is, the white its mark) the first column's last item, the matrix the
 	// second's, its copy beside its label; the curve's
-	// formula under its plot; every label saying what it is; the tested values behind their sources; a quiet way to report a
-	// wrong one; OCIO carries the whole colorspace; none of it where a space has no primaries
+	// formula under its plot; every label saying what it is; the tested values behind their sources; OCIO carries the
+	// whole colorspace; none of it where a space has no primaries
 	await page.goto(`${server.origin}/sgamut3cine?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await page.waitForSelector('#modal:not([hidden]) .props [data-k="primaries"]')
 	assert.deepEqual(await page.evaluate(()=>{ const n=s=>s.replace(/[\u2007\u2008]/g,'').trim(), cells=[...document.querySelectorAll('[data-k="primaries"] .xylist > *')].map(e=>n(e.textContent))
@@ -686,8 +697,8 @@ try {
 		return [cols.map(c=>c.firstElementChild?.dataset.k), cols.map(c=>c.lastElementChild?.dataset.k), cells.slice(0,4), cells.slice(-4), !!document.querySelector('[data-k="primaries"] .wdot'),
 			[...document.querySelectorAll('.props:not(.dside) [data-k] i.term')].every(i=>i.title), document.querySelectorAll('[data-k="matrix"] .mtx > span').length, document.querySelector('#mtxc').textContent.split('\n').length, !!document.querySelector('[data-k="matrix"] .dlab > .cpyi[data-copy="mtxc"]')] }),
 		[['channels','origin'], ['primaries','matrix'], ['R','x0.766','y0.275',''], ['','x0.3127','y0.329','D65'], true, true, 9, 3, true], 'S-Gamut3.Cine: the channels and the origin heading the record\'s columns, the primaries and the matrix closing them, each label explained, the white its mark, the matrix copied from beside its label')
-	assert.deepEqual(await page.evaluate(()=>[[...document.querySelectorAll('[data-k="test"] a')].some(a=>/→/.test(a.title)), document.querySelector('.dside > [data-k="report"]:last-child a.drep')?.getAttribute('href').endsWith('space=sgamut3cine'), !document.querySelector('#cseg [data-t="css"],#cseg [data-t="mtx"]')]),
-		[true, true, true], 'the test names its sources, the values in their tips; the report the margin\'s last line; no CSS or matrix code tab')
+	assert.deepEqual(await page.evaluate(()=>[[...document.querySelectorAll('[data-k="test"] a')].some(a=>/→/.test(a.title)), !document.querySelector('#modal [data-k="report"],#modal .drep'), !document.querySelector('#cseg [data-t="css"],#cseg [data-t="mtx"]')]),
+		[true, true, true], 'the test names its sources, the values in their tips; no report link; no CSS or matrix code tab')
 	await page.locator('#cseg button[data-t="ocio"]').click()
 	assert.match(await page.locator('#snip').textContent(), /!<ColorSpace>[\s\S]*!<LogCameraTransform>[\s\S]*!<MatrixTransform>/, 'OCIO: S-Gamut3.Cine as a whole colorspace, its S-Log3 curve then its matrix')
 	await page.locator('#cseg button[data-t="js"]').click()

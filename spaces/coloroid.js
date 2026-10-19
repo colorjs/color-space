@@ -1,16 +1,15 @@
 /**
- * Coloroid — the Hungarian architectural color-order system, developed by Antal
- * Nemcsics at the Budapest University of Technology and standardized as MSZ 7300.
- * Grown from large-scale aesthetic experiments, it arranges hue (A), saturation (T)
- * and luminosity (V) in steps that feel evenly spaced when composing whole
- * environments — its home turf is architecture and urban color planning.
+ * Coloroid — the Hungarian architectural color-order system, developed by Antal Nemcsics at
+ * the Budapest University of Technology and standardized as MSZ 7300. Grown from large-scale
+ * aesthetic experiments, it steps hue (A), saturation (T) and lightness (V) so they feel
+ * evenly spaced when composing whole environments.
  *
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.5080050214}
  * @wiki {@link https://en.wikipedia.org/wiki/Coloroid_color_system}
  *
  * @year 1980
  * @by Antal Nemcsics
- * @use Architectural and urban color-planning system; still used in Hungarian design practice, standardized as MSZ 7300.
+ * @use Architectural and urban color planning; standardized as MSZ 7300, still used in Hungary.
  * @channel {A} 10 76 Hue grade
  * @channel {T} 0 100 Saturation
  * @channel {V} 0 100 Luminosity

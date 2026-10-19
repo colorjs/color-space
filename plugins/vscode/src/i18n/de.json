@@ -44,8 +44,8 @@
     "h": "aa15a325"
   },
   "nls:description": {
-    "t": "Alle Farben Ihrer Datei auf einer Fläche, in OKLCH, HCT, CAM16, Display P3 oder einem von 205 Farbräumen: CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, Design-Tokens, Farbdesigns und Paletten, jede Farbe in ihrer eigenen Schreibweise zurückgeschrieben.",
-    "h": "d583de89"
+    "t": "Bearbeiten Sie die Farben Ihres Codes in OKLCH, Display P3 oder einem von 205 Farbräumen.",
+    "h": "9504e8f3"
   },
   "nls:gamut.description": {
     "t": "Der Farbumfang, in dem der Farbwähler schreibt, für Schreibweisen, die auch Farben eines größeren Farbumfangs ausdrücken können (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` und `hwb()` werden immer innerhalb von sRGB geschrieben.",

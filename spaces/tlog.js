@@ -1,16 +1,14 @@
 /**
- * T-Log — FilmLight's log curve for its Baselight color-grading systems, paired
- * with the wide E-Gamut primaries as a camera-agnostic working space that footage
- * from almost any camera can be converted into for grading. Its curve is a
- * near-pure log function with a linear extension below zero, avoiding the harsh
- * clipping a pure log would give to noise and sub-black signal. Baselight
- * facilities use T-Log/E-Gamut much the way ACES or DaVinci Wide Gamut are used
- * elsewhere — as a common space for mixing footage from multiple camera sources.
+ * T-Log — FilmLight's log curve for its Baselight grading systems, paired with the wide
+ * E-Gamut primaries. It is a near-pure log with a linear extension below zero, so noise and
+ * sub-black signal pass without the harsh clipping a pure log would give. Baselight facilities
+ * use T-Log/E-Gamut the way others use ACES or DaVinci Wide Gamut: a common space for footage
+ * from many cameras.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/filmlight_t_log.py}
  * @year 2013
  * @by FilmLight
- * @use FilmLight’s Cineon-derived log on E-Gamut; Baselight’s camera-agnostic grading working space.
+ * @use Grading in Baselight, on a Cineon-derived curve.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

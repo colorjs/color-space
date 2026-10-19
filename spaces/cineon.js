@@ -1,17 +1,16 @@
 /**
- * Cineon — Kodak's printing-density log encoding from the early 1990s, created for
- * the Cineon film-scanning and digital-intermediate system that first let film labs
- * work with scanned negatives digitally instead of on an optical printer. Its
- * 10-bit log curve maps negative density directly to code values, with reference
- * black and white points chosen to mirror film stock's response. It has no gamut of
- * its own — scanned imagery inherited whatever primaries the film stock and scanner
- * implied — and it survives today mainly through the DPX file format it gave rise to.
+ * Cineon — Kodak's printing-density log encoding from the early 1990s, made for its Cineon
+ * film-scanning and digital-intermediate system. That system was the first to let film labs
+ * work on scanned negatives digitally instead of on an optical printer. Its 10-bit log curve
+ * maps negative density straight to code values, with reference black and white points chosen
+ * to mirror the film stock's response. It has no gamut of its own: scans inherit whatever
+ * primaries the film stock and scanner imply.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Cineon.html}
  * @wiki {@link https://en.wikipedia.org/wiki/Cineon#Cineon_file_format}
  * @year 1992
  * @by Kodak
- * @use Film-scanning/digital-intermediate log encoding; historical, survives mainly through the DPX file format it originated.
+ * @use Digital intermediates; historical, surviving mainly through the DPX format it originated.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

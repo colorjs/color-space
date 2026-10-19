@@ -1,18 +1,17 @@
 /**
- * Maxwell triangle — the barycentric chromaticity diagram for a trichromatic
- * observer. Three receptor catches are normalized to sum to one, then placed at
- * the vertices of an equilateral triangle. It is used across comparative vision:
- * human LMS catches, bee UV/blue/green catches, or any other trichromatic visual
- * phenotype share the same geometry once their observer-specific catches exist.
- * This graph node is anchored to the library's fixed human LMS cone space;
- * species-relative spectral receptor models require external context and are out of scope.
+ * Maxwell triangle — the barycentric chromaticity diagram for a trichromatic observer: three
+ * receptor catches, normalized to sum to one, plotted in an equilateral triangle with one
+ * receptor at each vertex. Human LMS catches, bee UV/blue/green catches and any other
+ * trichromatic phenotype share this geometry once their observer-specific catches exist. Here
+ * it is anchored to the library's human LMS cone space; other species' receptor models need
+ * external context and are out of scope.
  *
  * @see {@link https://doi.org/10.1017/S1464793102005985} Kelber, Vorobyev & Osorio 2003
  * @see {@link https://github.com/rmaia/pavo/blob/master/R/trispace.R} pavo trispace
  * @wiki {@link https://en.wikipedia.org/wiki/Maxwell_disc#Maxwell_color_triangle}
  * @year 1860
  * @by James Clerk Maxwell
- * @use Trichromatic receptor-catch chromaticity for comparative and biological vision; human-LMS form in the universal graph.
+ * @use Comparative and biological vision; here in its human-LMS form.
  * @channel {x} -0.7071067811865476 0.7071067811865476 Horizontal opponent coordinate
  * @channel {y} -0.4082482904638631 0.8164965809277261 Vertical opponent coordinate
  * @method chromaticity

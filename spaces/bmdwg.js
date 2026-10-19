@@ -8,7 +8,7 @@
  * @see {@link https://github.com/aces-aswf/aces-input-and-colorspaces/blob/main/blackmagic_design/CSC.Blackmagic.BMDFilm_WideGamut_Gen5_to_ACES.ctl}
  * @year 2020
  * @by Blackmagic Design
- * @use Scene-linear camera gamut beneath Blackmagic Film Gen 5 for BRAW footage in VFX and grading; current on Gen 5 color-science cameras.
+ * @use Scene-linear gamut under Blackmagic Film Gen 5 for BRAW footage in VFX and grading.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

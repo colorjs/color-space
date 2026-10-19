@@ -9,7 +9,7 @@
  * @see {@link https://doi.org/10.1109/MCG.2009.13} Bratkova, Boulos & Shirley 2009, IEEE CG&A 29(1):42-55
  * @year 2009
  * @by Bratkova, Boulos & Shirley
- * @use Opponent-axis color adjustment and color transfer on R′G′B′ in graphics; research niche.
+ * @use Graphics research; niche.
  * @channel {L} 0 1 Luma
  * @channel {Cyb} -1 1 Yellow-blue chroma
  * @channel {Crg} -1 1 Red-green chroma

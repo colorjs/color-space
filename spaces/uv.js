@@ -1,18 +1,16 @@
 /**
- * CIE 1976 UCS (u', v') — the modern, more perceptually uniform successor to the 1960
- * chromaticity diagram, standardized in CIE 15:2004. Equal distances on the u'v' plane
- * correspond more closely to equal perceived color differences than the older CIE xy
- * diagram does, which is why it's the chromaticity space of choice for LED binning,
- * display white-point tolerancing (Δu'v'), correlated color temperature work along the
- * Planckian locus, and colorimeter reporting.
+ * CIE 1976 UCS (u', v') — the more perceptually uniform successor to the 1960 chromaticity
+ * diagram, standardized in CIE 15:2004. Equal distances on the u′v′ plane match equal
+ * perceived color differences more closely than on CIE xy, which is why white-point tolerances
+ * (Δu′v′) and colorimeter reports use it.
  *
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV}
  * @year 1976
  * @by CIE
- * @use Modern uniform chromaticity diagram for LED binning, white-point tolerancing, and CCT; current standard.
- * @channel {u} 0 0.7 u' chromaticity
- * @channel {v} 0 0.6 v' chromaticity
+ * @use LED binning and white-point tolerancing; the standard uniform chromaticity diagram.
+ * @channel {u} 0 0.7 u′ chromaticity
+ * @channel {v} 0 0.6 v′ chromaticity
  * @channel {Y} 0 100 Luminance
  * @method chromaticity
  * @encoding chromaticity

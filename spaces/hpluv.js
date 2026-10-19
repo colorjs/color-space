@@ -1,19 +1,15 @@
 /**
- * HPLuv is the pastel counterpart to HSLuv, from the same project by Alexei
- * Boronine. Instead of fitting saturation to the sRGB gamut boundary at each
- * individual hue, it uses the single largest circle that fits inside the gamut at
- * a given lightness, so every hue stays reachable across the full saturation
- * range — at the cost of never reaching fully vivid colors, since S=100 only means
- * as saturated as the least colorful hue at that lightness allows. Lightness and
- * hue pass through unchanged from LCHuv, just as in HSLuv; only the chroma mapping
- * differs.
+ * HPLuv is the pastel counterpart to HSLuv, from the same project by Alexei Boronine. Where
+ * HSLuv fits saturation to the sRGB gamut edge at each hue, HPLuv uses the largest circle that
+ * fits inside the gamut at each lightness, so every hue reaches the full saturation range.
+ * Lightness and hue come unchanged from LCHuv, as in HSLuv.
  *
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}
  * @aka HUSLp
  * @year 2012
  * @by Alexei Boronine
- * @use Guaranteed-in-gamut pastel companion to HSLuv for palette tools; current, maintained alongside HSLuv.
+ * @use Always-in-gamut pastel palettes; maintained alongside HSLuv.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage

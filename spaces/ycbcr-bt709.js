@@ -8,7 +8,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/YCbCr}
  * @year 1990
  * @by ITU-R
- * @use Unambiguous BT.709 limited-range Y′CbCr for HDTV production, broadcast, and codecs.
+ * @use HDTV production, broadcast and codecs, as unambiguous BT.709 Y′CbCr.
  * @channel {Y} 16 235 Luma code value
  * @channel {Cb} 16 240 Blue-difference chroma code value
  * @channel {Cr} 16 240 Red-difference chroma code value

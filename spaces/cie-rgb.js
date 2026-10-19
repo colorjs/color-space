@@ -1,17 +1,14 @@
 /**
- * CIE RGB — the experimental color space built directly from the 1931 Wright-Guild
- * color-matching experiments, whose data became the foundation for the CIE XYZ
- * standard itself. Its three primaries are monochromatic single-wavelength lights
- * rather than the broadband primaries of any real display, referenced to an
- * equal-energy white point. It survives today mainly as a historical and
- * pedagogical space — the common ancestor from which nearly every later RGB space
- * descends.
+ * CIE RGB — the color space built directly from the Wright and Guild color-matching
+ * experiments of 1928–1931, whose data became the foundation of CIE XYZ. Its primaries are
+ * single-wavelength lights, unlike the broadband primaries of any real display, with an
+ * equal-energy white. Nearly every later RGB space descends from it.
  *
  * @see {@link https://doi.org/10.1098/rsta.1932.0005} Guild 1931, Phil. Trans. A 230, 149
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_RGB_color_space}
  * @year 1931
  * @by CIE
- * @use Historical/pedagogical reference space built from the Wright-Guild matching data; obsolete in production, ancestor of CIE XYZ.
+ * @use Teaching and historical reference.
  * @successor xyz Its color-matching functions go negative, so the CIE adopted all-positive XYZ the same year
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

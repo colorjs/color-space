@@ -9,7 +9,7 @@
  * @see {@link https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf}
  * @year 2017
  * @by DJI
- * @use Scene-linear camera gamut beneath D-Log for DJI Zenmuse/Ronin cinema footage in VFX and grading; current.
+ * @use Scene-linear gamut under D-Log for VFX and grading of DJI Zenmuse and Ronin footage.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

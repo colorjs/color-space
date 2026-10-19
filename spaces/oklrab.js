@@ -1,16 +1,14 @@
 /**
- * OkLrab is Björn Ottosson's 2021 adjustment to Oklab's lightness channel, applying
- * a toe curve that compresses near-black values closer to how the eye actually
- * perceives them. Plain Oklab's lightness diverges from CIELAB at the dark end,
- * so blacks read as lighter than they should; the toe mapping corrects this
- * while leaving the a and b axes untouched. It's used mainly for gamut mapping and
- * lightness comparisons where accurate dark-tone behavior matters more than strict
- * fidelity to the original Oklab formulation.
+ * OkLrab is Björn Ottosson's 2021 adjustment to Oklab's lightness channel: a toe curve
+ * compresses near-black values closer to how the eye perceives them. Plain Oklab's lightness
+ * diverges from CIELAB at the dark end, so blacks read lighter than they should; the toe
+ * corrects this and leaves the a and b axes untouched. It is used mainly for gamut mapping and
+ * lightness comparisons.
  *
  * @see {@link https://bottosson.github.io/posts/colorpicker/}
  * @year 2021
  * @by Björn Ottosson
- * @use Toe-corrected Oklab lightness for accurate dark-tone gamut mapping; current, niche/technical tooling use.
+ * @use Dark-tone gamut mapping; niche, in technical tools.
  * @channel {L} 0 1 Lightness
  * @channel {a} -0.4 0.4 Green-Red axis
  * @channel {b} -0.4 0.4 Blue-Yellow axis

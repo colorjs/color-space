@@ -43,7 +43,7 @@ Do not translate this as all such coordinates producing one identical gray.
 | hue | matiz | matiz | renk tonu | цветовой тон | 色相 | 色相 | تدرج اللون | Buntton | teinte | tinta | 색상 | ह्यू |
 | chroma | croma | croma | kroma | хрома | 彩度 | クロマ | الكروما | Buntheit (Video-Chroma bleibt Chroma) | chroma (le chroma) | croma (la croma) | 크로마 | क्रोमा |
 | saturation | saturação | saturación | doygunluk | насыщенность | 饱和度 | 彩度 | الإشباع | Sättigung | saturation | saturazione | 채도 | संतृप्ति |
-| colorfulness | colorido | colorido | renk canlılığı | красочность | 视彩度 | カラフルネス | الزهاء اللوني | Farbigkeit | niveau de coloration | pienezza | 컬러풀니스 | रंगीनता |
+| colorfulness | colorido | colorido | renklilik | красочность | 视彩度 | カラフルネス | الزهاء اللوني | Farbigkeit | niveau de coloration | pienezza | 컬러풀니스 | रंगीनता |
 | tristimulus values | valores triestímulo | valores triestímulo | tristimulus değerleri | координаты цвета (трёхстимульные значения) | 三刺激值 | 三刺激値 | قيم المحفزات الثلاثة | Farbwerte (XYZ: Normfarbwerte) | composantes trichromatiques | valori di tristimolo | 삼자극치 | ट्राइस्टिमुलस मान |
 | standard observer | observador padrão | observador estándar | standart gözlemci | стандартный наблюдатель | 标准观察者 | 標準観測者 | الراصد القياسي | Normalbeobachter | observateur de référence | osservatore standard | 표준 관찰자 | स्टैंडर्ड ऑब्ज़र्वर |
 | illuminant | iluminante | iluminante | aydınlatıcı | стандартный источник (освещения) | 照明体（标准照明体） | イルミナント（標準イルミナント） | المنير القياسي | Normlichtart (A, C, D50, D65; E: Lichtart E) | illuminant | illuminante | 표준광 | इल्युमिनेंट |

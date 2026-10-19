@@ -1,15 +1,14 @@
 /**
- * scRGB — a linear-light extension of sRGB standardized as IEC 61966-2-2, created to
- * carry wide-gamut and HDR signals through an otherwise ordinary sRGB pipeline. It
- * keeps sRGB's D65 white point and primaries but removes the gamma curve and widens
- * the encoding range well beyond the usual 0-1 span, allowing values for colors
- * brighter or more saturated than standard sRGB can display.
+ * scRGB — a linear-light extension of sRGB, standardized as IEC 61966-2-2, that carries
+ * wide-gamut and HDR signals through an ordinary sRGB pipeline. It keeps sRGB's primaries and
+ * D65 white, drops the gamma curve and allows values far outside 0–1, for colors brighter or
+ * more saturated than sRGB can show.
  *
  * @see {@link https://webstore.iec.ch/publication/6171} IEC 61966-2-2:2003
  * @wiki {@link https://en.wikipedia.org/wiki/ScRGB}
  * @year 2003
  * @by IEC
- * @use Linear-light wide-range HDR extension of sRGB; niche, largely superseded by newer HDR transfer functions.
+ * @use Linear-light HDR; Windows composes its HDR desktop in FP16 scRGB.
  * @channel {R} -0.5 7.4998779296875 Red
  * @channel {G} -0.5 7.4998779296875 Green
  * @channel {B} -0.5 7.4998779296875 Blue

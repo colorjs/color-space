@@ -1,15 +1,13 @@
 /**
- * Rec. 709 — the ITU-R BT.709 standard defining the color primaries and transfer
- * function for HDTV. It shares sRGB's red-green-blue primaries and D65 white point,
- * differing only in a camera-oriented transfer curve (OETF) designed for broadcast
- * cameras rather than computer displays. It remains the reference gamut for HD video
- * production and broadcast.
+ * Rec. 709 — the ITU-R BT.709 standard for HDTV primaries and transfer function. It has the
+ * same primaries and D65 white as sRGB; only the curve differs, a camera OETF made for
+ * broadcast cameras instead of computer displays.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @wiki {@link https://en.wikipedia.org/wiki/Rec._709}
  * @year 1990
  * @by ITU-R (CCIR)
- * @use Reference gamut/transfer curve for HD video production and broadcast; current HDTV standard.
+ * @use HD video production and broadcast.
  * @aka BT.709; ITU-R BT.709
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

@@ -1,16 +1,14 @@
 /**
- * V-Log — Panasonic's logarithmic curve introduced in 2014 with the VARICAM 35
- * cinema camera, built to hold the sensor's full dynamic range for grading rather
- * than direct viewing. It pairs with the wide V-Gamut primaries, engineered to
- * encompass color spaces like Rec.2020 with room to spare. This is the full
- * cinema-camera curve; Panasonic's mirrorless GH-series bodies instead use a
- * lighter variant called V-Log L, matched to a narrower 12-stop range.
+ * V-Log — Panasonic's log curve, introduced in 2014 with the VARICAM 35 cinema camera to hold
+ * the sensor's full dynamic range for grading. It pairs with the wide V-Gamut primaries, built
+ * to enclose spaces like Rec. 2020 with room to spare. Panasonic's mirrorless GH bodies use a
+ * lighter variant, V-Log L, matched to a narrower 12-stop range.
  *
  * @see {@link https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2014
  * @by Panasonic
- * @use Log curve for Panasonic VARICAM/cinema cameras with V-Gamut; current on Panasonic's cinema line.
+ * @use Panasonic VARICAM and cinema cameras, with V-Gamut.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

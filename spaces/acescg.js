@@ -1,16 +1,14 @@
 /**
- * ACEScg — the Academy Color Encoding System's linear working space, defined by AMPAS
- * in 2014 for CGI rendering and visual-effects compositing. Built on the wide AP1
- * primaries, it stores scene-referred light linearly rather than through a log curve,
- * with headroom above white for highlights and light sources that would otherwise
- * clip. It's the standard render and composite space in VFX and animation pipelines
- * built around ACES.
+ * ACEScg — the Academy Color Encoding System's linear working space, defined by AMPAS in 2014
+ * for CGI rendering and VFX compositing. On the wide AP1 primaries, it stores scene-referred
+ * light without a log curve, with headroom above white for highlights and light sources that
+ * would otherwise clip.
  *
  * @see {@link https://docs.acescentral.com/encodings/acescg/}
  * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACEScg}
  * @year 2014
  * @by Academy (AMPAS)
- * @use Linear render/composite working space for CGI and VFX; current standard in ACES-based VFX/animation pipelines.
+ * @use The standard in ACES-based VFX and animation pipelines.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

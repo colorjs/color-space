@@ -9,7 +9,7 @@
  * @see {@link https://web.archive.org/web/20030415230837/http://www.brucelindbloom.com/BetaRGB.html} Lindbloom, Beta RGB (archived 2003-04-15)
  * @year 2003
  * @by Bruce Lindbloom
- * @use Optimized capture, archiving and editing working space for high-end photo work; niche.
+ * @use Capture, archiving and editing for high-end photo work; niche.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

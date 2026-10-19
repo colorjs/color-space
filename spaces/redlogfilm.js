@@ -1,15 +1,14 @@
 /**
- * REDLogFilm — RED Digital Cinema's second log curve, built to match Kodak's
- * Cineon printing-density curve exactly so RED footage could drop into existing
- * film-style, Cineon-based color pipelines. It shares the REDcolor primaries with
- * the original REDLog, sitting between it and the Log3G10/REDWideGamutRGB pairing
- * used on today's RED cameras.
+ * REDLogFilm — RED Digital Cinema's second log curve, matching Kodak's Cineon printing-density
+ * curve exactly so RED footage fit Cineon-based film pipelines. It keeps REDLog's REDcolor
+ * primaries and came between REDLog and the Log3G10/REDWideGamutRGB pair of current RED
+ * cameras.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLogFilm.html}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2008
  * @by RED Digital Cinema
- * @use RED’s Cineon-matching log for film-style pipelines; superseded by Log3G10 / REDWideGamutRGB.
+ * @use RED footage in film-style pipelines, before Log3G10 and REDWideGamutRGB.
  * @successor log3g10 RED's IPP2 pipeline replaced it with Log3G10
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

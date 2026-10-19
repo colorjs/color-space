@@ -1,16 +1,14 @@
 /**
- * Hunter Rd,a,b is Richard Hunter's earliest opponent-color scale, developed in 1943
- * for illuminant C so that early analog tristimulus colorimeters could report a
- * color as reflectance plus red-green and yellow-blue values. Rd is the CIE Y value
- * itself; a and b are linear differences of normalized X, Y, Z, scaled by a factor
- * f(Y) that grows toward black to keep the dark end of the chromatic scales from
- * collapsing. It preceded Hunter L,a,b (1958, see labh) and survives in a few industries,
- * notably as a brightness reading for neutral limestone-based powders.
+ * Hunter Rd,a,b is Richard Hunter's earliest opponent-color scale, developed in 1943 for
+ * illuminant C so that early analog tristimulus colorimeters could report a color as
+ * reflectance plus red-green and yellow-blue values. Rd is the CIE Y value itself; a and b are
+ * linear differences of normalized X, Y, Z, scaled by a factor f(Y) that grows toward black to
+ * keep the dark end of the chromatic scales from collapsing. It preceded Hunter L,a,b (1958).
  *
  * @see {@link https://www.hunterlab.com/media/documents/duplicate-of-an-1016-rdab.pdf} HunterLab AN-1016
  * @year 1943
  * @by Richard S. Hunter
- * @use Single-number brightness/reflectance of neutral limestone-based powders; legacy, rarely used today.
+ * @use Single-number brightness/reflectance of neutral limestone-based powders; rarely used.
  * @channel {Rd} 0 100 Luminance reflectance
  * @channel {a} -70 120 Green-Red axis
  * @channel {b} -260 60 Blue-Yellow axis

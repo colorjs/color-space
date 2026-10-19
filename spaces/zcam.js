@@ -1,20 +1,17 @@
 /**
- * ZCAM is the color appearance model Safdar, Hardeberg and Luo introduced in 2021,
- * designed from the outset for high-dynamic-range and wide-gamut imagery rather than
- * adapted to it after the fact. It plays the same role as CAM16 — predicting
- * lightness, colorfulness and hue as a color will actually appear under given viewing
- * conditions — but builds on the absolute Izazbz color space instead of CIE XYZ, so it
- * can work natively with the absolute luminance levels HDR content requires instead of
- * the relative 0-100 scale older appearance models assume. The full model also
- * reports brightness, vividness, blackness and whiteness, suiting it to HDR display
- * calibration and gamut mapping where standard appearance models run out of range.
+ * ZCAM is the color appearance model Safdar, Hardeberg and Luo introduced in 2021, designed
+ * for high dynamic range and wide gamut from the start. Like CAM16 it predicts lightness,
+ * colorfulness and hue under given viewing conditions, but it builds on the absolute Izazbz
+ * space, not CIE XYZ, so it works in the absolute luminance HDR needs, where older models
+ * assume a relative 0–100 scale. It also reports brightness, vividness, blackness and
+ * whiteness.
  *
  * @see {@link https://doi.org/10.1364/OE.413659} Safdar et al. 2021
  * @year 2021
  * @by Safdar, Hardeberg & Luo
- * @use HDR/wide-gamut color appearance model for HDR display calibration and gamut mapping; current, active in research/tools.
+ * @use HDR display calibration and gamut mapping; active in research and tools.
  * @channel {J} 0 100 Lightness
- * @channel {M} 0 100 Colourfulness
+ * @channel {M} 0 100 Colorfulness
  * @channel {h} 0 360 Hue angle
  * @method appearance
  * @encoding pq

@@ -1,16 +1,14 @@
 /**
- * TSL (Tint, Saturation, Lightness) is a cylindrical re-encoding of RGB introduced by
- * Terrillon and Akamatsu in 2000 for detecting human skin tones in images. By
- * separating chromaticity (tint and saturation) from lightness, it groups
- * skin-colored pixels into a tighter, more separable cluster than RGB does, so
- * thresholding for face and gesture detection is more reliable. It remains a reference
- * color space in computer-vision work on skin segmentation, alongside spaces like
- * YCbCr and HSV.
+ * TSL (Tint, Saturation, Lightness) is a cylindrical re-encoding of RGB that Terrillon and
+ * Akamatsu introduced in 2000 to detect human skin in images. Separating chromaticity (tint,
+ * saturation) from lightness packs skin pixels into a tighter, more separable cluster than
+ * RGB, so thresholding for face and gesture detection is more reliable. Skin-segmentation work
+ * still cites it alongside YCbCr and HSV.
  *
  * @see {@link https://doi.org/10.1109/AFGR.2000.840612}
  * @year 2000
  * @by Terrillon & Akamatsu
- * @use Skin-tone segmentation color space for face/gesture detection in computer vision; niche, still referenced.
+ * @use Face and gesture detection in computer vision; niche, still referenced.
  * @channel {T} 0 360 Tint angle
  * @channel {S} 0 1 Saturation
  * @channel {L} 0 255 Lightness

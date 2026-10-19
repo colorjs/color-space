@@ -1,18 +1,15 @@
 /**
- * YIQ is the luma/chroma encoding adopted for NTSC color television in the United
- * States in 1953, engineered to add color broadcasts without breaking the millions of
- * monochrome sets already in homes. The luma channel Y alone reproduces the original
- * black-and-white picture, while I (in-phase) and Q (quadrature) carry the
- * chrominance, named for how they modulate the phase of the color subcarrier. I and Q
- * are rotated relative to the simpler blue-difference/red-difference axes of YUV
- * specifically to exploit the eye's greater sensitivity along the orange-cyan
- * direction than the green-purple direction, letting Q carry less bandwidth.
+ * YIQ is the luma/chroma encoding adopted for NTSC color television in the United States in
+ * 1953, to add color without breaking the millions of black-and-white sets already in homes. Y
+ * alone gives the black-and-white picture; I and Q carry chroma on axes rotated from YUV's
+ * blue- and red-difference ones, because the eye is more sensitive along orange-cyan than
+ * green-purple, which lets Q take less bandwidth.
  *
  * @see {@link https://www.govinfo.gov/content/pkg/CFR-2000-title47-vol4/pdf/CFR-2000-title47-vol4-sec73-682.pdf} FCC 47 CFR 73.682 (2000 ed.)
  * @wiki {@link https://en.wikipedia.org/wiki/YIQ}
  * @year 1953
  * @by NTSC
- * @use Original NTSC analog color-TV luma/chroma encoding (US); legacy/historical, replaced operationally by digital YCbCr.
+ * @use The original US NTSC analog color TV.
  * @successor ycbcr Digital video carries color as YCbCr, with no analog subcarrier to modulate
  * @channel {Y} 0 1 Luma
  * @channel {I} -0.5957 0.5957 In-phase

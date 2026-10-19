@@ -8,7 +8,7 @@
  * @see {@link https://github.com/aces-aswf/aces-input-and-colorspaces/blob/main/sony/CSC.Sony.SLog3_SGamut3_to_ACES.ctl}
  * @year 2014
  * @by Sony
- * @use Scene-linear camera gamut beneath S-Log3 (and S-Log/S-Log2 on S-Gamut) for Sony footage in VFX and grading; current.
+ * @use Scene-linear gamut for VFX and grading of Sony footage; as S-Gamut, also under S-Log and S-Log2.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

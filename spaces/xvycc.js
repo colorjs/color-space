@@ -1,12 +1,9 @@
 /**
- * xvYCC (extended-gamut YCC), proposed by Sony, standardized as IEC 61966-2-4 and
- * marketed as x.v.Color, extends traditional YCbCr to encode colors lying outside the conventional
- * BT.601/BT.709 gamut triangle. Where legal-range YCbCr clips any signal exceeding the
- * primaries it was built around, xvYCC keeps the same luma/chroma structure but
- * permits values beyond that limited range, letting cameras and displays capture and
- * reproduce more saturated colors than standard- or high-definition video normally
- * allows. It has shipped in consumer camcorders, televisions, and Blu-ray players
- * seeking a wider color gamut without abandoning the familiar YCbCr pipeline.
+ * xvYCC (extended-gamut YCC) is Sony's extension of YCbCr to colors outside the BT.601/BT.709
+ * gamut triangle, standardized as IEC 61966-2-4 and marketed as x.v.Color. Legal-range YCbCr
+ * clips any signal beyond the primaries it was built around; xvYCC keeps the same luma/chroma
+ * structure but allows values past that range, so cameras and displays can carry more
+ * saturated colors than SD or HD video normally allows.
  *
  * @module  color-space/xvycc
  *
@@ -14,7 +11,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/XvYCC}
  * @year 2006
  * @by Sony / IEC
- * @use Extended-gamut YCbCr for consumer TVs/camcorders/Blu-ray beyond BT.709 (x.v.Color); niche, mostly superseded by HDR formats.
+ * @use Consumer camcorders, TVs and Blu-ray recorders (x.v.Color); niche, mostly superseded by HDR formats.
  * @channel {Y} 0 255 Luma
  * @channel {Cb} 0 255 Blue-difference chroma
  * @channel {Cr} 0 255 Red-difference chroma

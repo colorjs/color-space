@@ -1,15 +1,11 @@
 /**
- * OkLrch is the cylindrical form of OkLrab, Björn Ottosson's toe-mapped variant of
- * Oklab, converting its lightness and rectangular a/b axes into lightness, chroma
- * and hue. It carries over OkLrab's corrected dark-tone behavior while presenting
- * color the way people usually reason about it — a hue at some strength and
- * brightness. That suits palette generation and gamut-mapping
- * tools that need both accurate darks and an intuitive chroma/hue handle.
+ * OkLrch is the cylindrical form of OkLrab, Björn Ottosson's toe-mapped variant of Oklab: its
+ * a/b axes become chroma and hue, and the corrected darks carry over.
  *
  * @see {@link https://bottosson.github.io/posts/colorpicker/}
  * @year 2021
  * @by Björn Ottosson
- * @use Palette generation and gamut mapping needing accurate darks; current, niche/technical use.
+ * @use Palettes and gamut mapping that need accurate darks; niche.
  * @channel {L} 0 1 Lightness
  * @channel {C} 0 0.4 Chroma
  * @channel {H} 0 360 Hue angle in degrees

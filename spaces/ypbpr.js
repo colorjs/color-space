@@ -1,18 +1,15 @@
 /**
- * YPbPr is the analog component-video counterpart to digital YCbCr, carrying the same
- * luma-plus-color-difference structure over three separate analog cables instead of a
- * digital bitstream. Y is the luma signal, alone sufficient for a grayscale picture,
- * while Pb and Pr carry blue-difference and red-difference chroma scaled to a standard
- * analog range. Defined alongside ITU-R BT.709 for high-definition and BT.601 for
- * standard-definition, it was the standard connector-and-signal format for
- * higher-quality analog video on DVD players, game consoles, and HDTVs before digital
- * HDMI became universal.
+ * YPbPr is the analog component-video counterpart to digital YCbCr: the same luma plus
+ * color-difference structure, carried over three separate analog cables. Y alone gives a
+ * grayscale picture; Pb and Pr are blue- and red-difference chroma scaled to a standard analog
+ * range. It is defined alongside ITU-R BT.709 for HD and BT.601 for SD, and was the
+ * higher-quality analog connection before HDMI.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.709}
  * @wiki {@link https://en.wikipedia.org/wiki/YPbPr}
  * @year 1982
  * @by ITU-R
- * @use Analog component-video color-difference signal for DVD players/consoles/HDTVs pre-HDMI; legacy, displaced by digital.
+ * @use DVD players, consoles and HDTVs before HDMI; displaced by digital.
  * @channel {Y} 0 1 Luma
  * @channel {Pb} -0.5 0.5 Blue chroma
  * @channel {Pr} -0.5 0.5 Red chroma

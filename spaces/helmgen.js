@@ -11,7 +11,7 @@
  * @see {@link https://arxiv.org/abs/2602.23010}
  * @year 2026
  * @by Görkem Yıldız
- * @use Gradients, palettes and color-mix in design systems; new, shipped in Color.js 0.7.
+ * @use Gradients, palettes and color-mix in design systems; shipped in Color.js 0.7.
  * @channel {L} 0 1 Lightness
  * @channel {a} -0.6 0.6 Green-Red axis
  * @channel {b} -0.6 0.6 Blue-Yellow axis

@@ -1,17 +1,15 @@
 /**
- * HCL — a cylindrical Hue, Chroma, Luminance color space from the Chilliant rgb2hsv
- * reference implementation. Hue and chroma behave much like other cylindrical RGB
- * models, but luminance is computed with a gamma-weighted formula designed to track
- * perceived brightness more closely than plain lightness or value. It is unrelated
- * to CIE LCh, which is also sometimes called "HCL" but uses entirely different math
- * — the two should not be confused.
+ * HCL — a cylindrical Hue, Chroma, Luminance color space from the Chilliant rgb2hsv reference
+ * implementation. Hue and chroma work as in other cylindrical RGB models; luminance uses a
+ * gamma-weighted formula meant to track perceived brightness more closely than plain lightness
+ * or value. It is unrelated to CIE LCh, which is also sometimes called “HCL”.
  *
  * @module color-space/hcl
  *
  * @see {@link http://www.chilliant.com/rgb2hsv.html}
  * @year 2012
  * @by Ian Taylor (Chilliant)
- * @use Gamma-weighted-luminance color picking for HLSL/shader code; niche, distinct from and often confused with CIE LCh.
+ * @use Gamma-weighted-luminance picking in HLSL and shader code; niche, often confused with CIE LCh.
  * @channel {H} 0 360 Hue
  * @channel {C} 0 100 Chroma
  * @channel {L} 0 100 Luminance

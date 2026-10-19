@@ -1,15 +1,13 @@
 /**
- * Rec. 2100 Linear — the scene-linear RGB that sits beneath both of ITU-R BT.2100's HDR
- * transfer functions, PQ and HLG, before either curve is applied. It carries the same
- * wide Rec. 2020 primaries and white point into HDR, giving colorimetric operations like
- * gamut mapping a straightforward linear-light space to work in, with headroom above
- * reference white for specular highlights.
+ * Rec. 2100 Linear — the linear-light RGB of ITU-R BT.2100 before either HDR curve is applied:
+ * display light under PQ, scene light under HLG. It has Rec. 2020's wide primaries and white
+ * point, with headroom above reference white for specular highlights.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @wiki {@link https://en.wikipedia.org/wiki/Rec._2100}
  * @year 2016
  * @by ITU-R
- * @use Scene-linear substrate beneath Rec. 2100's PQ and HLG; current HDR grading/gamut-mapping space.
+ * @use Linear-light HDR grading and gamut mapping, beneath Rec. 2100's PQ (display light) and HLG (scene light).
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

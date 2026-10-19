@@ -11,8 +11,8 @@
  * @wiki {@link https://en.wikipedia.org/wiki/Color_temperature#Correlated_color_temperature}
  * @year 2014
  * @by Yoshi Ohno / ANSI
- * @use Lighting specification and LED binning: CCT says warm–cool, Duv says green–pink; current companion coordinates for white-light chromaticity.
- * @channel {T} 1000 25000 Correlated colour temperature in kelvin
+ * @use Lighting specification and LED binning.
+ * @channel {T} 1000 25000 Correlated color temperature in kelvin
  * @channel {Duv} -0.05 0.05 Signed distance from the Planckian locus in CIE 1960 uv
  * @method chromaticity
  * @encoding chromaticity

@@ -44,8 +44,8 @@
     "h": "aa15a325"
   },
   "nls:description": {
-    "t": "Dosyanızdaki tüm renkler tek bir düzlemde; OKLCH, HCT, CAM16, Display P3 ya da 205 renk uzayından herhangi birinde. CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, tasarım token’ları, temalar ve paletlerdeki renkler kendi gösterimleriyle geri yazılır.",
-    "h": "d583de89"
+    "t": "Kodunuzdaki renkleri OKLCH, Display P3 ya da 205 renk uzayından herhangi birinde düzenleyin.",
+    "h": "9504e8f3"
   },
   "nls:gamut.description": {
     "t": "Daha geniş bir gamuttaki renkleri ifade edebilen gösterimlerde (`oklch()`, `lab()`, `color(display-p3 …)`…) renk seçicinin yazdığı gamut. `#hex`, `rgb()`, `hsl()` ve `hwb()` her zaman sRGB içinde yazılır.",

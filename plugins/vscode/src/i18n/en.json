@@ -10,7 +10,7 @@
 "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {"t":"Put the cursor on a CSS color, or select text with CSS colors in it.","h":"fa671cd4"},
 "nls:command.convert": {"t":"Convert Color To…","h":"bbdf2a89"},
 "nls:command.pick": {"t":"Pick Color","h":"aa15a325"},
-"nls:description": {"t":"Every color in your file on one plane, in OKLCH, HCT, CAM16, Display P3 or any of 205 color spaces: CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, design tokens, themes and palettes, written back in their own notation.","h":"d583de89"},
+"nls:description": {"t":"Edit the colors in your code in OKLCH, Display P3 or any of 205 color spaces.","h":"9504e8f3"},
 "nls:gamut.description": {"t":"The gamut the picker writes in, for notations that can name wider colors (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` and `hwb()` are always written inside sRGB.","h":"e83f271c"},
 "nls:gamut.p3": {"t":"Display P3: the wide gamut of current Apple and many other displays","h":"8f99baf8"},
 "nls:gamut.srgb": {"t":"sRGB: the standard web gamut","h":"513ae0ad"},

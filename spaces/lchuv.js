@@ -1,16 +1,15 @@
 /**
- * LCh(uv) is the cylindrical form of CIELUV, the CIE's 1976 companion to CIELAB,
- * converting its rectangular u/v axes into chroma and hue much as LCh(ab) does for
- * Lab. It inherits LUV's defining additivity — mixtures of lights move predictably
- * through the space — while giving a more intuitive saturation-and-hue handle for
- * adjusting or comparing colors. It's also the basis for HSLuv and HPLuv, which
- * rescale its chroma to fit the sRGB gamut.
+ * LCh(uv) is the cylindrical form of CIELUV, the CIE's 1976 companion to CIELAB: its u/v axes
+ * become chroma and hue, a handle for adjusting or comparing colors. Its hue angle comes
+ * straight from LUV's u′v′ diagram, where mixtures of lights fall on straight lines, so a
+ * light mixed with white keeps its hue angle. HSLuv and HPLuv rescale its chroma to fit the
+ * sRGB gamut.
  *
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2018
  * @wiki {@link https://en.wikipedia.org/wiki/CIELUV#Cylindrical_representation_(CIELCh)}
  * @year 1976
  * @by CIE
- * @use Saturation/hue adjustment in additive-mixture contexts; current, basis for HSLuv/HPLuv.
+ * @use Saturation/hue adjustment in additive-mixture contexts; basis for HSLuv/HPLuv.
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 220 Chroma
  * @channel {H} 0 360 Hue angle in degrees

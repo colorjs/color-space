@@ -1,20 +1,18 @@
 /**
- * PhotoYCC is the color encoding Kodak developed in 1992 for its Photo CD system,
- * built to carry scanned photographic film into a digital, display-oriented format.
- * Film captures a wider gamut and dynamic range than contemporary CRT monitors could
- * show, so PhotoYCC extends the ordinary Rec. 709 encoding curve into an
- * odd-symmetric function able to represent scene-referred colors and highlights
- * beyond the normal [0,1] display range, storing the result as 8-bit luma (Yc) and
- * two chroma channels (C1, C2). This let photofinishing labs scan a roll of film once
- * and derive prints, monitor previews, and digital copies from a single
- * scene-referred master.
+ * PhotoYCC is the color encoding Kodak developed in 1992 for Photo CD, to carry scanned film
+ * into a digital, display-oriented format. Film holds a wider gamut and dynamic range than CRT
+ * monitors of the time could show, so PhotoYCC extends the Rec. 709 curve into an
+ * odd-symmetric function that keeps scene-referred colors and highlights beyond the [0,1]
+ * display range, stored as 8-bit luma (Yc) and two chroma channels (C1, C2). Photofinishing
+ * labs could scan a roll once and make prints, monitor previews and digital copies from one
+ * master.
  *
  * @see {@link https://www.ilkeratalay.com/colorspacesfaq.php} Bourgin Color Spaces FAQ §8.10
  * @see {@link https://web.archive.org/web/20250802212221/https://poynton.ca/notes/TIDV/Errata/Errata_1.html} Poynton, errata to A Technical Introduction to Digital Video
  * @wiki {@link https://en.wikipedia.org/wiki/Photo_CD#Encoding}
  * @year 1992
  * @by Kodak
- * @use Kodak Photo CD scene-referred scan encoding; historical, obsolete since Photo CD's discontinuation.
+ * @use Photo CD scans; obsolete since Photo CD was discontinued.
  * @channel {Yc} 0 255 Luma
  * @channel {C1} 0 255 Blue chroma
  * @channel {C2} 0 255 Red chroma

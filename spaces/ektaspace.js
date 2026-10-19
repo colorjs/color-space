@@ -8,7 +8,7 @@
  * @see {@link https://www.josephholmes.com/userfiles/Ekta_Space_PS5_JHolmes.zip} Holmes, Ekta Space PS 5 ICC profile
  * @year 1998
  * @by Joseph Holmes
- * @use Working space for storing and editing transparency-film scans; niche, distributed as an ICC profile.
+ * @use Editing transparency-film scans; niche, distributed as an ICC profile.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

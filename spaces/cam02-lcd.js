@@ -1,15 +1,13 @@
 /**
- * CAM02-LCD is a variant of the CAM02-UCS uniform color space that Luo, Cui & Li
- * tuned in 2006 specifically for LARGE color differences, rather than the small,
- * fine-grained differences most difference formulas target. Like CAM02-UCS, it
- * reprojects CIECAM02's lightness and colorfulness into a near-Euclidean, Cartesian
- * layout, but with scaling calibrated against large-difference visual data. CAM16-LCD
- * later carried the same large-difference calibration over to CAM16.
+ * CAM02-LCD is a variant of the CAM02-UCS uniform color space that Luo, Cui & Li tuned in 2006
+ * for large color differences, while most difference formulas target small ones. Like
+ * CAM02-UCS, it reprojects CIECAM02's lightness and colorfulness into a near-Euclidean
+ * Cartesian layout, with scaling calibrated against large-difference visual data.
  *
  * @see {@link https://doi.org/10.1002/col.20227}
  * @year 2006
  * @by Luo, Cui & Li
- * @use Uniform space for large color-difference/gamut-mapping work; largely superseded by CAM16-LCD.
+ * @use Large color-difference and gamut-mapping work.
  * @successor cam16-lcd Rebuilt on CAM16 when CAM16 replaced CIECAM02
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green

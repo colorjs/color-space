@@ -1,18 +1,14 @@
 /**
- * CMYK is the subtractive color model used throughout offset and digital printing,
- * built from cyan, magenta and yellow inks plus a separate black channel (K, for
- * "key"). Mixing cyan, magenta and yellow absorbs light rather than emitting it, the
- * opposite of how RGB displays add colored light, so in principle their combination
- * alone produces black — but real inks are impure, so a dedicated black channel keeps
- * dark tones neutral, saves ink, and gives text and fine detail a cleaner edge. It
- * remains the standard color model for prepress and printed output across the
- * industry.
+ * CMYK is the subtractive color model of offset and digital printing: cyan, magenta and yellow
+ * inks plus a separate black, K. Inks absorb light, the reverse of RGB displays emitting it,
+ * so in principle the three alone make black. Real inks are impure, so the black ink keeps
+ * dark tones neutral, saves ink and gives text and fine detail a cleaner edge.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#device-cmyk}
  * @wiki {@link https://en.wikipedia.org/wiki/CMYK_color_model}
  * @year 1906
  * @by Eagle Printing Ink Co.
- * @use Subtractive four-ink model for offset / digital printing; the current prepress standard.
+ * @use Offset and digital printing; the prepress standard.
  * @aka print color space; printing
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage

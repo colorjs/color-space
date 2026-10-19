@@ -8,7 +8,7 @@
  * @see {@link https://www.arri.com/resource/blob/278790/dc29f7399c1dc9553d329e27f1409a89/2022-05-arri-logc4-specification-data.pdf}
  * @year 2022
  * @by ARRI
- * @use Scene-linear camera gamut beneath LogC4 for ALEXA 35 footage in VFX and grading; current ARRI standard.
+ * @use Scene-linear gamut for VFX and grading of ALEXA 35 footage.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

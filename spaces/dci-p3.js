@@ -1,16 +1,14 @@
 /**
- * DCI-P3 — the digital cinema standard defined in SMPTE RP 431-2 for theatrical
- * projection and mastering. It shares its wide red-green-blue primaries with Apple's
- * Display P3, but pairs them with the DCI theatrical white point and a pure
- * gamma-2.6 transfer curve rather than the D65 white and sRGB-like curve used in
- * consumer display variants. It remains the reference space for digital film
- * production and distribution.
+ * DCI-P3 — the digital cinema standard defined in SMPTE RP 431-2 for theatrical projection and
+ * mastering. It shares its wide primaries with Apple's Display P3 but pairs them with the DCI
+ * theatrical white point and a pure 2.6 gamma, while consumer display variants use D65 and an
+ * sRGB-like curve.
  *
  * @see {@link https://pub.smpte.org/latest/rp431-2/rp0431-2-2011.pdf} SMPTE RP 431-2:2011
  * @wiki {@link https://en.wikipedia.org/wiki/DCI-P3#DCI-P3_(P3-DCI)}
  * @year 2005
  * @by DCI (Digital Cinema Initiatives)
- * @use Reference color space for digital cinema projection and mastering; current theatrical standard, also basis of consumer Display P3.
+ * @use Digital cinema projection and mastering, the theatrical standard; the basis of Display P3.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

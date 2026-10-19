@@ -1,16 +1,14 @@
 /**
- * Apple Log — Apple's log profile, introduced with the iPhone 15 Pro in 2023 for
- * ProRes Log recording aimed at professional and cinematic video workflows, with
- * tight integration into Final Cut Pro's color tools. Its curve opens with a
- * quadratic toe near black before switching to a log2 highlight region, extending
- * recordable dynamic range well beyond the phone's standard video profiles. It's
- * defined over BT.2020 primaries, matching the wide-gamut sensors across the
- * iPhone Pro line.
+ * Apple Log — Apple's log profile for ProRes Log recording, introduced with the iPhone 15 Pro
+ * in 2023 and integrated into Final Cut Pro's color tools. Its curve opens with a quadratic
+ * toe near black, then switches to log2 for the highlights, extending recordable dynamic range
+ * well beyond the phone's standard video profiles. It is defined over BT.2020 primaries; Apple
+ * Log 2 later kept the curve on a wider gamut.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/apple_log_profile.py}
  * @year 2023
  * @by Apple
- * @use Cinema-oriented log capture on iPhone Pro for ProRes Log workflows; current native encoding since the iPhone 15 Pro.
+ * @use Cinema-oriented log capture on iPhone Pro.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

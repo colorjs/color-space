@@ -8,7 +8,7 @@
  * @see {@link https://www.russellcottrell.com/photo/RussellRGB.htm} Cottrell, The Russell RGB working color space
  * @year 2011
  * @by Russell Cottrell
- * @use Print-oriented wide-gamut working space for pigment inkjet output; niche.
+ * @use Pigment inkjet printing; niche.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -1,19 +1,14 @@
 /**
- * CAM16 is the color appearance model introduced by Li et al. in 2017 as a
- * simplified, more robust successor to CIECAM02. It predicts how a color actually
- * looks to a human observer under specific viewing conditions — accounting for the
- * surrounding light, background, and the eye's state of adaptation — rather than
- * merely describing the raw stimulus, yielding correlates of lightness,
- * colorfulness, and hue (plus chroma, saturation, and brightness in the full model).
- * Google adopted it, via its HCT derivative, as the foundation of Material Design's
- * dynamic color system, and it is now the default
- * replacement for CIECAM02 across color science.
+ * CAM16 is the color appearance model Li et al. introduced in 2017 as a simpler, more robust
+ * successor to CIECAM02. From the stimulus plus the surrounding light, the background and the
+ * eye's state of adaptation, it predicts how a color looks: lightness, colorfulness and hue,
+ * and in the full model also chroma, saturation and brightness.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#CAM16}
  * @year 2017
  * @by Li et al.
- * @use Color-appearance modeling of perceived lightness/colorfulness/hue; current default replacement for CIECAM02, basis of Material Design's HCT.
+ * @use Color-appearance modeling; the default replacement for CIECAM02 and the basis of Material Design's HCT.
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 105 Colorfulness
  * @channel {h} 0 360 Hue angle in degrees

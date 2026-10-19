@@ -1,15 +1,13 @@
 /**
- * ProPhoto RGB — also known as ROMM RGB, developed by Kodak as a working space for
- * high-end digital photography. Its primaries extend beyond the range of human
- * vision, giving it one of the largest gamuts of any standard RGB space, though this
- * means colors must be stored at higher bit depths to avoid visible banding. It is a
- * common working space in raw photo processing, referenced to the D50 white point.
+ * ProPhoto RGB — Kodak's working space for high-end digital photography, also known as ROMM
+ * RGB. Its primaries reach beyond human vision, giving it one of the largest gamuts of any
+ * standard RGB space, with a D50 white point.
  *
  * @see {@link https://www.color.org/ROMMRGB.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/ProPhoto_RGB_color_space}
  * @year 1999
  * @by Kodak
- * @use Ultra-wide-gamut RGB for high-end digital photography/raw processing; current common working space.
+ * @use High-end digital photography and raw processing; a common working space.
  * @aka ROMM RGB
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

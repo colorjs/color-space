@@ -1,16 +1,14 @@
 /**
- * IPT — an opponent color space built by Ebner & Fairchild in 1998 specifically so lines
- * of constant hue stay straight under changes in saturation and lightness, a property
- * CIELAB lacks. I, P and T stand for lightness, red-green and yellow-blue, derived from
- * a cone-response power law followed by an opponent recombination. Its hue-linear design
- * made it the structural ancestor of Dolby's ICtCp, and it remains a common choice for
- * gamut mapping and image-difference work.
+ * IPT — an opponent color space built by Ebner & Fairchild in 1998 so lines of constant hue
+ * stay straight as saturation and lightness change, a property CIELAB lacks. A cone-response
+ * power law followed by an opponent matrix gives its lightness, red-green and yellow-blue
+ * axes.
  *
  * @see {@link https://doi.org/10.2352/CIC.1998.6.1.art00003}
  * @wiki {@link https://en.wikipedia.org/wiki/IPT_color_space}
  * @year 1998
  * @by Fritz Ebner & Mark Fairchild
- * @use Hue-linear opponent space for gamut mapping and image-difference metrics; still used, structural ancestor of ICtCp.
+ * @use Gamut mapping and image-difference metrics; still used, the structural ancestor of ICtCp.
  * @channel {I} 0 1 Lightness
  * @channel {P} -1 1 Red-Green
  * @channel {T} -1 1 Yellow-Blue

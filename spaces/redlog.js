@@ -1,14 +1,13 @@
 /**
- * REDLog — RED Digital Cinema's original log curve, dating to the RED ONE, the
- * company's first digital cinema camera, released in 2007. It pairs with the
- * REDcolor primaries, RED's earliest color gamut, and was RED's default acquisition
- * log before being superseded first by REDLogFilm and later by the
- * Log3G10/REDWideGamutRGB pairing used on modern RED cameras.
+ * REDLog — RED Digital Cinema's original log curve, from the RED ONE, the company's first
+ * digital cinema camera, released in 2007. It pairs with REDcolor, RED's earliest gamut, and
+ * was RED's default log until REDLogFilm, and later the Log3G10/REDWideGamutRGB pair of
+ * current RED cameras, replaced it.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_REDLog.html}
  * @year 2007
  * @by RED Digital Cinema
- * @use Original log curve of the RED ONE digital cinema camera; legacy, superseded by REDLogFilm/Log3G10.
+ * @use RED ONE digital cinema footage, before REDLogFilm and Log3G10.
  * @successor redlogfilm REDLogFilm matched Cineon, so RED footage fit film pipelines
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

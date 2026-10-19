@@ -1,17 +1,15 @@
 /**
- * LogC3 — ARRI's third-generation logarithmic encoding, used across the ALEXA
- * camera line for years before LogC4 arrived with the ALEXA 35. Referenced to
- * EI 800, it compresses the sensor's scene-linear exposure into a curve that
- * preserves shadow detail and highlight headroom for grading, paired with the
- * ALEXA Wide Gamut 3 primaries. It was the dominant scene-referred camera space in
- * digital cinema production for over a decade and remains widely supported in post
- * pipelines today.
+ * LogC3 — ARRI's third-generation logarithmic encoding, used across the ALEXA camera line
+ * until LogC4 arrived with the ALEXA 35. Referenced to EI 800, it compresses the sensor's
+ * scene-linear exposure into a curve that keeps shadow detail and highlight headroom for
+ * grading, on the ALEXA Wide Gamut 3 primaries. For over a decade it was the dominant
+ * scene-referred camera space in digital cinema production.
  *
  * @see {@link https://www.arri.com/resource/blob/31918/66f56e6abb6e5b6553929edf9aa7483e/2017-03-alexa-logc-curve-in-vfx-data.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2010
  * @by ARRI
- * @use Cinema camera log capture for the original ARRI ALEXA line; legacy, superseded by LogC4 but still widely supported in post.
+ * @use Footage from the original ARRI ALEXA line; still widely supported in post.
  * @successor logc4 The ALEXA 35's wider dynamic range needed a new curve
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

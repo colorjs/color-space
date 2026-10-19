@@ -54,7 +54,7 @@ function parseJSDoc(content) {
   const wikiMatch = jsdoc.match(/@wiki\s+(?:\{@link\s+)?(https?:\/\/[^\s}]+)\}?/)
   if (wikiMatch) meta.wiki = wikiMatch[1]
 
-  // Parse provenance: @year (introduced), @by (who), @use (domain + current status)
+  // Parse provenance: @year (introduced), @by (who), @use (what it is used for; a status only when it carries a fact – a standard, a rename, “niche”)
   const yearMatch = jsdoc.match(/@year\s+(\d{4})/)
   if (yearMatch) meta.year = +yearMatch[1]
   const byMatch = jsdoc.match(/@by\s+(.+)/)

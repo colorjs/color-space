@@ -1,14 +1,13 @@
 /**
- * Mi-Log — Xiaomi's log profile for the 14 Ultra and 15 Ultra smartphones, giving
- * their cameras a flatter image with more grading latitude than the phones'
- * standard color modes. Its curve follows the same quadratic-toe-plus-log2 shape as
- * Apple Log, tuned with Xiaomi's own constants, and is recorded in a BT.2020 color
- * container like other smartphone log formats.
+ * Mi-Log — Xiaomi's log profile for the 14 Ultra and 15 Ultra smartphones, giving a flatter
+ * image with more grading latitude than the phones' standard color modes. Its curve has Apple
+ * Log's quadratic-toe-plus-log2 shape, tuned with Xiaomi's own constants, and is recorded in a
+ * BT.2020 color container.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_MiLog.html}
  * @year 2024
  * @by Xiaomi
- * @use Log video profile for Xiaomi 14 Ultra/15 Ultra smartphone cameras; current flagship-camera grading feature.
+ * @use Log video on the Xiaomi 14 Ultra and 15 Ultra.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

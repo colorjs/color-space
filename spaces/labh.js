@@ -1,19 +1,16 @@
 /**
- * Hunter Lab is Richard Hunter's opponent-color scale for measuring surface color,
- * published in its L, a, b form in 1958 and adapted to other illuminants through the Ka,
- * Kb coefficients in 1967. It came years before CIELAB as one of the first practical
- * attempts at a roughly uniform coordinate system: lightness plus a red-green and a
- * yellow-blue axis, reached through square roots of the tristimulus values that
- * Hunter's photoelectric instruments could compute, not CIELAB's cube root. It is less
- * uniform than CIELAB, but its head start left it entrenched in industrial color-quality
- * work (paints, plastics, textiles, food), where legacy specifications still report in
- * Hunter Lab units.
+ * Hunter Lab is Richard Hunter's opponent-color scale for measuring surface color, published
+ * in its L, a, b form in 1958 and adapted to other illuminants through the Ka, Kb coefficients
+ * in 1967. It came years before CIELAB as one of the first practical attempts at a roughly
+ * uniform scale, built on square roots of the tristimulus values, which Hunter's photoelectric
+ * instruments could compute, where CIELAB uses cube roots. It is less uniform than CIELAB, but
+ * thanks to its head start, legacy industrial specifications still report in Hunter Lab units.
  *
  * @see {@link https://doi.org/10.1364/JOSA.48.000985} Hunter 1958, Photoelectric Color Difference Meter, JOSA 48(12):985
  * @wiki {@link https://en.wikipedia.org/wiki/Hunter_Lab}
  * @year 1958
  * @by Richard S. Hunter
- * @use Industrial surface-color quality control (paints, plastics, textiles, food); legacy but still specified in some industry standards.
+ * @use Surface-color QC in paints, plastics, textiles and food; still specified in some industry standards.
  * @channel {L} 0 100 Lightness
  * @channel {a} -75 115 Green-Red axis
  * @channel {b} -210 60 Blue-Yellow axis

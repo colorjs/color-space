@@ -1,15 +1,14 @@
 /**
- * D-Log — DJI's log curve for its cinema-oriented cameras, including the Zenmuse X7
- * and Ronin 4D, designed to preserve dynamic range for grading rather than direct
- * viewing. It pairs a linear toe near black with a log10 highlight curve, mapped to
- * the D-Gamut primaries built for those cameras' sensors. It's distinct from D-Log M,
- * the separate curve DJI uses on its consumer drones.
+ * D-Log — DJI's log curve for its cinema-oriented cameras, including the Zenmuse X7 and Ronin
+ * 4D, made to keep dynamic range for grading rather than direct viewing. It pairs a linear toe
+ * near black with a log10 highlight curve, on the D-Gamut primaries built for those cameras'
+ * sensors.
  *
  * @see {@link https://dl.djicdn.com/downloads/zenmuse+x7/20171010/D-Log_D-Gamut_Whitepaper.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2017
  * @by DJI
- * @use Log curve for DJI cinema-oriented drone/gimbal cameras; current on Zenmuse/Ronin cinema product lines.
+ * @use DJI's cinema drone and gimbal cameras, the Zenmuse and Ronin lines.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

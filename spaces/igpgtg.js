@@ -1,16 +1,15 @@
 /**
- * IgPgTg is a color space proposed by Hensley and Fairchild in 2020 as a
- * lighter-weight alternative to CAM16-UCS for hue-uniform color-difference work.
- * Structurally it follows IPT, deriving a lightness signal from LMS cone responses
- * and pairing it with two opponent channels — named Ig, Pg and Tg for intensity,
- * protan and tritan, after the color-vision deficiencies their axes roughly align
- * with. The authors report hue uniformity competitive with CAM16-UCS at a fraction
- * of the computational cost.
+ * IgPgTg is a color space Hellwig and Fairchild proposed in 2020 for hue linearity, where
+ * colors of one perceived hue share one hue angle. It follows IPT: a lightness signal from LMS
+ * cone responses plus two opponent channels, protan and tritan, named for the color-vision
+ * deficiencies their axes roughly align with. Where IPT was fit to visual hue data, IgPgTg was
+ * optimized so Gaussian-shaped spectra with one peak wavelength share one hue; it did well in
+ * the authors' hue-linearity experiment but poorly on existing visual data.
  *
- * @see {@link https://doi.org/10.2352/issn.2169-2629.2020.28.13}
+ * @see {@link https://doi.org/10.2352/J.Percept.Imaging.2020.3.2.020401}
  * @year 2020
- * @by Hensley & Fairchild
- * @use Lightweight hue-uniform alternative to CAM16-UCS for color-difference work; academic, not widely deployed.
+ * @by Luke Hellwig & Mark Fairchild
+ * @use Hue-linearity research; academic, not widely deployed.
  * @channel {Ig} 0 1 Intensity
  * @channel {Pg} -1 1 Protan
  * @channel {Tg} -1 1 Tritan

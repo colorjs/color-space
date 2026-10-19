@@ -1,15 +1,13 @@
 /**
- * Linear-light Rec. 2020 — the gamma-free counterpart to the ITU-R BT.2020 UHDTV
- * standard, sharing its extremely wide primaries and D65 white point but with
- * channel values directly proportional to light intensity. It is the working space
- * for accurate color math, compositing and grading of UHD/HDR content, before
- * results are re-encoded with the Rec. 2020 transfer function for delivery.
+ * Linear-light Rec. 2020 — the UHDTV standard ITU-R BT.2020 without its transfer curve: the
+ * same very wide primaries and D65 white, with channel values proportional to light. Color
+ * math is accurate here; the Rec. 2020 curve is reapplied for delivery.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020}
  * @wiki {@link https://en.wikipedia.org/wiki/Rec._2020}
  * @year 2012
  * @by ITU-R
- * @use Linear intermediate for Rec. 2020 UHDTV primaries; current UHD/HDR grading working space.
+ * @use A UHD and HDR grading working space.
  * @aka F-Gamut; N-Gamut
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

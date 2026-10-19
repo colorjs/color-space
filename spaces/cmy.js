@@ -1,17 +1,13 @@
 /**
- * CMY is the subtractive color model built from cyan, magenta and yellow alone,
- * without CMYK's separate black channel. Each channel represents how much ink is
- * applied to absorb its complementary portion of white light, so mixing all three at
- * full strength approximates black — though in practice impure inks produce a muddy
- * dark brown rather than a true black, which is exactly why CMYK adds a dedicated key
- * channel. CMY remains useful as the direct three-ink subtractive counterpart to RGB,
- * and underlies the arithmetic CMYK is built on.
+ * CMY is the subtractive color model of cyan, magenta and yellow alone, without CMYK's black
+ * channel. Each channel is the amount of ink absorbing its complementary part of white light,
+ * so all three at full strength approximate black.
  *
  * @see {@link https://doi.org/10.1002/col.20135} Neugebauer 1937 (tr. Wyble & Kraushaar 2005)
  * @wiki {@link https://en.wikipedia.org/wiki/CMYK_color_model#Comparison_to_CMY}
  * @year 1868
  * @by Louis Ducos du Hauron
- * @use Three-ink subtractive counterpart to RGB and the arithmetic base of CMYK; superseded by CMYK in print.
+ * @use Three-ink subtractive counterpart to RGB and the arithmetic base of CMYK.
  * @successor cmyk Impure inks mix to a muddy brown, so print added a black key ink
  * @channel {C} 0 100 Cyan percentage
  * @channel {M} 0 100 Magenta percentage

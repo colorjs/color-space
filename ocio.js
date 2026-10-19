@@ -135,7 +135,7 @@ const S = {
 	widegamut: ['Adobe Wide Gamut RGB', 'widegamut', gamma(563 / 256)],
 	'dci-p3': ['DCI-P3', 'dci-p3', gamma(2.6)],
 	'dci-p3-plus': ['DCI-P3+', 'dci-p3-plus', gamma(2.6)],
-	pal: ['PAL/SECAM RGB', 'pal', gamma(2.2)],
+	pal: ['PAL/SECAM RGB', 'pal', gamma(2.8)],
 	brucergb: ['Bruce RGB', 'brucergb', gamma(2.2)],
 	betargb: ['Beta RGB', 'betargb', gamma(2.2)],
 	bestrgb: ['Best RGB', 'bestrgb', gamma(2.2)],

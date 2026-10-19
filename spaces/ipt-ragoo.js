@@ -9,7 +9,7 @@
  * @see {@link https://doi.org/10.2352/issn.2169-2629.2021.29.282} Ragoo & Farup 2021, Proc. IS&T CIC 29, 282-287
  * @year 2021
  * @by Luvin Munish Ragoo & Ivar Farup
- * @use Re-fitted IPT balancing hue linearity and uniformity for color-difference and gamut-mapping research; academic.
+ * @use Color-difference and gamut-mapping research.
  * @channel {I} 0 1 Lightness
  * @channel {P} -1 1 Red-Green
  * @channel {T} -1 1 Yellow-Blue

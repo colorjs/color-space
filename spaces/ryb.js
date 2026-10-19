@@ -1,18 +1,15 @@
 /**
- * RYB is the traditional artists' color wheel built on red, yellow and blue as
- * primaries, the model taught in painting and design education long before RGB or
- * CMYK existed. It captures how pigments actually mix on a palette rather than how
- * light combines — blue and yellow mixed as paint make green, not the grey that
- * additive blue and yellow light would produce — matching painters' lived experience of
- * color instead of colorimetric physics. The version implemented here follows Johannes
- * Itten's chromatic color wheel from his Bauhaus color theory, still a standard
- * reference for teaching color harmony in art and design.
+ * RYB is the traditional artists' color wheel with red, yellow and blue as primaries, taught
+ * in painting and design long before RGB or CMYK existed. It models how pigments mix on a
+ * palette: blue and yellow paint make green, while blue and yellow light add to grey. This
+ * version follows Johannes Itten's chromatic wheel from his Bauhaus color theory, still a
+ * standard reference for teaching color harmony.
  *
  * @see {@link https://github.com/meodai/rybitten}
  * @wiki {@link https://en.wikipedia.org/wiki/RYB_color_model}
  * @year 1961
  * @by Johannes Itten
- * @use Traditional painters' RYB color wheel per Itten's Bauhaus color theory; current standard in art/design education.
+ * @use The common teaching wheel in art and design, after Itten's Bauhaus color theory.
  * @channel {R} 0 255 Red pigment
  * @channel {Y} 0 255 Yellow pigment
  * @channel {B} 0 255 Blue pigment

@@ -1,15 +1,12 @@
 /**
- * Linear-light sRGB — the same D65 white point and primaries as sRGB, but with the
- * gamma-like transfer curve removed so that channel values sit directly proportional
- * to light intensity. It is not a space displays use directly; instead it is the
- * physically meaningful intermediate for color math such as mixing, blending and
- * colorimetric conversions, where operating on gamma-encoded values would give wrong
- * results.
+ * Linear-light sRGB — sRGB's D65 white point and primaries without its gamma-like transfer
+ * curve, so channel values are proportional to light intensity. Displays don't use it
+ * directly; color math does, since operating on gamma-encoded values gives wrong results.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#predefined-sRGB-linear}
  * @year 1996
  * @by HP & Microsoft (sRGB)
- * @use Physically linear intermediate for color mixing, blending, and colorimetric conversion; current, foundational in color-managed rendering.
+ * @use Color mixing and colorimetric conversion; foundational in color-managed rendering.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

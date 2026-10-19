@@ -1,17 +1,15 @@
 /**
- * HSV — Hue, Saturation, Value (also called HSB, for Brightness), another
- * cylindrical remapping of RGB from Alvy Ray Smith's 1978 paper. It shares HSL's hue
- * angle but replaces lightness with value, the brightness of the most intense color
- * channel, so pure hues stay fully saturated across the whole brightness range
- * instead of washing out toward white. It is the model behind most color-picker
- * "wheel plus square" interfaces.
+ * HSV — Hue, Saturation, Value, a cylindrical remapping of RGB from Alvy Ray Smith's 1978
+ * paper. It shares HSL's hue angle but replaces lightness with value, the brightness of the
+ * strongest channel, so pure hues stay fully saturated across the whole brightness range
+ * instead of washing out toward white.
  *
  * @see {@link https://alvyray.com/Papers/CG/color78.pdf} Smith 1978, SIGGRAPH
  * @see {@link https://doi.org/10.1145/800248.807361} doi
  * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @year 1978
  * @by Alvy Ray Smith
- * @use Hue/saturation/value color picking with pure hues at full brightness; current, the standard 'wheel plus square' picker model.
+ * @use Color picking; the standard “wheel plus square” picker model.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {V} 0 100 Value percentage

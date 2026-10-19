@@ -1,14 +1,13 @@
 /**
- * ICtCp — Dolby's HDR opponent space, standardized in ITU-R BT.2100 for HDR
- * television. Intensity rides the PQ curve while Ct and Cp carry blue-yellow and
- * red-green chroma, keeping hue stable under big luminance changes — the space HDR
- * colorists grade in and the basis of the ΔE-ITP difference metric.
+ * ICtCp — Dolby's HDR opponent space, standardized in ITU-R BT.2100 for HDR television.
+ * Intensity rides the PQ curve, and the two chroma axes keep hue stable under big luminance
+ * changes.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @wiki {@link https://en.wikipedia.org/wiki/ICtCp}
  * @year 2016
  * @by Dolby (BT.2100)
- * @use HDR television color grading and the dE-ITP difference metric; current ITU-R BT.2100 standard for HDR broadcast/streaming.
+ * @use HDR grading and the ΔE-ITP difference metric; standardized in ITU-R BT.2100 for HDR production and programme exchange.
  * @channel {I} 0 1 Intensity
  * @channel {Ct} -0.5 0.5 Tritan chroma
  * @channel {Cp} -0.5 0.5 Protanopia chroma

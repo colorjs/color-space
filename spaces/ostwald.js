@@ -1,19 +1,18 @@
 /**
- * Ostwald — Wilhelm Ostwald's colour system (Die Farbenlehre, 1917-1923), the Nobel
- * laureate chemist's ordering of colour as mixtures of exactly three sensations:
- * white, black, and a "full colour" (Vollfarbe). His full colours are ideal
- * semichromes — optimal colours reflecting 100% over the half-spectrum bounded by a
- * complementary wavelength pair and 0% elsewhere — the most saturated object colours
- * physically possible for their hue. Every colour is then w·White + b·Black +
- * f·FullColour with w+b+f=1, arranged as the famous double cone. The physical atlas
- * died with its licensing, but the ideal system is pure mathematics over the CIE
- * observer, and that is what ships here.
+ * Ostwald — Wilhelm Ostwald's colour system (Die Farbenlehre, 1917–1923), ordering colour as
+ * mixtures of exactly three sensations: white, black and a “full colour” (Vollfarbe). His full
+ * colours are ideal semichromes: optimal colours that reflect 100% over the half-spectrum
+ * bounded by a complementary wavelength pair and 0% elsewhere, the most saturated object
+ * colours physically possible for their hue. Every colour is then w·White + b·Black +
+ * f·FullColour with w+b+f=1, arranged as a double cone. The physical atlas died with its
+ * licensing; the ideal system is pure mathematics over the CIE observer, and that is what
+ * ships here.
  *
  * @see {@link https://doi.org/10.1364/JOSA.34.000361} Foss 1944, analysis of the ideal Ostwald system
  * @wiki {@link https://en.wikipedia.org/wiki/Ostwald_color_system}
  * @year 1917
  * @by Wilhelm Ostwald
- * @use Historical colour-order system (double cone of white/black/full-colour content); the ideal semichrome construction, kept for study.
+ * @use Historical double-cone colour-order system, kept for study.
  * @channel {h} 0 360 Hue
  * @channel {W} 0 100 White content
  * @channel {B} 0 100 Black content

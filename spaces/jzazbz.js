@@ -1,15 +1,13 @@
 /**
- * JzAzBz — a perceptually uniform color space for high-dynamic-range imagery, published
- * by Safdar et al. in 2017. It was designed so small lightness and color differences
- * stay perceptually uniform across HDR's much wider luminance and gamut range, where
- * CIELAB's uniformity breaks down. Jz is a PQ-encoded lightness, while az and bz are
- * opponent red-green and yellow-blue axes; together they underlie HDR color-difference
- * metrics and feed the cylindrical JzCzHz.
+ * JzAzBz — a perceptually uniform color space for high-dynamic-range imagery, published by
+ * Safdar et al. in 2017. It keeps small lightness and color differences uniform across HDR's
+ * much wider luminance and gamut range, where CIELAB's uniformity breaks down. Jz is a
+ * PQ-encoded lightness beside two opponent axes, az and bz; JzCzHz is its cylindrical form.
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131}
  * @year 2017
  * @by Safdar et al.
- * @use Perceptually uniform HDR color-difference space; current, used in HDR imaging research and color-management tooling.
+ * @use HDR color difference, in imaging research and color-management tools.
  * @channel {Jz} 0 1 Lightness
  * @channel {az} -0.5 0.5 Green-Red axis
  * @channel {bz} -0.5 0.5 Blue-Yellow axis

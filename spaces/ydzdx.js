@@ -1,15 +1,14 @@
 /**
- * Y′D′zD′x is the luma and color-difference form of PQ-encoded CIE XYZ, standardized by
- * SMPTE as ST 2085 in 2015 and listed in ITU-T H.273 as matrix coefficients 11. Absolute
- * X, Y, Z are each encoded with the SMPTE ST 2084 (PQ) inverse EOTF; Y′ passes through
- * and D′z, D′x are weighted differences of Z′ and X′ against Y′, tuned so D65 at
- * 500 cd/m² has zero color difference. It carries PQ-encoded XYZ in the luma plus
- * color-difference layout that video codecs expect, mainly for non-broadcast HDR content.
+ * Y′D′zD′x is the luma and color-difference form of PQ-encoded CIE XYZ, standardized by SMPTE
+ * as ST 2085 in 2015 and listed in ITU-T H.273 as matrix coefficients 11. Absolute X, Y, Z are
+ * each encoded with the SMPTE ST 2084 (PQ) inverse EOTF; Y′ passes through and D′z, D′x are
+ * weighted differences of Z′ and X′ against Y′, tuned so D65 at 500 cd/m² has zero color
+ * difference.
  *
  * @see {@link https://doi.org/10.5594/SMPTE.ST2085.2015} SMPTE ST 2085:2015
  * @year 2015
  * @by SMPTE
- * @use Color-difference coding of PQ X′Y′Z′ HDR masters (H.273 matrix 11); niche, non-broadcast.
+ * @use HDR masters; niche, non-broadcast.
  * @channel {Y} 0 1 Y′, PQ-encoded luminance
  * @channel {Dz} -0.5 0.5 D′z, Z′ − Y′ difference
  * @channel {Dx} -0.5 0.5 D′x, X′ − Y′ difference

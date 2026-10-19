@@ -10,7 +10,7 @@
  * @see {@link https://doi.org/10.1007/978-3-642-10520-3_9} Moreland, ISVC 2009, LNCS 5876
  * @year 2009
  * @by Kenneth Moreland
- * @use Building diverging color maps for scientific visualization; current (ParaView/VTK cool-to-warm).
+ * @use Scientific visualization, as in ParaView and VTK's cool-to-warm map.
  * @channel {M} 0 150 Magnitude
  * @channel {s} 0 1.5707963267948966 Saturation angle in radians
  * @channel {h} 0 6.283185307179586 Hue angle in radians

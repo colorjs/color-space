@@ -1,18 +1,15 @@
 /**
- * ANLAB is the chromatic-valence opponent space developed by Adams in 1942 and
- * extended by Nickerson in 1950 — the direct ancestor of CIELAB. It builds
- * lightness and two opponent color channels by running each adapted tristimulus
- * ratio through the Munsell Renotation System's empirical value function and then
- * taking differences between the results, the same opponent-color logic CIELAB
- * later kept while replacing that iterative Munsell function with a closed-form
- * cube root in 1976. ANLAB saw substantial industrial use for color-difference
- * measurement in the decades before CIELAB standardized the field.
+ * ANLAB is the chromatic-valence opponent space Adams developed in 1942 and Nickerson extended
+ * in 1950, the direct ancestor of CIELAB. It runs each adapted tristimulus ratio through the
+ * Munsell Renotation System's empirical value function, then takes differences of the results
+ * to get lightness and two opponent channels. In 1976 CIELAB kept that logic but replaced the
+ * iterative Munsell function with a closed-form cube root.
  *
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1111/j.1478-4408.1970.tb02962.x} McLaren 1970 (ANLAB formula)
  * @see {@link https://opg.optica.org/josa/abstract.cfm?uri=josa-32-3-168} Adams 1942
  * @year 1942
  * @by Elliot Q. Adams (ext. Dorothy Nickerson, 1950)
- * @use Industrial color-difference measurement; historical, superseded by CIELAB and CIEDE2000.
+ * @use Industrial color-difference measurement; superseded by CIELAB and CIEDE2000.
  * @successor lab CIELAB kept its opponent logic and swapped the Munsell function for a cube root
  * @channel {L} 0 100 Lightness
  * @channel {a} -100 100 Red-Green

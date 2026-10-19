@@ -1,15 +1,13 @@
 /**
- * Filmic Pro 6 Log — the log curve from Filmic Pro, a third-party iOS cinema camera
- * app that gave iPhone footage a flat, grading-ready image years before Apple Log
- * existed natively. Its curve blends a square-root term and a natural-log term into
- * one mixed law, built so a full-scale input maps back to a full-scale output. Like
- * the smartphone-maker log formats that followed it, it has no published native
- * color gamut and is treated as a curve over linear RGB.
+ * Filmic Pro 6 Log — the log curve of Filmic Pro, a third-party iOS cinema camera app that
+ * gave iPhone footage a flat, grading-ready image years before Apple Log. Its curve mixes a
+ * square-root term and a natural-log term, set so full-scale input maps back to full-scale
+ * output. It has no published native gamut and is treated as a curve over linear RGB.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/filmic_pro.py}
  * @year 2017
  * @by FiLMiC Inc.
- * @use Third-party iOS cinema-camera log capture; still available in FiLMiC Pro, overshadowed since native Apple Log arrived in 2023.
+ * @use Log capture in the FiLMiC Pro iOS app, still available; overshadowed by native Apple Log since 2023.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

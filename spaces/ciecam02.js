@@ -1,19 +1,15 @@
 /**
- * CIECAM02 is the color appearance model published by the CIE in 2002, developed to
- * predict how a color will actually look to a human observer under real viewing
- * conditions rather than simply specifying the color stimulus. It passes the
- * physiological cone response through a chromatic-adaptation stage and an
- * opponent-color stage to produce correlates of lightness, colorfulness and hue,
- * along with chroma, saturation and brightness in the full model. Though CAM16 has
- * since superseded it as a simpler, more robust successor, CIECAM02 remains embedded
- * in Microsoft's Windows Color System and is still widely used for gamut mapping and
- * cross-media color reproduction.
+ * CIECAM02 is the color appearance model the CIE published in 2002 to predict how a color
+ * looks to an observer under real viewing conditions, rather than only specify the stimulus.
+ * It passes cone responses through a chromatic-adaptation stage and an opponent-color stage,
+ * giving lightness, colorfulness and hue, plus chroma, saturation and brightness in the full
+ * model.
  *
  * @see {@link https://doi.org/10.1002/col.10125}
  * @wiki {@link https://en.wikipedia.org/wiki/CIECAM02}
  * @year 2002
  * @by CIE
- * @use Color-appearance modeling for gamut mapping and cross-media reproduction; still embedded in Windows Color System, though superseded by CAM16.
+ * @use Gamut mapping and cross-media reproduction.
  * @successor cam16 CAM16 uses one matrix where it used two, and avoids its computational failures
  * @channel {J} 0 100 Lightness
  * @channel {M} 0 100 Colorfulness

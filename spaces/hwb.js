@@ -1,15 +1,13 @@
 /**
- * HWB — Hue, Whiteness, Blackness, devised by Alvy Ray Smith in 1996 as an even more
- * intuitive alternative to HSV for humans mixing colors by hand. Instead of
- * saturation and value, it describes a color as a pure hue diluted with some amount
- * of white and some amount of black, mirroring how painters think about tinting and
- * shading a pigment. It is standardized in CSS Color 4 as the `hwb()` notation.
+ * HWB — Hue, Whiteness, Blackness, devised by Alvy Ray Smith in 1996 as an alternative to HSV
+ * for people mixing colors by hand. It describes a color as a pure hue diluted with some white
+ * and some black, the way painters tint and shade a pigment.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#the-hwb-notation}
  * @wiki {@link https://en.wikipedia.org/wiki/HWB_color_model}
  * @year 1996
  * @by Alvy Ray Smith
- * @use Intuitive tint/shade color picking; current, standardized as CSS Color 4's hwb().
+ * @use Tint and shade color picking; standardized as CSS Color 4's hwb().
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {W} 0 100 Whiteness percentage
  * @channel {B} 0 100 Blackness percentage

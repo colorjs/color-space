@@ -1,14 +1,13 @@
 /**
- * HSI — Hue, Saturation, Intensity, a cylindrical color model popular in image
- * processing and computer vision. Intensity is simply the average of the red, green
- * and blue channels, which decouples brightness from color information more cleanly
- * than HSV or HSL for tasks like segmentation and feature extraction, at the cost of
- * a more involved saturation calculation than its cousins.
+ * HSI — Hue, Saturation, Intensity, a cylindrical color model popular in image processing and
+ * computer vision. Intensity is the plain average of R, G and B, which separates brightness
+ * from color more cleanly than HSV or HSL for segmentation and feature extraction, at the cost
+ * of a more involved, arccos-based hue formula.
  *
  * @wiki {@link https://en.wikipedia.org/wiki/HSL_and_HSV}
  * @year 1976
  * @by John R. Kender
- * @use Image-processing / computer-vision hue-saturation-intensity model; still used in segmentation and remote sensing.
+ * @use Image processing and computer vision; still used in segmentation and remote sensing.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {I} 0 100 Intensity percentage

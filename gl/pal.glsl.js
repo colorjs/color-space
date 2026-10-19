@@ -1,13 +1,13 @@
-// GLSL chunk: PAL/SECAM 0-1 <-> CIE XYZ D65 0-100. Pure gamma 2.2, no linear toe.
-// Mirrors pal.js M / inv3(M) and transfers.js gammaEncode/Decode(v, 2.2).
+// GLSL chunk: PAL/SECAM 0-1 <-> CIE XYZ D65 0-100. Pure gamma 2.8 (BT.470), no linear toe.
+// Mirrors pal.js M / inv3(M) and transfers.js gammaEncode/Decode(v, 2.8).
 import xyz from './xyz.glsl.js'
 export default {
 	name: 'pal',
 	deps: [xyz],
 	edges: { xyz: ['xyz_pal', 'pal_xyz'] },
 	code: /* glsl */ `
-float pal_dec_(float u) { return sign(u) * pow(abs(u), 2.2); }
-float pal_enc_(float u) { return sign(u) * pow(abs(u), 1.0 / 2.2); }
+float pal_dec_(float u) { return sign(u) * pow(abs(u), 2.8); }
+float pal_enc_(float u) { return sign(u) * pow(abs(u), 1.0 / 2.8); }
 vec3 pal_xyz(vec3 c) {
 	float r = pal_dec_(c.x); float g = pal_dec_(c.y); float b = pal_dec_(c.z);
 	return vec3(

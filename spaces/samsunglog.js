@@ -10,7 +10,7 @@
  * @see {@link https://developer.samsung.com/mobile/samsung-log-video.html}
  * @year 2025
  * @by Samsung
- * @use Log video on Galaxy phones (S25 series, S24 series via One UI 7) for grading with Samsung's Rec.709 LUT.
+ * @use Galaxy S25 series and S24 series via One UI 7, graded with Samsung's Rec.709 LUT.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

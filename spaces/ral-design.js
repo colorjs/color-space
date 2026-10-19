@@ -1,18 +1,13 @@
 /**
- * RAL Design System+ is a color specification system of roughly 1,825 colors,
- * maintained by RAL gGmbH and widely used across Europe to specify paints, coatings
- * and architectural finishes. Unlike the older RAL Classic system, whose colors are
- * defined only by physical sample swatches, RAL Design colors are defined
- * algorithmically as cylindrical coordinates in CIELAB space — a hue angle, a
- * lightness, and a chroma — so every RAL Design code is a directly computable point
- * in a standard, device-independent color space rather than a color that has to be
- * matched by eye against a physical chip.
+ * RAL Design System+ is RAL gGmbH's system of about 1,825 colors, each defined by a CIELAB hue
+ * angle, lightness and chroma. The older RAL Classic colors exist only as physical swatches;
+ * every RAL Design code is a point you can compute, with no chip to match by eye.
  *
  * @see {@link https://www.freiefarbe.de/en/thema-farbe/hlc-colour-atlas/} freieFarbe HLC Colour Atlas (D50/2°, CC)
  * @wiki {@link https://en.wikipedia.org/wiki/RAL_colour_standard#RAL_Design}
  * @year 1993
  * @by RAL gGmbH
- * @use European paint/coatings/architectural color-specification system in CIELAB cylindrical coordinates; current standard.
+ * @use European paint, coatings and architectural color specification; an active standard.
  * @channel {H} 0 360 Hue
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 100 Chroma

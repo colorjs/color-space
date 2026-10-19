@@ -1,16 +1,15 @@
 /**
- * CIE XYZ — the foundation of modern colorimetry, defined by the CIE in 1931 from the
- * color-matching functions of the standard observer. X, Y and Z are not themselves
- * perceptual attributes; they're engineered so Y alone carries luminance while X and Z
- * carry chromaticity, letting any visible color be written as a weighted sum of three
- * fixed imaginary primaries. It is the device-independent reference that RGB,
- * Lab and other working spaces are ultimately defined against.
+ * CIE XYZ — the foundation of modern colorimetry, defined by the CIE in 1931 from the standard
+ * observer's color-matching functions. X, Y and Z are not perceptual attributes; they are
+ * engineered so that Y alone carries luminance, X and Z carry chromaticity, and any visible
+ * color is a weighted sum of three fixed imaginary primaries. RGB, Lab and other working
+ * spaces are defined against it.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#cie-xyz}
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_XYZ_color_space}
  * @year 1931
  * @by CIE
- * @use Foundational device-independent color space underlying all colorimetry; current universal reference.
+ * @use The device-independent reference underlying all colorimetry.
  * @channel {X} 0 95.05 X
  * @channel {Y} 0 100 Y
  * @channel {Z} 0 108.91 Z

@@ -6,7 +6,7 @@
  *   page code        t('key', 'English') – literal key, literal English – in web/index.html,
  *                    web/js/*.js and scripts/generate-landing.js (the stamped heads)
  *   data.json        space.<id>.desc · .use · .loss-note
- *   web/js/          lore.js lore.<id>.for|sin|nm · tour.js tour.<id>.title|body ·
+ *   web/js/          lore.js lore.<id>.for|sin|nm ·
  *                    categories.js cat.<id>.name|tip · purpose.js purpose.<tag>.name|tip|use ·
  *                    eras.js era.<from>.tip ·
  *                    editors.js editor.* · cvd.js lens.<id> · channel names channel.<slug>
@@ -88,7 +88,6 @@ export async function extract() {
 	}
 	const LORE = (await import('../web/js/lore.js')).default
 	for (const [s, l] of Object.entries(LORE)) for (const f of ['for', 'sin', 'nm']) add(`lore.${s}.${f}`, l[f], 'web/js/lore.js')
-	for (const st of (await import('../web/js/tour.js')).default) { add(`tour.${st.s}.title`, st.t, 'web/js/tour.js'); add(`tour.${st.s}.body`, st.d, 'web/js/tour.js') }
 	for (const c of (await import('../web/js/categories.js')).default) { add(`cat.${c.id}.name`, c.name, 'web/js/categories.js'); add(`cat.${c.id}.tip`, c.tip, 'web/js/categories.js') }
 	const P = await import('../web/js/purpose.js')
 	for (const p of P.ORDER) { add(`purpose.${p}.name`, p[0].toUpperCase() + p.slice(1), 'web/js/purpose.js'); add(`purpose.${p}.tip`, P.TIPS[p], 'web/js/purpose.js'); add(`purpose.${p}.use`, P.USE[p], 'web/js/purpose.js') }

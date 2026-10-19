@@ -1,16 +1,16 @@
 /**
- * ATD95 — Sherman Lee Guth's final ATD model (1995), a vision-science account of the
- * opponent pathways: retinal illuminance drives gain-controlled cone responses into
- * two sequential opponent stages — A (achromatic), T (tritan, red-green) and D
- * (deutan, yellow-blue) — modelling discrimination and adaptation data rather than
- * appearance scales. Guth himself stressed it "cannot be considered a colour
- * appearance model"; it ships here as the coordinate system of its second
- * (large-field) stage, the one his hue and saturation predictions read from.
+ * ATD95 — Sherman Lee Guth's final ATD model (1995), a vision-science account of the opponent
+ * pathways. Retinal illuminance drives gain-controlled cone responses into two sequential
+ * opponent stages of A (achromatic), T (tritan, red-green) and D (deutan, yellow-blue)
+ * signals, modelling discrimination and adaptation data rather than appearance scales. Guth
+ * stressed it “cannot be considered a colour appearance model”; here it is the coordinate
+ * system of its second (large-field) stage, the one his hue and saturation predictions read
+ * from.
  *
  * @see {@link https://doi.org/10.1117/12.206546} Guth 1995
  * @year 1995
  * @by Sherman Lee Guth
- * @use Historical vision-science opponent model (discrimination, not appearance); kept for study.
+ * @use Historical vision-science model, kept for study.
  * @channel {A} 0 0.05 Achromatic
  * @channel {T} -0.01 0.08 Tritan
  * @channel {D} -0.03 0.06 Deutan

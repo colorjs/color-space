@@ -1,15 +1,16 @@
 /**
- * Prismatic is a four-channel remapping of RGB by Peter Shirley and David Hart, written
- * up in 2015 after they used it for color edits in the iPhone photo app Subjective. Hue
- * is the Maxwell color triangle in barycentric form, (ρ, γ, β) = (R, G, B) / (R + G + B),
- * and lightness is HSV's V = max(R, G, B), so every cross-section is the same triangle and
- * the whole volume is a prism. Because the hue coordinates are linear in RGB, hue mixing,
- * saturation edits (s = 1 − 3·min(ρ, γ, β)) and palette clamping stay simple arithmetic.
+ * Prismatic is a four-channel remapping of RGB by Peter Shirley and David Hart, written up in
+ * 2015 after they used it for color edits in the iPhone photo app Subjective. Hue is the
+ * Maxwell color triangle in barycentric form, (ρ, γ, β) = (R, G, B) / (R + G + B), and
+ * lightness is HSV's V = max(R, G, B), so every cross-section is the same triangle and the
+ * whole volume is a prism. Because a mix of two RGB colors lands on the straight line between
+ * their hues, hue mixing, saturation edits (s = 1 − 3·min(ρ, γ, β)) and palette clamping stay
+ * simple arithmetic.
  *
  * @see {@link https://web.archive.org/web/20170301014117/http://www.cs.utah.edu/~shirley/papers/prismatic.pdf} Shirley & Hart 2015, Purity LLC Tech Report #1
  * @year 2015
  * @by Shirley & Hart
- * @use Simple hue/saturation edits and palette reduction in photo apps; niche.
+ * @use Palette reduction in photo apps; niche.
  * @channel {L} 0 1 Lightness, max of R, G, B
  * @channel {r} 0 1 Red barycentric (ρ)
  * @channel {g} 0 1 Green barycentric (γ)
