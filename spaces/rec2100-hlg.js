@@ -1,16 +1,14 @@
 /**
- * Rec. 2100 HLG — ITU-R BT.2100's other HDR transfer function, Hybrid Log-Gamma,
- * developed jointly by the BBC and NHK for broadcast. Where PQ encodes absolute
- * luminance, HLG stays scene-referred and backward compatible: it behaves like ordinary
- * gamma near black and switches to a logarithmic curve for highlights, so an unmodified
- * SDR display can still render a reasonable picture without any metadata. It's the
- * format of choice for live HDR broadcast.
+ * Rec. 2100 HLG — Hybrid Log-Gamma, the HDR transfer function the BBC and NHK developed for
+ * broadcast, one of the two in ITU-R BT.2100. Where PQ encodes absolute luminance, HLG stays
+ * scene-referred: ordinary gamma near black, a log curve for highlights, so an unmodified SDR
+ * display still shows a reasonable picture without metadata.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @wiki {@link https://en.wikipedia.org/wiki/Hybrid_log-gamma}
  * @year 2016
  * @by BBC & NHK / ITU-R
- * @use Backward-compatible scene-referred HDR transfer function for live broadcast; current standard.
+ * @use The standard HDR transfer function for live broadcast, scene-referred.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

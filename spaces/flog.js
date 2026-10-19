@@ -1,17 +1,15 @@
 /**
- * F-Log — Fujifilm's log curve, introduced with the X-T2 in 2016 over HDMI only and
- * recorded in-camera from the X-H1 in 2018; firmware then brought internal F-Log to
- * the X-T2 and other X-series and GFX cameras. It combines a
- * linear toe in the shadows with a logarithmic highlight rolloff to extend
- * recordable dynamic range ahead of grading. It's defined over F-Gamut, Fujifilm's
- * color space whose primaries match ITU-R BT.2020, and remains the standard flat
- * profile on Fujifilm bodies that lack the newer, wider-range F-Log2.
+ * F-Log — Fujifilm's log curve, introduced with the X-T2 in 2016 over HDMI only and recorded
+ * in-camera from the X-H1 in 2018. Firmware then brought internal F-Log to the X-T2 and other
+ * X-series and GFX cameras. A linear toe in the shadows and a logarithmic highlight rolloff
+ * extend recordable dynamic range for grading. It is defined over F-Gamut, whose primaries
+ * match ITU-R BT.2020.
  *
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log_DataSheet_E_Ver.1.1.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2016
  * @by Fujifilm
- * @use Standard flat log profile for Fujifilm X-series/GFX video; current on bodies lacking F-Log2.
+ * @use The standard log on Fujifilm bodies that lack F-Log2.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -8,7 +8,7 @@
  * @see {@link https://pro-av.panasonic.net/en/cinema_camera_varicam_eva/support/pdf/VARICAM_V-Log_V-Gamut.pdf}
  * @year 2014
  * @by Panasonic
- * @use Scene-linear camera gamut beneath V-Log for Panasonic VARICAM/cinema footage in VFX and grading; current.
+ * @use Scene-linear gamut under V-Log for VFX and grading of Panasonic VARICAM and cinema footage.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

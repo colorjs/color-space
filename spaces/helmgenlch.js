@@ -6,7 +6,7 @@
  * @see {@link https://arxiv.org/abs/2602.23010}
  * @year 2026
  * @by Görkem Yıldız
- * @use Hue-led palettes and gradients in design systems; new, shipped in Color.js 0.7.
+ * @use Palettes and gradients in design systems; shipped in Color.js 0.7.
  * @channel {L} 0 1 Lightness
  * @channel {C} 0 0.65 Chroma
  * @channel {H} 0 360 Hue angle in degrees

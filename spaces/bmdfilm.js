@@ -9,7 +9,7 @@
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/transfer_functions/blackmagic_design.py}
  * @year 2020
  * @by Blackmagic Design
- * @use Log curve for Blackmagic cinema cameras shooting BRAW; current on URSA Mini Pro/Pocket Cinema Gen 5 color-science bodies.
+ * @use BRAW on Blackmagic's URSA Mini Pro and Pocket Cinema cameras with Gen 5 color science.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

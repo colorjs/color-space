@@ -1,16 +1,15 @@
 /**
- * SMPTE 240M — the interim HDTV standard published by SMPTE in 1988, used during the
- * early analog high-definition era before Rec. 709 was finalized. It shares its wide
- * broadcast primaries with SMPTE-C, referenced to D65 white, but defines its own
- * transfer function — a gamma-like curve with a linear segment near black — distinct
- * from the curves used in BT.601 and BT.709.
+ * SMPTE 240M — the interim analog HDTV standard SMPTE published in 1988, before Rec. 709 was
+ * finalized. It shares SMPTE-C's broadcast primaries and D65 white but has its own transfer
+ * function, a gamma-like curve with a linear segment near black, distinct from the BT.601 and
+ * BT.709 curves.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7291461}
  * @wiki {@link https://en.wikipedia.org/wiki/List_of_color_spaces_and_their_uses#Others_with_RGB_primaries}
  * @year 1988
  * @by SMPTE
- * @use Interim analog HDTV standard preceding Rec. 709; historical, superseded.
- * @successor rec709 An interim analog HDTV standard, replaced by the worldwide Rec. 709
+ * @use Early analog HDTV.
+ * @successor rec709 Rec. 709 became the worldwide HDTV standard
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

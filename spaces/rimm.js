@@ -1,15 +1,13 @@
 /**
- * RIMM RGB — Reference Input Medium Metric RGB, standardized in ISO 22028-3 as the
- * scene-referred counterpart to Kodak's ProPhoto (ROMM) RGB. It shares ProPhoto's
- * very wide D50 primaries but applies a camera-style transfer function with extended
- * highlight headroom above diffuse white, letting it carry scene exposure values
- * that would otherwise clip. It is meant to carry unrendered scene data through an
- * imaging pipeline prior to output-referred rendering.
+ * RIMM RGB — the scene-referred counterpart to Kodak's ProPhoto (ROMM) RGB, standardized in
+ * ISO 22028-3. It keeps ProPhoto's very wide primaries and D50 white with a camera-style curve
+ * that has headroom above diffuse white, so scene exposures that would otherwise clip survive
+ * the pipeline until output-referred rendering.
  *
  * @see {@link https://www.iso.org/standard/58005.html} ISO 22028-3
  * @year 2000
  * @by Kodak
- * @use Scene-referred counterpart to ProPhoto RGB for unrendered imaging pipelines (ISO 22028-3); current but niche.
+ * @use Unrendered imaging pipelines (ISO 22028-3); niche.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

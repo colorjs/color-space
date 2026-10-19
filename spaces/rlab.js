@@ -1,19 +1,17 @@
 /**
- * RLAB is the color appearance model Mark Fairchild published in 1996, developed for
- * predicting how colors reproduce across different media and viewing conditions — for
- * example, matching a printed image's appearance to how it looked on a display. It
- * adapts the cone responses, via a von Kries-style transform through
- * Hunt-Pointer-Estévez cone fundamentals, to the reference viewing condition, then
- * maps the result into a CIELAB-like lightness and opponent-color space, giving it
- * CIELAB's familiar structure while accounting for surround and adaptation effects
- * that plain CIELAB ignores. It was among the earliest appearance models built
- * specifically for cross-media color reproduction workflows.
+ * RLAB is the color appearance model Mark Fairchild published in 1996 to predict how colors
+ * reproduce across media and viewing conditions, such as matching a print to how the image
+ * looked on a display. It adapts cone responses to a reference viewing condition with a von
+ * Kries-style transform through Hunt-Pointer-Estévez fundamentals, then maps them into a
+ * CIELAB-like lightness and opponent space, keeping CIELAB's structure while accounting for
+ * the surround and adaptation effects plain CIELAB ignores. It was among the first appearance
+ * models built for cross-media reproduction.
  *
  * @see {@link https://doi.org/10.1002/(SICI)1520-6378(199610)21:5<338::AID-COL3>3.0.CO;2-Z} Fairchild 1996
  * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#RLAB}
  * @year 1996
  * @by Mark Fairchild
- * @use Cross-media color appearance model for print/display reproduction matching; historical/academic, superseded by CIECAM02/CAM16.
+ * @use Matching print and display reproductions; academic, superseded by CIECAM02 and CAM16.
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Red-Green
  * @channel {b} -125 125 Yellow-Blue

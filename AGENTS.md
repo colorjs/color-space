@@ -15,7 +15,7 @@ an idiom, or a JS workaround on the spot instead of reusing what already exists.
    The dossier modal order is canonical: **header → tag pill (`.dpills .tag`) → `.dhr` → `.dgrid2`,
    two columns of their own heights: the story (`.desc`, then the record `.props`: channels (its label's tip saying
    what it is), kind …, the primaries | origin, reference, test, source, the matrix with its copy beside its label) |
-   the margin (made for · used for · caveat, then the downloads, then the report line)**; the transfer's formula under its plot (the figure's transfer). Any variant
+   the margin (made for · used for · caveat, then the downloads)**; the transfer's formula under its plot (the figure's transfer). Any variant
    (e.g. the proprietary dossier) must read as the same component, not a cousin. Match order and
    naming; don't reorder or rename.
 

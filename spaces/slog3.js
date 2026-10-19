@@ -1,17 +1,14 @@
 /**
- * S-Log3 — Sony's current-generation log curve, designed to mimic the tonal
- * placement of film-scanning logs like Cineon for more intuitive grading than the
- * earlier S-Log curves offered. It pairs with the S-Gamut3 primaries and is the
- * recommended acquisition setting across Sony's modern CineAlta, Venice, and Alpha
- * cinema-line cameras. S-Gamut3 has a companion variant, S-Gamut3.Cine, with
- * narrower primaries closer to DCI-P3 for productions that skip a full grade — a
- * separate color space from this one.
+ * S-Log3 — Sony's current log curve, modeled on the tonal placement of film-scan logs like
+ * Cineon, so it grades more intuitively than the earlier S-Log curves. It pairs with S-Gamut3;
+ * the narrower S-Gamut3.Cine variant, closer to DCI-P3 for productions that skip a full grade,
+ * is a separate color space.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog3.html}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2014
  * @by Sony
- * @use Log curve for Sony CineAlta/Venice/Alpha cameras with S-Gamut3; current recommended acquisition setting.
+ * @use Sony CineAlta, Venice and Alpha cameras with S-Gamut3; the recommended acquisition setting.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

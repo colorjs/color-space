@@ -1,16 +1,13 @@
 /**
- * proLab is a projective perceptual color space proposed by Konovalenko and
- * colleagues in 2021. Where CIELAB reshapes XYZ with an independent cube root on
- * each channel, proLab applies a single projective transformation, so that
- * straight-line mixtures of light — additive color mixing — stay straight lines in
- * proLab coordinates while distances still track human discrimination thresholds
- * the way CIELAB's do. That combination suits image-processing and color-difference
- * work that depends on linear blending staying linear after the color transform.
+ * proLab is a projective perceptual color space proposed by Konovalenko and colleagues in
+ * 2021. Where CIELAB applies a separate cube root to each XYZ channel, proLab applies one
+ * projective transform, so straight lines of additive light mixing stay straight, while
+ * distances still track human discrimination thresholds as CIELAB's do.
  *
  * @see {@link https://arxiv.org/abs/2012.07653}
  * @year 2021
  * @by Konovalenko et al.
- * @use Projective, linear-mixture-preserving perceptual space for image processing; emerging, niche.
+ * @use Image processing that must preserve linear mixtures; niche.
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Red-Green
  * @channel {b} -125 125 Yellow-Blue

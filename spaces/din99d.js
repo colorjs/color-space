@@ -1,18 +1,14 @@
 /**
- * DIN99d is a 2002 refinement of the DIN99 uniform color space by Cui, Luo, Rigg,
- * Roesler and Witt, aimed at fixing the original formula's uneven treatment of
- * blue hues. It adds a correction applied to the tristimulus values before the
- * CIELAB step, along with the family's usual hue rotation and logarithmic
- * compression, so Euclidean distance between two DIN99d points tracks perceived
- * difference more evenly across the hue circle than DIN99 or CIELAB manage alone.
- * Like the rest of the DIN99 family, it's used mainly for industrial
- * color-tolerance work where a simple Euclidean metric is preferred over
- * CIE ΔE2000.
+ * DIN99d is a 2002 refinement of the DIN99 uniform color space by Cui, Luo, Rigg, Roesler and
+ * Witt, made to fix the original's uneven treatment of blue hues. It corrects the tristimulus
+ * values before the CIELAB step, then applies the family's usual hue rotation and logarithmic
+ * compression, so Euclidean distance tracks perceived difference more evenly around the hue
+ * circle than in DIN99 or CIELAB.
  *
  * @see {@link https://doi.org/10.1002/col.10066}
  * @year 2002
  * @by Cui, Luo, Rigg, Roesler & Witt
- * @use Industrial color-tolerance measurement (coatings/plastics/automotive); current niche alternative to CIEDE2000.
+ * @use Industrial color tolerances (coatings, plastics, automotive); a niche alternative to CIEDE2000.
  * @channel {L} 0 100 Lightness
  * @channel {a} -50 50 Green-Red axis
  * @channel {b} -50 50 Blue-Yellow axis

@@ -1,15 +1,14 @@
 /**
- * Hunt — Robert Hunt's colour appearance model (1982-1995), the most ambitious of the
- * classical CAMs: developed over decades at Kodak, it models cone AND rod responses,
- * luminance-level adaptation, surround induction, and predicts the full set of
- * appearance correlates for related and unrelated colours from dim starlight to
- * bright daylight. Its complexity is legendary — and directly ancestral: CIECAM97s
- * and CIECAM02 are, in Fairchild's phrase, Hunt models simplified for practice.
+ * Hunt — Robert Hunt's colour appearance model (1982–1995), the most ambitious of the
+ * classical CAMs. It models cone and rod responses, luminance-level adaptation and surround
+ * induction, and predicts the full set of appearance correlates for related and unrelated
+ * colours. CIECAM97s and CIECAM02 are, in Fairchild's phrase, Hunt models simplified for
+ * practice.
  *
  * @see {@link https://doi.org/10.1002/col.5080190504} Hunt 1994; Fairchild 2013, ch. 12
  * @year 1994
  * @by Robert W. G. Hunt
- * @use Historical flagship appearance model (Kodak); the direct ancestor of CIECAM97s/CIECAM02; kept for study.
+ * @use Historical model kept for study; the direct ancestor of CIECAM97s and CIECAM02.
  * @channel {J} 0 100 Lightness
  * @channel {C} 0 120 Chroma
  * @channel {h} 0 360 Hue

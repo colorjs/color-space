@@ -1,16 +1,13 @@
 /**
- * Gray — a single-channel relative luminance value, the Y of CIE XYZ, computed from
- * linear-light RGB rather than gamma-encoded values. That distinction matters: true
- * luminance (Y) measures physical light output, while the "luma" (Y′) computed from
- * gamma-encoded RGB — common in video engineering — only approximates it. Relative
- * luminance is the quantity behind contrast-ratio calculations such as the WCAG
- * accessibility guidelines.
+ * Gray — a single relative-luminance channel, the Y of CIE XYZ, computed from linear-light
+ * RGB. Luminance (Y) measures physical light output; the luma (Y′) that video engineering
+ * computes from gamma-encoded RGB only approximates it.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#grays}
  * @wiki {@link https://en.wikipedia.org/wiki/Grayscale}
  * @year 1931
  * @by CIE
- * @use Relative-luminance channel derived from linear RGB; current basis for WCAG contrast-ratio calculations.
+ * @use The basis of WCAG contrast ratios, derived from linear RGB.
  * @aka grey; grayscale; greyscale
  * @channel {Y} 0 1 Relative luminance
  * @method matrix

@@ -10,7 +10,7 @@
  * @see {@link https://developer.apple.com/download/all/?q=Apple%20log%202}
  * @year 2025
  * @by Apple
- * @use Log capture on iPhone in Apple's own wide gamut for grading and VFX; Apple's current log encoding (white paper Sept 2025).
+ * @use Log capture on iPhone for grading and VFX; Apple's current log encoding (white paper, Sept 2025).
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

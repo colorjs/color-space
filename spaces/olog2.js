@@ -8,7 +8,7 @@
  * @see {@link https://www.oppo.com/en/o-log-technical-downloads/}
  * @year 2026
  * @by OPPO
- * @use Log video profile for OPPO smartphones; graded through OPPO's O-Log2 LUTs or its ACES transform.
+ * @use Log video on OPPO phones.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

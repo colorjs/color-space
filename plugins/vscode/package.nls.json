@@ -1,5 +1,5 @@
 {
-  "description": "Every color in your file on one plane, in OKLCH, HCT, CAM16, Display P3 or any of 205 color spaces: CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, design tokens, themes and palettes, written back in their own notation.",
+  "description": "Edit the colors in your code in OKLCH, Display P3 or any of 205 color spaces.",
   "view.name": "Color Space",
   "command.pick": "Pick Color",
   "command.convert": "Convert Color To…",

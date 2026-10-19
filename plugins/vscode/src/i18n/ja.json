@@ -44,8 +44,8 @@
     "h": "aa15a325"
   },
   "nls:description": {
-    "t": "ファイル内のすべての色を1つの平面に。OKLCH、HCT、CAM16、Display P3など、205の色空間のどれでも扱えます。CSS、Swift、Flutter、Compose、Unity、Godot、Unreal、デザイントークン、テーマ、パレットの色は、それぞれ元の表記で書き戻します。",
-    "h": "d583de89"
+    "t": "コード内の色を、OKLCH、Display P3など205のどの色空間でも編集できます。",
+    "h": "9504e8f3"
   },
   "nls:gamut.description": {
     "t": "より広い色域の色を表せる表記（`oklch()`、`lab()`、`color(display-p3 …)`など）で、カラーピッカーが書き込む色域。`#hex`、`rgb()`、`hsl()`、`hwb()`は常にsRGBの範囲内で書き込みます。",

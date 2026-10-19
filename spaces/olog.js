@@ -1,14 +1,12 @@
 /**
- * O-Log — OPPO's log profile for its Find X8 Ultra-era smartphones, giving the
- * camera a flat, grading-ready image in the same spirit as Apple Log and Xiaomi's
- * Mi-Log. Unlike those two-piece curves, O-Log applies a single, pure natural-log
- * function across the whole tonal range, with no separate toe segment near black.
- * It's recorded in a BT.2020 color container.
+ * O-Log — OPPO's log profile for its Find X8 Ultra-era smartphones. Apple Log and Xiaomi's
+ * Mi-Log are two-piece curves; O-Log is one pure natural-log function across the whole tonal
+ * range, with no separate toe near black. It is recorded in a BT.2020 color container.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_OPPOOLog.html}
  * @year 2025
  * @by OPPO
- * @use Log video profile for OPPO Find X8 Ultra-era smartphones; current flagship-camera grading feature.
+ * @use Log video on OPPO Find X8 Ultra-era phones.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

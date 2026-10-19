@@ -1,15 +1,13 @@
 /**
- * Linear-light ProPhoto RGB — the gamma-free counterpart to Kodak's ProPhoto (ROMM)
- * RGB, sharing its very wide primaries and D50 white point but with channel values
- * directly proportional to light intensity. It is the intermediate space for
- * color math on ProPhoto-referenced images, such as raw photo processing, before
- * results are re-encoded with ProPhoto's transfer curve.
+ * Linear-light ProPhoto RGB — Kodak's ProPhoto (ROMM) RGB without its transfer curve: the same
+ * very wide primaries and D50 white, with channel values proportional to light. Color math on
+ * ProPhoto images happens here, before ProPhoto's curve is reapplied.
  *
  * @see {@link https://www.color.org/ROMMRGB.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/ProPhoto_RGB_color_space}
  * @year 1999
  * @by Kodak
- * @use Linear intermediate for Kodak ProPhoto (ROMM) RGB; current, used in raw-photo color-math pipelines.
+ * @use Raw-photo color math on ProPhoto (ROMM) RGB values.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

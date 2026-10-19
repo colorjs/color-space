@@ -1,14 +1,13 @@
 /**
- * HCG — Hue, Chroma, Gray, a cylindrical RGB model that separates a color into its
- * pure hue, the chroma (colorfulness) mixed into it, and the amount of gray added to
- * dilute it. Unlike HSL or HSV, chroma here is an absolute measure of colorfulness
- * rather than one relative to lightness or value — a natural fit for
- * additive hue-and-gray color mixing.
+ * HCG — Hue, Chroma, Gray, a cylindrical RGB model that splits a color into its pure hue, the
+ * chroma (colorfulness) mixed into it and the gray added to dilute it. Unlike in HSL or HSV,
+ * chroma is an absolute measure of colorfulness, not relative to lightness or value, which
+ * suits additive mixing of hue and gray.
  *
  * @see {@link https://github.com/Qix-/color-convert}
  * @year 2011
  * @by community convention
- * @use Cylindrical RGB model (absolute chroma + gray) for colour-picker UIs; niche, mainly in JS colour libraries.
+ * @use Colour-picker UIs; niche, mainly in JS colour libraries.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 100 Chroma percentage
  * @channel {G} 0 100 Gray component percentage

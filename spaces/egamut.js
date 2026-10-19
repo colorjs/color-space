@@ -7,7 +7,7 @@
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/rgb/datasets/filmlight.py}
  * @year 2013
  * @by FilmLight
- * @use Scene-linear working gamut beneath T-Log; Baselight's camera-agnostic grading space.
+ * @use Scene-linear grading in Baselight.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

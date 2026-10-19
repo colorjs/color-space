@@ -1,19 +1,16 @@
 /**
- * The Ohta color space, introduced by Yu-Ichi Ohta, Takeo Kanade and Toshiyuki Sakai
- * in 1980, decorrelates RGB into three opponent channels — an intensity channel and
- * two chroma channels — chosen empirically to approximate the Karhunen-Loève
- * transform (the statistically optimal decorrelation) of typical natural images,
- * rather than being derived from any display or broadcast standard. Because it is a
- * simple, exact and invertible linear transform of RGB, it is cheap to compute in
- * both directions while still concentrating most of an image's variance into a
- * single channel. It has been used widely in computer-vision segmentation tasks —
- * isolating vegetation, fruit, flames, and skin regions — where that decorrelation
- * makes thresholding more reliable than working directly in RGB.
+ * The Ohta color space, introduced by Yu-Ichi Ohta, Takeo Kanade and Toshiyuki Sakai in 1980,
+ * decorrelates RGB into an intensity and two opponent chroma channels, chosen empirically to
+ * approximate the Karhunen-Loève transform (the statistically optimal decorrelation) of
+ * typical natural images. As an exact, invertible linear transform of RGB, it is cheap in both
+ * directions while still packing most of an image's variance into one channel. In segmentation
+ * of vegetation, fruit, flames and skin, that decorrelation makes thresholding more reliable
+ * than in RGB.
  *
  * @see {@link https://doi.org/10.1016/0146-664X(80)90047-7} Ohta, Kanade & Sakai 1980
  * @year 1980
  * @by Ohta, Kanade & Sakai
- * @use Decorrelated RGB for computer-vision segmentation (vegetation, skin, flame); niche, still referenced in CV literature.
+ * @use Computer-vision segmentation (vegetation, skin, flame); niche, still referenced in CV literature.
  * @channel {I1} 0 255 Intensity/3
  * @channel {I2} -128 128 Opponent/2
  * @channel {I3} -128 128 Opponent/4

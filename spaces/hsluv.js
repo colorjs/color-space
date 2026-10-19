@@ -1,13 +1,8 @@
 /**
- * HSLuv is Alexei Boronine's human-friendly cylindrical form of CIELUV, built to
- * fix a longstanding frustration with HSL: at full saturation, different hues
- * reach wildly different actual vividness, so pure yellow at S=100 looks nothing
- * like pure blue at S=100. HSLuv rescales chroma per hue and lightness so that
- * S=100 always lands exactly on the sRGB gamut boundary, giving a saturation
- * slider that behaves consistently across every hue. Lightness and hue pass
- * through unchanged from LCHuv, and the result is popular in design tools and
- * palette generators that want HSL's familiar interface without its uneven color
- * behavior.
+ * HSLuv is Alexei Boronine's HSL built on CIELUV. In HSL, yellow and blue at S=100 are far
+ * from equally vivid; HSLuv rescales chroma per hue and lightness so S=100 always lands on the
+ * sRGB gamut edge, and the saturation slider behaves the same for every hue. Lightness and hue
+ * come unchanged from LCHuv.
  *
  * @see {@link https://www.hsluv.org/}
  * @see {@link https://github.com/hsluv/hsluv}
@@ -15,7 +10,7 @@
  * @aka HUSL
  * @year 2012
  * @by Alexei Boronine
- * @use Perceptually even saturation across hues for design/palette tools; current, actively maintained (renamed from HUSL in 2018).
+ * @use Even saturation across hues in design and palette tools; actively maintained, renamed from HUSL in 2018.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {S} 0 100 Saturation percentage
  * @channel {L} 0 100 Lightness percentage

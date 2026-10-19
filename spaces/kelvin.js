@@ -1,16 +1,14 @@
 /**
- * Kelvin — correlated color temperature (CCT), the familiar scale for describing a
- * light source's warmth or coolness by comparing it to an ideal black-body radiator:
- * roughly 2700 K for a warm incandescent candle-like glow, up to 6500 K and beyond for
- * cool daylight. It's the white-balance axis used throughout photography, lighting
- * design and display calibration, mapping a single temperature value to a point on the
- * Planckian locus.
+ * Kelvin — correlated color temperature (CCT), the scale that describes a light source's
+ * warmth or coolness by comparison with an ideal black-body radiator: about 2700 K for warm
+ * incandescent light, 6500 K and beyond for cool daylight. One temperature value maps to one
+ * point on the Planckian locus.
  *
  * @see {@link https://doi.org/10.1002/col.5080100109} Krystek 1985 (CCT→uv locus)
  * @wiki {@link https://en.wikipedia.org/wiki/Planckian_locus}
  * @year 1931
  * @by Raymond Davis; CIE (Judd)
- * @use White-balance / CCT axis for photography, lighting and display calibration via the Planckian locus.
+ * @use White balance and CCT in photography, lighting and display calibration.
  * @channel {T} 1000 25000 Temperature
  * @method spectral
  * @encoding chromaticity

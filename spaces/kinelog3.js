@@ -9,7 +9,7 @@
  * @see {@link https://kinefinity.com/kinelog3-technical-specifications}
  * @year 2025
  * @by Kinefinity
- * @use Log curve for Kinefinity cinema cameras on Kinefinity Wide Gamut (MAVO Edge 6K, MM2 LF); introduced September 2025.
+ * @use Kinefinity cinema cameras on Kinefinity Wide Gamut; introduced September 2025.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

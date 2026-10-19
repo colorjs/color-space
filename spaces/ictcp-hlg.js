@@ -1,15 +1,13 @@
 /**
- * ICtCp with the HLG transfer is the second ICtCp variant in ITU-R BT.2100: the same
- * Rec. 2020 to LMS cone matrix as PQ ICtCp, but each cone signal is coded with the
- * Hybrid Log-Gamma OETF on scene light, and the Ct and Cp rows are the PQ rows scaled
- * by about 0.55 and 0.53. It gives HLG chains ICtCp's constant-intensity chroma as an
- * alternative to Y′C′bC′r.
+ * ICtCp with the HLG transfer is the second ICtCp variant in ITU-R BT.2100: the same Rec. 2020
+ * to LMS cone matrix as PQ ICtCp, but each cone signal is coded with the Hybrid Log-Gamma OETF
+ * on scene light, and the Ct and Cp rows are the PQ rows scaled by about 0.55 and 0.53.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100} ITU-R BT.2100-3, Table 7 (HLG column)
  * @wiki {@link https://en.wikipedia.org/wiki/ICtCp}
  * @year 2018
  * @by Dolby / ITU-R
- * @use Constant-intensity opponent coding for HLG HDR; standardized, but BT.2100 keeps NCL Y′C′bC′r as the default and reserves ICtCp for exchange by mutual agreement.
+ * @use HLG HDR coding, standardized in BT.2100 beside the default NCL Y′C′bC′r.
  * @channel {I} 0 1 Intensity
  * @channel {Ct} -0.5 0.5 Tritan chroma
  * @channel {Cp} -0.5 0.5 Protanopia chroma

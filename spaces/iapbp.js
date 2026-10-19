@@ -9,7 +9,7 @@
  * @see {@link https://doi.org/10.1364/OE.530213} Huang et al. 2024, Opt. Express 32(17), 30742-30755
  * @year 2024
  * @by Huang, Xu, Zhang, Hu, Deng & Li
- * @use Uniform opponent space for HDR/WCG image processing (tone mapping, color difference); research, no reference implementation.
+ * @use Tone mapping and color difference in HDR/WCG imaging; research.
  * @channel {I} 0 1 Lightness
  * @channel {ap} -1 1 Blue-Yellow
  * @channel {bp} -1 1 Red-Cyan

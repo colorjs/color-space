@@ -1,14 +1,13 @@
 /**
- * Log3G12 — an earlier RED Digital Cinema log curve, predating Log3G10 but sharing
- * the same REDWideGamutRGB primaries. It allocates 12 stops of range above middle
- * grey rather than Log3G10's 10, and its curve is sign-symmetric, encoding negative
- * scene-linear values continuously instead of clipping them. RED has since moved to
- * Log3G10 as its recommended acquisition curve.
+ * Log3G12 — an earlier RED Digital Cinema log curve, predating Log3G10 but on the same
+ * REDWideGamutRGB primaries. It allocates 12 stops of range above middle grey rather than
+ * Log3G10's 10, and its curve is sign-symmetric, encoding negative scene-linear values
+ * continuously instead of clipping them.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Log3G12.html}
  * @year 2016
  * @by RED Digital Cinema (Graeme Nattress)
- * @use Earlier RED cinema log curve superseded by Log3G10; legacy, still decodable but no longer recommended.
+ * @use Earlier RED footage; still decodable.
  * @successor log3g10 RED settled on Log3G10 as its one recommended curve
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

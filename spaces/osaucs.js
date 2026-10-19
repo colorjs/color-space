@@ -1,20 +1,15 @@
 /**
- * OSA-UCS (Uniform Color Scale) is a color space developed by an Optical Society of
- * America committee and published in 1974, closely associated with David MacAdam's
- * work on the project. It set out to solve a problem CIELAB and CIELUV don't fully
- * address: making equal numerical distances correspond to equal perceived
- * differences not just for small steps, but across large jumps anywhere in the
- * space. Rather than a simple rectangular grid, its coordinates sit on a cubic
- * close-packed lattice, matching how the committee's extensive visual-scaling
- * experiments found colors to actually cluster perceptually. It has found its main
- * use in industrial and scientific color-difference work that values this
- * large-scale uniformity over the convenience of more common spaces.
+ * OSA-UCS (Uniform Color Scale) is a color space developed by an Optical Society of America
+ * committee and published in 1974, closely associated with David MacAdam's work on the
+ * project. It aims for equal numerical distances to match equal perceived differences in every
+ * direction, for clearly visible steps rather than near-matches. The committee sampled it on a
+ * cubic close-packed lattice, so each sample color sits one equal step from 12 neighbors.
  *
  * @see {@link https://doi.org/10.1364/JOSA.64.001691}
  * @wiki {@link https://en.wikipedia.org/wiki/OSA-UCS}
  * @year 1974
  * @by OSA committee (David MacAdam)
- * @use Large-step perceptual uniformity for industrial/scientific color-difference work; legacy, niche next to CIELAB/CIELUV.
+ * @use Large-step color-difference work in industry and science; legacy, niche next to CIELAB and CIELUV.
  * @channel {L} -10 10 Lightness
  * @channel {j} -20 20 Yellow-Blue axis
  * @channel {g} -20 20 Red-Green axis

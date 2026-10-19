@@ -1,16 +1,15 @@
 /**
- * Canon Log 3 — Canon's balanced cinema log curve, added in 2016 via firmware, a cycle
- * after the EOS C300 Mark II shipped (2015) with Canon Log 2. Rather than one log function, it blends a log shadow
- * region, a linear midtone, and a log highlight region into a three-piece curve,
- * aiming for close to Canon Log 2's dynamic range with gentler, easier-to-grade
- * contrast. It shares the Cinema Gamut primaries with Canon Log and Canon Log 2, and
- * has become Canon's most widely used cinema log curve.
+ * Canon Log 3 — Canon's balanced cinema log curve, added by firmware in 2016, a year after the
+ * EOS C300 Mark II shipped with Canon Log 2. It joins a log shadow region, a linear midtone
+ * and a log highlight region into one three-piece curve, aiming for close to Canon Log 2's
+ * dynamic range with gentler, easier-to-grade contrast. It shares the Cinema Gamut primaries
+ * with Canon Log and Canon Log 2.
  *
  * @see {@link https://downloads.canon.com/nw/learn/white-papers/cinema-eos/white-paper-canon-log-gamma-curves.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2016
  * @by Canon
- * @use Canon’s three-piece cinema log on Cinema Gamut; its most widely used log curve today.
+ * @use Canon’s most widely used cinema log, a three-piece curve on Cinema Gamut.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

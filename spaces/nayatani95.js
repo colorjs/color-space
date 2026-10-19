@@ -10,7 +10,7 @@
  * @see {@link https://doi.org/10.1002/col.5080200305} Nayatani et al. 1995
  * @year 1995
  * @by Yoshinobu Nayatani
- * @use Historical appearance model of illuminant-level (Hunt/Stevens) effects; folded into the CIECAM97s lineage.
+ * @use Historical; folded into the CIECAM97s lineage.
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 190 Chroma
  * @channel {h} 0 360 Hue

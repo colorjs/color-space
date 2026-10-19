@@ -39,6 +39,23 @@ const root = p => fileURLToPath(new URL('../../' + p, import.meta.url))
 const fail = msg => { console.error(`build:figma: ${msg}`); process.exit(1) }
 
 /**
+ * A CSS block's custom properties, name → value: each value runs to the ';' that ends its declaration – never one inside
+ * a function or a string (a data: URL carries its own) – or to the block's end.
+ * @param {string} block  a rule's body, its declarations one to a line
+ */
+export function declarations(block) {
+	const out = new Map()
+	for (const m of block.matchAll(/^\s*(--[\w-]+)\s*:/gm)) {
+		let k = m.index + m[0].length, depth = 0, q = ''
+		for (; k < block.length; k++) { const c = block[k]
+			if (c === '\\') k++   // an escaped character, a quote or a ';', is the value's own
+			else if (q) { if (c === q) q = '' } else if (c === '"' || c === "'") q = c; else if (c === '(') depth++; else if (c === ')') depth--; else if (c === ';' && !depth) break }
+		out.set(m[1], block.slice(m.index + m[0].length, k).trim())
+	}
+	return out
+}
+
+/**
  * The panel as one self-contained HTML string.
  * @param {object} [o]
  * @param {Record<string, Record<string, string>>} [o.tables]  language → word table (virtual:i18n); none: English
@@ -64,7 +81,7 @@ export async function panel({ tables = {}, css = '', inter = true } = {}) {
 	let template = readFileSync(here('src/ui.html'), 'utf8')
 	const tokensCss = readFileSync(root('web/tokens.css'), 'utf8')
 	const rootBlock = tokensCss.match(/:root\s*\{([\s\S]*?)\n\}/)?.[1] ?? fail('no :root block in web/tokens.css')
-	const decls = new Map([...rootBlock.matchAll(/^\s*(--[\w-]+)\s*:\s*([^;]+);/gm)].map(m => [m[1], m[2].trim()]))
+	const decls = declarations(rootBlock)
 	const own = new Set([...(template + css).matchAll(/(--[\w-]+)\s*:/g)].map(m => m[1]))   // declared anywhere, a rule's own included
 	const refs = s => [...s.matchAll(/var\((--[\w-]+)\s*\)/g)].map(m => m[1])   // var(--x, fallback) carries its own value
 	const host = t => t.startsWith('--figma-') || t.startsWith('--vscode-')   // the host's theme, set by the host at runtime

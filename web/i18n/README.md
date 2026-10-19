@@ -18,7 +18,7 @@ named by its BCP 47 tag: `pt.json`, `es.json`, `zh-Hans.json`.
   English you translated. When the English changes, its `h` changes, and your entry is stale.
 - Keys are namespaced: `page.*` titles and descriptions, `ui.*` interface, `faq.*`, `cat.*`
   families, `purpose.*`, `tag.*` and `channel.*` vocabulary, `space.<id>.*` descriptions and uses,
-  `lore.<id>.*`, `tour.*`, `editor.*`, `lens.*`.
+  `lore.<id>.*`, `editor.*`, `lens.*`.
 
 ## Rules
 
@@ -71,6 +71,10 @@ mirrored from English («равные шаги выглядят равными»
 log curve), literal metaphors and personified spaces were rewritten in each field's own register,
 one recurring English formula settled once per language, and the meaning errors found on the way
 fixed (three coordinates "suffice" where English says the minimum needed). AI-assisted as well.
+The 2026-10-19 copy pass shortened the English by about a third (descriptions, “used for” lines,
+margin notes), corrected the content errors a source check found (CIECAM16 is CAM16; the IgPgTg and HSM
+authors; PAL's BT.470 gamma 2.8; CCT measured in CIE 1960 uv, among others), and retranslated every
+changed string in all 12 languages from the new English, the glossary's terms kept. AI-assisted too.
 `@meta.reviewed` remains `null`. The language-specific questions in `GLOSSARY.md` still need
 native readers with color-science or imaging experience.
 

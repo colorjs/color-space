@@ -10,7 +10,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACEScc_&_ACEScct}
  * @year 2016
  * @by Academy (AMPAS)
- * @use Log2-with-toe color-grading working space in ACES post-production; current default ACES grading space.
+ * @use The default log2 color-grading space in ACES post-production.
  * @channel {R} -0.358 1.468 Red
  * @channel {G} -0.358 1.468 Green
  * @channel {B} -0.358 1.468 Blue

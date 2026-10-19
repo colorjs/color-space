@@ -1,15 +1,14 @@
 /**
- * Rec. 2020 — the ITU-R BT.2020 standard defining the color gamut and transfer
- * characteristics for ultra-high-definition television. It uses a transfer function
- * with the same piecewise shape as Rec. 709, but spans a dramatically wider set of
- * primaries that approach the outer limits of human color perception — the target
- * gamut for 4K and 8K UHD broadcast, streaming and HDR displays.
+ * Rec. 2020 — the ITU-R BT.2020 standard for the gamut and transfer function of
+ * ultra-high-definition television. Its curve keeps Rec. 709's piecewise shape; its far wider
+ * primaries, close to the limits of human vision, are the target for 4K and 8K broadcast and
+ * streaming.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020}
  * @wiki {@link https://en.wikipedia.org/wiki/Rec._2020}
  * @year 2012
  * @by ITU-R
- * @use Wide-gamut color space for UHDTV 4K/8K broadcast and HDR; current standard.
+ * @use The standard gamut for 4K/8K UHDTV broadcast and HDR.
  * @aka BT.2020; ITU-R BT.2020
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

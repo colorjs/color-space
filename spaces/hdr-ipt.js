@@ -1,15 +1,14 @@
 /**
- * hdr-IPT — Fairchild & Wyble's 2010/2011 extension of IPT to high-dynamic-range
- * imagery. IPT's fixed power-law lightness response only holds over a narrow luminance
- * range, so hdr-IPT replaces it with a Michaelis-Menten response whose exponent adapts
- * to the scene's own luminance, echoing how the eye itself adapts. It keeps IPT's I/P/T
- * lightness, red-green and yellow-blue structure while extending its hue-linear behavior
- * across HDR's much larger dynamic range.
+ * hdr-IPT — Fairchild & Wyble's 2010/2011 extension of IPT to high-dynamic-range imagery.
+ * IPT's fixed power-law lightness response holds only over a narrow luminance range, so
+ * hdr-IPT replaces it with a Michaelis–Menten response whose exponent adapts to scene
+ * luminance, echoing the eye's own adaptation. IPT's hue linearity extends across HDR's much
+ * larger range.
  *
  * @see {@link https://library.imaging.org/cic/articles/18/1/art00057} Fairchild & Wyble 2010
  * @year 2010
  * @by Mark Fairchild & Garrett Wyble
- * @use HDR-adapted IPT for hue-linear appearance modeling across wide luminance range; academic, not industrially deployed.
+ * @use Hue-linear appearance modeling; academic, not deployed in industry.
  * @channel {I} 0 100 Lightness
  * @channel {P} -100 100 Red-Green
  * @channel {T} -100 100 Yellow-Blue

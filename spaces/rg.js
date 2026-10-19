@@ -1,21 +1,19 @@
 /**
- * rg chromaticity — the RGB analog of CIE xy: red, green and blue are normalized by
- * their sum, discarding overall intensity and leaving only the relative color
- * proportions. Because it factors out brightness, it's a long-standing technique in
- * color matching and computer vision for describing a surface's color in a way that's
- * more robust to lighting changes than raw RGB.
+ * rg chromaticity — the RGB analog of CIE xy: R, G and B divided by their sum, so overall
+ * intensity drops out and only the color proportions remain. With brightness gone, it
+ * describes a surface's color more robustly to lighting changes than raw RGB.
  *
  * @see {@link https://doi.org/10.1098/rstl.1860.0005} Maxwell 1860, Phil. Trans. 150, 57
  * @wiki {@link https://en.wikipedia.org/wiki/Rg_chromaticity}
  * @year 1860
  * @by James Clerk Maxwell
- * @use Chromaticity with intensity divided out, for colour matching and illumination-robust vision.
+ * @use Colour matching and illumination-robust vision.
  * @channel {r} 0 1 Red chromaticity coordinate
  * @channel {g} 0 1 Green chromaticity coordinate
  * @method chromaticity
  * @encoding chromaticity
  * @referred display
- * @loss projective Chromaticity only — overall intensity is discarded.
+ * @loss projective Chromaticity only: overall intensity is discarded.
  * @dynamic sdr
  */
 // Implementation notes:

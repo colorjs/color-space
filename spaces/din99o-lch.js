@@ -1,16 +1,14 @@
 /**
- * DIN99o LCh is the cylindrical form of DIN99o Lab, the DIN 6176 color-difference
- * space, converting its rectangular axes into chroma and hue for the same reason
- * LCh does for ordinary CIELAB — a more direct handle for adjusting saturation and
- * hue. It keeps DIN99o's central advantage: because the space is built so
- * Euclidean distance already approximates perceived difference, a simple chroma
- * or lightness difference here is a meaningful color-tolerance metric without
- * further correction formulas.
+ * DIN99o LCh is the cylindrical form of DIN99o Lab, the DIN 6176 color-difference space. As
+ * LCh does for CIELAB, it trades the rectangular axes for chroma and hue, a more direct handle
+ * on saturation and hue. Since DIN99o's Euclidean distance already approximates perceived
+ * difference, a plain chroma or lightness difference here is a meaningful tolerance metric,
+ * with no correction formulas.
  *
  * @see {@link https://de.wikipedia.org/wiki/DIN99-Farbraum}
  * @year 2018
  * @by DIN (FNF/FNL 2 committee)
- * @use Direct chroma/hue tolerance adjustment; current, same industrial QC domain as DIN99o Lab.
+ * @use Adjusting chroma and hue tolerances in industrial QC.
  * @aka DIN99b LCh
  * @channel {L} 0 100 Lightness
  * @channel {C} 0 51.484 Chroma

@@ -1,18 +1,15 @@
 /**
- * CIELAB is the CIE's 1976 perceptual color space, the first widely adopted
- * attempt to make Euclidean distance between coordinates track perceived color
- * difference. It splits color into lightness and two opponent axes — red versus
- * green and yellow versus blue — echoing how the visual system encodes color
- * beyond the retina. Color-managed workflows conventionally anchor Lab to the D50
- * illuminant, which is why it is the ICC profile connection space and the
- * reference form of CSS Color 4's lab() function, rather than tying it to any
- * particular display's white point.
+ * CIELAB is the CIE's 1976 perceptual color space, the first widely adopted attempt to make
+ * Euclidean distance between coordinates track perceived color difference. Like the visual
+ * system beyond the retina, it splits color into lightness and two opponent axes. Color
+ * management conventionally anchors it to D50, the white of the ICC profile connection space
+ * and of CSS Color 4's lab(), not to any display's white point.
  *
  * @see {@link https://www.w3.org/TR/css-color-4/#lab-colors}
  * @wiki {@link https://en.wikipedia.org/wiki/CIELAB_color_space}
  * @year 1976
  * @by CIE
- * @use Device-independent perceptual color specification; current ICC profile connection space and CSS Color 4's lab().
+ * @use Device-independent perceptual color specification; an ICC profile connection space and CSS Color 4's lab().
  * @channel {L} 0 100 Lightness
  * @channel {a} -125 125 Green-Red axis
  * @channel {b} -125 125 Blue-Yellow axis

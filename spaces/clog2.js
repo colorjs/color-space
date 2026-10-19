@@ -9,7 +9,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2015
  * @by Canon
- * @use Cinema EOS camera log capture for maximum dynamic range; current alongside Canon Log 3.
+ * @use Cinema EOS log capture, alongside Canon Log 3.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

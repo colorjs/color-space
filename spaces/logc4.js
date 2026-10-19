@@ -1,14 +1,13 @@
 /**
- * LogC4 — ARRI's fourth-generation logarithmic encoding, introduced with the
- * ALEXA 35 in 2022. It compresses the sensor's 17 stops into a curve that keeps
- * grading response uniform from deep shadow to specular highlight, paired with the
- * ARRI Wide Gamut 4 primaries — the current standard for ARRI cinema workflows.
+ * LogC4 — ARRI's fourth-generation logarithmic encoding, introduced with the ALEXA 35 in 2022.
+ * It compresses the sensor's 17 stops into a curve that keeps grading response uniform from
+ * deep shadow to specular highlight, on the ARRI Wide Gamut 4 primaries.
  *
  * @see {@link https://www.arri.com/resource/blob/278790/dc29f7399c1dc9553d329e27f1409a89/2022-05-arri-logc4-specification-data.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2022
  * @by ARRI
- * @use Cinema camera log capture; current ARRI ALEXA 35 native encoding.
+ * @use The ARRI ALEXA 35's native encoding.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

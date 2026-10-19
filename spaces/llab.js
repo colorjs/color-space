@@ -9,7 +9,7 @@
  * @see {@link https://doi.org/10.1002/(SICI)1520-6378(199612)21:6<412::AID-COL4>3.0.CO;2-Z} Luo, Lo & Kuo 1996
  * @year 1996
  * @by Luo, Lo & Kuo
- * @use Historical CIELAB successor candidate for cross-media reproduction; superseded by CIECAM97s/CIECAM02.
+ * @use A historical candidate to succeed CIELAB, superseded by CIECAM97s and CIECAM02.
  * @channel {L} -10 100 Lightness
  * @channel {A} -80 100 Red-Green
  * @channel {B} -90 90 Yellow-Blue

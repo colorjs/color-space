@@ -1,17 +1,14 @@
 /**
- * CAM02-UCS is the uniform color space Luo, Cui & Li built on top of CIECAM02 in
- * 2006, transforming its lightness and colorfulness correlates through a compressive
- * scale so that equal numerical distances correspond much more closely to equal
- * perceived color differences. Reprojected into Cartesian coordinates, it behaves
- * like a CIELAB-style space but is far more perceptually uniform, so it is well
- * suited to computing color differences (ΔE) and to gamut mapping. CAM16-UCS later
- * carried the same compression scheme over to CAM16.
+ * CAM02-UCS is the uniform color space Luo, Cui & Li built on CIECAM02 in 2006. Its lightness
+ * and colorfulness pass through a compressive scale, so equal distances track equal perceived
+ * differences much more closely. In Cartesian coordinates it reads like CIELAB, only more
+ * perceptually uniform.
  *
  * @see {@link https://doi.org/10.1002/col.20227}
  * @wiki {@link https://en.wikipedia.org/wiki/CIECAM02#Color_spaces}
  * @year 2006
  * @by Luo, Cui & Li
- * @use General-purpose uniform space for delta-E computation and gamut mapping; superseded by CAM16-UCS but still in wide use – matplotlib's viridis was designed in it.
+ * @use ΔE computation and gamut mapping; still in wide use – matplotlib's viridis was designed in it.
  * @successor cam16-ucs Rebuilt on CAM16 when CAM16 replaced CIECAM02
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green

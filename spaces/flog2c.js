@@ -9,7 +9,7 @@
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log2C_DataSheet_E_Ver.1.0.pdf}
  * @year 2024
  * @by Fujifilm
- * @use F-Log2 recording on the wider F-Gamut C primaries; added to X-H2, X-H2S and GFX100 II by firmware in November 2024.
+ * @use The X-H2, X-H2S and GFX100 II, since a November 2024 firmware update.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

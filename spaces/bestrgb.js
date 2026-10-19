@@ -8,7 +8,7 @@
  * @see {@link http://www.hutchcolor.com/profiles.html} HutchColor, Free RGB color spaces (BestRGB.icm)
  * @year 2001
  * @by Don Hutcheson (HutchColor)
- * @use Wide-gamut photo working space for saturated film scans; niche, distributed as an ICC profile.
+ * @use Editing saturated film scans; niche, distributed as an ICC profile.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

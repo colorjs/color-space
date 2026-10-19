@@ -1,17 +1,15 @@
 /**
- * Wavelength — the color of monochromatic light, a single point on the visible
- * spectrum's "rainbow" of pure spectral hues, from deep violet near 380 nm to deep red
- * near 700 nm. Converting a wavelength to CIE XYZ uses the color-matching functions of
- * the CIE 1931 standard observer, the same experimentally-derived functions underlying
- * all of modern colorimetry. Going the other direction recovers the nearest spectral
- * wavelength of any color — the dominant wavelength that gives CIE DSH its hue,
- * projected into the 380–700 nm domain.
+ * Wavelength — the color of monochromatic light, one point on the spectrum of pure hues from
+ * deep violet near 380 nm to deep red near 700 nm. The CIE 1931 standard observer's
+ * color-matching functions, the measured functions behind all of modern colorimetry, map it to
+ * XYZ. The inverse finds the nearest spectral wavelength of any color: the dominant wavelength
+ * that gives CIE DSH its hue, projected into 380–700 nm.
  *
  * @see {@link https://cie.co.at/datatable/cie-1931-colour-matching-functions-2-degree-observer} CIE 1931 2° colour-matching functions
  * @wiki {@link https://en.wikipedia.org/wiki/Spectral_color}
  * @year 1931
  * @by CIE
- * @use Monochromatic-light-to-XYZ mapping via the CIE 1931 standard observer; current colorimetry reference.
+ * @use Mapping monochromatic light to XYZ through the CIE 1931 standard observer.
  * @channel {wl} 380 700 Wavelength
  * @method spectral
  * @encoding chromaticity

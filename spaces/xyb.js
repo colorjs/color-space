@@ -1,18 +1,15 @@
 /**
- * XYB is the internal color space of JPEG XL, the royalty-free image format designed
- * as a modern successor to JPEG for both lossy and lossless compression. Rather than
- * building on broadcast-derived YCbCr like its predecessor, XYB is modeled on the
- * eye's LMS cone responses, split into a red-green channel (X), a luminance channel
- * (Y), and a blue-yellow channel (B), then compressed with a perceptually motivated
- * power law so encoding error can be concentrated where vision is least sensitive to
- * it. It is not meant for authoring or display — images are still edited and viewed
- * in ordinary RGB — but is what the JPEG XL codec actually compresses under the hood.
+ * XYB is the internal color space of JPEG XL, the royalty-free successor to JPEG for lossy and
+ * lossless compression. Where JPEG builds on broadcast-derived YCbCr, XYB models the eye's LMS
+ * cone responses as a red-green channel (X), a luminance channel (Y) and a blue-yellow channel
+ * (B), compressed with a perceptual power law so coding error lands where vision is least
+ * sensitive.
  *
  * @see {@link https://arxiv.org/abs/1908.03565}
  * @wiki {@link https://en.wikipedia.org/wiki/LMS_color_space#Image_processing}
  * @year 2019
  * @by Jyrki Alakuijala et al. (Google)
- * @use Internal perceptual color space of the JPEG XL codec; current, used under the hood, not for authoring.
+ * @use Compression inside the JPEG XL codec.
  * @channel {X} -0.0154 0.0281 Red-green
  * @channel {Y} 0 0.8453 Luminance
  * @channel {B} -0.2778 0.388 Blue − Y

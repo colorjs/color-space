@@ -1,15 +1,13 @@
 /**
- * L-Log — Leica's log curve, introduced with the SL2-S and later brought to the SL
- * and SL2 by firmware update, for grading on Leica's video-capable mirrorless
- * cameras. Its curve opens with a short linear toe in deep shadow before switching
- * to a logarithmic response, preserving highlight and shadow detail the way other
- * manufacturers' log curves do. It's recorded in a BT.2020 color container, the
- * same gamut Nikon's N-Log uses.
+ * L-Log — Leica's log curve, first offered on the original SL (Typ 601) in 2015 and carried on
+ * to the SL2, SL2-S and later SL and Q3 cameras. A short linear toe in deep shadow gives way
+ * to a logarithmic response. It is recorded in a BT.2020 color container, the gamut Nikon's
+ * N-Log also uses; the original SL records BT.709.
  *
- * @see {@link https://leica-camera.com/sites/default/files/pm-118912-L-Log_Reference_Manual_V1.6.pdf}
- * @year 2020
+ * @see {@link https://leica-camera.com/sites/default/files/pm-37826-L-Log_Reference_Manual_V1.9.pdf}
+ * @year 2015
  * @by Leica
- * @use Log video capture for Leica SL-series mirrorless cameras; current native encoding on SL2-S, SL2 and SL.
+ * @use Leica SL-series video, native on the SL2-S, SL2 and SL.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

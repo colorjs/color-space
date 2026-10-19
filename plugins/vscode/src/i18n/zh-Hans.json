@@ -44,8 +44,8 @@
     "h": "aa15a325"
   },
   "nls:description": {
-    "t": "文件中的所有颜色汇于同一平面，可用 OKLCH、HCT、CAM16、Display P3 或 205 个色彩空间中的任意一个呈现；CSS、Swift、Flutter、Compose、Unity、Godot、Unreal、设计令牌、主题和调色板中的颜色，均按各自原有的写法写回。",
-    "h": "d583de89"
+    "t": "用 OKLCH、Display P3 或 205 个色彩空间中的任意一个编辑代码中的颜色。",
+    "h": "9504e8f3"
   },
   "nls:gamut.description": {
     "t": "对于能表示更广色域颜色的写法（`oklch()`、`lab()`、`color(display-p3 …)` 等），拾色器写入时所用的色域。`#hex`、`rgb()`、`hsl()` 和 `hwb()` 始终在 sRGB 之内写入。",

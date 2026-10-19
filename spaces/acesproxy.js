@@ -1,15 +1,14 @@
 /**
- * ACESproxy — the Academy's on-set monitoring and preview encoding, built to carry
- * AP1 linear-light images as 10-bit legal-range code values over standard SDI video
- * cables during production. It's a coarse, quantized encoding meant for on-set color
- * decisions, dailies, and viewfinder-style preview — not for storage, compositing, or
- * final grading, where ACEScc or ACEScct take over once footage reaches post.
+ * ACESproxy — the Academy's on-set monitoring and preview encoding, carrying ACES images on
+ * AP1 primaries as 10-bit, legal-range log code values over SDI. It is coarse and quantized,
+ * for on-set color decisions, dailies and viewfinder preview, not for storage, archiving or
+ * final grading: post works from the full ACES images.
  *
  * @see {@link https://docs.acescentral.com/encodings/acesproxy/}
  * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System}
  * @year 2013
  * @by Academy (AMPAS)
- * @use On-set monitoring and dailies preview encoding over SDI video; current but narrow-purpose, not used for storage or final grading.
+ * @use On-set monitoring and dailies previews over SDI; not for final grading.
  * @channel {R} 0.0626 0.9189 Red
  * @channel {G} 0.0626 0.9189 Green
  * @channel {B} 0.0626 0.9189 Blue

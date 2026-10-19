@@ -1,15 +1,13 @@
 /**
- * ViperLog — the log curve for the Thomson Viper FilmStream, one of the earliest
- * digital cinema cameras, announced in 2002, well before the tapeless RED and
- * ARRI ALEXA workflows that came to dominate the format. Its curve is a pure log10
- * function with no black offset, a simplicity that later curves from other
- * manufacturers deliberately corrected to avoid crushing near-black detail. It's
- * applied over linear-light RGB without a published native gamut of its own.
+ * ViperLog — the log curve of the Thomson Viper FilmStream, one of the earliest digital cinema
+ * cameras, announced in 2002. It is a pure log10 with no black offset, a simplicity later
+ * curves from other makers corrected to avoid crushing near-black detail. With no published
+ * gamut of its own, it is applied over linear-light RGB.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_ViperLog.html}
  * @year 2002
  * @by Thomson Grass Valley
- * @use Log curve for the Thomson Viper FilmStream, one of the earliest digital cinema cameras; legacy/historical.
+ * @use Thomson Viper FilmStream footage.
  * @retired The tapeless RED and ARRI ALEXA workflows came to dominate digital cinema
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

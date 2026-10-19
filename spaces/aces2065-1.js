@@ -1,17 +1,15 @@
 /**
- * ACES2065-1 — the Academy Color Encoding System's archival and interchange master
- * format, built on the AP0 primaries, wide enough to enclose the entire visible
- * gamut, with ACES's characteristic white point near D60. Like ACEScg it stores
- * scene-referred light linearly, with values reaching far past nominal white to hold
- * highlight detail for later grading or rendering. AMPAS designed it as the
- * long-term, camera-agnostic exchange format for finished ACES masters, distinct from
- * ACEScg's smaller AP1 primaries used for day-to-day rendering.
+ * ACES2065-1 — the Academy Color Encoding System's archival and interchange master format, on
+ * AP0 primaries that enclose the whole visible gamut, with a white near D60. Like ACEScg, it
+ * stores scene-referred light linearly, with values far past nominal white to keep highlight
+ * detail for later grading or rendering. AMPAS made it the long-term, camera-agnostic exchange
+ * format for finished masters; day-to-day rendering uses ACEScg's smaller AP1 primaries.
  *
  * @see {@link https://docs.acescentral.com/encodings/aces2065-1/}
  * @wiki {@link https://en.wikipedia.org/wiki/Academy_Color_Encoding_System#ACES2065-1}
  * @year 2012
  * @by Academy (AMPAS)
- * @use Archival/interchange master encoding for finished ACES film and TV masters; current long-term storage format (SMPTE ST 2065-1).
+ * @use Archiving and exchanging finished ACES film and TV masters.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

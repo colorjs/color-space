@@ -94,7 +94,9 @@ const entTip = s => { const p = PURPOSE[s]?.[0]; return attr([lede(s) || (p && c
 const entHead = s => attr([meta[s].by, run(s)].filter(Boolean).join(', '))   // the maker whole – the card's line shortens it, and a narrow card cuts it – and the year
 const entTags = s => [...['geo', 'curve', 'sig', 'range'].map(k => { const v = KIND[k](s); return v && `${kindKey(v)}|${cap(tagL(k === 'sig' ? v + '-referred' : v))}` }), meta[s].illuminant && `|${tagL(meta[s].illuminant)}`].filter(Boolean).join(' · ')
 // a lead card's story – the lore's "made for" line in the page's language, as a sentence
-const lede = s => { const f = LORE[s]?.for; if (!f) return ''; const x = cap(t(`lore.${s}.for`, f)); return /[.!?…]$/.test(x) ? x : x + '.' }
+// a fragment closed as a sentence, with the language's own full stop – 。 in ja and zh-Hans, । in hi
+export const close = x => /[.!?…。！？।؟]$/u.test(x) ? x : x + ({ ja: '。', 'zh-Hans': '。', hi: '।' }[LANG] || '.')
+const lede = s => { const f = LORE[s]?.for; if (!f) return ''; return close(cap(t(`lore.${s}.for`, f))) }
 // the maker, short (no asides in parentheses; past two names, the first et al.), then the year – the year ends the line,
 // at the card's corner; a maker still too long gives way (ellipsis), the year never. The whole maker is the tip's
 const shortBy = by => { const x = by.replace(/\s*\([^)]*\)/g, '').trim(), n = x.split(/\s*[,&;]\s*/); return n.length > 2 ? `${n[0]} et al.` : x }
@@ -106,9 +108,11 @@ const byline = s => { const m = meta[s], e = ending(s), ki = kindIcon('geo', s);
 // keeps the name and year over thin strips and the numbers. Both paint; the prerender bakes a tile's strips coarse
 // (12 guides – the page repaints what scrolls into view at full). Every view's entry is an .ent[data-s] with its
 // channels' .ch strips and .cv numbers in channel order – the painters and the wiring read nothing else
-// the Limit every slider and plane is cut by – Surface by default: the widest reflective view that still reads as a
-// compact body. A 1-channel sweep under Surface or Light is all in by definition (a display limit still cuts it)
-export const LIMIT = 'vis'
+// the Limit every slider and plane is cut by – by default the display's own gamut (index.html: P3 where the screen shows
+// it), sRGB where nothing says more – the prerender's, so a first paint is the one the page keeps there: no colors shown
+// that the screen can only clip. A 1-channel sweep under Surface or Light is all in by definition (a display limit still
+// cuts it)
+export const LIMIT = 'srgb'
 export const limitFor = (cls, gm = LIMIT) => cls.ch.length > 1 ? gm : gm === 'vis' || gm === 'locus' ? 'off' : gm
 const valsAt = (s, st) => { if (!st) return null; try { return s === DEFAULT.s ? DEFAULT.vals : toSpace(s, st.rgb) } catch { return null } }
 const entAttrs = (s, cls, vals, st, n) => `data-s="${s}"${vals ? ` data-v="${st.hx}" data-g="${st.hx}:0:${n}:${limitFor(cls)}"` : ''} style="--nch:${cls.ch.length}"`

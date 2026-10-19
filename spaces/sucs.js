@@ -1,16 +1,13 @@
 /**
- * sUCS is the uniform color space built from sCAM, a "simple" color-appearance
- * model published by Li and Luo in 2024. It aims to match the perceptual uniformity
- * of CAM16-UCS — equal numeric distances corresponding to equal perceived
- * differences — through a far lighter calculation pipeline than a full appearance
- * model like CAM16 requires. It's meant as a fast, lower-complexity substitute for
- * CAM16-UCS or Oklab in tasks such as color-difference measurement that don't need
- * viewing-condition parameters.
+ * sUCS is the simple uniform color space Li and Luo published in 2024 as the base of their
+ * simple color appearance model, sCAM. It aims for the uniformity of CAM16-UCS, where equal
+ * distances mean equal perceived differences, through a far lighter pipeline than CAM16, and
+ * needs no viewing-condition parameters.
  *
  * @see {@link https://doi.org/10.1364/OE.510196} Li & Luo 2024, Opt. Express 32, 3100
  * @year 2024
  * @by Li & Luo
- * @use Lightweight uniform color space alternative to CAM16-UCS/Oklab for color-difference tasks; new/emerging.
+ * @use Color difference, as a lighter alternative to CAM16-UCS and Oklab.
  * @channel {I} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

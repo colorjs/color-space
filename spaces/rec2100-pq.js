@@ -1,16 +1,14 @@
 /**
- * Rec. 2100 PQ — the HDR RGB encoding from ITU-R BT.2100, pairing Rec. 2020's wide-gamut
- * primaries with the PQ (Perceptual Quantizer) transfer function, SMPTE ST 2084,
- * originally developed by Dolby. Unlike SDR gamma, PQ encodes absolute display luminance
- * directly, so a given code value always means the same brightness regardless of a
- * display's peak brightness. It's the transfer function behind HDR10 and most HDR video
- * streaming and mastering pipelines.
+ * Rec. 2100 PQ — ITU-R BT.2100's HDR RGB encoding: Rec. 2020 primaries with the Perceptual
+ * Quantizer transfer function (SMPTE ST 2084), developed by Dolby. Unlike SDR gamma, PQ
+ * encodes absolute display luminance, so a code value means the same luminance on any display,
+ * whatever its peak.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2100}
  * @wiki {@link https://en.wikipedia.org/wiki/Rec._2100}
  * @year 2016
  * @by Dolby / ITU-R
- * @use Absolute-luminance HDR encoding behind HDR10 and most HDR streaming/mastering; current, dominant.
+ * @use HDR10 and most HDR streaming and mastering.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

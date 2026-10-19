@@ -1,9 +1,8 @@
 /**
- * IzAzBz — the opponent-color stage inside Safdar et al.'s 2017 derivation of Jzazbz,
- * taken before the final hyperbolic lightness compression that turns Iz into Jz. Iz is
- * the raw, uncompressed achromatic response from the PQ-encoded LMS signal, while az and
- * bz carry the same red-green and yellow-blue chroma as Jzazbz. It went on to become the
- * structural foundation of the ZCAM color appearance model.
+ * IzAzBz — the opponent-color stage inside Safdar et al.'s 2017 derivation of Jzazbz, before
+ * the final hyperbolic lightness compression that turns Iz into Jz. Iz is the achromatic
+ * response of the PQ-encoded LMS signal; az and bz carry the same red-green and yellow-blue
+ * chroma as Jzazbz.
  *
  * @see {@link https://doi.org/10.1364/OE.25.015131} Safdar et al. 2017
  * @year 2017

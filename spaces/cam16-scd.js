@@ -1,16 +1,15 @@
 /**
- * CAM16-SCD is a variant of the CAM16-UCS uniform color space that Li et al. tuned in
- * 2017 specifically for SMALL color differences, carrying over compression
- * coefficients from Luo, Cui & Li's 2006 work on perceptually uniform CIECAM spaces.
- * Like CAM16-UCS it reprojects CAM16's lightness and colorfulness into a
- * near-Euclidean, Cartesian layout, but its scaling is calibrated against small,
- * near-threshold visual differences rather than the coarser comparisons CAM16-LCD
- * targets — the CAM16 counterpart to CAM02-SCD.
+ * CAM16-SCD is a variant of the CAM16-UCS uniform color space that Li et al. tuned in 2017 for
+ * small color differences, the CAM16 counterpart to CAM02-SCD. It reuses compression
+ * coefficients from Luo, Cui & Li's 2006 work on uniform CIECAM spaces and, like CAM16-UCS,
+ * reprojects CAM16's lightness and colorfulness into a near-Euclidean Cartesian layout, with
+ * scaling calibrated against small, near-threshold visual differences rather than the coarser
+ * ones CAM16-LCD targets.
  *
  * @see {@link https://doi.org/10.1002/col.22131}
  * @year 2017
  * @by Li et al.
- * @use Uniform space for small color-difference tolerance/QC comparisons; current default for that role.
+ * @use Small color-difference tolerance and QC comparisons; the default for that role.
  * @channel {J} 0 100 Lightness
  * @channel {a} -50 50 Red-Green
  * @channel {b} -50 50 Yellow-Blue

@@ -8,7 +8,7 @@
  * @see {@link https://registry.color.org/rgb-registry/ecirgb} ICC registry entry for eciRGB (2008), ISO 22028-4
  * @year 2007
  * @by European Color Initiative (ECI)
- * @use Print and prepress RGB working space; current, standardized in ISO 22028-4:2023.
+ * @use Print and prepress editing, standardized in ISO 22028-4:2023.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

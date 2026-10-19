@@ -8,7 +8,7 @@
  * @see {@link http://www.hutchcolor.com/profiles.html} HutchColor, Free RGB color spaces (DonRGB4.icm)
  * @year 1996
  * @by Don Hutcheson (HutchColor)
- * @use Wide-gamut photo and prepress working space for transparency scans; niche, distributed as an ICC profile.
+ * @use Editing transparency scans for photo and prepress; niche, distributed as an ICC profile.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

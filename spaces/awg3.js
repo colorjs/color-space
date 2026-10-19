@@ -10,9 +10,9 @@
  * @see {@link https://www.arri.com/resource/blob/31918/66f56e6abb6e5b6553929edf9aa7483e/2017-03-alexa-logc-curve-in-vfx-data.pdf}
  * @year 2011
  * @by ARRI
- * @use Scene-linear camera gamut beneath LogC3 for ALEXA/AMIRA footage in VFX and grading; still active, succeeded by AWG4 on the ALEXA 35.
+ * @use VFX and grading of ALEXA and AMIRA footage in LogC3; still active.
  * @aka ALEXA Wide Gamut RGB
- * @successor awg4 ARRI's fourth color-science generation, with the ALEXA 35, moved to ARRI Wide Gamut 4
+ * @successor awg4 ARRI's fourth color-science generation arrived with the ALEXA 35
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -1,15 +1,14 @@
 /**
- * xyY — a reformulation of CIE XYZ that separates a color's chromaticity (x, y) from its
- * luminance (Y), so hue and saturation can be studied independently of brightness.
- * Plotting x against y produces the familiar horseshoe-shaped chromaticity diagram used
- * to visualize gamuts, specify white points, and compare how much of the visible
- * spectrum a display or printer can reproduce.
+ * xyY — CIE XYZ rewritten as chromaticity (x, y) plus luminance (Y), so hue and saturation can
+ * be studied apart from brightness. Plotting x against y gives the familiar horseshoe-shaped
+ * chromaticity diagram.
  *
  * @see {@link http://www.brucelindbloom.com/index.html?Eqn_XYZ_to_xyY.html}
  * @wiki {@link https://en.wikipedia.org/wiki/CIE_1931_color_space#CIE_xyY_color_space}
  * @year 1931
  * @by CIE
- * @use Chromaticity reformulation of CIE XYZ for visualizing gamuts and white points; current standard tool.
+ * @aka CIE xyY
+ * @use Visualizing gamuts and white points.
  * @channel {x} 0 1 Red chromaticity
  * @channel {y} 0 1 Green chromaticity
  * @channel {Y} 0 100 Luminance

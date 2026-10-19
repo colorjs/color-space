@@ -1,17 +1,16 @@
 /**
  * CIE DSH — dominant wavelength, saturation (excitation purity) and luminance, the classical
- * Helmholtz coordinates for CIE 1931 chromaticity. Rather than the Cartesian x, y pair,
- * a color is located by the spectral wavelength it most resembles and how far it sits
- * from white toward that pure spectral color — a natural way to talk about hue and
- * saturation that predates CIELAB-style opponent spaces. Non-spectral purples, which
- * have no single dominant wavelength, are reported as a negative complementary
- * wavelength instead.
+ * Helmholtz coordinates for CIE 1931 chromaticity. In place of the x, y pair, a color is
+ * placed by the spectral wavelength it most resembles and how far it sits from white toward
+ * that spectral color, a way of naming hue and saturation that predates CIELAB-style opponent
+ * spaces. Non-spectral purples, which have no dominant wavelength, get a negative
+ * complementary wavelength.
  *
  * @see {@link https://cie.co.at/publications/colorimetry-4th-edition} CIE 15:2004
  * @wiki {@link https://en.wikipedia.org/wiki/Dominant_wavelength}
  * @year 1860
  * @by Hermann von Helmholtz
- * @use Classical dominant-wavelength / purity / luminance (Helmholtz) coordinates for CIE 1931 chromaticity.
+ * @use Classical specification of CIE 1931 chromaticity.
  * @channel {d} -700 700 Dominant wavelength
  * @channel {s} 0 1 Excitation purity
  * @channel {Y} 0 100 Luminance

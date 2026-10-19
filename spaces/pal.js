@@ -1,14 +1,14 @@
 /**
- * PAL/SECAM RGB — the primaries used by 625-line analogue television across Europe
- * and much of the world, defined in EBU Tech 3213 and ITU-R BT.470 (System B/G).
- * It shares sRGB's D65 white point and a similar gamma of about 2.2, but its green
- * primary is subtly different, so it is formally distinct from Rec. 709 — the
- * correct gamut to use when working with archival PAL or SECAM broadcast material.
+ * PAL/SECAM RGB — the primaries of 625-line analogue television across Europe and much of the
+ * world, defined in EBU Tech 3213 and ITU-R BT.470 (System B/G). It has sRGB's D65 white but a
+ * slightly different green primary, so it is a separate gamut from Rec. 709 and the one for
+ * archival PAL or SECAM material. BT.470 assumes a display gamma of 2.8 for it, against 2.2 for
+ * NTSC.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470}
  * @year 1967
  * @by Walter Bruch / Telefunken
- * @use Legacy analog PAL/SECAM broadcast TV primaries (Europe, EBU Tech 3213/BT.470); historical.
+ * @use Analog PAL/SECAM broadcast TV (BT.470); historical.
  * @aka EBU Tech 3213; EBU 3213-E
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
@@ -23,7 +23,8 @@
  */
 // Implementation notes:
 // Green primary at (0.29, 0.60) vs sRGB's (0.30, 0.60) - the source of the gamut
-// difference from Rec. 709. Matrix derived from the primaries.
+// difference from Rec. 709. Matrix derived from the primaries. Pure gamma 2.8, the display gamma
+// BT.470-6 assumes for 625-line PAL/SECAM (Table 1 item 5), as colour-science's Pal/Secam.
 import xyz from './xyz.js';
 import { mat3, inv3 } from '../math.js';
 import { gammaEncode, gammaDecode } from '../transfers.js';
@@ -37,7 +38,7 @@ const M = [
 	0.02018221, 0.12955337, 0.93932217
 ];
 const MI = inv3(M);
-const dec = v => gammaDecode(v, 2.2), enc = v => gammaEncode(v, 2.2);
+const dec = v => gammaDecode(v, 2.8), enc = v => gammaEncode(v, 2.8);
 
 pal.xyz = (r, g, b) => { const [x, y, z] = mat3(M, dec(r), dec(g), dec(b)); return [x * 100, y * 100, z * 100]; };
 xyz.pal = (x, y, z) => { const [r, g, b] = mat3(MI, x / 100, y / 100, z / 100); return [enc(r), enc(g), enc(b)]; };

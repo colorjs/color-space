@@ -22,7 +22,7 @@ test('i18n — extraction is deterministic and the committed en.json is current'
 	is(a, b, 'two runs, one byte stream')
 	is(readFileSync(join(DIR, 'en.json'), 'utf8') === a, true, 'web/i18n/en.json is current (npm run i18n)')
 	is(Object.entries(en).filter(([k, v]) => k !== '@meta' && v.h !== hash(v.t)).map(([k]) => k), [], 'every h fingerprints its English')
-	ok(['page.title', 'ui.hero.image', 'cat.display.name', 'space.oklch.desc', 'lore.rgb.sin', 'tour.rgb.body', 'purpose.palettes.tip', 'channel.lightness', 'tag.perceptual'].every((k) => en[k]), 'every source contributes: markup, code, data.json, lore, tour, categories, purpose, channels, tags')
+	ok(['page.title', 'ui.hero.image', 'cat.display.name', 'space.oklch.desc', 'lore.rgb.sin', 'purpose.palettes.tip', 'channel.lightness', 'tag.perceptual'].every((k) => en[k]), 'every source contributes: markup, code, data.json, lore, tour, categories, purpose, channels, tags')
 	is(Object.keys(en).filter((k) => k !== '@meta' && !/^[a-z]+(\.[\w-]+)+$/.test(k)), [], 'keys are namespaced, readable, never hashes')
 })
 

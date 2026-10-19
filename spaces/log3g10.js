@@ -1,15 +1,13 @@
 /**
- * Log3G10 — RED Digital Cinema's current log curve, introduced in 2017 alongside
- * the REDWideGamutRGB primaries as part of RED's IPP2 image-processing pipeline. It
- * maps the camera's very wide sensor dynamic range logarithmically so highlights and
- * shadows both retain grading latitude, and it's the default acquisition space
- * across RED's modern Komodo, V-Raptor, and Monstro/Helium-sensor cameras.
+ * Log3G10 — RED Digital Cinema's current log curve, introduced in 2017 with the
+ * REDWideGamutRGB primaries as part of RED's IPP2 image pipeline. It encodes the sensor's wide
+ * dynamic range logarithmically, leaving grading latitude in both highlights and shadows.
  *
  * @see {@link https://docs.red.com/955-0187/PDF/915-0187%20Rev-C%20%20%20RED%20OPS%2C%20White%20Paper%20on%20REDWideGamutRGB%20and%20Log3G10.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2017
  * @by RED Digital Cinema
- * @use Cinema camera log capture; current default acquisition curve on RED Komodo, V-Raptor and Monstro/Helium cameras.
+ * @use RED's default acquisition curve on Komodo, V-Raptor and Monstro/Helium cameras.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

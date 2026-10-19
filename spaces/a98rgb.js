@@ -1,15 +1,13 @@
 /**
- * Adobe RGB — introduced by Adobe in 1998 as a wider-gamut alternative to sRGB,
- * designed to reproduce more of the cyans and greens achievable in CMYK printing.
- * It keeps sRGB's D65 white point but uses different primaries and a slightly
- * different gamma. It remains a standard working space in photography
- * and print production, where sRGB's narrower gamut would clip too much color.
+ * Adobe RGB — Adobe's 1998 wider-gamut alternative to sRGB, made to reach more of the cyans
+ * and greens that CMYK printing can reproduce. It keeps sRGB's D65 white but uses different
+ * primaries and a slightly different gamma.
  *
  * @see {@link https://www.adobe.com/digitalimag/pdfs/AdobeRGB1998.pdf} Adobe RGB (1998) Color Image Encoding
  * @wiki {@link https://en.wikipedia.org/wiki/Adobe_RGB_color_space}
  * @year 1998
  * @by Adobe Systems
- * @use Wide-gamut photography and print working space; still common where sRGB's gamut clips CMYK-reproducible colors.
+ * @use Photography and print, where sRGB's gamut clips CMYK-reproducible colors.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

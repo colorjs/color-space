@@ -1,15 +1,14 @@
 /**
- * N-Log — Nikon's log curve, introduced with the Z6 and Z7 mirrorless cameras in
- * 2018 to preserve highlight and shadow detail for later grading, and carried
- * forward across the rest of the Z-series. Its curve pairs a cube-root shadow toe
- * with a natural-log highlight region, rather than the log10 curves common
- * elsewhere. It's defined over N-Gamut, whose primaries match ITU-R BT.2020.
+ * N-Log — Nikon's log curve, introduced with the Z6 and Z7 mirrorless cameras in 2018 and
+ * carried across the rest of the Z series. It pairs a cube-root shadow toe with a natural-log
+ * highlight region, unlike the log10 curves common elsewhere. Its gamut, N-Gamut, has the
+ * primaries of ITU-R BT.2020.
  *
  * @see {@link https://download.nikonimglib.com/archive3/hDCmK00m9JDI03RPruD74xpoU905/N-Log_Specification_(En)01.pdf}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2018
  * @by Nikon
- * @use Log video capture for Nikon Z-series mirrorless cameras; current, defined over N-Gamut (BT.2020 primaries).
+ * @use Video on Nikon Z-series mirrorless cameras.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

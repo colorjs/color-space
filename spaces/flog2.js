@@ -8,7 +8,7 @@
  * @see {@link https://dl.fujifilm-x.com/support/lut/F-Log2_DataSheet_E_Ver.1.0.pdf}
  * @year 2022
  * @by Fujifilm
- * @use Wider-dynamic-range log profile for Fujifilm X-series/GFX video; current flagship log curve on newer bodies.
+ * @use Wider-dynamic-range log for Fujifilm X-series and GFX video, the flagship on newer bodies.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

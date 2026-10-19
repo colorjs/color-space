@@ -1,15 +1,14 @@
 /**
- * HSM — Hue, Saturation, Mixture, developed by Bianconi et al. (2009) for robust
- * skin-color detection in image processing. Mixture is a luminance-weighted average
- * of the red, green and blue channels standing in for brightness, while saturation
- * measures how far a color sits from that gray mixture relative to the farthest a
- * color at the same mixture level can reach, keeping saturation properly bounded
- * across the whole range of mixture values.
+ * HSM — Hue, Saturation, Mixture, proposed by Severino and Gonzaga (2009) for color image
+ * processing and tested on skin-color segmentation. Mixture is the weighted average (4R + 2G +
+ * B)/7, red weighted most after a 2:1 ratio of red to green cones, standing in for brightness;
+ * saturation is a color's distance from that gray relative to the farthest any color at the
+ * same mixture can reach, so it stays bounded at every mixture level.
  *
  * @see {@link http://seer.ufrgs.br/rita/article/viewFile/rita_v16_n2_p141/7428}
  * @year 2009
- * @by Bianconi et al.
- * @use Skin-color detection in image processing; academic, niche.
+ * @by Osvaldo Severino Jr & Adilson Gonzaga
+ * @use Skin-color detection in image processing.
  * @channel {H} 0 360 Hue
  * @channel {S} 0 100 Saturation
  * @channel {M} 0 100 Mixture
@@ -19,7 +18,7 @@
  * @dynamic sdr
  */
 // Implementation notes:
-// Bianconi et al. (2009), "A New Color Space for Skin Color Detection", Revista de
+// Severino Jr & Gonzaga (2009), "HSM: A New Color Space used in the Processing of Color Images", Revista de
 // Informatica Teorica e Aplicada 16(2). Mixture M = (4R+2G+B)/7.
 import rgb from './rgb.js';
 

@@ -44,8 +44,8 @@
     "h": "aa15a325"
   },
   "nls:description": {
-    "t": "Toutes les couleurs de votre fichier sur un seul plan, en OKLCH, HCT, CAM16, Display P3 ou dans l’un des 205 espaces colorimétriques : CSS, Swift, Flutter, Compose, Unity, Godot, Unreal, design tokens, thèmes et palettes, chaque couleur réécrite dans sa propre notation.",
-    "h": "d583de89"
+    "t": "Modifiez les couleurs de votre code en OKLCH, Display P3 ou dans l’un des 205 espaces colorimétriques.",
+    "h": "9504e8f3"
   },
   "nls:gamut.description": {
     "t": "Le gamut dans lequel le sélecteur écrit, pour les notations capables d’exprimer les couleurs d’un gamut plus large (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` et `hwb()` sont toujours écrits dans sRGB.",

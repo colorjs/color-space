@@ -9,7 +9,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/Rec._2020}
  * @year 2012
  * @by ITU-R
- * @use Unambiguous BT.2020 non-constant-luminance limited-range Y′CbCr for UHDTV and wide-gamut codecs.
+ * @use UHDTV and wide-gamut codecs, as unambiguous limited-range Y′CbCr.
  * @channel {Y} 16 235 Luma code value
  * @channel {Cb} 16 240 Blue-difference chroma code value
  * @channel {Cr} 16 240 Red-difference chroma code value

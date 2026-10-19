@@ -1,16 +1,14 @@
 /**
- * DCDM — the Digital Cinema Distribution Master encoding embedded in every DCP
- * (Digital Cinema Package) shipped to theatres, standardized by SMPTE under the DCI
- * digital cinema specification. It encodes CIE XYZ directly through a 2.6 power-law
- * gamma rather than an RGB transfer curve, tying relative white to the DCI reference
- * projector's calibrated brightness. It's a display-referred, deliverable-only
- * format — content is mastered into DCDM as the last step before packaging for
- * theatrical release.
+ * DCDM — the Digital Cinema Distribution Master encoding inside every DCP (Digital Cinema
+ * Package) shipped to theatres, standardized by SMPTE under the DCI specification. It encodes
+ * CIE XYZ directly with a 2.6 power-law gamma rather than an RGB transfer curve, tying
+ * relative white to the DCI reference projector's calibrated luminance. It is display-referred
+ * and deliverable-only: mastering into DCDM is the last step before packaging.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7290729} SMPTE ST 428-1
  * @year 2006
  * @by SMPTE/DCI
- * @use DCP deliverable encoding for theatrical projection; current mandatory format for theatrical DCP mastering (SMPTE ST 428-1).
+ * @use Theatrical DCP mastering, where it is mandatory (SMPTE ST 428-1).
  * @channel {X} 0 1 X′
  * @channel {Y} 0 1 Y′
  * @channel {Z} 0 1 Z′

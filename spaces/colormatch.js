@@ -8,7 +8,7 @@
  * @see {@link https://www.babelcolor.com/index_htm_files/A%20review%20of%20RGB%20color%20spaces.pdf} Pascale (2003), A Review of RGB Color Spaces, Table 5
  * @year 1998
  * @by Radius (PressView); Adobe Systems
- * @use Photoshop RGB working space modeled on Radius PressView calibrated monitors; legacy.
+ * @use Photoshop RGB working space; legacy.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

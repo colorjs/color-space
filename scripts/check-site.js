@@ -98,8 +98,11 @@ try {
 	  assert.equal((await st()).edges,'0','let go, the plain locus')
 	  await lens(page,'g','srgb'); await page.waitForTimeout(200)
 	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="srgb"]').getAttribute('d')),true,'the Limit picked in the row\'s menu fills its own region in the locus')
-	  await lens(page,'g','vis'); await page.evaluate(()=>{ try{ localStorage.removeItem('csGm') }catch{} })   // back to the default Limit, through the row's own menu
-	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface again: its own region filled') }
+	  await lens(page,'g','vis'); await page.waitForTimeout(200)
+	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface: its own region filled')
+	  const shows=await page.evaluate(()=>matchMedia('(color-gamut: p3)').matches?'p3':'srgb')
+	  await lens(page,'g',shows); await page.evaluate(()=>{ try{ localStorage.removeItem('csGm') }catch{} })   // back to the default Limit – the display's own – through the row's own menu
+	  assert.equal(await page.evaluate(g=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector(`.hlocus .lims path[data-g="${g}"]`).getAttribute('d'),shows), true, 'the display\'s gamut again: its own region filled') }
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
 	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
@@ -109,15 +112,32 @@ try {
 	assert.match(initialGradient, /linear-gradient/, 'catalog strips use CSS gradients')
 	assert.match(initialGradient, /rgb\([^)]*\.\d+/, 'gradient guides retain sub-byte color precision')
 	assert.doesNotMatch(initialGradient, /\d(?:\.\d+)?%\s+\d(?:\.\d+)?%/, 'smooth mode has interpolated stops, not hard sampled bands')
-	// one Limit cuts every slider – the catalog's as the dossier's: Surface by default (Light for a 1-channel sweep)
-	const mainLensesBefore=await page.locator('.ent[data-g]').evaluateAll(els=>els.map(el=>el.dataset.g))
-	assert.equal(mainLensesBefore.length>1&&mainLensesBefore.every(key=>/:(vis|off)(?::|$)/.test(key)),true,'every populated catalog slider renders under the Limit – Surface by default')
+	// one Limit cuts every slider – the catalog's as the dossier's: the display's own by default (sRGB where it can't show
+	// P3 – the prerender's, so a first paint is what the page keeps there)
+	const mainLensesBefore=await page.locator('.ent[data-g]').evaluateAll(els=>els.map(el=>el.dataset.g)), shows=await page.evaluate(()=>matchMedia('(color-gamut: p3)').matches?'p3':'srgb')
+	assert.equal(mainLensesBefore.length>1&&mainLensesBefore.every(key=>new RegExp(`:${shows}(?::|$)`).test(key)),true,'every populated catalog slider renders under the Limit – the display\'s gamut by default')
 	await page.evaluate(()=>document.querySelector('.ent[data-s="p3"]').scrollIntoView({block:'center'}))
 	const keyed=(s,re)=>page.waitForFunction(([s,re])=>new RegExp(re).test(document.querySelector(`.ent[data-s="${s}"]`)?.dataset.g||''),[s,re.source],{timeout:3000}).catch(()=>{})   // a row's strips come from the sweep pool, a frame or so after the change
 	await lens(page,'g','srgb'); await keyed('p3',/:srgb(?::|$)/)
 	assert.match(await page.locator('.ent[data-s="p3"]').getAttribute('data-g'),/:srgb(?::|$)/,'the Limit repaints the catalog\'s sliders')
 	await lens(page,'g','vis'); await keyed('p3',/:vis(?::|$)/)
 	assert.match(await page.locator('.ent[data-s="p3"]').getAttribute('data-g'),/:vis(?::|$)/,'and back')
+	// the Limit menu marks what this screen can't show: on an sRGB screen P3 and wider, on a P3 one Rec. 2020 and wider
+	const clipped=pg=>pg.evaluate(()=>Object.fromEntries([...document.querySelectorAll('#m-view .mseg[data-lens="g"] button')].map(b=>[b.dataset.v,/\n/.test(b.title||b.dataset.tip||'')])))
+	assert.deepEqual(await clipped(page),{ srgb:false, p3:true, rec2020:true, vis:true, locus:true },'an sRGB screen: every Limit past sRGB says it shows clipped')
+	{ const p3Context=await browser.newContext({ viewport:{ width:1440, height:900 }, reducedMotion:'reduce' }), p3=await p3Context.newPage()
+	  await (await p3Context.newCDPSession(p3)).send('Emulation.setEmulatedMedia',{ features:[{ name:'color-gamut', value:'p3' }] })
+	  await p3.goto(`${server.origin}/?cb=${Date.now()}`,{ waitUntil:'networkidle' })
+	  assert.deepEqual(await p3.evaluate(()=>[document.querySelector('#m-view .mseg[data-lens="g"] button.on')?.dataset.v, localStorage.csGm??null]),['p3',null],'a P3 screen, nothing picked: the Limit is P3')
+	  assert.deepEqual(await clipped(p3),{ srgb:false, p3:false, rec2020:true, vis:true, locus:true },'…and only the Limits past P3 say they show clipped')
+	  await p3Context.close() }
+	// a phone's dossier record: one grid of pairs – origin | lineage, test | source, primaries | matrix – nothing past the screen
+	{ const phoneContext=await browser.newContext({ viewport:{ width:390, height:844 }, reducedMotion:'reduce' }), phone=await phoneContext.newPage()
+	  await phone.goto(`${server.origin}/rec709?cb=${Date.now()}`,{ waitUntil:'networkidle' }); await phone.waitForSelector('#modal:not([hidden]) .props [data-k="channels"]')
+	  const rec=await phone.evaluate(()=>{ const at=k=>document.querySelector(`#overview [data-k="${k}"]`).getBoundingClientRect(), pair=(a,b)=>{ const x=at(a), y=at(b); return Math.round(x.top)===Math.round(y.top)&&x.right<=y.left }, m=document.getElementById('modal')
+	    return [pair('origin','lineage'),pair('test','source'),pair('primaries','matrix'),m.scrollWidth<=m.clientWidth,!document.querySelector('#modal .drep,#modal [data-k="report"]')] })
+	  assert.deepEqual(rec,[true,true,true,true,true],'a phone\'s record pairs origin | lineage, test | source, primaries | matrix, nothing wider than the screen, no report link')
+	  await phoneContext.close() }
 	assert.equal(await page.locator('#cd').inputValue(), '#808080', 'undefined color starts neutral gray')
 	await page.locator('#him').click(); await page.waitForSelector('#uppop:popover-open .upim')
 	const specimens=page.locator('#uppop .upim:not(.upld)')
@@ -496,6 +516,7 @@ try {
 	await page.mouse.up()
 	for(const [i,v] of [[0,'0.60'],[1,'0'],[2,'90']]) await page.locator('#bigch .nv').nth(i).fill(v)
 	await page.waitForTimeout(50)
+	await page.evaluate(()=>document.querySelector('#figseg button[data-v="tc"]').click()); await page.waitForFunction(()=>document.querySelector('#tcap').textContent.trim())   // the transfer curve shown: a figure draws where it is seen
 	const smoothNeighbor=page.locator('.bar2[data-i="1"] .bgc'), smoothBefore=await smoothNeighbor.evaluate(el=>el.toDataURL()), transferBefore=await page.locator('#tcap').innerText()
 	const backPicker=page.locator('.ent[data-s="oklab"] .nrg').first(), backValue=page.locator('.ent[data-s="oklab"] .cv').first(), backLane=page.locator('.ent[data-s="oklab"] .ch').first()
 	const smoothL=page.locator('.bar2[data-i="0"]'), smoothLR=await smoothL.boundingBox()
@@ -506,6 +527,7 @@ try {
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.46','dossier numeric input follows a smooth drag live')
 	assert.notEqual(await smoothNeighbor.evaluate(el=>el.toDataURL()),smoothMid||smoothBefore,'dossier neighboring gradients follow the active space live')
 	assert.notEqual(await page.locator('#tcap').innerText(),transferBefore,'transfer picker follows a held drag')
+	await page.evaluate(()=>{ document.querySelector('#figseg button[data-v="3d"]').click(); try{ localStorage.removeItem('csFig') }catch{} })   // the solid back, as the checks below found it
 	assert.notEqual(await backPicker.inputValue(),backMid.picker,'dossier drag updates every background catalog picker immediately')
 	assert.notEqual(await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),backMid.pickerColor,'dossier drag updates every background picker color immediately')
 	assert.equal((await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toLowerCase())),(await page.locator('#cd').inputValue()).toLowerCase(),'background picker colors match the modal drag color')
@@ -673,8 +695,8 @@ try {
 	// the definition a searcher comes for: the channels at the head of the record's first column, the origin beside them;
 	// the primaries (x and y named as a channel is, the white its mark) the first column's last item, the matrix the
 	// second's, its copy beside its label; the curve's
-	// formula under its plot; every label saying what it is; the tested values behind their sources; a quiet way to report a
-	// wrong one; OCIO carries the whole colorspace; none of it where a space has no primaries
+	// formula under its plot; every label saying what it is; the tested values behind their sources; OCIO carries the
+	// whole colorspace; none of it where a space has no primaries
 	await page.goto(`${server.origin}/sgamut3cine?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await page.waitForSelector('#modal:not([hidden]) .props [data-k="primaries"]')
 	assert.deepEqual(await page.evaluate(()=>{ const n=s=>s.replace(/[\u2007\u2008]/g,'').trim(), cells=[...document.querySelectorAll('[data-k="primaries"] .xylist > *')].map(e=>n(e.textContent))
@@ -682,8 +704,8 @@ try {
 		return [cols.map(c=>c.firstElementChild?.dataset.k), cols.map(c=>c.lastElementChild?.dataset.k), cells.slice(0,4), cells.slice(-4), !!document.querySelector('[data-k="primaries"] .wdot'),
 			[...document.querySelectorAll('.props:not(.dside) [data-k] i.term')].every(i=>i.title), document.querySelectorAll('[data-k="matrix"] .mtx > span').length, document.querySelector('#mtxc').textContent.split('\n').length, !!document.querySelector('[data-k="matrix"] .dlab > .cpyi[data-copy="mtxc"]')] }),
 		[['channels','origin'], ['primaries','matrix'], ['R','x0.766','y0.275',''], ['','x0.3127','y0.329','D65'], true, true, 9, 3, true], 'S-Gamut3.Cine: the channels and the origin heading the record\'s columns, the primaries and the matrix closing them, each label explained, the white its mark, the matrix copied from beside its label')
-	assert.deepEqual(await page.evaluate(()=>[[...document.querySelectorAll('[data-k="test"] a')].some(a=>/→/.test(a.title)), document.querySelector('.dside > [data-k="report"]:last-child a.drep')?.getAttribute('href').endsWith('space=sgamut3cine'), !document.querySelector('#cseg [data-t="css"],#cseg [data-t="mtx"]')]),
-		[true, true, true], 'the test names its sources, the values in their tips; the report the margin\'s last line; no CSS or matrix code tab')
+	assert.deepEqual(await page.evaluate(()=>[[...document.querySelectorAll('[data-k="test"] a')].some(a=>/→/.test(a.title)), !document.querySelector('#modal [data-k="report"],#modal .drep'), !document.querySelector('#cseg [data-t="css"],#cseg [data-t="mtx"]')]),
+		[true, true, true], 'the test names its sources, the values in their tips; no report link; no CSS or matrix code tab')
 	await page.locator('#cseg button[data-t="ocio"]').click()
 	assert.match(await page.locator('#snip').textContent(), /!<ColorSpace>[\s\S]*!<LogCameraTransform>[\s\S]*!<MatrixTransform>/, 'OCIO: S-Gamut3.Cine as a whole colorspace, its S-Log3 curve then its matrix')
 	await page.locator('#cseg button[data-t="js"]').click()
@@ -772,6 +794,19 @@ try {
 	await page.evaluate(g => { try { g == null ? localStorage.removeItem('csGm') : localStorage.csGm = g } catch {} }, gm0)
 	await page.evaluate(() => location.hash = 'ff8000')   // hex notation back for the tests below
 
+	// a tip waits for the pointer to REST on its element (#tip{--tip-delay}): a pointer gliding along a name raises none, its
+	// rest does, and a press hides it till the pointer leaves – no element borrows another's shown tip
+	{ await page.goto(`${server.origin}/?sw&cb=${Date.now()}#ff8000`, { waitUntil: 'load' }); await page.locator('.ent[data-s] .nm').first().waitFor(); await toCatalog(page)   // the catalog's own page – the ghosts above left a dossier over it (load, not networkidle: CI's network never idled there)
+	  const nm=await page.evaluate(()=>{ const e=[...document.querySelectorAll('.ent[data-s] .nm')].find(e=>{ const r=e.getBoundingClientRect(); return r.top>120&&r.bottom<innerHeight-60&&r.width>60 }); e.addEventListener('click',ev=>{ ev.preventDefault(); ev.stopImmediatePropagation() },{ capture:true, once:true }); const r=e.getBoundingClientRect(); return [r.left,r.top+r.height/2,r.width] })   // its press tested, not its dossier opened
+	  const tipOn=()=>page.evaluate(()=>document.getElementById('tip').classList.contains('on'))
+	  await page.mouse.move(nm[0]+2,nm[1]); let glided=false
+	  for(let k=0;k<=20;k++){ await page.mouse.move(nm[0]+2+(nm[2]-4)*k/20,nm[1]); await page.waitForTimeout(45); glided||=await tipOn() }
+	  await page.waitForTimeout(900); const rested=await tipOn()
+	  await page.mouse.down(); await page.mouse.up(); await page.waitForTimeout(900); const pressed=await tipOn()
+	  await page.mouse.move(5,5)
+	  assert.equal(glided,false,'a pointer gliding along a name raises no tip')
+	  assert.equal(rested,true,'resting on it, its tip')
+	  assert.equal(pressed,false,'a press hides it, and it stays hidden while the pointer stays') }
 	const mobile = await context.newPage()
 	mobile.on('pageerror', error => errors.push(`mobile: ${error.message}`))
 	await mobile.setViewportSize({ width: 390, height: 844 })
@@ -789,9 +824,31 @@ try {
 	// operating the grouping select must not raise its heading's explainer (tip.js stops
 	// ancestor tips at form controls) — while the heading itself still explains
 	await mobile.locator('.gsel').first().hover()
-	await mobile.waitForTimeout(450)   // past tip.js's 300ms arm delay
+	await mobile.waitForTimeout(750)   // past the page's 600 ms tip delay (#tip{--tip-delay})
 	assert.equal(await mobile.locator('#tip.on').count(), 0, 'the grouping select does not raise the section tip')
 	assert.equal(await mobile.locator('.sec').first().locator('.stip').isVisible(), true, 'the heading still explains – its description under it, in words, not a tooltip beside them')
+	// a phone: nothing in the row moves as the page scrolls – the color keeps its place, size and width from the hero into
+	// the row (its clear × never slides), the count gives the row its room; the plugins live on the page and scroll away
+	await mobile.evaluate(() => { location.hash = 'ef4a5f' }); await mobile.waitForFunction(() => document.getElementById('cd').value.toLowerCase() === '#ef4a5f')
+	const still = await mobile.evaluate(async () => { const at = () => { const r = s => document.querySelector(s).getBoundingClientRect()
+			return { x: Math.round(r('#cvx').left), font: getComputedStyle(document.getElementById('cval')).fontSize, w: Math.round(r('.hcolor>.cx').width), plug: Math.round(r('.hplug').top) } }
+		const top = at(); scrollTo(0, 900); await new Promise(r => setTimeout(r, 300)); const docked = at(); scrollTo(0, 0); await new Promise(r => setTimeout(r, 100))
+		return { top, docked, count: getComputedStyle(document.querySelector('.cells>.count')).display } })
+	assert.deepEqual([still.docked.x, still.docked.font, still.docked.w], [still.top.x, still.top.font, still.top.w], 'a phone: the color keeps its place, size and width as it docks – its × never moves')
+	assert.equal(still.count, 'none', 'the count gives the row its room on a phone')
+	assert.ok(still.docked.plug < still.top.plug - 800, 'the plugins scroll away with the page, never pinned in the row')
+	// a finger on a strip: going up or down is the page's scroll, the color untouched; going sideways takes the strip – the
+	// whole way, however the finger drifts after; a tap picks where it lands
+	const finger = await mobile.evaluate(async () => { const ch = document.querySelector('.ent[data-s="rgb"] .ch'); ch.scrollIntoView({ block: 'center' }); await new Promise(f => setTimeout(f, 200))
+		const r = ch.getBoundingClientRect(), red = () => parseInt(document.getElementById('cd').value.slice(1, 3), 16); ch.setPointerCapture = () => {}
+		const go = (type, fx, dy = 0) => ch.dispatchEvent(new PointerEvent(type, { bubbles: true, pointerId: 31, pointerType: 'touch', isPrimary: true, clientX: r.left + r.width * fx, clientY: r.top + r.height / 2 + dy }))
+		const frame = () => new Promise(f => requestAnimationFrame(() => requestAnimationFrame(f)))
+		const r0 = red(); go('pointerdown', .2); go('pointermove', .21, 18); go('pointercancel', .21, 18); await frame(); const scrolled = red()
+		go('pointerdown', .2); go('pointermove', .3, 2); go('pointermove', .6, 30); go('pointerup', .6, 30); await frame(); const dragged = red()
+		go('pointerdown', .9); go('pointerup', .9); await frame(); return { r0, scrolled, dragged, tapped: red() } })
+	assert.equal(finger.scrolled, finger.r0, 'a finger going down a strip scrolls the page – the color untouched')
+	assert.ok(Math.abs(finger.dragged - .6 * 255) <= 4, `a finger going sideways drags the strip, drifting after: R ${finger.dragged} ≈ ${.6 * 255}`)
+	assert.ok(Math.abs(finger.tapped - .9 * 255) <= 4, `a tap picks where it lands: R ${finger.tapped} ≈ ${.9 * 255}`)
 	await mobile.close()
 
 	const motionContext=await browser.newContext({viewport:{width:800,height:600}}), motion=await motionContext.newPage()

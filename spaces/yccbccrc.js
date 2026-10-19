@@ -1,17 +1,15 @@
 /**
- * YcCbcCrc is the constant-luminance encoding defined alongside ITU-R BT.2020 and
- * BT.2100 for ultra-high-definition and HDR/wide-gamut video. Ordinary Y'CbCr derives
- * luma from RGB values that have already been gamma-encoded, which lets highly
- * saturated colors leak into the luma channel and distort perceived brightness — a
- * problem that grows more visible with the wider gamuts and higher dynamic range
- * BT.2020 and BT.2100 target. YcCbcCrc avoids this by deriving luma from linear light
- * before applying the transfer curve, keeping brightness and chroma cleanly separated
- * even for the most saturated colors UHDTV and HDR can reproduce.
+ * YcCbcCrc is the constant-luminance encoding defined in ITU-R BT.2020 for UHD wide-gamut
+ * video; for HDR, BT.2100 offers ICtCp instead. Ordinary Y′CbCr takes luma from gamma-encoded
+ * RGB, so saturated colors leak into luma and distort perceived brightness, more visibly at
+ * the wider gamuts and higher dynamic range BT.2020 and BT.2100 target. YcCbcCrc takes luma
+ * from linear light before the transfer curve, keeping brightness and chroma separate even for
+ * the most saturated colors.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.2020/en}
  * @year 2012
  * @by ITU-R
- * @use Constant-luminance luma/chroma encoding for UHDTV/HDR wide-gamut video (BT.2020/2100); current, less common than non-constant-luminance Y'CbCr.
+ * @use UHDTV wide-gamut video (BT.2020); less common than non-constant-luminance Y′CbCr.
  * @channel {Yc} 0 1 Constant-luminance luma
  * @channel {Cbc} -0.5 0.5 Blue-difference chroma
  * @channel {Crc} -0.5 0.5 Red-difference chroma

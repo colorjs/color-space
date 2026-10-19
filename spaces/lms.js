@@ -1,16 +1,15 @@
 /**
- * LMS — the cone-response space of human vision, where L, M and S are the long-, medium-
- * and short-wavelength-sensitive cones of the retina. Describing color the way the eye's
- * own photoreceptors respond makes LMS the natural space for chromatic adaptation:
- * predicting how a color must shift to look unchanged under a different light source.
- * Several competing cone-fundamental and adaptation matrices are in use — von Kries,
- * Bradford, CAT02, CAT16 among them — each modeling that adaptation differently.
+ * LMS — the cone-response space of human vision, where L, M and S are the retina's long-,
+ * medium- and short-wavelength-sensitive cones. Describing color as the photoreceptors respond
+ * makes it the natural space for chromatic adaptation: predicting how a color must shift to
+ * look unchanged under another light. Competing cone and adaptation matrices model that
+ * differently, among them von Kries, Bradford, CAT02 and CAT16.
  *
  * @see {@link https://cie.co.at/publications/colour-appearance-model-colour-management-systems-ciecam02}
  * @wiki {@link https://en.wikipedia.org/wiki/LMS_color_space}
  * @year 1979
  * @by Estévez, Hunt & Pointer
- * @use Cone-response space for chromatic adaptation (von Kries / Bradford / CAT16); basis of the CIECAM / CAM16 appearance models.
+ * @use Chromatic adaptation (von Kries, Bradford, CAT16); the basis of the CIECAM and CAM16 appearance models.
  * @channel {L} 0 100 Long
  * @channel {M} 0 105 Medium
  * @channel {S} 0 110 Short

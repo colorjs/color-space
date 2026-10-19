@@ -8,7 +8,7 @@
  * @see {@link http://www.brucelindbloom.com/WorkingSpaceInfo.html} Lindbloom, RGB Working Space Information
  * @year 1998
  * @by Bruce Fraser
- * @use Conservative-gamut RGB working space for heavily edited 8-bit images; legacy.
+ * @use Heavily edited 8-bit images; legacy.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

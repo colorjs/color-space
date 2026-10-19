@@ -71,3 +71,11 @@ test('sweep: workers – nothing before ready, a batch each, the newest answer w
 		is(painted.at(-1), 'C2', 'and every wish after')
 	} finally { globalThis.Worker = W }
 })
+
+test('sweep: a phone starts two workers – each holds the library and its data again', async () => {
+	const W = globalThis.Worker, M = globalThis.matchMedia; globalThis.Worker = Stand; Stand.all = []
+	globalThis.matchMedia = q => ({ matches: /pointer:\s*coarse/.test(q) })
+	try { const pool = sweeps(() => {}); pool.want(el(), 'A', job()); await tick()
+		is(Stand.all.length, 2, 'a coarse pointer: two workers')
+	} finally { globalThis.Worker = W; if (M) globalThis.matchMedia = M; else delete globalThis.matchMedia }
+})

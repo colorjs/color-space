@@ -2,3 +2,4 @@ LICENSE.md
 *.vsix
 l10n/
 package.nls.*.json
+promo/out/

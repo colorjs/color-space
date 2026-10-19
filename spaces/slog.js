@@ -1,16 +1,14 @@
 /**
- * S-Log — Sony's first logarithmic gamma curve, introduced on the F35 and F3
- * cameras to capture more dynamic range than conventional video gammas allowed.
- * Paired with the S-Gamut primaries, it was designed for scene-referred acquisition
- * ahead of color grading, but its tonal placement was quickly refined by S-Log2 and
- * then S-Log3. It survives mainly for compatibility with archival footage shot in
- * that era.
+ * S-Log — Sony's first log curve, introduced on the F35 and F3 cameras to capture more dynamic
+ * range than ordinary video gammas allowed. Paired with the S-Gamut primaries, it was made for
+ * scene-referred capture ahead of grading; S-Log2 and then S-Log3 soon refined its tonal
+ * placement.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog.html}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2008
  * @by Sony
- * @use Sony's first cinema log curve (F35/F3 cameras); legacy, kept for archival-footage compatibility.
+ * @use F35 and F3 footage; kept for archival compatibility.
  * @successor slog2 S-Log2 rescaled it to hold more of the sensor's range
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

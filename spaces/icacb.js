@@ -1,14 +1,12 @@
 /**
- * ICaCb — an HDR opponent space designed by Fröhlich in 2017, built in the same mold as
- * ICtCp but re-optimized for just-noticeable-difference uniformity and straighter hue
- * lines. XYZ passes through a dedicated cone matrix and the PQ (ST 2084) non-linearity
- * before the opponent mix, giving I as intensity and Ca/Cb as red-green and yellow-blue
- * chroma.
+ * ICaCb — an HDR opponent space designed by Fröhlich in 2017, built like ICtCp but
+ * re-optimized for just-noticeable-difference uniformity and straighter hue lines. XYZ passes
+ * through a dedicated cone matrix and the PQ (ST 2084) non-linearity before the opponent mix.
  *
  * @see {@link https://github.com/colour-science/colour/blob/develop/colour/models/icacb.py}
  * @year 2017
  * @by Julian Fröhlich
- * @use HDR/wide-gamut opponent space re-optimized for JND uniformity versus ICtCp; research use, not broadly adopted industrially.
+ * @use Research; re-optimized for JND uniformity versus ICtCp, not broadly adopted in industry.
  * @channel {I} 0 1 Intensity
  * @channel {Ca} -0.5 0.5 Red-Green
  * @channel {Cb} -0.5 0.5 Yellow-Blue

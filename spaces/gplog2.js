@@ -8,7 +8,7 @@
  * @see {@link https://gopro.github.io/labs/log/}
  * @year 2026
  * @by GoPro
- * @use Log profile for GoPro MISSION 1 series cameras; graded with GoPro Labs' GP-Log2 LUT generator.
+ * @use Grading with GoPro Labs' GP-Log2 LUT generator.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

@@ -1,18 +1,15 @@
 /**
- * YUV is the analog color-encoding scheme developed for PAL television broadcasting,
- * and lives on loosely today as a general term for luma/chroma video encoding. It let
- * color signals ride alongside existing black-and-white broadcasts without breaking
- * compatibility with monochrome receivers — the luma channel Y alone carries the
- * brightness signal, while U and V add scaled blue-difference and red-difference
- * chrominance on top. Splitting luma from chroma this way let broadcasters spend less
- * bandwidth on color than on brightness, exploiting the eye's lower sensitivity to
- * chrominance detail.
+ * YUV is the analog color encoding developed for PAL television. Color rides alongside the
+ * black-and-white signal without breaking monochrome receivers: Y alone carries brightness,
+ * and U and V add scaled blue- and red-difference chroma. Splitting luma from chroma let
+ * broadcasters spend less bandwidth on color than on brightness, since the eye sees less
+ * chroma detail.
  *
  * @see {@link https://www.itu.int/rec/R-REC-BT.470} ITU-R BT.470
  * @wiki {@link https://en.wikipedia.org/wiki/YUV}
  * @year 1967
  * @by Walter Bruch / Telefunken
- * @use Legacy analog PAL television luma/chroma encoding; historical, though 'YUV' now used loosely for digital video too.
+ * @use Analog PAL television; historical, though “YUV” is now used loosely for digital video too.
  * @channel {Y} 0 1 Luma
  * @channel {U} -0.436 0.436 Chrominance blue component
  * @channel {V} -0.615 0.615 Chrominance red component

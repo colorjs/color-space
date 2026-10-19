@@ -1,16 +1,14 @@
 /**
- * S-Log2 — Sony's second-generation log curve, refining the original S-Log with a
- * scaling adjustment that captures more of the camera's dynamic range and improves
- * shadow reproduction. It shares the S-Gamut primaries with S-Log and S-Log3,
- * sitting between them chronologically and in capability, before Sony moved to
- * S-Log3 as its recommended acquisition curve. It still appears in workflows built
- * around older Sony camera firmware.
+ * S-Log2 — Sony's second log curve, a rescaled S-Log that captures more of the camera's
+ * dynamic range and improves shadows. It shares the S-Gamut primaries with S-Log and S-Log3,
+ * sitting between them in time and capability, and still appears in workflows built around
+ * older Sony firmware.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_SLog2.html}
  * @wiki {@link https://en.wikipedia.org/wiki/Log_profile}
  * @year 2012
  * @by Sony
- * @use Sony's second-generation cinema log curve (F5/F55 era); legacy, superseded by S-Log3.
+ * @use Sony's second-generation cinema log (F65, F55 and F5 era).
  * @successor slog3 Sony moved to S-Log3, modeled on film's Cineon curve
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

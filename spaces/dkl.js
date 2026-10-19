@@ -1,17 +1,14 @@
 /**
- * DKL — the cardinal-axis space of human color vision, proposed by Derrington, Krauskopf
- * & Lennie in 1984 from recordings of neurons in the macaque lateral geniculate nucleus.
- * Rather than an arbitrary opponent model, its three axes are the actual directions
- * early visual neurons respond along: an achromatic luminance axis, an isoluminant
- * red-green axis, and a tritan blue-yellow axis, all measured relative to an adapting
- * white. It remains a standard framework in vision science for designing stimuli that
- * isolate one cardinal mechanism at a time.
+ * DKL — the cardinal-axis space of human color vision, proposed by Derrington, Krauskopf &
+ * Lennie in 1984 from recordings of neurons in the macaque lateral geniculate nucleus. Its
+ * three axes are the directions those neurons actually respond along: achromatic luminance,
+ * isoluminant red-green and tritan blue-yellow, all relative to an adapting white.
  *
  * @see {@link https://doi.org/10.1113/jphysiol.1984.sp015499} Derrington et al. 1984
  * @see {@link https://psychopy.org/general/colours.html#dkl-color-space} calibrated cardinal-axis convention
  * @year 1984
  * @by Derrington, Krauskopf & Lennie
- * @use Vision-science stimulus design isolating cardinal color mechanisms; current standard framework in that research field.
+ * @use Vision-science stimulus design isolating cardinal color mechanisms; the field's standard framework.
  * @channel {Lum} -1 1 Luminance contrast
  * @channel {RG} -1.7 1.7 Red-Green contrast
  * @channel {YV} -1.85 1.85 Tritan contrast

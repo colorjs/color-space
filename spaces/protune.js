@@ -1,14 +1,13 @@
 /**
- * Protune — GoPro's flat color profile for its Hero action camera line, designed to
- * minimize in-camera sharpening, saturation, and contrast so footage keeps more
- * headroom for color correction afterward. It applies a single natural-log curve
- * across the tonal range — simpler than the multi-segment curves cinema cameras
- * use — over the Protune Native primaries.
+ * Protune — GoPro's flat color profile for its Hero action cameras, with minimal in-camera
+ * sharpening, saturation and contrast so footage keeps more room for color correction. One
+ * natural-log curve covers the whole tonal range, simpler than cinema cameras' multi-segment
+ * curves, over the Protune Native primaries.
  *
  * @see {@link https://colour.readthedocs.io/en/develop/generated/colour.models.log_encoding_Protune.html}
  * @year 2012
  * @by GoPro
- * @use Flat log color profile for GoPro Hero action cameras; current, still used on modern Hero output.
+ * @use GoPro Hero action cameras; still on modern Hero output.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

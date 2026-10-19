@@ -141,8 +141,9 @@ const line = s => { const m = meta[s] || {}
 	const ch = (m.channels || []).map(rng).join(', ')
 	const desc = (m.description || '').replace(/\s+/g, ' ').trim()
 	const org = m.year || m.by ? ` | origin: ${[m.year, m.by].filter(Boolean).join(' ')}` : ''
+	const use = m.use ? ` | use: ${m.use}` : ''
 	const ref = m.refs?.[0] ? ` | ref: ${m.refs[0]}` : ''
-	return `- ${s} — ${desc}${org} | channels: ${ch}${ref}` }
+	return `- ${s} — ${desc}${org}${use} | channels: ${ch}${ref}` }
 const installName = version.includes('-') ? 'color-space@next' : 'color-space'
 const llms = `# color-space — ${spaceCount} color spaces, one JavaScript API
 
@@ -155,7 +156,7 @@ API: space[from][to](...values) -> number[]     e.g. space.rgb.oklch(255, 128, 0
 Batch: space[from][to](pixels) -> Float64Array  interleaved array-like, stride = channel count; a batch of one = the v2 array call
 Per space: space[name].range (channel ranges), space[name].name
 Metadata: color-space/data.json — spaces (channels, refs, illuminant, referred, dynamic, year, by, use, neighbors) + gamuts, whitepoints, CMFs, conformance
-Tree-shaken: import oklch from 'color-space/oklch.js' (~2 kB per space; scalar form — batch is wired by the hubs)
+Tree-shaken: import oklch from 'color-space/oklch.js' (~1 kB min+gzip per space; scalar form — batch is wired by the hubs)
 Compact hub: import space from 'color-space/lite' — the 54 wasm-covered spaces in plain JS (~29 kB gzip), same two-form API
 WASM: import space, { alloc } from 'color-space/wasm' — same API, 54 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
 LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (3D: Resolve, Premiere, Final Cut, OBS, ffmpeg lut3d; 1D, for transfer-only pairs: Resolve, ffmpeg lut1d; { dims: 3 } forces 3D), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
@@ -216,31 +217,40 @@ const head = (h, L, s, i18n) => {
 // one space's document from its language's index
 const spaceDoc = (html, s) => {
 	const desc = t(`space.${s}.desc`, meta[s]?.description || '').replace(/\s+/g, ' ').trim()
-	// whole sentences up to a snippet's ~160 characters – never a cut mid-thought; a longer first sentence stays whole
-	// and search trims it, not us (a sentence ends at . ! ? before a capital – 'Rec. 709' doesn't – or at 。！？)
-	const sents = desc.split(/(?<=[.!?])\s+(?=\p{Lu})|(?<=[。！？])/u)
-	const short = sents.reduce((a, x) => !a || (a + ' ' + x).length <= 160 ? (a ? a + (/[。！？]$/.test(a) ? '' : ' ') : '') + x : a, '')
 	// searchers use the display name ("S-Gamut3.Cine"), not the slug — disp() is the
 	// site-wide derivation (description leader + pinned names); LUT-capable spaces
-	// name the artifact people actually search for
-	const name = disp(s), lut = LUTOK.has(s) && meta[s]?.referred === 'scene'
+	// name the artifact people actually search for, RGB spaces their primaries and matrix
+	const lut = LUTOK.has(s) && meta[s]?.referred === 'scene', rgb = !lut && !!meta[s]?.primaries, n = spaceCount - 1
+	// what the page holds, said last in the snippet: what a searcher came for, past the story
+	const offer = lut ? t('page.space.offer-lut', 'Ranges, converter and .cube LUTs to Rec. 709, P3 and other spaces.')
+		: rgb ? t('page.space.offer-rgb', 'Primaries, white point, RGB → XYZ matrix and a converter to {n} other spaces.', { n })
+		: t('page.space.offer', 'Channels, ranges and a converter to {n} other spaces.', { n })
+	// whole sentences up to a snippet's ~160 characters with the offer – never a cut mid-thought; a longer first sentence
+	// stays whole and search trims it, not us (a sentence ends at . ! ? before a capital – 'Rec. 709' doesn't – or at 。！？)
+	const sents = desc.split(/(?<=[.!?])\s+(?=\p{Lu})|(?<=[。！？])/u), join = (a, x) => !a ? x : a + (/[。！？]$/.test(a) ? '' : ' ') + x
+	const short = join(sents.reduce((a, x) => !a || join(a, x).length <= 159 - offer.length ? join(a, x) : a, ''), offer)
+	// the title carries the space's other name – the one people type ("ROMM RGB", "CIE xyY"); a lowercase alias
+	// ("grey", "printing") is a search word, not a name; one that spells the name out ("CIE xyY") stands alone
+	const name = disp(s), aka = meta[s]?.aka?.find((a) => /^[\p{Lu}\d]/u.test(a) && a.toLowerCase() !== name.toLowerCase())
+	const full = !aka ? name : aka.includes(name) ? aka : `${name} (${aka})`
 	let h = html
 	// the name view travels LIGHT: the 300kB baked catalog stays on the index — stamped
 	// pages ship #cat empty (no data-fp → the page rebuilds it at idle, behind the
 	// prerendered dossier bake-dossiers.js injects after this)
 	h = swap(h, /<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, '<main class="cat" id="cat"></main>')
-	h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(lut ? t('page.space.title-lut', '{name} color space — channels, ranges, conversion LUT | color-space', { name })
-		: t('page.space.title', '{name} color space — channels, ranges, conversion | color-space', { name }))}</title>`)
+	h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(lut ? t('page.space.title-lut', '{name} color space – channels, ranges, conversion LUT | color-space', { name: full })
+		: rgb ? t('page.space.title-rgb', '{name} color space – primaries, XYZ matrix, conversion | color-space', { name: full })
+		: t('page.space.title', '{name} color space – channels, ranges, conversion | color-space', { name: full }))}</title>`)
 	h = swap(h, /<h1 class="hh" id="hero-t"[^>]*>[\s\S]*?<\/h1>/, () => `<h1 class="hh" id="hero-t"><span class="hk">${esc(t('page.space.kicker', 'Color space'))}</span> ${esc(name)}</h1>`)
 	h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)
-	h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(t('page.space.og-title', '{name} color space — color-space', { name }))}">`)
+	h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(t('page.space.og-title', '{name} color space – color-space', { name }))}">`)
 	h = swap(h, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(short)}">`)
 	h = swap(h, /<meta property="og:type" content="[^"]*">/, `<meta property="og:type" content="article">`)
 	h = h.replace(/<script type="application\/ld\+json" id="ld-dataset">[^<]*<\/script>/, '')   // a language's index already shed it
 	const card = cardOf(s)
 	if (card) {
 		h = swap(h, /<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${card}">`)
-		const alt = esc(t('page.space.og-alt', '{name} color space — its channel gradients, ranges and use', { name }))
+		const alt = esc(t('page.space.og-alt', '{name} color space – its channel gradients, ranges and use', { name }))
 		h = h.replace(/<meta (property="og:image:alt"|name="twitter:image:alt") content="[^"]*">/g, (m, a) => `<meta ${a} content="${alt}">`)
 	}
 	return h }

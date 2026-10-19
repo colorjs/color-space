@@ -1,17 +1,13 @@
 /**
- * DIN99o Lab is a further nonlinear remapping of CIELAB, part of the German
- * DIN 6176 color-difference standard, built so that a simple Euclidean distance
- * between two points approximates perceived color difference far more closely
- * than raw CIELAB does. It compresses Lab's lightness and chroma logarithmically
- * and applies a hue rotation, correcting CIELAB's well-known tendency to
- * overstate differences among highly saturated colors. The DIN99 family is used
- * mainly in industrial color-tolerance work — coatings, plastics and automotive
- * finishes — as a lighter alternative to the more elaborate CIE ΔE2000 formula.
+ * DIN99o Lab is a nonlinear remapping of CIELAB from the German color-difference standard DIN
+ * 6176. It is built so plain Euclidean distance approximates perceived color difference far
+ * more closely than in CIELAB: it compresses lightness and chroma logarithmically and rotates
+ * hue, correcting CIELAB's tendency to overstate differences between highly saturated colors.
  *
  * @see {@link https://de.wikipedia.org/wiki/DIN99-Farbraum}
  * @year 2018
  * @by DIN (FNF/FNL 2 committee)
- * @use Industrial color-tolerance measurement standardized in DIN 6176; current lighter alternative to CIEDE2000 in coatings/plastics/automotive QC.
+ * @use Coatings, plastics and automotive QC, standardized in DIN 6176; a lighter alternative to CIEDE2000.
  * @aka DIN99b
  * @channel {L} 0 100 Lightness
  * @channel {a} -40 40 Green-Red axis

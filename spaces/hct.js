@@ -1,17 +1,15 @@
 /**
- * HCT — hue, chroma, tone — is Google's color space for Material Design 3,
- * introduced in 2021 to power Android's Material You dynamic theming. It pairs the
- * hue and chroma of CAM16, a full color-appearance model that accounts for viewing
- * conditions, with tone: CIELAB's L* lightness, chosen because contrast and
- * accessibility formulas already depend on it. That combination lets a design
- * system derive a complete tonal palette from a single seed color while keeping
- * predictable contrast between any two tones.
+ * HCT — Google's color space for Material Design 3, introduced in 2021 for Android's Material
+ * You dynamic theming. It takes hue and chroma from CAM16, an appearance model that accounts
+ * for viewing conditions, and tone from CIELAB's L*, chosen because contrast and accessibility
+ * formulas already depend on it. From one seed color, a design system can then derive a full
+ * tonal palette with predictable contrast between any two tones.
  *
  * @see {@link https://material.io/blog/science-of-color-design}
  * @wiki {@link https://en.wikipedia.org/wiki/Color_appearance_model#CAM16}
  * @year 2021
  * @by Google (Material Design)
- * @use Android Material You dynamic theming and tonal-palette generation; current Material Design 3 standard.
+ * @use Tonal palettes for Android's Material You; the Material Design 3 standard.
  * @channel {H} 0 360 Hue angle in degrees
  * @channel {C} 0 145 Chroma
  * @channel {T} 0 100 Tone

@@ -1,17 +1,16 @@
 /**
- * SMPTE-C is the RGB primary set standardized by the Society of Motion Picture and
- * Television Engineers (SMPTE 170M) for 525-line NTSC broadcast in North America and
- * Japan. It replaced the original 1953 FCC/NTSC primaries with phosphors that were
- * actually achievable by contemporary picture tubes, paired with a D65 white point.
- * As an RGB working space it shares its transfer curve with Rec. 709/BT.601 video,
- * and remains the reference gamut for describing legacy analog NTSC color.
+ * SMPTE-C is the RGB primary set the Society of Motion Picture and Television Engineers
+ * standardized (SMPTE 170M) for 525-line NTSC broadcast in North America. It replaced the 1953
+ * FCC/NTSC primaries with phosphors that picture tubes of the time could actually produce,
+ * with a D65 white. As an RGB space it shares its transfer curve with Rec. 709 and BT.601
+ * video.
  *
  * @see {@link https://ieeexplore.ieee.org/document/7289701} SMPTE RP 145-2004
  * @see {@link https://pub.smpte.org/latest/eg27/eg0027-2004_stable2010.pdf} SMPTE EG 27-2004
  * @wiki {@link https://en.wikipedia.org/wiki/NTSC#SMPTE_C}
  * @year 1987
  * @by SMPTE
- * @use NTSC broadcast phosphor primaries for North America/Japan (RP 145); historical, legacy analog reference.
+ * @use NTSC broadcast in North America (RP 145); a historical analog reference.
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
  * @channel {B} 0 1 Blue

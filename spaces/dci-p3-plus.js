@@ -10,7 +10,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/DCI-P3}
  * @year 2013
  * @by Canon
- * @use Expanded-gamut RAW development target of the Canon EOS C500 cinema camera; niche.
+ * @use RAW development target; niche.
  * @aka DCI-P3-P
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green

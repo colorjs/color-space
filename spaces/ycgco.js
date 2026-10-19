@@ -1,10 +1,7 @@
 /**
- * YCgCo, introduced by Malvar and Sullivan in 2003, is a luma/chroma color transform
- * designed to be cheap to compute and simple to invert. Y carries luma, while Cg and
- * Co are green-difference and orange-difference chroma, each built from the RGB
- * components with lighter arithmetic than the coefficients YCbCr uses. It was adopted
- * into video coding standards including H.264/AVC and HEVC, valued there for
- * combining low computational cost with an exact, easily reversible RGB transform.
+ * YCgCo is a luma/chroma transform Malvar and Sullivan introduced in 2003, cheap to compute
+ * and exact to invert. Cg and Co are green- and orange-difference chroma, built from RGB with
+ * lighter arithmetic than YCbCr's coefficients.
  *
  * @module  color-space/ycgco
  *
@@ -12,7 +9,7 @@
  * @wiki {@link https://en.wikipedia.org/wiki/YCgCo}
  * @year 2003
  * @by Malvar & Sullivan (Microsoft)
- * @use Low-complexity reversible luma/chroma transform used in H.264/AVC and HEVC coding; current, specific coding modes.
+ * @use Specific coding modes of H.264/AVC and HEVC.
  * @aka YCoCg
  * @channel {Y} 0 1 Luma
  * @channel {Cg} -0.5 0.5 Green-magenta chroma

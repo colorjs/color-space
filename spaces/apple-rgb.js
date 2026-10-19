@@ -1,15 +1,13 @@
 /**
- * Apple RGB — the working space used by classic Mac OS, modeling the color response
- * of Apple's original Trinitron CRT displays. Referenced to the D65 white point with
- * a gamma of about 1.8, Apple's historic system default, it remained a common
- * Photoshop working space for years and is still encountered in millions of legacy
- * image files.
+ * Apple RGB — the working space of classic Mac OS, modeled on Apple's original Trinitron CRT
+ * displays. It pairs a D65 white with a gamma of about 1.8, Apple's historic system default,
+ * and was a common Photoshop working space for years; legacy image files still carry it.
  *
  * @see {@link http://www.brucelindbloom.com/WorkingSpaceInfo.html}
  * @wiki {@link https://en.wikipedia.org/wiki/RGB_color_spaces#Apple_RGB}
  * @year 1987
  * @by Apple Computer
- * @use Legacy Mac / Photoshop RGB working space (D65, γ 1.8) from the 13″ AppleColor monitor; obsolete, superseded by sRGB.
+ * @use Mac and Photoshop working space (D65, γ 1.8) from the 13″ AppleColor monitor.
  * @successor rgb sRGB became the default of Windows, the web and Photoshop 5
  * @channel {R} 0 1 Red
  * @channel {G} 0 1 Green
