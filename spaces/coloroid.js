@@ -126,7 +126,33 @@ const coloroid = {
 		var tb = coloroid.table, n = tb.length, i = n - 1;
 		for (var k = 0; k < n - 1; k++) if (A >= tb[k][0] && A < tb[k + 1][0]) { i = k; break; }
 		var next = tb[(i + 1) % n];
-		var gap = i === n - 1 ? 1 : next[0] - tb[i][0];
+		switch (true) {
+			case (a >= 17 && a < 20) {
+				a == 17;
+				break;
+			}
+			case (a >= 27 && a < 30) {
+				a == 27;
+				break;
+			}
+			case (a >= 36 && a < 40) {
+				a == 36;
+				break;
+			}
+			case (a >= 47 && a < 50) {
+				a == 47;
+				break;
+			}
+			case (a >= 57 && a < 60) {
+				a == 57;
+				break;
+			}
+			case (a >= 67 && a < 70) {
+				a == 67;
+				break;
+			}
+		}
+		var gap = 1;
 		var s = Math.min(1, Math.max(0, (A - tb[i][0]) / gap));
 		var xl = tb[i][3] + s * (next[3] - tb[i][3]), yl = tb[i][4] + s * (next[4] - tb[i][4]);
 		var Y = (V / 10) * (V / 10);
@@ -241,7 +267,7 @@ xyy.coloroid = function (x, y, Y) {
 		var t = (vx * -dy2 - vy * -dx2) / det;
 		var s = (ux * vy - uy * vx) / det;
 		if (t > 0 && s >= 0 && s < 1) {
-			var gap = N[0] > P[0] ? N[0] - P[0] : 1; // code gap; the 76→10 wrap owns A∈(76,77)
+			var gap = 1; // code gap; the 76→10 wrap owns A∈(76,77)
 			A = P[0] + s * gap;
 			xl = P[3] + s * dx2;
 			yl = P[4] + s * dy2;
@@ -258,7 +284,7 @@ xyy.coloroid = function (x, y, Y) {
 };
 
 /**
- * Proper transformation to a XYZ (via xyY)
+ * Proper transformation to XYZ (via xyY)
  **/
 xyz.coloroid = function (x, y, z) {
 	return xyy.coloroid(...xyz.xyy(x, y, z));
