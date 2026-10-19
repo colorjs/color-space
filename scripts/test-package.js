@@ -54,8 +54,8 @@ import wgsl from 'color-space/gl/wgsl'
 import { cube } from 'color-space/lut'
 import { profile } from 'color-space/icc'
 
-assert.equal(Object.keys(space).length, 205)
-assert.equal(Object.keys(data.spaces).length, 205)
+assert.equal(Object.keys(space).length, 221)
+assert.equal(Object.keys(data.spaces).length, 221)
 assert.deepEqual(conformance.rows, data.conformance)
 assert.ok(conformance.rows.every(r => space[r.f][r.t] && ['published', 'implementation', 'computed'].includes(r.kind)))
 assert.equal(lite.rgb.oklch(255, 0, 0).length, 3)
