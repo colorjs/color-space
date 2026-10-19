@@ -355,7 +355,7 @@ try {
 		// hover of the same element; any press elsewhere dismisses it
 		const tipOn = () => ui.locator('#tip').evaluate(t => t.classList.contains('on'))
 		const frame1 = page.frames().find(f => f !== page.mainFrame())
-		// it comes after half a second's rest, Figma's own wait, and goes the moment the pointer leaves – no fade out
+		// it comes after half a second's rest, Figma's own wait, and goes a linger after the pointer leaves – no fade out
 		{
 			const st = () => ui.locator('#tip').evaluate(t => [t.classList.contains('on'), +getComputedStyle(t).opacity])
 			const ibt = await page.locator('iframe').boundingBox()
@@ -371,8 +371,9 @@ try {
 			const shown = await st()
 			const ib = await page.locator('iframe').boundingBox()
 			await page.mouse.move(ib.x + 3, ib.y + ib.height / 2)   // the panel's padding: nothing there
+			await page.waitForTimeout(650)   // past the tip's linger (tip.js, 500 ms) – the pointer's time to cross into it
 			const left = await st()
-			ok(!at300[0] && shown[0] && shown[1] === 1 && !left[0] && left[1] === 0, `the tooltip waits half a second (${Math.round(waited)} ms), then goes at once with the pointer (${JSON.stringify([shown, left])})`)
+			ok(!at300[0] && shown[0] && shown[1] === 1 && !left[0] && left[1] === 0, `the tooltip waits half a second (${Math.round(waited)} ms), then goes with the pointer after its linger, no fade (${JSON.stringify([shown, left])})`)
 		}
 		await ui.locator('#prmb').hover()
 		await ui.locator('#tip.on').waitFor({ state: 'attached', timeout: 3000 })

@@ -131,6 +131,13 @@ try {
 	  assert.deepEqual(await p3.evaluate(()=>[document.querySelector('#m-view .mseg[data-lens="g"] button.on')?.dataset.v, localStorage.csGm??null]),['p3',null],'a P3 screen, nothing picked: the Limit is P3')
 	  assert.deepEqual(await clipped(p3),{ srgb:false, p3:false, rec2020:true, vis:true, locus:true },'…and only the Limits past P3 say they show clipped')
 	  await p3Context.close() }
+	// a phone's dossier record: one grid of pairs – origin | lineage, test | source, primaries | matrix – nothing past the screen
+	{ const phoneContext=await browser.newContext({ viewport:{ width:390, height:844 }, reducedMotion:'reduce' }), phone=await phoneContext.newPage()
+	  await phone.goto(`${server.origin}/rec709?cb=${Date.now()}`,{ waitUntil:'networkidle' }); await phone.waitForSelector('#modal:not([hidden]) .props [data-k="channels"]')
+	  const rec=await phone.evaluate(()=>{ const at=k=>document.querySelector(`#overview [data-k="${k}"]`).getBoundingClientRect(), pair=(a,b)=>{ const x=at(a), y=at(b); return Math.round(x.top)===Math.round(y.top)&&x.right<=y.left }, m=document.getElementById('modal')
+	    return [pair('origin','lineage'),pair('test','source'),pair('primaries','matrix'),m.scrollWidth<=m.clientWidth,!document.querySelector('#modal .drep,#modal [data-k="report"]')] })
+	  assert.deepEqual(rec,[true,true,true,true,true],'a phone\'s record pairs origin | lineage, test | source, primaries | matrix, nothing wider than the screen, no report link')
+	  await phoneContext.close() }
 	assert.equal(await page.locator('#cd').inputValue(), '#808080', 'undefined color starts neutral gray')
 	await page.locator('#him').click(); await page.waitForSelector('#uppop:popover-open .upim')
 	const specimens=page.locator('#uppop .upim:not(.upld)')
@@ -789,7 +796,7 @@ try {
 
 	// a tip waits for the pointer to REST on its element (#tip{--tip-delay}): a pointer gliding along a name raises none, its
 	// rest does, and a press hides it till the pointer leaves – no element borrows another's shown tip
-	{ await page.goto(`${server.origin}/?sw&cb=${Date.now()}#ff8000`, { waitUntil: 'networkidle' }); await toCatalog(page)   // the catalog's own page – the ghosts above left a dossier over it
+	{ await page.goto(`${server.origin}/?sw&cb=${Date.now()}#ff8000`, { waitUntil: 'load' }); await page.locator('.ent[data-s] .nm').first().waitFor(); await toCatalog(page)   // the catalog's own page – the ghosts above left a dossier over it (load, not networkidle: CI's network never idled there)
 	  const nm=await page.evaluate(()=>{ const e=[...document.querySelectorAll('.ent[data-s] .nm')].find(e=>{ const r=e.getBoundingClientRect(); return r.top>120&&r.bottom<innerHeight-60&&r.width>60 }); e.addEventListener('click',ev=>{ ev.preventDefault(); ev.stopImmediatePropagation() },{ capture:true, once:true }); const r=e.getBoundingClientRect(); return [r.left,r.top+r.height/2,r.width] })   // its press tested, not its dossier opened
 	  const tipOn=()=>page.evaluate(()=>document.getElementById('tip').classList.contains('on'))
 	  await page.mouse.move(nm[0]+2,nm[1]); let glided=false
