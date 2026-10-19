@@ -65,7 +65,7 @@ export function classify(name) {
 export const geoOf = s => { const c = classify(s); return c.angle ? 'polar' : c.archetype === 'opponent' ? 'opponent' : 'component' }
 
 // any hue-like channel is an angle wrapping over its own span — munsell's H is 0-100
-// grades, coloroid's A is 10-76, not just the 0-360 spaces. -1 = no wheel.
+// grades, coloroid's A is 10-77, not just the 0-360 spaces. -1 = no wheel.
 export const hueIdx = cls => { if (cls.angle) return cls.angle.i
 	if (cls.ch.length !== 3) return -1
 	return cls.ch.findIndex(c => /hue/i.test(c.name || '')) }

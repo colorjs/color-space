@@ -1,17 +1,16 @@
 /**
- * Coloroid — the Hungarian architectural color-order system, developed by Antal
- * Nemcsics at the Budapest University of Technology and standardized as MSZ 7300.
- * Grown from large-scale aesthetic experiments, it arranges hue (A), saturation (T)
- * and luminosity (V) in steps that feel evenly spaced when composing whole
- * environments — its home turf is architecture and urban color planning.
+ * Coloroid — the Hungarian architectural color-order system, developed by Antal Nemcsics at
+ * the Budapest University of Technology and standardized as MSZ 7300. Grown from large-scale
+ * aesthetic experiments, it steps hue (A), saturation (T) and lightness (V) so they feel
+ * evenly spaced when composing whole environments.
  *
  * @see {@link https://onlinelibrary.wiley.com/doi/10.1002/col.5080050214}
  * @wiki {@link https://en.wikipedia.org/wiki/Coloroid_color_system}
  *
  * @year 1980
  * @by Antal Nemcsics
- * @use Architectural and urban color-planning system; still used in Hungarian design practice, standardized as MSZ 7300.
- * @channel {A} 10 76 Hue grade
+ * @use Architectural and urban color planning; standardized as MSZ 7300, still used in Hungary.
+ * @channel {A} 10 77 Hue grade
  * @channel {T} 0 100 Saturation
  * @channel {V} 0 100 Luminosity
  * @method system
@@ -26,7 +25,8 @@
 // found by chromaticity angle from white; T is the position along the white→
 // limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup
 // uses each row's angle computed from its own (xλ,yλ); the stored angle column is
-// decorative (it disagrees with the chromaticities).
+// decorative (it disagrees with the chromaticities). A runs over [10, 77): the wrap
+// segment 76→10 owns A ∈ (76, 77), and 77 is 10 again – the hue's period is 67, not 66.
 //
 // The limit-color table holds the authoritative Nemcsics (1980) chromaticities
 // (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column
@@ -126,33 +126,7 @@ const coloroid = {
 		var tb = coloroid.table, n = tb.length, i = n - 1;
 		for (var k = 0; k < n - 1; k++) if (A >= tb[k][0] && A < tb[k + 1][0]) { i = k; break; }
 		var next = tb[(i + 1) % n];
-		switch (true) {
-			case (a >= 17 && a < 20) {
-				a == 17;
-				break;
-			}
-			case (a >= 27 && a < 30) {
-				a == 27;
-				break;
-			}
-			case (a >= 36 && a < 40) {
-				a == 36;
-				break;
-			}
-			case (a >= 47 && a < 50) {
-				a == 47;
-				break;
-			}
-			case (a >= 57 && a < 60) {
-				a == 57;
-				break;
-			}
-			case (a >= 67 && a < 70) {
-				a == 67;
-				break;
-			}
-		}
-		var gap = 1;
+		var gap = i === n - 1 ? 1 : next[0] - tb[i][0];
 		var s = Math.min(1, Math.max(0, (A - tb[i][0]) / gap));
 		var xl = tb[i][3] + s * (next[3] - tb[i][3]), yl = tb[i][4] + s * (next[4] - tb[i][4]);
 		var Y = (V / 10) * (V / 10);
@@ -267,7 +241,7 @@ xyy.coloroid = function (x, y, Y) {
 		var t = (vx * -dy2 - vy * -dx2) / det;
 		var s = (ux * vy - uy * vx) / det;
 		if (t > 0 && s >= 0 && s < 1) {
-			var gap = 1; // code gap; the 76→10 wrap owns A∈(76,77)
+			var gap = N[0] > P[0] ? N[0] - P[0] : 1; // code gap; the 76→10 wrap owns A∈(76,77)
 			A = P[0] + s * gap;
 			xl = P[3] + s * dx2;
 			yl = P[4] + s * dy2;
@@ -284,7 +258,7 @@ xyy.coloroid = function (x, y, Y) {
 };
 
 /**
- * Proper transformation to XYZ (via xyY)
+ * Proper transformation to a XYZ (via xyY)
  **/
 xyz.coloroid = function (x, y, z) {
 	return xyy.coloroid(...xyz.xyy(x, y, z));
