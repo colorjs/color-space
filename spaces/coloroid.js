@@ -10,7 +10,7 @@
  * @year 1980
  * @by Antal Nemcsics
  * @use Architectural and urban color planning; standardized as MSZ 7300, still used in Hungary.
- * @channel {A} 10 76 Hue grade
+ * @channel {A} 10 77 Hue grade
  * @channel {T} 0 100 Saturation
  * @channel {V} 0 100 Luminosity
  * @method system
@@ -25,7 +25,8 @@
 // found by chromaticity angle from white; T is the position along the white→
 // limit-color line (T=0 at white, T=100 at the spectral/purple limit). The hue lookup
 // uses each row's angle computed from its own (xλ,yλ); the stored angle column is
-// decorative (it disagrees with the chromaticities).
+// decorative (it disagrees with the chromaticities). A runs over [10, 77): the wrap
+// segment 76→10 owns A ∈ (76, 77), and 77 is 10 again – the hue's period is 67, not 66.
 //
 // The limit-color table holds the authoritative Nemcsics (1980) chromaticities
 // (xλ=Xλ/eλ, yλ=Yλ/eλ from the data block below) — the prior table had the yλ column
@@ -41,7 +42,7 @@ import whitepoint from '../whitepoints.js';
 
 const coloroid = {
 	name: 'coloroid',
-	range: [[10, 76], [0, 100], [0, 100]],
+	range: [[10, 77], [0, 100], [0, 100]],
 	// min: [1, 0, 0],
 	// max: [48, 100, 100],
 

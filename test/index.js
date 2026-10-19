@@ -259,6 +259,22 @@ test('integrity — space.range literal matches @channel-derived data range', ()
 	is(drift, [], 'no drift between range literal and @channel')
 })
 
+// a hue wraps over its declared range, so every hue it returns must land inside it – a range short of
+// the forward's span (coloroid's 76→10 wrap returning A ∈ (76, 77) against [10, 76]) drops that arc
+test('integrity — every hue a space returns lies in its declared range', () => {
+	const out = []
+	for (const n of Object.keys(space)) {
+		const h = meta[n]?.channels?.findIndex(c => /hue/i.test(c.name)) ?? -1
+		if (h < 0 || !space.rgb[n]) continue
+		const [lo, hi] = space[n].range[h]
+		for (let r = 0; r <= 255; r += 15) for (let g = 0; g <= 255; g += 15) for (let b = 0; b <= 255; b += 15) {
+			const v = space.rgb[n](r, g, b)[h]
+			if (v < lo - 1e-6 || v > hi + 1e-6) { out.push(`${n} ${v} for ${[r, g, b]} ∉ [${lo}, ${hi}]`); break }
+		}
+	}
+	is(out, [], 'no hue outside its range')
+})
+
 // @gamut resolves to primaries + white in meta; for D65 gamuts the declared primary
 // chromaticities must match each space's live R/G/B → XYZ (guards a transcription slip).
 // Each primary is read through the space's own codes, so log and scene spaces count too:
@@ -1177,6 +1193,12 @@ test('coloroid', () => {
 		is(atv[0] >= 10 && atv[0] < 77 && atv.every(Number.isFinite), true, `valid finite ATV for ${c}`);
 		is(space.coloroid.rgb(...atv).map(round(4)), c, `rgb roundtrip exact for ${c}`);
 	}
+	// the wrap segment: a yellow-green between grades 76 and 10 reads A ∈ (76, 77), and A = 77 is
+	// grade 10 again (the range covering it: the hue-range integrity test)
+	const [g76, g10] = [space.coloroid.table.at(-1), space.coloroid.table[0]];
+	const wrap = space.xyy.coloroid((g76[3] + g10[3]) / 2, (g76[4] + g10[4]) / 2, 25);
+	is(wrap[0] > 76 && wrap[0] < 77, true, `A ${wrap[0].toFixed(3)} on the 76→10 wrap`);
+	is(space.coloroid.xyy(77, 50, 50), space.coloroid.xyy(10, 50, 50), 'A = 77 is A = 10');
 });
 
 test('coloroid: paint side colors', function () {
