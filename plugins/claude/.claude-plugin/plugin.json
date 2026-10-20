@@ -8,6 +8,6 @@
   "license": "CC0-1.0",
   "keywords": ["color", "colour", "color-space", "oklch", "cielab", "cam16", "css", "shader", "lut", "icc"],
   "mcpServers": {
-    "color-space": { "command": "npx", "args": ["-y", "color-space@3.4.0", "mcp"] }
+    "color-space": { "command": "npx", "args": ["-y", "color-space@3.5.0", "mcp"] }
   }
 }
