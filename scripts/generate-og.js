@@ -54,9 +54,9 @@ body{ overflow:hidden }
 .ow .facts{ display:flex; gap:var(--s5); margin:var(--s5) 0 0; padding:0; list-style:none; font-size:var(--t2); font-weight:650; color:var(--ink) }
 .ow .facts li{ display:flex; align-items:center; gap:var(--s2) } .ow .facts .ic{ --ic:1.1em; width:var(--ic); height:var(--ic) }
 .ow .facts .pdm{ width:1.1em; text-align:center; rotate:180deg; font-weight:500 }
-</style><body style="--cur:${HUES}"><div class="mtop"></div>
-<section class="hero"><div class="og">${heroLocus('', 'Surface', 'Light').replace('class="hlocus"', 'class="hlocus lit"')}
-<div class="ow"><p class="kick">A guide</p><h1 class="hh">color-space.io</h1>
+</style><body><div class="mtop" style="--cur:${HUES}"></div>
+<section class="hero" style="--cur:${HUES}"><div class="og">${heroLocus('', 'Surface', 'Light').replace('class="hlocus"', 'class="hlocus lit"')}
+<div class="ow"><p class="kick">A reference guide</p><h1 class="hh">color-space.io</h1>
 <p class="sl"><span>Open atlas of color spaces: from web to print,</span><span>pickers to research, ${Y.y0} to ${Y.y1}.</span></p>
 <ul class="facts"><li>${spaceCount} spaces</li><li>${shield}verified</li><li><span class="pdm" aria-hidden="true">©</span>public domain</li></ul></div></div></section>
 <script type="module">

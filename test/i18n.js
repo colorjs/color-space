@@ -141,7 +141,7 @@ test('i18n — runtime: per-key fallback, root-relative loads, the select keeps 
 		is(await page.evaluate(() => document.documentElement.lang), 'en-XA', 'the document speaks its language')
 		const names = await page.locator('.ti .tt').evaluateAll((b) => b.map((x) => x.textContent))
 		is([names[0], names[1]], ['Display & web', pseudo('Cylindrical')], 'stale key → English, fresh key → translation, side by side')
-		is(await page.locator('.gtag[data-g="era"]').textContent(), 'Era', 'a missing key reads English')
+		is(await page.locator('.gtabs .gtag[data-g="era"]').textContent(), 'Era', 'a missing key reads English')
 		await page.locator('.ent[data-s="oklch"] .nm').click()
 		await page.waitForFunction(() => location.pathname.endsWith('/en-XA/oklch'))
 		is(missing, [], 'every asset, module, font and table resolves under /en-XA/')

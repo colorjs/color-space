@@ -325,10 +325,10 @@ try {
 	// the shelf cut lives at the rail's FOOT now — tabs regroup without the panel;
 	// the filters then compose on the rebuilt DOM (scene-referred × era = the
 	// camera-log timeline), and the header chips restore every layer
-	assert.equal(await page.locator('.gtag').count(), 4, 'the rail offers the four cuts – family, purpose, author, era')
-	await page.locator('.gtag[data-g="purpose"]').click()
+	assert.equal(await page.locator('.gtabs .gtag').count(), 4, 'the rail offers the four cuts – family, purpose, author, era')
+	await page.locator('.gtabs .gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Picking/, 'purpose shelves lead the rail')
-	await page.locator('.gtag[data-g="era"]').click()
+	await page.locator('.gtabs .gtag[data-g="era"]').click()
 	assert.equal(await page.locator('.ent[data-s]').count(), 221, 'era regroup keeps every space')
 	assert.match(await page.locator('.toc .tn').first().textContent(), /2020/, 'era shelves lead the rail, newest first')
 	await lens(page,'f','scene')
@@ -338,19 +338,19 @@ try {
 	await page.locator('#fclr').click(); assert.equal(await page.locator('.cells .count').innerText(), '221 spaces', 'the × lets every pick go at once')
 	await lens(page,'f','scene')   // picked again, for what follows
 	await lens(page,'f','scene')   // unpicked where it was picked – no Any
-	await page.locator('.gtag[data-g="family"]').click()
+	await page.locator('.gtabs .gtag[data-g="family"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Display/, 'the Family tab restores the family cut')
-	await page.locator('.gtag[data-g="author"]').click()
+	await page.locator('.gtabs .gtag[data-g="author"]').click()
 	assert.deepEqual(await page.evaluate(() => { const k = [...document.querySelectorAll('#cat .sec')].map(s => s.dataset.k); return [k[0], k.at(-1), document.querySelectorAll('#cat .sec .ent').length] }), ['author.cie', 'author.people', 221], 'the Author cut: the CIE first, the researchers last, every space shelved once')
-	await page.locator('.gtag[data-g="family"]').click()
+	await page.locator('.gtabs .gtag[data-g="family"]').click()
 	// a language switch keeps ?g=: the page arrives in that cut, built once, and its tabs stay live – the arrival used to
 	// regroup, then the prerender's drift path redrew the family over it with the cut still set, so Family looked picked and Purpose did nothing
 	{	const cutContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), cut = await cutContext.newPage()
 		const shelf = () => cut.evaluate(() => document.querySelector('#cat .sec')?.dataset.k)
 		await cut.goto(`${server.origin}/ru/?sw&g=purpose&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 		assert.equal(await shelf(), 'purpose.picking', 'a shared ?g=purpose arrives in the purpose cut, translated page included')
-		await cut.locator('.gtag[data-g="family"]').click(); assert.equal(await shelf(), 'cat.display', 'its Family tab answers')
-		await cut.locator('.gtag[data-g="purpose"]').click(); assert.equal(await shelf(), 'purpose.picking', 'and its Purpose tab again')
+		await cut.locator('.gtabs .gtag[data-g="family"]').click(); assert.equal(await shelf(), 'cat.display', 'its Family tab answers')
+		await cut.locator('.gtabs .gtag[data-g="purpose"]').click(); assert.equal(await shelf(), 'purpose.picking', 'and its Purpose tab again')
 		await cutContext.close() }
 
 	// the views: the List rebuilds the same catalog; a List column orders every space in one shelf, again the
@@ -838,6 +838,13 @@ try {
 	assert.equal(fam.more, true, 'and the rest behind its "more"')
 	assert.equal(fam.names, 27, 'its line naming every one it holds back')
 	assert.equal(await mobile.locator('.sec').first().locator('.lead .ent').count(), 1, 'a phone\'s one column leads each family with one featured space')
+	// a tablet has no rail: the rail's four tabs ride the first heading, a phone's select hidden; a phone, the select alone
+	{	const tabContext = await browser.newContext({ viewport: { width: 900, height: 1100 }, reducedMotion: 'reduce' }), tab = await tabContext.newPage()
+		await tab.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'load' }); await tab.waitForSelector('.sec .gtabh')
+		assert.deepEqual(await tab.evaluate(() => [[...document.querySelectorAll('.sec .gtabh .gtag')].filter(b => b.offsetParent).map(b => b.dataset.g), getComputedStyle(document.querySelector('.gsel')).display]), [['family', 'purpose', 'author', 'era'], 'none'], 'a tablet: the four cuts as tabs in the first heading, no select')
+		await tab.locator('.sec .gtabh .gtag[data-g="purpose"]').click(); assert.equal(await tab.evaluate(() => document.querySelector('#cat .sec')?.dataset.k), 'purpose.picking', 'its Purpose tab regroups')
+		await tabContext.close() }
+	assert.deepEqual(await mobile.evaluate(() => [document.querySelector('.sec .gtabh')?.offsetParent ?? null, getComputedStyle(document.querySelector('.gsel')).display !== 'none']), [null, true], 'a phone: the select, no tabs')
 	// operating the grouping select must not raise its heading's explainer (tip.js stops
 	// ancestor tips at form controls) — while the heading itself still explains
 	await mobile.locator('.gsel').first().hover()

@@ -1588,7 +1588,7 @@
 "ui.quant.tip.names": {"t":"CSS 命名颜色","h":"4508c881"},
 "ui.quant.tip.web": {"t":"216 种颜色","h":"aca05891"},
 "ui.quant.tip.xkcd": {"t":"xkcd 颜色调研","h":"fe32355a"},
-"ui.quant.web": {"t":"网页调色板","h":"9761d52c"},
+"ui.quant.web": {"t":"网页安全色","h":"6ad2bb99"},
 "ui.skip": {"t":"跳到目录","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c}——单击设为当前颜色，按住 Alt 单击移除","h":"2142663e"},
 "ui.sug.again": {"t":"换一个","h":"df35047f"},

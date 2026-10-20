@@ -1588,7 +1588,7 @@
 "ui.quant.tip.names": {"t":"CSS 이름 있는 색","h":"4508c881"},
 "ui.quant.tip.web": {"t":"216가지 색","h":"aca05891"},
 "ui.quant.tip.xkcd": {"t":"xkcd 색 설문조사","h":"fe32355a"},
-"ui.quant.web": {"t":"웹 팔레트","h":"9761d52c"},
+"ui.quant.web": {"t":"웹 안전 색상","h":"6ad2bb99"},
 "ui.skip": {"t":"카탈로그로 건너뛰기","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – 클릭하면 현재 색으로 선택, Alt-클릭하면 목록에서 제거","h":"2142663e"},
 "ui.sug.again": {"t":"다른 것","h":"df35047f"},

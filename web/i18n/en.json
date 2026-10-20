@@ -1588,7 +1588,7 @@
 "ui.quant.tip.names": {"t":"CSS named colors","h":"4508c881"},
 "ui.quant.tip.web": {"t":"216 colors","h":"aca05891"},
 "ui.quant.tip.xkcd": {"t":"the xkcd color survey","h":"fe32355a"},
-"ui.quant.web": {"t":"web palette","h":"9761d52c"},
+"ui.quant.web": {"t":"web-safe","h":"6ad2bb99"},
 "ui.skip": {"t":"skip to catalog","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – click to take it in hand, Alt-click to let it go","h":"2142663e"},
 "ui.sug.again": {"t":"another one","h":"df35047f"},

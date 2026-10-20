@@ -1588,7 +1588,7 @@
 "ui.quant.tip.names": {"t":"CSSの名前付きカラー","h":"4508c881"},
 "ui.quant.tip.web": {"t":"216色","h":"aca05891"},
 "ui.quant.tip.xkcd": {"t":"xkcdカラー調査","h":"fe32355a"},
-"ui.quant.web": {"t":"Webパレット","h":"9761d52c"},
+"ui.quant.web": {"t":"Webセーフカラー","h":"6ad2bb99"},
 "ui.skip": {"t":"カタログへスキップ","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c}：クリックで現在の色にする、Altクリックで解除","h":"2142663e"},
 "ui.sug.again": {"t":"別の候補","h":"df35047f"},

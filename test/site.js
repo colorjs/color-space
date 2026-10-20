@@ -192,6 +192,8 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(calc.includes("new Worker(new URL('./calc-worker.js', import.meta.url), { type: 'module' })") && cw.includes("import { JOBS } from './calc.js'") && cw.includes("postMessage('ready')"), true, 'the exports\' sums – a LUT\'s check, an ICC profile\'s size – run in a worker, the page\'s own JOBS')
 	is(/lutTable\(|lutVerify\(/.test(page) || /setTimeout\(\(\)=>\{ try\{ const b=iccProfile/.test(page), false, 'no LUT check or ICC bake on the page\'s thread but a download')
 	is(gl.includes('const SHEET = [1536, 512]') && gl.includes('Math.max(SHEET[0], Math.ceil(420 * d))'), true, 'the kernel canvas is warmed to a batch\'s sheet: no growth inside a first card\'s click')
+	const og = readFileSync(new URL('../scripts/generate-og.js', import.meta.url), 'utf8')
+	is(og.includes('<div class="mtop" style="--cur:${HUES}">') && og.includes('<section class="hero" style="--cur:${HUES}">'), true, 'the site card\'s top line and its glow wear the hue wheel on their own elements – --cur never inherits (@property), set on the body they went gray')
 })
 
 // the catalog's display voice: names render display-final through disp() — uppercased

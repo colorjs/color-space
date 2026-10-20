@@ -1588,7 +1588,7 @@
 "ui.quant.tip.names": {"t":"colori con nome di CSS","h":"4508c881"},
 "ui.quant.tip.web": {"t":"216 colori","h":"aca05891"},
 "ui.quant.tip.xkcd": {"t":"il sondaggio sui colori di xkcd","h":"fe32355a"},
-"ui.quant.web": {"t":"palette web","h":"9761d52c"},
+"ui.quant.web": {"t":"colori web-safe","h":"6ad2bb99"},
 "ui.skip": {"t":"vai al catalogo","h":"b98a9d18"},
 "ui.stops.take": {"t":"{c} – clic per selezionarlo, Alt-clic per rimuoverlo","h":"2142663e"},
 "ui.sug.again": {"t":"un’altra","h":"df35047f"},
