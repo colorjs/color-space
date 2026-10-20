@@ -1748,7 +1748,7 @@ const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
 const icon=n=>`<svg class="ic${n==='x'?' ix':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
-const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200, AUTO_SLOW=34, AUTO_SETTLE=1500   // twenty steps a second – ten read as a stutter. AUTO_SLOW: the frame, in ms, past which the orbit eases off (autoGap doubles, twice, then parks) – sustained, under 30 fps: a slow engine (Safari, a phone) steps less often, a fast one keeps the pace
+const AUTO_FRAME=50, AUTO_CARD=33, AUTO_PERIOD=45000, AUTO_FADE=2200, AUTO_SLOW=34, AUTO_SETTLE=1500   // twenty steps a second – ten read as a stutter. AUTO_SLOW: the frame, in ms, past which the orbit eases off (autoGap doubles, up to four steps' time; it never parks) – sustained, under 30 fps: a slow engine (Safari, a phone) steps less often, a fast one keeps the pace
 const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
 let autoColor=false, autoStart=0, autoLast=0, autoT=0, autoJ='', autoF=0, autoFt=0, autoFtAt=0, autoGap=0, autoBest=AUTO_SLOW/2, cardAt=-Infinity, autoHold=0   // autoFtAt: when the pace was last restarted or acted on. autoHold: the moment the color field took focus – the orbit stands still while a color is being typed
 // the last scroll anywhere – the page's, a dossier's, a list's sideways: a card's hover warm-up waits a scroll out (wireEnt),
@@ -1767,12 +1767,13 @@ const autoStep=t=>{ if(!autoColor) return
 	if(t-Math.max(scrollAt,cardAt)<SCROLL_QUIET+AUTO_SETTLE){ autoFt=0; autoFtAt=t }
 	// a press that may yet take the color (a finger on a strip, sideways a drag) holds it where it stands, and it goes on from
 	// there – no leap at the release (a held orbit's clock once ran on under the press)
+	if(autoT&&t-autoT<14){ requestAnimationFrame(autoStep); return }   // sixty a second at most: a 120 Hz screen's every frame doubled the work for no motion seen
 	const dt=autoT?t-autoT:0; autoT=t
 	if(PICK) autoStart+=dt
 	// every frame the color moves – the thumbs, the markers, the numbers glide (a light frame); the paint that costs, a step
-	// at the pace: under a card every frame, as a drag paints its instruments – the catalog round it on its own tier
+	// at the pace: under a card thirty a second, as a drag paints its instruments – the catalog round it on its own tier
 	// (catalogBehind); on the catalog twenty steps a second, its strips' cost
-	else if(!autoHold){ const gap=Math.max(autoGap,open()?0:AUTO_FRAME), full=t-autoLast>=gap; if(full) autoLast=t
+	else if(!autoHold){ const gap=Math.max(autoGap,open()?AUTO_CARD:AUTO_FRAME), full=t-autoLast>=gap; if(full) autoLast=t   // a card's instruments thirty times a second – their sweeps move slowly, every frame had them fill the main thread – the thumbs and markers every frame between
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
@@ -2798,6 +2799,7 @@ const io=new IntersectionObserver(es=>{ const entered=[]
 // stamp) – swapped in as they come, never faded from the stale color
 const screenIO=new IntersectionObserver(es=>{ const entered=[]
 	es.forEach(e=>{ const s=e.target.dataset.s; if(e.isIntersecting){ screenVis.add(s); entered.push(e.target) } else screenVis.delete(s) })
+	behindRows=null   // the rows round a card measured again – a name view's catalog builds behind its card
 	if(entered.length){ paintCatalogVals(entered,{thumbs:false}); paintCatalogPickers(entered); paintCatalogGrad(entered,false,false) }
 })
 // ents attach to the observers in wireCat() — the catalog may not exist yet on name views
@@ -3230,7 +3232,7 @@ const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="${t('u
 const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="${t('ui.nav.next-cat','next category')}"><span class="mstack"><i class="catn catnext"></i><span class="mn mnextc"></span></span>${icon('next2')}</button>`
 // two groups pushed to the modal's sides: prev on the left, next on the right; the category jump rides outermost, small
 const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="${t('ui.nav.label','adjacent color spaces')}"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
-function openModal(s,push=true){ behindSeen=null; cardAt=performance.now()
+function openModal(s,push=true){ behindSeen=behindRows=null; cardAt=performance.now()
 	push&&=!openModal.dir&&(modal.hidden||s!==selected)   // a card opened, or a link's – an entry; prev/next walks the one in hand
 	if(modal.hidden){ modalReturn=document.activeElement; addEventListener('wheel',wheelOff,{ passive:false }) }
 	const b=barredByKey.get(s)
@@ -5791,11 +5793,14 @@ const RAMP_GUIDES=48
 let gbgMs
 const transitionMs=el=>{ const d=getComputedStyle(el).transitionDuration.split(',')[0].trim(); return parseFloat(d)*(d.endsWith('ms')?1:1000)||0 }
 // a new layer fades in from its @starting-style – no forced reflow per strip to arm the transition
+// morph: true, the page's cross-fade (--dur-short, eased out); a number, a cross-fade of that many ms, linear – the rows
+// round a card (catalogBehind), each face crossing over the last in their step's time, the next coming as it lands
 const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=bg
 		ch._gradStack?.forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=null; return }
 	if(!ch._gradStack){ const base=document.createElement('i'); base.className='gbg'; base.setAttribute('aria-hidden','true')
 		base.style.background=ch.style.background; ch.prepend(base); ch.style.background='var(--panel)'; ch._gradStack=[base] }
 	const next=document.createElement('i'); next.className='gbg in'; next.setAttribute('aria-hidden','true'); next.style.background=bg
+	if(typeof morph==='number') next.style.transition=`opacity ${morph}ms linear`
 	ch._gradStack.at(-1).after(next); ch._gradStack.push(next)
 	let done=false
 	const finish=()=>{ if(done)return; done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
@@ -5805,7 +5810,7 @@ const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=b
 		stack.slice(0,i).forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=stack.slice(i) }
 	const onend=e=>{ if(e.propertyName==='opacity') finish() }
 	next.addEventListener('transitionend',onend)
-	const ms=gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
+	const ms=typeof morph==='number'?morph:gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
 const catalogLeadSpace=()=>open()&&!isBarred(selected)?selected:master.s
 // a strip's answer laid on – the row stamped whole once its last strip has it
 const sweepPaint=(ch,css,key,fade)=>{ setCatalogGradient(ch,css+', var(--checker)',fade); ch._g=key
@@ -5910,19 +5915,25 @@ const paintCatalogThrottledValues=()=>{ const wait=CATALOG_VALUE_THROTTLE-(perfo
 		paintCatalogVals(rows,{thumbs:false}); catValueLast=performance.now() }
 	if(wait<=0) paint(); else if(!catValueTimer) catValueTimer=setTimeout(paint,wait) }
 // the catalog behind an open dossier – the rows round the card: their thumbs move with every frame of the card
-// (renderFast), their strips and numbers a step every 400 ms (BEHIND_MS), the last color always landing – the orbit's and a
+// (renderFast), their strips and numbers a step every 250 ms (BEHIND_MS), the strips cross-fading, the last color always landing – the orbit's and a
 // hand's in the card alike, the strips from the pool, a drag's included (they once waited for its release: the rows round
 // the card stood still, then leapt); the card's close catches all of it up (closeModal)
-const BEHIND_MS=400   // the rows round a card a step every 400 ms: their thumbs carry the motion, a strip's sweep a third of a second late reads as no lag
+const BEHIND_MS=250   // the rows round a card a step every quarter second: their thumbs carry the motion every frame, each strip cross-fading into its next over the step – a glide, not a jump
 let behindT=0, behindLast=0, behindSeen=null   // behindSeen: the catalog shows round the card – a phone's sheet hides it whole (CSS), asked once a card
-addEventListener('resize',()=>{ behindSeen=null })   // a turned phone may show it again
+addEventListener('resize',()=>{ behindSeen=behindRows=null })   // a turned phone may show it again
 const behindShown=()=>behindSeen??=getComputedStyle(cat).visibility!=='hidden'   // asked once a card: a phone's sheet hides the catalog whole (CSS)
+// the rows the card leaves in sight – a tile past the card's sides; one the card covers is painted at its close – measured
+// once a card (the page under it doesn't scroll), again after a resize or a change of the rows on screen (screenIO)
+let behindRows=null
+const behindEnts=()=>{ if(!behindShown()) return []; if(behindRows) return behindRows
+	const m=modal.querySelector('.mbox').getBoundingClientRect()
+	return behindRows=screenEnts().filter(e=>{ const r=e.getBoundingClientRect(); return r.right>m.right+1||r.left<m.left-1||r.bottom<m.top||r.top>m.bottom }) }
 const catalogBehind=()=>{ if(behindT) return
 	behindT=setTimeout(()=>{ behindT=0; if(!open()) return
-		if(!behindShown()) return   // nothing of it on screen: its rows catch up as the card closes
+		const rows=behindEnts(); if(!rows.length) return   // nothing of it in sight: its rows catch up as the card closes
 		behindLast=performance.now(); vfF={}; vfM=master
-		const rows=screenEnts(); paintCatalogVals(rows,{thumbs:false}); paintCatalogGrad(rows,false,false)
-		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) },Math.max(0,BEHIND_MS-(performance.now()-behindLast))) }
+		paintCatalogVals(rows,{thumbs:false}); paintCatalogGrad(rows,false,BEHIND_MS)
+		for(const ent of rows) if(planeEnts.has(ent)) paintEntPlanes(ent) },Math.max(0,BEHIND_MS-(performance.now()-behindLast))) }
 // at rest: the numbers in full, and the band round the screen at the color too – the rows a scroll brings in next are ready
 const settleCatalog=()=>{ OWED&=~1; flushCatalogValues(); paintCatalogGrad() }
 // where a coordinate of the plane's space lands on a plane, in % of its box: the dossier's planes in their mode – the disc,
@@ -6130,7 +6141,7 @@ function renderFast(solid=true,light=false){ if(STOPS) STOPS[STOPI]=master   // 
 				palmEl.lastElementChild.textContent=b.n
 				palmEl.title=t('ui.palette.near','nearest {q} entry ({m}) – click to snap to {n}',{q:Q,m:MLABEL[QM],n:b.n})
 				palmEl.removeAttribute('data-tip') } } }   // re-arm the bubble with the fresh title
-	if(open()){ if(behindShown()) paintCatalogPickers(screenEnts(),frgb,fx); if(!light) catalogBehind() }   // an open card's frame is the card's: the rows round it keep their thumbs moving with it, their strips and numbers a tier later
+	if(open()){ paintCatalogPickers(behindEnts(),frgb,fx); if(!light) catalogBehind() }   // an open card's frame is the card's: the rows round it keep their thumbs moving with it, their strips and numbers a tier later
 	else{ const active=activeCatalogEnt()
 		if(active&&!light){ paintCatalogVals([active]); paintCatalogGrad([active],true) }   // the row in hand: its strips in this frame, with its thumbs
 		paintCatalogPickers(screenEnts(),frgb,fx)   // every visible thumb follows the hand, and the orbit every frame; offscreen rows catch up on entry

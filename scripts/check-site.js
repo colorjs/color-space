@@ -465,6 +465,12 @@ try {
 	await trigger.click()
 	await page.waitForSelector('#modal:not([hidden]) #dtitle')
 	assert.match(await page.locator('#dtitle').innerText(), /OKLCH/i, 'dossier opens')
+	// the rows round the card: one in sight past its side, painted as the card's color moves (its thumbs every frame, its
+	// strips on their tier); one the card covers, left for the release or the close (renderFast's behindEnts)
+	const [inSight,covered]=await page.evaluate(()=>{ const m=document.querySelector('.mbox').getBoundingClientRect(), rows=[...document.querySelectorAll('.ent[data-s]')].filter(e=>{ const r=e.getBoundingClientRect(); return e.querySelector('.nrg')&&r.width&&r.top>80&&r.bottom<innerHeight-20 })
+		const out=e=>{ const r=e.getBoundingClientRect(); return r.right>m.right+1||r.left<m.left-1 }
+		return [rows.find(out)?.dataset.s,rows.find(e=>!out(e))?.dataset.s] })
+	assert.ok(inSight&&covered,'a row in sight round the card, and one under it')
 	// a plane zoomed (a pinch: ctrl+wheel) repaints its field, never a stylesheet: a stylesheet changed restyles the whole
 	// page – a zoom once ran at a frame a second on a code plate re-highlighted each frame (lighthigh 1.0: a sheet a paint)
 	{	const rules = () => page.evaluate(() => document.querySelectorAll('style').length + [...document.adoptedStyleSheets].reduce((n, x) => n + x.cssRules.length, 0)), before = await rules()
@@ -496,10 +502,10 @@ try {
 		for(let x=1;x<c.width;x++){ const next=d[x*4+3]>=20; if(next!==a){ gpu.push(x/c.width*100); a=next } }
 		return css.length===gpu.length&&css.every((x,k)=>Math.abs(x-gpu[k])<.6) }),s)
 	await mode('names')
-	const paletteLane=page.locator('.ent[data-s="oklab"] .ch').first(); await page.waitForFunction(()=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'); return (el._g||el.closest('.ent').dataset.g||'').endsWith(':names:oklab') })
+	const paletteLane=page.locator(`.ent[data-s="${inSight}"] .ch`).first(); await page.waitForFunction(inSight=>{ const el=document.querySelector(`.ent[data-s="${inSight}"] .ch`); return (el._g||el.closest('.ent').dataset.g||'').endsWith(':names:oklab') },inSight)
 	const paletteBefore={color:await page.locator('#cd').inputValue(),key:await paletteLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)}
 	await lens(page,'m','de76')
-	await page.waitForFunction(before=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'), key=el._g||el.closest('.ent').dataset.g||''; return key!==before&&key.endsWith(':names:de76') },paletteBefore.key)
+	await page.waitForFunction(([before,s])=>{ const el=document.querySelector(`.ent[data-s="${s}"] .ch`), key=el._g||el.closest('.ent').dataset.g||''; return key!==before&&key.endsWith(':names:de76') },[paletteBefore.key,inSight])
 	const paletteAfter={color:await page.locator('#cd').inputValue(),key:await paletteLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)}
 	assert.equal(paletteAfter.color,paletteBefore.color,'an exact named color stays fixed across palette metrics')
 	assert.notEqual(paletteAfter.key,paletteBefore.key,'a palette metric change repaints background gradients even when the color stays fixed')
@@ -519,7 +525,7 @@ try {
 	await page.waitForTimeout(50)
 	await page.evaluate(()=>document.querySelector('#figseg button[data-v="tc"]').click()); await page.waitForFunction(()=>document.querySelector('#tcap').textContent.trim())   // the transfer curve shown: a figure draws where it is seen
 	const smoothNeighbor=page.locator('.bar2[data-i="1"] .bgc'), smoothBefore=await smoothNeighbor.evaluate(el=>el.toDataURL()), transferBefore=await page.locator('#tcap').innerText()
-	const backPicker=page.locator('.ent[data-s="oklab"] .nrg').first(), backValue=page.locator('.ent[data-s="oklab"] .cv').first(), backLane=page.locator('.ent[data-s="oklab"] .ch').first()
+	const backPicker=page.locator(`.ent[data-s="${inSight}"] .nrg`).first(), backValue=page.locator(`.ent[data-s="${inSight}"] .cv`).first(), backLane=page.locator(`.ent[data-s="${inSight}"] .ch`).first()
 	const smoothL=page.locator('.bar2[data-i="0"]'), smoothLR=await smoothL.boundingBox()
 	await page.mouse.move(smoothLR.x+smoothLR.width*.36,smoothLR.y+smoothLR.height/2); await page.mouse.down(); await page.waitForTimeout(20)
 	const backMid={picker:await backPicker.inputValue(),pickerColor:await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),value:await backValue.inputValue(),gradient:await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)}, smoothMid=await smoothNeighbor.evaluate(el=>el.toDataURL())
@@ -532,32 +538,32 @@ try {
 	assert.notEqual(await backPicker.inputValue(),backMid.picker,'dossier drag updates every background catalog picker immediately')
 	assert.notEqual(await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),backMid.pickerColor,'dossier drag updates every background picker color immediately')
 	assert.equal((await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toLowerCase())),(await page.locator('#cd').inputValue()).toLowerCase(),'background picker colors match the modal drag color')
-	await page.waitForFunction(v=>document.querySelector('.ent[data-s="oklab"] .cv').value!==v,backMid.value,{timeout:1500}).catch(()=>{})
-	assert.notEqual(await backValue.inputValue(),backMid.value,'dossier drag updates background catalog numbers on their 400 ms tier')
-	await page.waitForFunction(g=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'); return (el._g||el.closest('.ent').dataset.g)!==g },backMid.gradient,{timeout:1500}).catch(()=>{})
+	await page.waitForFunction(([v,s])=>document.querySelector(`.ent[data-s="${s}"] .cv`).value!==v,[backMid.value,inSight],{timeout:1500}).catch(()=>{})
+	assert.notEqual(await backValue.inputValue(),backMid.value,'dossier drag updates background catalog numbers on their 250 ms tier')
+	await page.waitForFunction(([g,s])=>{ const el=document.querySelector(`.ent[data-s="${s}"] .ch`); return (el._g||el.closest('.ent').dataset.g)!==g },[backMid.gradient,inSight],{timeout:1500}).catch(()=>{})
 	const backHeld=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
-	assert.notEqual(backHeld,backMid.gradient,'a dossier drag paints the catalog\'s strips behind it on their 400 ms tier, not only at the release')
+	assert.notEqual(backHeld,backMid.gradient,'a dossier drag paints the catalog\'s strips behind it on their 250 ms tier, not only at the release')
 	assert.equal(await page.evaluate(()=>document.querySelector('.veil').hidden),false,'a held mouse drag veils the page – one element\'s cursor:none, its marker the pointer')
 	await page.mouse.up(); assert.equal(await page.evaluate(()=>document.querySelector('.veil').hidden),true,'the release lifts the veil at once: the cursor back before any settle')
-	await page.waitForFunction(h=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'), k=el._g||el.closest('.ent').dataset.g; return k!==h&&/:48:(vis|off):/.test(k) },backMid.gradient,{timeout:3000}).catch(()=>{})   // the strips come from the sweep pool, a frame or so after
+	await page.waitForFunction(([h,s])=>{ const el=document.querySelector(`.ent[data-s="${s}"] .ch`), k=el._g||el.closest('.ent').dataset.g; return k!==h&&/:48:(vis|off):/.test(k) },[backMid.gradient,inSight],{timeout:3000}).catch(()=>{})   // the strips come from the sweep pool, a frame or so after
 	const backReleased=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
 	assert.notEqual(backReleased,backMid.gradient,'dossier release lands the final color on the background catalog\'s strips')
 	assert.match(backReleased,/:48:(vis|off):/,'…at full quality')
-	const nativeCancel=await page.evaluate(async()=>{ const r=document.querySelector('.bar2[data-i="1"] .nrg'), bar=r.closest('.bar2'), back=document.querySelector('.ent[data-s="oklab"] .ch'), frame=()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))
+	const nativeCancel=await page.evaluate(async covered=>{ const r=document.querySelector('.bar2[data-i="1"] .nrg'), bar=r.closest('.bar2'), back=document.querySelector(`.ent[data-s="${covered}"] .ch`), frame=()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))
 		r.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:19,isPrimary:true})); r.value=+r.min+(+r.max-+r.min)*.37; r.dispatchEvent(new Event('input',{bubbles:true})); await frame(); const active=bar.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
 		r.dispatchEvent(new PointerEvent('pointercancel',{bubbles:true,pointerId:19,isPrimary:true})); await new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))); const parked=!bar.classList.contains('live'), key=()=>back._g||back.closest('.ent').dataset.g
-		for(let t0=performance.now();key()===held&&performance.now()-t0<2000;) await new Promise(r=>requestAnimationFrame(r)); return {active,parked,held,after:key()} })
+		for(let t0=performance.now();key()===held&&performance.now()-t0<2000;) await new Promise(r=>requestAnimationFrame(r)); return {active,parked,held,after:key()} },covered)
 	assert.equal(nativeCancel.active&&nativeCancel.parked,true,'pointer cancellation parks a native dossier slider')
 	assert.notEqual(nativeCancel.after,nativeCancel.held,'native dossier cancellation lands the final color on the background strips')
 	assert.match(nativeCancel.after,/:48:(vis|off):/,'…at full quality')
 	await toCatalog(page)
 	await page.locator('#cval').fill('#234567'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#234567'); await page.locator('#cval').press('Enter')   // typed and committed: its suggestions shut, as a hand reaching for a slider shuts them
 	assert.equal(await page.locator('#cd').inputValue(),'#234567','native pointer cancellation releases the dossier drag guard')
-	const customCancel=await smoothL.evaluate(async el=>{ const back=document.querySelector('.ent[data-s="oklab"] .ch'), r=el.getBoundingClientRect(), capture=el.setPointerCapture; el.setPointerCapture=()=>{}
+	const customCancel=await smoothL.evaluate(async (el,covered)=>{ const back=document.querySelector(`.ent[data-s="${covered}"] .ch`), r=el.getBoundingClientRect(), capture=el.setPointerCapture; el.setPointerCapture=()=>{}
 		const pointer=(type,f)=>el.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:20,isPrimary:true,clientX:r.left+r.width*f,clientY:r.top+r.height/2}))
 		pointer('pointerdown',.52); pointer('pointermove',.58); await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done))); const active=el.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
 		pointer('pointercancel',.58); el.setPointerCapture=capture; await new Promise(r=>requestAnimationFrame(()=>setTimeout(()=>requestAnimationFrame(r)))); const parked=!el.classList.contains('live'), key=()=>back._g||back.closest('.ent').dataset.g
-		for(let t0=performance.now();key()===held&&performance.now()-t0<2000;) await new Promise(r=>requestAnimationFrame(r)); return {active,parked,held,after:key()} })
+		for(let t0=performance.now();key()===held&&performance.now()-t0<2000;) await new Promise(r=>requestAnimationFrame(r)); return {active,parked,held,after:key()} },covered)
 	assert.equal(customCancel.active&&customCancel.parked,true,'pointer cancellation parks a custom dossier slider')
 	assert.notEqual(customCancel.after,customCancel.held,'custom dossier cancellation lands the final color on the background strips')
 	assert.match(customCancel.after,/:48:(vis|off):/,'…at full quality')
@@ -901,6 +907,16 @@ try {
 	await nameView.goBack(); await nameView.waitForFunction(()=>!document.getElementById('modal').hidden&&location.pathname==='/oklch')
 	await nameView.goForward(); await nameView.waitForFunction(()=>document.getElementById('modal').hidden&&location.pathname==='/')
 	await nameContext.close()
+	// a wide name view: its catalog builds behind the card at idle, and the rows in sight round the card move with the orbit
+	// (the rows round a card once stayed measured from before the build – none – and stood still until the close)
+	{	const wideContext=await browser.newContext({viewport:{width:1440,height:900}}), wide=await wideContext.newPage()
+		await wide.goto(`${server.origin}/oklch?cb=${Date.now()}`,{waitUntil:'networkidle'})
+		await wide.waitForFunction(()=>document.querySelector('.ent[data-s] .nrg')&&document.querySelector('#cd').value!=='#808080',null,{timeout:20000})
+		const side=await wide.evaluateHandle(()=>{ const m=document.querySelector('.mbox').getBoundingClientRect()
+			return [...document.querySelectorAll('.ent[data-s] .nrg')].find(el=>{ const r=el.closest('.ent').getBoundingClientRect(); return r.width&&r.top>0&&r.bottom<innerHeight&&(r.right>m.right+1||r.left<m.left-1) }) })
+		assert.ok(await side.evaluate(el=>!!el),'a wide name view shows catalog rows round its card')
+		assert.ok(await wide.waitForFunction(el=>{ const c=getComputedStyle(el).getPropertyValue('--tkc'); return (el._c0??=c)!==c },side,{timeout:5000,polling:'raf'}).then(()=>true,()=>false),'the rows round a card landed on move with the orbit, the catalog built behind it')
+		await wideContext.close() }
 	await toCatalog(motion)
 	await motion.locator('#cval').fill('#123456'); await motion.locator('#cval').press('Enter')   // typed and committed – its list shut, as a reader's next press on the page shuts it
 	await motion.waitForFunction(()=>document.querySelector('#cd').value==='#123456',null,{timeout:10000})   // wait for the repaint, don't race it – a loaded runner paints later than 450ms
