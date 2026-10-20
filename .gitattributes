@@ -1,0 +1,2 @@
+# the owner's working notes, encrypted in git by transcrypt (unlock a clone: transcrypt -c aes-256-cbc -p '…')
+.work/** filter=crypt diff=crypt merge=crypt

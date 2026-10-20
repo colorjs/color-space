@@ -37,6 +37,3 @@ web/img/og/
 /plugins/figma/promo
 /videos
 /.playwright-mcp
-
-# the owner's working notes – plans, drafts, research – kept local
-.work/
