@@ -184,6 +184,14 @@ test('integrity — tiered site rendering keeps animation off the expensive path
 	is(page.includes('if(heldColor) paint3dMarker()'), true, 'held colors move only the 3D marker rather than repainting the cloud and grid')
 	is(gl.includes('function cellFor(') && (gl.match(/cellFor\(cv2d\.width/g) || []).length === 2, true, 'a task\'s planes and bars draw into cells of one kernel canvas and copy out of it together')
 	is(gl.includes('0.24 * (1.0 - r * r)'), true, '3D cloud points accumulate translucently instead of painting opaque white')
+	is(page.includes('if(drewGL) bodyM=snapshot3dMask(meshCv,sceneKey)') && !/drawImage\(meshCv/.test(page), true, 'the solid\'s cover is read off its GL canvas once a scene, never per mask – a GPU copy each in Safari')
+	is(page.includes('const cw=(widthOf(el)||352)*1.36') && !page.includes('el.clientWidth||352') && !page.includes('cv.clientWidth||320'), true, 'the solid and the plates take their width from a ResizeObserver, not a layout read per draw')
+	is(page.includes('if(modal._st){ modal._st=0; modal.scrollTop=0 }') && !/\$\{MNAV\('mfoot',1\)\}`\s*modal\.scrollTop=0/.test(page), true, 'a card\'s scroll resets before its new markup, never after it (a forced layout of the new card)')
+	is(/\.mbox\{[^}]*transition/.test(page) || page.includes('@starting-style{ .modal'), false, 'the card shows and goes at once: no fade')
+	const calc = readFileSync(new URL('../web/js/calc.js', import.meta.url), 'utf8'), cw = readFileSync(new URL('../web/js/calc-worker.js', import.meta.url), 'utf8')
+	is(calc.includes("new Worker(new URL('./calc-worker.js', import.meta.url), { type: 'module' })") && cw.includes("import { JOBS } from './calc.js'") && cw.includes("postMessage('ready')"), true, 'the exports\' sums – a LUT\'s check, an ICC profile\'s size – run in a worker, the page\'s own JOBS')
+	is(/lutTable\(|lutVerify\(/.test(page) || /setTimeout\(\(\)=>\{ try\{ const b=iccProfile/.test(page), false, 'no LUT check or ICC bake on the page\'s thread but a download')
+	is(gl.includes('const SHEET = [1536, 512]') && gl.includes('Math.max(SHEET[0], Math.ceil(420 * d))'), true, 'the kernel canvas is warmed to a batch\'s sheet: no growth inside a first card\'s click')
 })
 
 // the catalog's display voice: names render display-final through disp() — uppercased

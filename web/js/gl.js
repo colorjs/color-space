@@ -651,12 +651,13 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 // which alternate on every frame of a drag or a zoom. Each draw takes its w × h at the buffer's bottom-left, the
 // viewport's origin; cutCV is that rectangle in the canvas's image (top-left origin) – what every blit copies out
 const fitCV = (w, h) => { if (CV.width < w) CV.width = w; if (CV.height < h) CV.height = h }
+const SHEET = [1536, 512]   // a batch's least sheet of CV (cellFor): three full plates a shelf
 const cutCV = (w, h) => [0, CV.height - h, w, h]
 /** Grow the shared kernel canvas ahead of its first use, at idle: each growth reallocates the drawing buffer – 50 ms a time
  *  that once landed inside a dossier's first open. To the dossier's largest plate, the xy plate's (≈ 420 × 462 CSS px at
  *  the widest), at the screen's density. On a GPU only: a software rasterizer paints the JS paths */
 export const warmKernels = () => { if (!G || softGL() || globalThis.matchMedia?.('(pointer: coarse)').matches) return   // a phone keeps its GPU memory for a card it may never open
-	const d = globalThis.devicePixelRatio || 1; fitCV(Math.min(2048, Math.ceil(420 * d)), Math.min(2048, Math.ceil(462 * d)))
+	const d = globalThis.devicePixelRatio || 1; fitCV(Math.min(2048, Math.max(SHEET[0], Math.ceil(420 * d))), Math.min(2048, Math.max(SHEET[1], Math.ceil(462 * d))))   // and a batch's sheet (cellFor): a first batch grew it once more, inside the click
 	setTimeout(() => mesh3Canvas() && mesh3State(mesh3Canvas()), 500) }   // the solid's context and lattices too, a beat later: 80 ms that sat inside a first dossier's click
 // the destination canvas declares its color space; a display-p3 one gets P3 pixels end to end: the kernel encodes them
 // (uEnc) into CV's sRGB buffer, and they go across as they are – read out, put in as a P3 image (flushCells), never a
@@ -692,7 +693,7 @@ function cellFor(w, h, enc) {
 	if (cells && cells.enc !== enc) flushCells()   // one encoding a batch: its cells go out one way
 	if (cells && cells.x + w > CV.width) { cells.x = 0; cells.y += cells.row; cells.row = 0 }   // the next shelf
 	if (cells && (cells.y + h > CV.height || w > CV.width)) flushCells()
-	if (!cells) { fitCV(Math.min(2048, Math.max(w, 1536)), Math.min(2048, Math.max(h, 512)))   // three full plates a shelf
+	if (!cells) { fitCV(Math.min(2048, Math.max(w, SHEET[0])), Math.min(2048, Math.max(h, SHEET[1])))
 		cells = { list: [], x: 0, y: 0, row: 0, enc }; queueMicrotask(flushCells) }
 	const at = { x: cells.x, y: cells.y }
 	cells.x += w; cells.row = Math.max(cells.row, h)

@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="page.title">Color spaces – complete list of 221 spaces, converter &amp; formulas | color-space</title>
-<meta name="description" content="An open collection of 221 color spaces: complete list, conversion formulas, conventional ranges, 3D charts and LUT export. Zero dependencies, public domain." data-i18n="content:page.desc">
+<title data-i18n="page.title">Color spaces – complete list of 221 spaces, converter &amp; 3D charts | color-space</title>
+<meta name="description" content="An open collection of 221 color spaces: complete list, converter, conventional ranges, 3D charts, code and LUT export. Zero dependencies, public domain." data-i18n="content:page.desc">
 <link rel="canonical" href="https://color-space.io/">
-<meta property="og:title" content="Color spaces – complete list of 221 spaces, converter &amp; formulas | color-space" data-i18n="content:page.title">
-<meta property="og:description" content="An open collection of 221 color spaces. Convert any space to any other with conventional ranges, formulas and 3D charts." data-i18n="content:page.og-desc">
+<meta property="og:title" content="Color spaces – complete list of 221 spaces, converter &amp; 3D charts | color-space" data-i18n="content:page.title">
+<meta property="og:description" content="An open collection of 221 color spaces. Convert any space to any other in its conventional ranges, with 3D charts, code and LUTs." data-i18n="content:page.og-desc">
 <meta property="og:image" content="https://color-space.io/img/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="color-space – color spaces in one open collection" data-i18n="content:page.og-alt">
@@ -45,7 +45,7 @@ try{ if(localStorage.csTempV){const[h,k]=localStorage.csTempV.split(' '),s=docum
 <style>
 /* clip on BODY only: html must stay overflow:visible so the body's overflow keeps
    propagating to the viewport — that propagation is what lets the modal lock the
-   page scrollbar (openModal's body{overflow:hidden}); any non-visible overflow on
+   page scrollbar (body.mopen{overflow:hidden}); any non-visible overflow on
    html severs it, and the page wears two scrollbars */
 body{ overflow-x:clip }
 :root{ --bleed:calc(100vw - var(--sb,0px)) }   /* the full-bleed bands' width (hero, row): the window less a classic scrollbar (--sb, measured: no CSS reads it) – 100vw counts the bar in, and set their words half a bar left of the catalog's. Not a container on body: containment stops body's overflow reaching the viewport, and an open card wore two scrollbars */
@@ -350,7 +350,8 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 #csug .sgt small{ font-size:var(--t1); font-weight:400; line-height:1.3; color:var(--soft) }   /* under each row, why it is there */
 #csug .sgr{ display:flex; align-items:center; padding-inline-end:var(--s4); --rb:var(--paper) } #csug .sgr:is(:hover,:has(.on)){ background:var(--panel); --rb:var(--panel) }   /* the row lights whole, its × in it */
 #csug .fmtr{ flex:1; min-width:0; padding:var(--s2) var(--s3) var(--s2) var(--s4); font-size:var(--cvf); background:none } #csug .fmtr b{ font-weight:500 }   /* the field's own type: a suggestion reads as what it types */
-#csug :is(.sgx,.sgo){ flex:none; --ic:14px; width:var(--s8); height:var(--s8); opacity:0 } #csug .sgr:is(:hover,:has(.on)) :is(.sgx,.sgo){ opacity:1 } @media(hover:none){ #csug :is(.sgx,.sgo){ opacity:1 } }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer */
+#csug :is(.sgx,.sgo){ flex:none; --ic:14px; width:var(--s8); height:var(--s8) } #csug :is(.sgx,.sgo,.src>.ic){ opacity:0 } #csug .sgr:is(:hover,:has(.on)) :is(.sgx,.sgo,.src>.ic){ opacity:1 } @media(hover:none){ #csug :is(.sgx,.sgo,.src>.ic){ opacity:1 } } #csug :is(.qclr,.sgn,.src).hot{ color:var(--ink) } #csug :is(.sgn,.src).hot{ text-decoration:underline var(--rule-hair); text-underline-offset:.25em }   /* a recent row's ×: there as its row is pointed at or walked to (a finger's, always) – the clear field's own (.qclr), inked under the pointer or the keys (.hot); a name or a source lit by the keys underlined too, as a link in the text is (a) */
+#csug .src>.ic{ --ic:1em; margin-inline-start:var(--s1); vertical-align:middle; color:var(--soft) } #csug .src:is(:hover,.hot)>.ic{ color:var(--ink) }   /* the source's ⇄ – the next one, on a press: shown with the row's marks, its room kept (the line never shifts), inked with its word */
 #csug .sws{ display:flex; align-items:center; justify-content:center; flex:none; width:var(--w4); height:1.3em; isolation:isolate }   /* on the value's line, not between it and its word – a sequence's colors together, stacked as the field's, the first on top; the first mark under the field's own, at its left */
 #csug .sgt>span:first-child{ line-height:1.3 } #csug .sgt .q{ font-weight:400; color:var(--body) }   /* a name: the part typed light, the rest set */
 .hcolor>.cx.peek #cval{ color:transparent } .hcolor>.cx.peek .cvghost{ color:var(--soft) } @container style(--dk:1){ .cvghost{ overflow:hidden; text-overflow:ellipsis } }   /* docked, one line: a long row shown stops at the field's end, never over the search and the count */   /* a row shown: its text in the field, as a placeholder – what is typed steps aside, kept */
@@ -801,7 +802,7 @@ body.himg #imgfloat{ display:block }
 .ent.tc .eh .nm{ font-size:var(--t3) } :is(.ent.tc .eh,.fns) .nm{ font-weight:650; line-height:1.25 }
 .by{ order:1; flex:1 1 0; display:flex; justify-content:flex-end; align-items:baseline; gap:var(--s1); margin-inline-start:var(--s2); font-size:var(--t1); line-height:1.2; color:var(--soft); white-space:nowrap }   /* the maker and year: what the name leaves of its first line */
 .by::before{ content:'\200b'; width:0; margin-inline-end:calc(-1 * var(--s1)); font-size:var(--nmf); line-height:var(--nml) }   /* a strut of the name's own line: the maker's baseline is the name's */
-.by .ki{ display:inline-grid; align-self:center; margin-inline-end:var(--s1); --ic:12px } .by .au{ flex:1 1 0; display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; min-width:0; height:1lh; overflow:hidden; contain:inline-size } .by .au>.ki{ height:1lh } .by .au::before{ content:''; height:1lh } .by .tnum{ flex:none }   /* the shape's mark leads the maker, as the list shows it – inside its line, so it stays by the name it marks; the maker's box claims no width of its own (contain) – it takes what the name and the year leave, and a maker with no room there wraps to the line the box hides: shown whole or not at all, never cut, never the name's wrap; the mark too, behind an empty first item (::before) – alone on a line it could only be cut */
+.by .ki{ display:inline-grid; align-self:center; margin-inline-end:var(--s1); --ic:12px } .by .au{ flex:1 1 0; display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:baseline; min-width:0; height:1lh; overflow:hidden; contain:inline-size } .by .au>.ki{ height:1lh; place-items:center } .by .au::before{ content:'\200b' } .by .tnum{ flex:none }   /* the shape's mark leads the maker, as the list shows it – inside its line, so it stays by the name it marks; the maker's box claims no width of its own (contain) – it takes what the name and the year leave, and a maker with no room there wraps to the line the box hides: shown whole or not at all, never cut, never the name's wrap; the mark too, behind an empty first item (::before) – alone on a line it could only be cut. That item a zero-width space, a line of text: the box's baseline is a text's (an empty item's is its foot, which lifted the box over the year's line and cut the maker's descenders), and the mark centred in the line, on the capitals */
 .by .yr{ display:inline-flex; flex:none; align-items:center; gap:var(--s1); --ic:12px }   /* a retired space's year wears the archive box where an end year would stand */   /* the maker's column can close to nothing, the year's never – so the head's one line gives way at the maker first */
 .for{ margin:0; max-width:62ch; font-size:var(--t3); line-height:1.5; color:var(--body); text-wrap:pretty }
 /* channel values beside the title — letter-tagged pairs, right-aligned tabular numbers */
@@ -897,15 +898,9 @@ body.himg #imgfloat{ display:block }
    stays LIVE: the current color, the filters, Limit, Quantize and Vision all keep working while the dossier is open
    (the row's own paper masks content passing under). */
 .modal[hidden]{ display:none }
-/* the card comes and goes as the menus do: a fade and a short rise – translate set only on the way, so the resting card
-   is no containing block */
-.modal{ transition:display var(--dur-short) allow-discrete }
-.mbox{ --from:0 var(--s3); transition:opacity var(--dur-short) var(--ease-out),translate var(--dur-short) var(--ease-out) }
-.modal[hidden]{ overflow:hidden }   /* leaving, the card's scroller gives up its bar at once – the page's is back, one bar, never two */
-.modal[hidden] .mbox{ opacity:0; translate:var(--from) }
-@starting-style{ .modal:not([hidden]) .mbox{ opacity:0; translate:var(--from) } }
-@media(prefers-reduced-motion:reduce){ .mbox{ --from:0 0 } }   /* still: the fade alone */
-:root[data-embed] .mbox{ transition:none }
+body.mopen{ overflow:hidden; padding-right:var(--sb,0px) }   /* the page's scroll locked under a card, without a jump: padded by a classic scrollbar's width (--sb, kept as it was) – a width read in the click forced the page's layout there */
+/* the card comes and goes at once, no fade: its 220 ms fade and rise were Safari's three slow frames of the whole card
+   at every open and close, and a card fading out still took the page's clicks */
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
 .mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:visible; box-shadow:var(--modal-shadow) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
@@ -1124,7 +1119,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
 .pl3d .marker3{ z-index:3 } .pl3d.busy canvas{ visibility:hidden }   /* a solid not yet drawn shows nothing – never the last one's */
-.pl3d.busy::after{ content:''; position:absolute; inset:22% 18%; border-radius:50%; background:var(--hair); animation:busy 1.1s var(--ease-out) infinite alternate }   /* …but where it will stand, a soft disc pulsing: the image row's and the plates' busy, the compositor's to run while the page works */
+.pl3d.busy::after{ content:''; position:absolute; inset:22% 18%; border-radius:50%; background:var(--hair) }   /* …but where it will stand, a soft disc, the sheen crossing it (busy) */
 /* full channel names, set along the direction of increase: x rightward, y upward */
 .pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }
 .pl button:is(.laby,.labx){ z-index:2; padding:0; font-family:inherit; line-height:inherit; color:inherit; background:none; border:0; cursor:pointer; pointer-events:auto; text-underline-offset:var(--ulo) } .pl button:is(.laby,.labx):hover{ text-decoration:underline }   /* the dossier's: an axis's name turns it (buildDetail) – a link's underline says so */
@@ -1238,8 +1233,14 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 /* glossary terms: a soft question mark that explains the jargon in place */
 .term{ cursor:help }   /* a defined term — the help cursor is the only cue; no glyph */
 .imgrow{ display:flex; gap:var(--s2) }   /* one row, always — source + channel panels share it, shrinking together (same rule as .planes) */
-.imgrow.busy .imgp,.planes.busy .pl{ animation:busy 1.1s var(--ease-out) infinite alternate }   /* still landing: the row reading the image – panels land one per frame – or the plates' program linking (paintPlanes) */
-@keyframes busy{ from{ opacity:.55 } to{ opacity:.85 } }
+/* still landing – the plates' program linking (paintPlanes), the row reading its image (panels land one per frame), the
+   solid's lattice (wire3d): a light crosses it again and again, a transform – the compositor's to run while the page works.
+   The opacity pulse it replaces, a blank checker dimming a little, read as a picture stuck */
+:is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy){ overflow:hidden }
+:is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy)::before{ content:''; position:absolute; inset:0; z-index:6; pointer-events:none; background:linear-gradient(100deg,transparent 25%,var(--hair) 50%,transparent 75%); animation:sheen 1.2s var(--ease-in-out) infinite }
+@keyframes sheen{ from{ transform:translateX(-100%) } to{ transform:translateX(100%) } }
+@media(prefers-reduced-motion:reduce){ :is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy)::before{ background:var(--hair); animation:busy 1.1s var(--ease-out) infinite alternate } }   /* still: a veil breathing in place */
+@keyframes busy{ from{ opacity:.3 } to{ opacity:.9 } }
 .imgp{ position:relative; flex:1 1 0; min-width:0 }
 @media(max-width:640px){ .imgrow{ flex-wrap:wrap } .imgrow .imgp{ flex:1 1 calc(50% - var(--s2)) } }   /* phones: two per row */
 /* only the source panel cycles presets — the cursor IS the hint */
@@ -1684,7 +1685,7 @@ import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
 import { softGL, warmKernels, glLinking, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
-import { table as lutTable, verify as lutVerify, cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
+import { cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import { colorspace as ocioSpace } from '../ocio.js'   // a space as an OpenColorIO colorspace, curve and all, where OCIO's native transforms carry it exactly
 import { CSS as CSSFMT, CSS_DISPLAY } from '../css.js'   // the library's CSS Color 4 serializers – the MCP css tool speaks the same strings
@@ -1696,6 +1697,7 @@ import * as PALDATA from './js/palettes.js'
 import { findNames } from './js/namesearch.js'
 import { okGrid, nearestK } from './js/nearest.js'
 import { sweeps, sweepCSS, stepped, qCells, qBarGradient, QBARN, TRIPLE, byteRGB, rgbKey, sameRGB } from './js/sweep.js'
+import { calc } from './js/calc.js'
 import { SPACES, sections, cname, geoOf as geo, kindIcon, WHITE_XY, whiteHex, unit, disp, nbh, catHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap, close, aside } from './js/render.js'
 import { OI, QI, LI, VI, PI, DL as DLI } from './js/icons.js'
 import BARRED from './js/barred.js'
@@ -1721,7 +1723,7 @@ let VIRGIN=false
 // per-use pile of stroke attributes.
 const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3.75 3.75l-2 2',
 	upload:'M12 15V4M7.5 8.5 12 4l4.5 4.5M4.5 20h15', x:'M18 6 6 18M6 6l12 12', out:'M7 7h10v10M7 17 17 7', plus:'M12 4v16M4 12h16', back:'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11', again:'M20 12a8 8 0 1 1-2.34-5.66L20 8.7M20 4v4.7h-4.7',
-	prev:'M15 18l-6-6 6-6', next:'M9 6l6 6-6 6',
+	prev:'M15 18l-6-6 6-6', next:'M9 6l6 6-6 6', swap:'M4 7h16M16 3l4 4-4 4M20 17H4M8 13l-4 4 4 4',
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
 const icon=n=>`<svg class="ic${n==='x'?' ix':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
@@ -1878,7 +1880,8 @@ if(cvalEl){
 	// offline), Tailwind's – best met first, a typo forgiven, the field greying in the rest of the first. A color: it in
 	// context – its nearest names, and with one color, a chord round it. Under each, what it is and where it is from: the
 	// source a link to it. ↑↓ walk them and the page shows each as it is walked to or pointed at – Esc puts the color back
-	// – ⏎ takes one, Tab or → the greyed-in name, ⇧⌦ forgets a recent one; the list never takes the focus
+	// – ⏎ takes one, Tab or → the greyed-in name, ←→ light a walked row's parts for ⏎ to press, ⇧⌦ forgets a recent one;
+	// the list never takes the focus
 	const sugEl=document.getElementById('csug'), RECENT='csRecent', PICKS='csPicks'
 	const read=(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k))??d }catch{ return d } }, store=(k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch{} }
 	const recent=()=>read(RECENT,[]), keep=l=>store(RECENT,l)
@@ -1889,7 +1892,8 @@ if(cvalEl){
 	const hexesOf=v=>{ const p=parseInput(v); if(!p) return []; const st=p.stops, n=st.length
 		return (n>4?[0,1,2,3].map(k=>st[Math.round(k*(n-1)/3)]):st).map(c=>hex(rgbF(c.s,c.vals))) }   // a sequence's marks: four at most – the column's own width – its ends kept
 	// what a row is and where it is from – each kind its sources, the one in use named under the row: a press on it turns
-	// to the next (kept for the next visit); a press on the row's name draws another from the same set (its ↻). A color:
+	// to the next (kept for the next visit), its ⇄ shown as the row is; a press on the row's name draws another from the
+	// same set, its ↻ from any set of its kind (a context row's both the next nearest in its set). A color:
 	// meodai's color-name-list (names.color.pizza), Tailwind's, CSS's, the xkcd survey's; a palette: Sanzo Wada's
 	// combinations, the COLOURlovers favourites of nice-color-palettes, Kjetil Golid's chromotome, Itten's chords; a
 	// colormap: matplotlib's, ColorBrewer's, Google's Turbo, d3's own, MATLAB's, Plotly's, cmocean's; a gradient:
@@ -1904,7 +1908,7 @@ if(cvalEl){
 		webgradients:'https://webgradients.com/', okhsv:'https://bottosson.github.io/posts/colorpicker/' }
 	const SOURCES={ color:['meodai','tailwind','names','xkcd'], pair:['wada','lospec','chromotome','itten'], palette:['wada','lospec','chromotome','itten'], colormap:['matplotlib','colorbrewer','google','d3','matlab','plotly','cmocean'], gradient:['uigradients','webgradients','okhsv'] }
 	const srcOf=read('csSugSrc',{}), useOf=k=>SOURCES[k].includes(srcOf[k])?srcOf[k]:SOURCES[k][0]
-	const nextSrc=k=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(useOf(k))+1)%l.length]; store('csSugSrc',srcOf) }
+	const nextSrc=(k,s=useOf(k))=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(s)+1)%l.length]; store('csSugSrc',srcOf) }   // from s: the source the row says
 	const K={ color:t('ui.sug.k.color','color'), neighbor:t('ui.sug.k.neighbor','neighbor'), pair:t('ui.sug.k.pair','pair'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), combination:t('ui.sug.k.combination','combination'), togradient:t('ui.sug.k.to-gradient','to gradient'), topalette:t('ui.sug.k.to-palette','to palette'), mixin:t('ui.sug.k.mix-in','mixed in'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
 	const from=(kind,name,src,key)=>({ kind, name, src, key })   // "palette: triad from Itten" – the name left out where the row's own text is it; key: the kind whose source it turns
 	const nth={ color:0, pair:0, palette:0, gradient:0, colormap:0, next:0, recent:0 }   // which of a set's nearest the context shows – its ↻ the next
@@ -2016,14 +2020,16 @@ if(cvalEl){
 	const nearN=(sets,o,k)=>{ if(!sets.length) return null
 		const d=sets.map(p=>[Math.min(...p[1].map(h=>{ const q=okOf(h); return Math.hypot(q[0]-o[0],q[1]-o[1],q[2]-o[2]) })),p]).sort((a,b)=>a[0]-b[0]); return d[k%d.length][1] }
 	const anyHued=()=>{ let c; do c=fresh('color:meodai',MEODAI.length?MEODAI:Object.entries(NAMES))[1]; while(!hued(c)); return c }
-	// the four ways in, each from its kind's source in use, drawn at random and fresh: a color, a palette, a colormap, a gradient
-	const WAYS=[()=>{ const k0=useOf('color'), k=COLORS(k0).length?k0:'names', [n,rgb]=fresh('color:'+k,COLORS(k)); return named(n,rgb,k,'color') },
-		...['pair','palette'].map(z=>()=>{ const [k,l]=palsN(useOf(z),z); if(l.length) return palRow(fresh(`${z}:`+k,l),k)
+	// the ways in, each drawn at random and fresh from a source of its kind (the one in use, its name pressed the row's own,
+	// its ↻ any): a color, a pair, a palette, a gradient, a colormap
+	const WAYS=[k0=>{ const k=COLORS(k0).length?k0:'names', [n,rgb]=fresh('color:'+k,COLORS(k)); return named(n,rgb,k,'color') },
+		...['pair','palette'].map(z=>k0=>{ const [k,l]=palsN(k0,z); if(l.length) return palRow(fresh(`${z}:`+k,l),k)
 			return chordN(anyHued(),z,Math.random()*4|0) }),   // a pair, then a palette of three or four – as the set holds them
-		()=>{ const k=useOf('gradient'), l=GRADSETS(k).filter(p=>goes(p[1])); if(l.length) return gradSetRow(fresh('gradient:'+k,l),k)
+		k=>{ const l=GRADSETS(k).filter(p=>goes(p[1])); if(l.length) return gradSetRow(fresh('gradient:'+k,l),k)
 			return gradRow(anyHued(),Math.random()*GRADN|0) },   // a gradient of two before a colormap's run of five
-		()=>{ const k=useOf('colormap'), l=MAPSOF(k); return cmapRow(fresh('colormap:'+k,l.length?l:MAPS),l.length?k:'matplotlib') }]
-	const draw=()=>WAYS.map((w,k)=>({ ...w(), way:k }))
+		k=>{ const l=MAPSOF(k); return cmapRow(fresh('colormap:'+k,l.length?l:MAPS),l.length?k:'matplotlib') }]
+	const WAYK=['color','pair','palette','gradient','colormap'], anySrc=z=>SOURCES[z][Math.random()*SOURCES[z].length|0]
+	const way=(i,k=useOf(WAYK[i]))=>({ ...WAYS[i](k), way:i }), draw=()=>WAYS.map((_,i)=>way(i))
 	// the context is the color as it is held – while a row is shown on the page (a preview), the one it stood at
 	const held=()=>{ const b=before; if(!b) return { rgb:RGB(), many:!!STOPS }; const c=b.stops?b.stops[b.i]:b.m; return { rgb:rgbF(c.s,c.vals), many:!!b.stops } }
 	const ctxRows=()=>{ const { rgb, many }=held(), o=space.rgb.oklab(...rgb), k0=useOf('color'), k=COLORS(k0).length?k0:'names', l=COLORS(k)   // a list not landed (offline, its module missing): CSS's, never nothing
@@ -2069,9 +2075,9 @@ if(cvalEl){
 		const sets=word&&w===v?MAPS.filter(([n])=>n.startsWith(q)).map(m=>cmapRow(m,'matplotlib')):[]
 		const words=word?findNames(q,LISTS(),ok?3:8,rank).filter(x=>x.name.toLowerCase()!==q).map(x=>named(x.name,x.rgb,x.src)):[]
 		return [...(ok&&w===v?phraseRow(v):[]),...sets,...words,...(ok?ctxRows():[])] }
-	// the row's line under it: what it is, its name, where it is from – the source a button turning to the next (a press on
-	// it takes nothing)
-	const whyOf=(w,re,q='')=>{ const sn=SRC[w.src], tail=[w.name&&(re?`<span class="sgn">${hl(w.name,q)}</span>`:hl(w.name,q)),sn&&`${esc(t('ui.sug.from','from'))} <span class="src"${w.key?` data-key="${w.key}"`:''}>${esc(sn)}</span>`].filter(Boolean).join(' ')
+	// the row's line under it: what it is, its name, where it is from – the source a button turning to the next, its ⇄ room
+	// kept (a press on it takes nothing)
+	const whyOf=(w,re,q='')=>{ const sn=SRC[w.src], tail=[w.name&&(re?`<span class="sgn">${hl(w.name,q)}</span>`:hl(w.name,q)),sn&&`${esc(t('ui.sug.from','from'))} <span class="src"${w.key?` data-key="${w.key}" data-src="${w.src}" title="${esc(t('ui.sug.next','switch to the next'))}"`:''}>${esc(sn)}${w.key?icon('swap'):''}</span>`].filter(Boolean).join(' ')
 		return w.kind&&tail?`${esc(w.kind)}: ${tail}`:tail||esc(w.kind) }   // what and where from – "from Tailwind", "#280 from Sanzo Wada", "viridis from matplotlib": the row's marks say the kind; a row with neither (recent, read) its kind alone
 	// the typed part of a name light, the rest of it set – as a search engine sets what it adds
 	const hl=(s,q)=>{ const i=q?s.toLowerCase().indexOf(q):-1; return i<0?esc(s):`${esc(s.slice(0,i))}<span class="q">${esc(s.slice(i,i+q.length))}</span>${esc(s.slice(i+q.length))}` }
@@ -2111,17 +2117,18 @@ if(cvalEl){
 	const takeGhost=()=>{ if(!ghostRest) return false; cvalEl.value+=ghostRest; cvalEl._typed=take(); fitVal(); suggest(true); return true }
 	sugEl.addEventListener('pointerdown',e=>e.preventDefault())   // the field keeps the focus
 	sugEl.addEventListener('click',e=>{
-		const nm=e.target.closest('.sgt .sgn'); if(nm){ nm.closest('.sgr').querySelector('.sgx[data-way]')?.click(); return }   // the name pressed: another from its set, as its ↻ draws
-		const src=e.target.closest('.src'); if(src){ const k=src.dataset.key; if(!k) return; nextSrc(k); if(k in nth) nth[k]=0   // the next source of its kind: its rows from it, shown
-			const at=[...sugEl.querySelectorAll('.sgr')].indexOf(src.closest('.sgr'))
-			if(!cvalEl.value.trim()&&sugDraw) sugDraw=sugDraw.map(r=>r.why?.key===k?{ ...WAYS[r.way](), way:r.way }:r)   // every drawn row of that kind – a pair and a triplet alike
-			suggest(!!cvalEl.value.trim()&&cvalEl._typed); const b=sugEl.querySelectorAll('.sgr')[at]?.querySelector('.fmtr'); if(b){ sugEl._peek=b; peek(b) } return }
 		if(e.target.closest('.sgb')){ nth.recent++; suggest(false); return }   // the recent one before it
-		const x=e.target.closest('.sgx'); if(x){ if(x.dataset.way==null) return forget(x.dataset.v)   // a recent one let go
-			const k=x.dataset.way, at=[...sugEl.querySelectorAll('.sgr')].indexOf(x.closest('.sgr'))
-			if(k.startsWith('chord')) sugChord[k.slice(5)]=+x.dataset.at+1; else if(k==='grad') sugGrad=(+x.dataset.at+1)%GRADN; else if(k.startsWith('near-')) nth[k.slice(5)]++; else if(!sugDraw) return; else{ const i=sugDraw.findIndex(r=>r.way===+k); sugDraw[i]={ ...WAYS[+k](), way:+k } }
-			suggest(!!cvalEl.value.trim()&&cvalEl._typed); const b=sugEl.querySelectorAll('.sgr')[at]?.querySelector('.fmtr'); if(b){ sugEl._peek=b; peek(b) } return }   // another drawn – and shown, as the row under the pointer is
-		const b=e.target.closest('.fmtr'); if(b) pick(b) })
+		const src=e.target.closest('.src'), nm=e.target.closest('.sgn'), x=nm?nm.closest('.sgr').querySelector('.sgx[data-way]'):e.target.closest('.sgx'), el=src||x&&(nm||x)
+		if(!el){ const b=e.target.closest('.fmtr'); if(b) pick(b); return }
+		if(src&&!src.dataset.key) return; if(!src&&x.dataset.way==null) return forget(x.dataset.v)   // a recent one let go
+		const at=[...sugEl.querySelectorAll('.sgr')].indexOf(el.closest('.sgr')), on=el.closest('.sgr').querySelector('.fmtr.on'), hot=el.matches('.hot')&&['.sgn','.src','.sgx'].find(s=>el.matches(s))
+		if(src){ const k=src.dataset.key; nextSrc(k,src.dataset.src); if(cvalEl.value.trim()&&k in SIZES&&!PALS(useOf(k)).length) nextSrc(k); if(k in nth) nth[k]=0   // the next source of its kind after the row's: its rows from it – a color in hand, past Itten (his chord the combination row's, his pair or palette none)
+			if(!cvalEl.value.trim()&&sugDraw) sugDraw=sugDraw.map(r=>r.why?.key===k?way(r.way):r) }   // every drawn row of that kind
+		else{ const k=x.dataset.way   // another drawn: a way in's ↻ from any set of its kind, its name from its own; a context row's both the next
+			if(k.startsWith('chord')) sugChord[k.slice(5)]=+x.dataset.at+1; else if(k==='grad') sugGrad=(+x.dataset.at+1)%GRADN; else if(k.startsWith('near-')) nth[k.slice(5)]++
+			else if(sugDraw){ const i=sugDraw.findIndex(r=>r.way===+k); sugDraw[i]=way(+k,nm?sugDraw[i].why.src:anySrc(WAYK[+k])) } }
+		suggest(!!cvalEl.value.trim()&&cvalEl._typed); const r=sugEl.querySelectorAll('.sgr')[at], b=r?.querySelector('.fmtr'); if(!b) return
+		if(on){ walk(b); if(hot) r.querySelector(hot)?.classList.add('hot') } else{ sugEl._peek=b; peek(b) } })   // shown, as the row under the pointer is – walked to still if it was, the keys' light where it stood
 	// a row pointed at shows on the page, as one walked to does; the list left, the color as it stood. Pointed at by a
 	// pointer that moves – a list opening, or redrawn as one types, under a resting pointer previews nothing
 	sugEl.addEventListener('pointermove',e=>{ if(!e.movementX&&!e.movementY) return; const b=e.target.closest('.fmtr'); if(b&&b!==sugEl._peek){ sugEl._peek=b; peek(b) } })
@@ -2144,7 +2151,7 @@ if(cvalEl){
 		const h=cdEl.value
 		master={ s:'rgb', vals:[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)) }
 		scheduleFast(); if(open()) queuePlaneSettle() })
-	const walk=b=>{ sugEl.querySelectorAll('.fmtr').forEach(r=>{ r.classList.toggle('on',r===b); r.setAttribute('aria-selected',r===b) }); ghostOf([]); peek(b) }   // a row walked to: lit, and shown on the page and in the field – the greyed-in name giving way to its text
+	const walk=b=>{ sugEl.querySelectorAll('.fmtr').forEach(r=>{ r.classList.toggle('on',r===b); r.setAttribute('aria-selected',r===b) }); sugEl.querySelector('.hot')?.classList.remove('hot'); ghostOf([]); peek(b) }   // a row walked to: lit, and shown on the page and in the field – the greyed-in name giving way to its text
 	// the promise's first words are the field's ways in: a color, a palette, a gradient – the field taken, the first row of
 	// that kind walked to once the lists have landed (with nothing typed, the one drawn; with a color in hand, the one round
 	// it); an image, the stripe under its button
@@ -2154,13 +2161,15 @@ if(cvalEl){
 		e.preventDefault(); if(w==='image') return document.getElementById('him').click()
 		cvalEl.focus({ preventScroll:true }); meodai().then(()=>{ if(document.activeElement!==cvalEl) return
 			const b=sugEl.querySelector(`.src[data-key="${w}"]`)?.closest('.sgr').querySelector('.fmtr'); if(b) walk(b) }) })
-	cvalEl.addEventListener('keydown',e=>{ const rows=[...sugEl.querySelectorAll('.fmtr')], i=rows.findIndex(b=>b.classList.contains('on'))
+	cvalEl.addEventListener('keydown',e=>{ const rows=[...sugEl.querySelectorAll('.fmtr')], i=rows.findIndex(b=>b.classList.contains('on')), cs=i<0?[]:[...rows[i].parentNode.querySelectorAll('.sgn,.src[data-key],.sgo,.sgx')]   // cs: the walked row's parts
 		if(e.key==='ArrowDown'&&sugEl.hidden){ e.preventDefault(); sugShut=false; suggest(true); return }   // ↓ asks for them – the color in hand in context
 		if((e.key==='ArrowDown'||e.key==='ArrowUp')&&rows.length&&!sugEl.hidden){ e.preventDefault()
 			walk(rows[(i+(e.key==='ArrowDown'?1:rows.length-(i<0?0:1)))%rows.length]) }
+		else if((e.key==='ArrowRight'||e.key==='ArrowLeft')&&cs.length){ e.preventDefault(); const j=cs.findIndex(c=>c.classList.contains('hot'))
+			const p=(j+1+((e.key==='ArrowRight')!==(document.dir==='rtl')?1:cs.length))%(cs.length+1); cs.forEach((c,k)=>c.classList.toggle('hot',k===p-1)) }   // ←→ along the walked row's parts – its name, its source, its ↗ and ↻ – and back to it; ⏎ presses the one lit
 		else if((e.key==='Tab'&&!e.shiftKey||e.key==='ArrowRight')&&ghostRest&&takeGhost()) e.preventDefault()
 		else if(e.key==='Tab'&&!e.shiftKey&&!cvalEl.value&&virginNow()&&cvalEl.placeholder){ e.preventDefault(); before=null; PEEK=false; cvalEl.value=cvalEl.placeholder; cvalEl._typed=take(); fitVal(); cxEl.classList.remove('empty'); suggest(false) }   // the orbit's color, held as the placeholder, taken
-		else if(e.key==='Enter'){ e.preventDefault(); if(i>=0) pick(rows[i]); else cvalEl.blur() }   // the field wraps, it never takes a line break
+		else if(e.key==='Enter'){ e.preventDefault(); const h=sugEl.querySelector('.hot'); if(h) h.click(); else if(i>=0) pick(rows[i]); else cvalEl.blur() }   // the field wraps, it never takes a line break
 		else if(e.key==='Delete'&&e.shiftKey&&i>=0&&rows[i].nextElementSibling?.matches('.sgx')){ e.preventDefault(); forget(rows[i].dataset.v) }   // the walked-to recent one forgotten, as a browser's address bar does
 		else if(e.key==='Escape'){ if(!sugEl.hidden){ unpeek(); sugShut=true; sugEl.hidden=true; ghostOf([]) } cvalEl.blur() } })   // Esc lets the field go, its list with it
 	// the field's ×: the color let go – nothing chosen, the field invites again, the orbit back (as the field let go empty)
@@ -3185,15 +3194,14 @@ const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="${t('ui
 // two groups pushed to the modal's sides: prev on the left, next on the right; the category jump rides outermost, small
 const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="${t('ui.nav.label','adjacent color spaces')}"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
 function openModal(s){ behindSeen=null
-	// lock body scroll without a layout jump: pad exactly the scrollbar's width
-	if(modal.hidden){ modalReturn=document.activeElement; document.body.style.paddingRight=(innerWidth-document.documentElement.clientWidth)+'px' }
+	if(modal.hidden) modalReturn=document.activeElement   // the page's scroll locked by CSS (body.mopen)
 	const b=barredByKey.get(s)
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
 	// a card is a plain modal: the page behind stays where it was. The pinned row stays live above it – its Limit, Quantize
 	// and Vision reach the dossier too – and the color with it once docked (.mdock); over the hero the color stays in the
 	// hero, under the card. Everything else behind the card sleeps
 	if(modal.hidden) document.body.classList.toggle('mdock',cxEl.getBoundingClientRect().top<stripEl.querySelector('.cells').getBoundingClientRect().bottom)
-	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen'); document.body.style.overflow='hidden'
+	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen')
 	urlWrite(spaceURL(s)+keepSearch()+colorHash())
 	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
@@ -3233,7 +3241,8 @@ function buildBarred(b){
 	 </div></div></section>
 	 ${MNAV('mfoot')}` }
 function closeModal(){ if(EMBED) return   // an embedded card is the whole document – Esc, backdrop and ✕ have nothing to return to
-	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.overflow=''; document.body.style.paddingRight=''
+	if(modal._st){ modal._st=0; modal.scrollTop=0 }   // the next card opens at its top: a hidden scroller keeps its offset
+	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen')
 	paintCatalogVals(screenEnts()); paintCatalogGrad(); ric(()=>paintCatalogVals())   // the catalog slept behind the dossier — catch it up to whatever the modal picked: what shows now, its strips from the pool, the band's numbers at idle
 	urlWrite(spaceURL('')+keepSearch()+colorHash())
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
@@ -3241,6 +3250,7 @@ function closeModal(){ if(EMBED) return   // an embedded card is the whole docum
 // the backdrop's close – and a wheel anywhere off the card turns the card, as its own scroller would. A close is a press
 // AND its release off the card: a drag begun on a slider and let go over the page (over the drag's veil) clicks their
 // common ancestor, the body – it once closed the card under the hand
+modal.addEventListener('scroll',()=>{ modal._st=modal.scrollTop },{ passive:true })   // where the card stands, read as it scrolls (laid out then): a reset reads no layout
 let pressAt=null; addEventListener('pointerdown',e=>{ pressAt=e.target },true)
 const offCard=t=>t===modal||t===pageShell||t===document.body||t===document.documentElement
 modal.addEventListener('click',e=>{ if(e.target===modal&&offCard(pressAt)) closeModal() })
@@ -4149,7 +4159,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		spin3() }
 	el.onpointercancel=el.onpointerup
 	el.ondblclick=()=>{ rot3={a:-0.65,b:0.5}; snap3=null; spinV3=SPIN3; draw3d(); spin3() }
-	draw3d(); spin3() }
+	const m=mesh3; requestAnimationFrame(()=>{ if(mesh3===m){ draw3d(); spin3() } }) }   // its first draw (the bake, the grid) a frame on: two tasks, never one long one
 	// the mesh built off the open path – the GPU's a frame after the card shows (its lattice and programs took a dossier's
 	// click 100 ms and more), the JS one's (munsell's iterative caps) a beat later; the solid pulses till then (.busy)
 	mesh3=null; el.classList.add('busy'); const tok=++wire3dTok
@@ -4384,16 +4394,23 @@ function buildSheet3(cls,vals,A,B){ const ca=cls.ch[A], cb=cls.ch[B], R2=24
 		if(pts.some(p=>!p)) continue
 		V.push(...pts[0],...pts[1],...pts[2],...pts[0],...pts[2],...pts[3]) }
 	return new Float32Array(V) }
+// the body's cover, copied once a scene off the GL canvas: every mask after it (the grid through the body, the guides'
+// and lines' ghosts) is a plain canvas's – a WebGL canvas read back per use cost Safari a GPU copy each, three a step of
+// the orbit, and a buffer already presented may read back empty
 function snapshot3dMask(mesh,key=mesh?._sceneKey){ if(!mesh||!key) return mesh
 	const bm=mask3||(mask3=document.createElement('canvas')), S2=mesh.width
 	if(bm.width!==S2) bm.width=bm.height=S2
 	const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(mesh,0,0)
 	bm._sceneKey=key; return bm }
+// a figure's width, kept by a ResizeObserver: read at every draw, between the draw's own writes, it forced a layout of the
+// dossier each time – the solid's at every step of the orbit, most of its frame
+const boxRO=new ResizeObserver(es=>{ for(const e of es) e.target._cw=Math.round(e.contentRect.width) })
+const widthOf=el=>{ if(el._cw==null){ boxRO.observe(el); el._cw=el.clientWidth } return el._cw }
 function draw3d(){ if(!mesh3||!open()) return
 	const el=detail.querySelector('#pl3d'); if(!el||!seen(el,show3d)) return
 	el.classList.remove('busy')
 	const meshCv=el.querySelector('.mesh3'), cv=el.querySelector('.hud3'), gcv=el.querySelector('.grid3')
-	const cw=(el.clientWidth||352)*1.36
+	const cw=(widthOf(el)||352)*1.36
 	const bs=Math.min(Math.round(cw*(devicePixelRatio||1)),1200)
 	if(bs&&cv.width!==bs){ cv.width=cv.height=meshCv.width=meshCv.height=gcv.width=gcv.height=bs }
 	const ctx=cv.getContext('2d'), S2=cv.width, dp=S2/cw
@@ -4462,10 +4479,9 @@ function draw3d(){ if(!mesh3||!open()) return
 		// the body draws FIRST, alone — its alpha is the true "covered by the solid" mask
 		drewGL=!!(meshCv&&(mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,null,null,null,Q,QM):drawPtsGL(meshCv,mesh3,scale3)))
 		bodyM=meshCv
-		// A cached WebGL canvas may discard its drawing buffer after compositing. Preserve
-		// one small alpha snapshot at the start of a colour gesture so the white through-grid
-		// cannot disappear while only the picker HUD is moving.
-		if(drewGL&&(PDOWN||sheet3||frame3)) bodyM=snapshot3dMask(meshCv,sceneKey)
+		// its cover kept as it drew (snapshot3dMask): a cached WebGL canvas may discard its buffer after compositing, and
+		// the white through-grid would vanish under a color moving alone
+		if(drewGL) bodyM=snapshot3dMask(meshCv,sceneKey)
 		if(drewGL&&(sheet3||frame3)) mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3)
 		if(drewGL) meshCv._sceneKey=sceneKey }
 	ctx.clearRect(0,0,S2,S2)
@@ -4817,6 +4833,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	const planeHTML=(a,b)=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><button type="button" class="laby" data-ax="y" title="${cname(cls.ch[b])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[b].sym}</button><button type="button" class="labx" data-ax="x" title="${cname(cls.ch[a])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[a].sym}</button>${polarPl(cls,a,b)?`<button class="pmode" title="${t('ui.dossier.disc','disc ↔ square')}"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="${t('ui.dossier.tri','triangle ↔ square')}"></button>`:''}</div>`
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dsec=activeSecs().find(c2=>c2.spaces.includes(s)), dcat=dsec?secName(dsec):''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
+	// a card scrolled down (the foot's next) starts the next at its top – reset before the new markup, while the old one is
+	// laid out: after it, the reset forced the new card's whole layout inside the click (40–100 ms in Chrome)
+	if(modal._st){ modal._st=0; modal.scrollTop=0 }
 	detail.innerHTML=`<div class="dh">${dcat?`<p class="dcat">${dcat}</p>`:''}<h1 id="dtitle">${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1><p class="dkinds">${['geo','curve','sig','range','white'].map(k=>kindIcon(k,s,k==='white'&&prof?`${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:'')).join('')}</p></div>
 	 <hr class="dhr">
 	 <div class="chead">${bigchHTML}${figSeg}</div>
@@ -4866,7 +4885,6 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	 ${hasPlaneGL(s)?`<span class="seg" id="glseg" role="group" aria-label="${t('ui.dossier.shader','shader language')}" hidden>${Object.entries(SHL).map(([l,n])=>`<button type="button" data-l="${l}" aria-pressed="${l===shLang}"${l===shLang?' class="on"':''}>${n}</button>`).join('')}</span>`:''}
 	 <div class="snipwrap"><button class="cpyi" id="csnip" title="${t('ui.copy','copy')}"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button><pre class="snip" id="snip"></pre></div>
 	 ${MNAV('mfoot',1)}`
-		modal.scrollTop=0
 	// glossary terms in the prose grow a soft ? – first occurrence per paragraph. A term counts only as whole words: the
 	// page language's word breaks (Intl.Segmenter – dictionary-based for Chinese and Japanese, which write no spaces),
 	// else a letter in any script beside it (a term beside ç or ı is still inside a word)
@@ -5032,13 +5050,11 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 			const fileOf=(to,o)=>`${s}-to-${to}${o.size?'-'+o.size:''}${o.shaper?'-shaper':''}.cube`
 			const measure=()=>{ measured=true; const to=lto.value, k=++ltok, o=pickO()
 				note(o); lst.textContent=t('ui.lut.measuring','measuring…'); ldl.disabled=false
-				setTimeout(()=>{ if(k!==ltok) return
-					try{ const tab=lutTable(space[s],space[to],o)
-						const v=lutVerify(tab,400), inr=v.in.share>0&&v.in.share<0.999, e=inr?v.in:v
-						const bytes=((tab.dims===3?tab.size**3:tab.size)+(tab.shaperSize||0))*21+430
+				calc('lut',{ s, to, o }).then(tab=>{ if(k!==ltok) return
+						const bytes=((tab.dims===3?tab.size**3:tab.size)+tab.shaperSize)*21+430
 						lst.textContent=bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'
-						lst.title=t('ui.lut.measure-tip','{lattice} lattice vs the direct conversion, 400 off-lattice samples – median {median}, max {max}, fractions of full scale',{lattice:tab.dims===1?t('ui.lut.pt-1d','{n}-pt 1D',{n:tab.size}):(tab.shaper?t('ui.lut.pt-shaper','{n}-pt shaper +',{n:tab.shaperSize})+' ':'')+tab.size+'³',median:sci2(e.median),max:sci2(e.max)}) }
-					catch(err){ ldl.disabled=true; lst.textContent=String(err&&err.message||t('ui.lut.none','no finite LUT for this pair')) } },0) }
+						lst.title=t('ui.lut.measure-tip','{lattice} lattice vs the direct conversion, 400 off-lattice samples – median {median}, max {max}, fractions of full scale',{lattice:tab.dims===1?t('ui.lut.pt-1d','{n}-pt 1D',{n:tab.size}):(tab.shaper?t('ui.lut.pt-shaper','{n}-pt shaper +',{n:tab.shaperSize})+' ':'')+tab.size+'³',median:sci2(tab.median),max:sci2(tab.max)}) },
+					err=>{ if(k!==ltok) return; ldl.disabled=true; lst.textContent=String(err&&err.message||t('ui.lut.none','no finite LUT for this pair')) }) }
 			fillSz()
 			lto.onchange=()=>{ fillSz(); measure() }; lsz.onchange=measure
 			ldl.onclick=()=>{ const to=lto.value
@@ -5050,9 +5066,8 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 		if(idl){ let done=false
 			idl.onclick=()=>{ try{ dl(iccProfile(space[s],{xyz:space.xyz}),`${s}.icc`,'application/vnd.iccprofile'); toast(t('ui.toast.icc','ICC saved')); track(EVENT.icc(s,iccK)) }catch{ toast(t('ui.toast.no-icc','No profile for this space')) } }
 			dex._icc=()=>{ if(done) return; done=true; ist.textContent='…'
-				setTimeout(()=>{ try{ const b=iccProfile(space[s],{xyz:space.xyz})
-						ist.textContent=`${(b.length/1024).toFixed(1)} kB`; ist.title=`D50 PCS · ${{mntr:t('ui.icc.v-mntr','v2 matrix+TRC display'),spac:t('ui.icc.v-spac','v2 CLUT, device↔Lab both ways'),scnr:t('ui.icc.v-scnr','v2 CLUT, device→Lab (one-way)')}[iccK]||''}` }
-					catch(err){ idl.disabled=true; ist.textContent=String(err&&err.message||t('ui.icc.none','no profile')) } },0) } }
+				calc('icc',{ s }).then(({ bytes })=>{ ist.textContent=`${(bytes/1024).toFixed(1)} kB`; ist.title=`D50 PCS · ${{mntr:t('ui.icc.v-mntr','v2 matrix+TRC display'),spac:t('ui.icc.v-spac','v2 CLUT, device↔Lab both ways'),scnr:t('ui.icc.v-scnr','v2 CLUT, device→Lab (one-way)')}[iccK]||''}` },
+					err=>{ idl.disabled=true; ist.textContent=String(err&&err.message||t('ui.icc.none','no profile')) }) } }
 		// defer the first bake until the block scrolls into view – same pattern as the
 		// homepage LUT pane; opening a dossier stays light until the block is actually seen.
 		// One observer per dossier: the previous one dies with its detached markup
@@ -5191,7 +5206,7 @@ function paintGamut(){ const el=detail.querySelector('#gam2d'); if(!el||!seen(el
 	const cv=el.querySelector('canvas')
 	// native backing: the fixed 320-unit canvas downscaled to the plate softened its
 	// hairlines to a lighter weight than the 3D grid's – render at display resolution
-	const bw=Math.round((cv.clientWidth||320)*(devicePixelRatio||1))
+	const bw=Math.round((widthOf(cv)||320)*(devicePixelRatio||1))
 	if(bw&&cv.width!==bw){ cv.width=bw; cv.height=Math.round(bw*352/320) }
 	if(paintGamutGL(cv,selected)) gamGrid(cv)
 	gamMarker() }
@@ -5199,7 +5214,7 @@ function paintGamut(){ const el=detail.querySelector('#gam2d'); if(!el||!seen(el
 // stroked in its own colours; the purple line closes the figure dashed, since no
 // wavelength lives there. Forward xyz only, so it needs no GL inverse.
 function paintLocusPlate(el){ const cv=el.querySelector('canvas')
-	const bw=Math.round((cv.clientWidth||320)*(devicePixelRatio||1))
+	const bw=Math.round((widthOf(cv)||320)*(devicePixelRatio||1))
 	if(bw&&cv.width!==bw){ cv.width=bw; cv.height=Math.round(bw*352/320) }
 	const c2=cv.getContext('2d'), w=cv.width, h=cv.height
 	c2.clearRect(0,0,w,h)
@@ -5226,7 +5241,7 @@ function paintLocusPlate(el){ const cv=el.querySelector('canvas')
 // once per space in idle slices (heavy forwards like Munsell never block a frame).
 const FWD=new Map(), FWDQ=new Set()
 function paintFwdPlate(el){ const cv=el.querySelector('canvas'), s=selected
-	const bw=Math.round((cv.clientWidth||320)*(devicePixelRatio||1))
+	const bw=Math.round((widthOf(cv)||320)*(devicePixelRatio||1))
 	if(bw&&cv.width!==bw){ cv.width=bw; cv.height=Math.round(bw*352/320) }
 	const c2=cv.getContext('2d'), w=cv.width, h=cv.height
 	c2.clearRect(0,0,w,h)
@@ -5258,7 +5273,7 @@ function fwdBuild(s){ if(FWDQ.has(s)||FWD.has(s)||!space[s]?.xyz) return
 // the coordinate grid the Wikipedia chromaticity diagram wears – drawn BEHIND the
 // horseshoe (destination-over), 0.1 rules with numbers each 0.2 along the axes
 function gamGrid(cv){ const c2=cv.getContext('2d'), w=cv.width, h=cv.height
-	const s=w/320, u=w/(cv.clientWidth||320)   // s: proportional unit · u: exactly 1 css px
+	const s=w/320, u=w/(widthOf(cv)||320)   // s: proportional unit · u: exactly 1 css px
 	const px=x=>(x+0.107)/0.857*w, py=y=>(1-(y+0.055)/0.955)*h   // gamutPos's mapping – the plot ends exactly at y=0.9
 	c2.save(); c2.globalCompositeOperation='destination-over'
 	c2.lineWidth=u; c2.strokeStyle='oklch(0.5 0.01 70/.15)'   // the grid every plate (and the 3D frame) wears
@@ -6283,14 +6298,12 @@ if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp 
 		lt.innerHTML=groups(t=>LUTTGT.has(t))         // targets: no cyclic axis — an interpolated OUTPUT hue would cross the seam wrong
 		lf.value='slog3'; lt.value='rec709'; if(!lf.value)lf.selectedIndex=0; if(!lt.value)lt.selectedIndex=0
 		const measure=()=>{ const from=lf.value, to=lt.value, k=++tok; lstat.textContent=t('ui.lut.measuring','measuring…'); ldl.disabled=false
-			setTimeout(()=>{ if(k!==tok) return
-				try{ if(from===to) throw new Error(t('ui.lut.same','pick two different spaces'))
-					const one=lutChannelwise(space[from],space[to]), tab=lutTable(space[from],space[to],one?{}:{size:lutN})
-					const v=lutVerify(tab,400), inr=v.in.share>0&&v.in.share<0.999, e=inr?v.in:v
-					const bytes=(tab.dims===3?tab.size**3:tab.size)*21+430
-					lseg.style.display=one?'none':''; l1d.style.display=one?'':'none'
-					lstat.textContent=`${one?t('ui.lut.pt-1d','{n}-pt 1D',{n:tab.size}):tab.size+'³'} · ${t('ui.lut.median','median {median}, max {max}',{median:sci2(e.median),max:sci2(e.max)})} · ≈${bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'}` }
-				catch(err){ ldl.disabled=true; lstat.textContent=String(err&&err.message||t('ui.lut.none','no finite LUT for this pair')) } },0) }
+			const no=err=>{ if(k!==tok) return; ldl.disabled=true; lstat.textContent=String(err&&err.message||t('ui.lut.none','no finite LUT for this pair')) }
+			if(from===to) return no(new Error(t('ui.lut.same','pick two different spaces')))
+			calc('lut',{ s:from, to, auto:true, n:lutN }).then(tab=>{ if(k!==tok) return
+				const one=tab.one, bytes=(tab.dims===3?tab.size**3:tab.size)*21+430
+				lseg.style.display=one?'none':''; l1d.style.display=one?'':'none'
+				lstat.textContent=`${one?t('ui.lut.pt-1d','{n}-pt 1D',{n:tab.size}):tab.size+'³'} · ${t('ui.lut.median','median {median}, max {max}',{median:sci2(tab.median),max:sci2(tab.max)})} · ≈${bytes>1e6?(bytes/1e6).toFixed(1)+' MB':Math.round(bytes/1e3)+' kB'}` },no) }
 		// the first bake (33³ table + 400-sample verify) waits until the LUT pane actually
 		// shows (tab click or keyboard) — off the boot path; hidden panes never intersect
 		const lp=document.getElementById('api-panel-lut')
@@ -6308,9 +6321,10 @@ if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp 
 		const FLAVOR={ mntr:t('ui.icc.v-mntr','v2 matrix+TRC display'), spac:t('ui.icc.v-spac','v2 CLUT, device↔Lab both ways'), scnr:t('ui.icc.v-scnr','v2 CLUT, device→Lab (one-way)') }
 		const kindOf=sp=>{ try{ return iccKind(space[sp],{xyz:space.xyz}) }catch{ return null } }
 		const show=()=>{ const sp=ic.value; if(!sp){ istat.textContent='—'; idl.disabled=true; return }
-			try{ const b=iccProfile(space[sp],{xyz:space.xyz}); idl.disabled=false
-				istat.textContent=`${(b.length/1024).toFixed(1)} kB · D50 PCS · ${FLAVOR[kindOf(sp)]||''}` }
-			catch(err){ idl.disabled=true; istat.textContent=String(err&&err.message||t('ui.icc.none-space','no profile for this space')) } }
+			istat.textContent='…'
+			calc('icc',{ s:sp }).then(({ bytes })=>{ if(ic.value!==sp) return; idl.disabled=false
+				istat.textContent=`${(bytes/1024).toFixed(1)} kB · D50 PCS · ${FLAVOR[kindOf(sp)]||''}` },
+			err=>{ if(ic.value!==sp) return; idl.disabled=true; istat.textContent=String(err&&err.message||t('ui.icc.none-space','no profile for this space')) }) }
 		// kind() is probe-cheap (no lattice bake) — still deferred to first open, off the boot path
 		const probe=()=>{ const okset=new Set(all.filter(kindOf))
 			ic.innerHTML=groups(t=>okset.has(t)); ic.value=okset.has('p3')?'p3':(ic.options[0]&&ic.options[0].value); show() }
