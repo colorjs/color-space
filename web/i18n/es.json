@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"citar color-space: BibTeX y APA, a partir de CITATION.cff","h":"130d4816"},
 "ui.footer.colorjs": {"t":"la familia colorjs de paquetes de color","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"copiar el comando de instalación","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"Erratas en las fuentes","h":"426fb921"},
 "ui.footer.project": {"t":"Proyecto","h":"f6f4da8d"},
 "ui.footer.report": {"t":"Informar de un error","h":"6a847d88"},
 "ui.footer.research": {"t":"Investigación","h":"be601df2"},

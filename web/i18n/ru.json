@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"цитировать color-space – BibTeX и APA из CITATION.cff","h":"130d4816"},
 "ui.footer.colorjs": {"t":"семейство пакетов colorjs для работы с цветом","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"копировать команду установки","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"Ошибки в источниках","h":"426fb921"},
 "ui.footer.project": {"t":"Проект","h":"f6f4da8d"},
 "ui.footer.report": {"t":"Сообщить об ошибке","h":"6a847d88"},
 "ui.footer.research": {"t":"Исследования","h":"be601df2"},

@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"color-space 인용하기 – CITATION.cff 기반 BibTeX·APA","h":"130d4816"},
 "ui.footer.colorjs": {"t":"colorjs 색 패키지 모음","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"설치 명령 복사","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"출처의 정오표","h":"426fb921"},
 "ui.footer.project": {"t":"프로젝트","h":"f6f4da8d"},
 "ui.footer.report": {"t":"오류 신고","h":"6a847d88"},
 "ui.footer.research": {"t":"연구","h":"be601df2"},

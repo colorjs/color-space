@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"color-space का हवाला दें – BibTeX और APA, CITATION.cff से","h":"130d4816"},
 "ui.footer.colorjs": {"t":"कलर पैकेजों का colorjs परिवार","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"इंस्टॉल कमांड कॉपी करें","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"स्रोतों में त्रुटियाँ","h":"426fb921"},
 "ui.footer.project": {"t":"प्रोजेक्ट","h":"f6f4da8d"},
 "ui.footer.report": {"t":"त्रुटि बताएँ","h":"6a847d88"},
 "ui.footer.research": {"t":"शोध","h":"be601df2"},

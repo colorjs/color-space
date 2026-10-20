@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"استشهد بـ color-space – BibTeX وAPA، من CITATION.cff","h":"130d4816"},
 "ui.footer.colorjs": {"t":"عائلة colorjs من حزم الألوان","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"انسخ أمر التثبيت","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"أخطاء في المصادر","h":"426fb921"},
 "ui.footer.project": {"t":"المشروع","h":"f6f4da8d"},
 "ui.footer.report": {"t":"أبلغ عن خطأ","h":"6a847d88"},
 "ui.footer.research": {"t":"الأبحاث","h":"be601df2"},

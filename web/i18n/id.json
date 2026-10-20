@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"kutip color-space—BibTeX dan APA, dari CITATION.cff","h":"130d4816"},
 "ui.footer.colorjs": {"t":"keluarga paket warna colorjs","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"salin perintah instalasi","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"Ralat dalam sumber","h":"426fb921"},
 "ui.footer.project": {"t":"Proyek","h":"f6f4da8d"},
 "ui.footer.report": {"t":"Laporkan kesalahan","h":"6a847d88"},
 "ui.footer.research": {"t":"Riset","h":"be601df2"},

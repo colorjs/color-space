@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"color-spaceを引用：CITATION.cffから作ったBibTeXとAPA","h":"130d4816"},
 "ui.footer.colorjs": {"t":"colorjsファミリー：色を扱うパッケージ群","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"インストールコマンドをコピー","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"出典の正誤表","h":"426fb921"},
 "ui.footer.project": {"t":"プロジェクト","h":"f6f4da8d"},
 "ui.footer.report": {"t":"誤りを報告","h":"6a847d88"},
 "ui.footer.research": {"t":"研究","h":"be601df2"},

@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"color-space’e atıf yapın – CITATION.cff dosyasından BibTeX ve APA","h":"130d4816"},
 "ui.footer.colorjs": {"t":"colorjs renk paketleri ailesi","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"kurulum komutunu kopyala","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"Kaynaklardaki hatalar","h":"426fb921"},
 "ui.footer.project": {"t":"Proje","h":"f6f4da8d"},
 "ui.footer.report": {"t":"Hata bildir","h":"6a847d88"},
 "ui.footer.research": {"t":"Araştırma","h":"be601df2"},

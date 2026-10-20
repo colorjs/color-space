@@ -1456,6 +1456,7 @@
 "ui.footer.cite-tip": {"t":"引用 color-space——BibTeX 和 APA 格式，取自 CITATION.cff","h":"130d4816"},
 "ui.footer.colorjs": {"t":"colorjs 系列色彩工具包","h":"23d72138"},
 "ui.footer.copy-npm": {"t":"复制安装命令","h":"6fe3d5f8"},
+"ui.footer.errata": {"t":"文献勘误","h":"426fb921"},
 "ui.footer.project": {"t":"项目","h":"f6f4da8d"},
 "ui.footer.report": {"t":"报告错误","h":"6a847d88"},
 "ui.footer.research": {"t":"研究","h":"be601df2"},

@@ -48,14 +48,14 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As printed (2):** f(Y) = 0.51·(21 + 0.2·Y)/(1 + 0.21·Y).
   **Correct (probable):** f(Y) = 0.51·(21 + 0.2·Y)/(1 + 0.2·Y). With the numerator's coefficient, f(100) = 0.9957 ≈ 1. With 0.21, f(100) = 0.950. colour-science 0.4.7 also uses 0.2. Hunter's original definition was not re-checked.
 - **Proof:** `spaces/hunter-rdab.js:25-28`. The test `bona-fide reference values` (entries `hunter-rdab`) pins b = 17.475 and a = 57.09 for colour-science's docstring XYZ. With 0.21, a would be 55.14.
-- **Status:** noted here. colour-science already implements both correctly, without comment. Not reported to HunterLab. Re-checked online in both PDFs.
+- **Status:** noted here. colour-science already implements both correctly, without comment. Reported to HunterLab support by email (2026-10-20). Re-checked online in both PDFs.
 
 ### Kinefinity 2025: KineLOG3 Technical Specifications
 
 - **Source:** Kinefinity, "KineLOG3 Technical Specifications", 2025-09-24: the [web page](https://kinefinity.com/kinelog3-technical-specifications) and two PDF versions ([copies](https://github.com/thatcherfreeman/dwg-transforms/tree/master/specs)).
 - **As printed (1):** "the 0% reflectance value corresponds to an IRE of 0.09".
   **Correct:** 9.29 IRE. A 0% input encodes to d = 0.092864. The same sentence's 39.2 (18%) and 57.2 (90%) are code × 100, so 0.09 is the code value, not IRE.
-  **Status:** found here. The live page and both PDF versions still print it. Not reported.
+  **Status:** found here. The live page and both PDF versions still print it. Reported to Kinefinity support by email (2026-10-20).
 - **As printed (2), first PDF version only:** the Kinefinity Wide Gamut blue primary has y = −0.2282, the red primary's y with a minus sign.
   **Correct:** −0.2236, as printed in the revised version and on the live page. It agrees with all three published 4-decimal matrices to 5e-5.
   **Status:** confirmed. Kinefinity corrected it in the revised specification.
@@ -84,7 +84,7 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As computed:** for hues between blue (237.53°) and red (20.14° + 360°) the spreadsheet does not apply eqs. 2.21–2.22 across the interval; it splits it at 360° with e = 0.856 and H = 385.9 there. Table 4.1 prints Case 4's H as 307 (the spreadsheet's 306.87). The spreadsheet also uses the 4-decimal print of M_B⁻¹ (eq. 2.2) in eq. 2.13, which turns the near-neutral Case 1 to h 212.28, C 0.498, against the table's 219.4 and 0.47.
 - **Correct:** eq. 2.21 gives e = 0.85649 at 360° and eq. 2.22 gives H = 380.21 (385.9 is what eq. 2.22 gives at 360° with red's e of 0.8 replaced by blue's 1.2); Case 4's H is 306.42, which rounds to 306. The rounded e lowers C and M by up to 0.04 % in that interval (Case 2, the spreadsheet's matrices held: C 61.9618 against 61.9628 by eq. 2.21). With the exact inverse of M_B, Case 1 gives h 219.43 and C 0.474, as the table prints. Table 4.1's s for Cases 2 and 4 (146.98, 180.56) is not reproduced by any of these variants; the equations give 147.00 and 180.58.
 - **Proof:** `spaces/ciecam97s.js` (implementation notes). The test `ciecam97s: CIE TC1-34 Table 4.1 (CIE 131), all four cases` pins J, Q, h, C and M of the four cases to the table, and Case 1 in the space; the bona-fide row pins Case 1's h 219.4. H is not computed by color-space, so no test pins it.
-- **Status:** found here (2026-10). Not reported. Re-checked online against the PDF and the spreadsheet.
+- **Status:** found here (2026-10). Reported to Mark Fairchild by email (2026-10-20). Re-checked online against the PDF and the spreadsheet.
 
 ### colour-science: Hellwig 2022 inverse from J_HK and M
 
@@ -92,7 +92,7 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As implemented:** when the specification gives J_HK, it computes J = J_HK − f(h)·spow(C, 0.587) from the specification's own C, before C is derived from M. Given only M, C is NaN, colour's `spow` returns 0 for it, and J = J_HK: the Helmholtz–Kohlrausch term is dropped without a warning.
 - **Correct:** C = 35·M/A_w first (it depends on M alone), then J = J_HK − f(h)·C^0.587. Under hellwig2022.js's conditions, sRGB red (XYZ 41.23908, 21.263901, 1.933082 → J_HK 53.540234, M 86.355273, h 27.402503) inverts to XYZ (50.913, 27.829, 4.031) instead of the input; with C passed as well, it returns the input to 1e-13. The docstring's own example passes C, so it does not show the fault.
 - **Proof:** `spaces/hellwig2022-hk.js` (implementation notes) inverts in closed form. The test `bona-fide reference values` (entries `hellwig2022-hk`, hellwig2022-hk → xyz) pins the inverse against coloraide 8.13.1, which derives C from M first.
-- **Status:** found here. Reported: [colour-science/colour#1423](https://github.com/colour-science/colour/issues/1423) (2026-10-19). colour-science 0.4.7 was run, and the develop source was re-checked online on 2026-10-19.
+- **Status:** found here. Reported: [colour-science/colour#1423](https://github.com/colour-science/colour/issues/1423) (2026-10-19); a fix is proposed on a fork ([Rahul-cs50/colour@de3c637](https://github.com/Rahul-cs50/colour/commit/de3c63797e8d945a2115e01a4e6bf8fd06c217a8)), checked here to round-trip. colour-science 0.4.7 was run, and the develop source was re-checked online on 2026-10-19.
 
 ### Yıldız 2026: Helmlab, §3.1 Stage 10 (neutral correction)
 
@@ -110,7 +110,7 @@ These are errors that color-space found or confirmed while implementing publishe
 - **Correct:** 0.279 (0.2787336) and +0.077 (+0.0771569), as in Xuemei Zhang's S-CIELAB code, cmatrix.m `'xyz2opp'` ([ISETCam @ 17146a9f](https://github.com/ISET/isetcam/blob/17146a9f0470cc89b58d583851f680187268506d/metrics/scielab/cmatrix.m)). The other seven coefficients match the code to the printed digits.
 - **Why:** the XYZ matrix is Poirson & Wandell's cone-opponent matrix (printed beside it as the second matrix of eq. 1) applied to Smith–Pokorny cones. A least-squares scale per cone reproduces all nine code entries within 0.007 and predicts 0.282 and +0.081; 0.297 is 0.015 off and −0.077 has the wrong sign.
 - **Proof:** `spaces/poirson-wandell.js` (implementation notes). The bona-fide rows for `poirson-wandell` are computed from the code's matrix; the paper's values are not pinned.
-- **Status:** found here (2026-10-19). Not reported. Zhang & Wandell's 1996 SID digest, which first printed the matrix, was not checked (not available online).
+- **Status:** found here (2026-10-19). Reported to Mark Fairchild by email (2026-10-20). Zhang & Wandell's 1996 SID digest, which first printed the matrix, was not checked (not available online).
 
 ### CSS Color 4 (Editor's Draft, 2026-10-09): §2 leaf example, the rec2020 value
 
