@@ -895,6 +895,10 @@ try {
 	assert.deepEqual(await nameView.evaluate(()=>{ const el=document.getElementById('strip'), st=getComputedStyle(el); return [st.position,st.visibility,el.inert,Math.round(el.getBoundingClientRect().top),getComputedStyle(el.firstElementChild).backgroundColor!=='rgba(0, 0, 0, 0)'] }),['sticky','visible',false,0,true],'the row stays, live and paper, over a first-screen card')
 	await nameView.locator('#mx').click()
 	assert.deepEqual(await nameView.evaluate(()=>[Math.round(document.getElementById('strip').getBoundingClientRect().top),scrollY]),[0,0],'closing the card leaves the first screen in place')
+	// the card landed on is an entry of its own: closed, the atlas is the next; Back opens the card again, Forward closes it
+	await nameView.waitForFunction(()=>location.pathname==='/')
+	await nameView.goBack(); await nameView.waitForFunction(()=>!document.getElementById('modal').hidden&&location.pathname==='/oklch')
+	await nameView.goForward(); await nameView.waitForFunction(()=>document.getElementById('modal').hidden&&location.pathname==='/')
 	await nameContext.close()
 	await toCatalog(motion)
 	await motion.locator('#cval').fill('#123456'); await motion.locator('#cval').press('Enter')   // typed and committed – its list shut, as a reader's next press on the page shuts it

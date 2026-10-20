@@ -902,7 +902,7 @@ body.himg #imgfloat{ display:block }
    stays LIVE: the current color, the filters, Limit, Quantize and Vision all keep working while the dossier is open
    (the row's own paper masks content passing under). */
 .modal[hidden]{ display:none }
-body.mopen{ overflow:hidden; padding-right:var(--sb,0px) }   /* the page's scroll locked under a card, without a jump: padded by a classic scrollbar's width (--sb, kept as it was) – a width read in the click forced the page's layout there */
+@media(pointer:coarse){ body.mopen{ overflow:hidden } }   /* the page's scroll locked under a card where a finger scrolls it – an overlay bar there, nothing shifts. A mouse's wheel is held by script (wheelOff): the page's overflow never changes, so its scrollbar never comes and goes – Safari brought a legacy bar back at the close, the whole page a bar's width to the left */
 /* the card comes and goes at once, no fade: its 220 ms fade and rise were Safari's three slow frames of the whole card
    at every open and close, and a card fading out still took the page's clicks */
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
@@ -2613,8 +2613,10 @@ const keepSearch=()=>{ try{ const sp=new URLSearchParams(location.search); sp.de
 let urlTT=0, PEEK=false   // PEEK: a suggestion shown on the page, not taken
 // the URL is written once the frame it changed in has painted: Chrome took 80–90 ms over a replaceState once a dossier had
 // been open – inside the click, the card waited for it. urlLast is the URL written or about to be; urlPend, one on its way
-let urlPend=false
-const urlWrite=u=>{ urlLast=u; if(urlPend) return; urlPend=true; requestAnimationFrame(()=>setTimeout(()=>{ urlPend=false; history.replaceState(null,'',urlLast) })) }
+let urlPend=false, urlPush=false
+// push: a new place – a card opened, or closed – an entry of its own, Back's to return to; else the entry in hand rewritten
+const urlWrite=(u,push=false)=>{ urlLast=u; urlPush||=push; if(urlPend) return; urlPend=true
+	requestAnimationFrame(()=>setTimeout(()=>{ const p=urlPush&&urlLast!==location.pathname+location.search+location.hash; urlPend=urlPush=false; history[p?'pushState':'replaceState'](null,'',urlLast) })) }
 function syncURL(hx){ const now=performance.now(), wait=250-(now-urlT)
 	if(wait>0){ clearTimeout(urlTT); urlTT=setTimeout(()=>{ if(!PDOWN) syncURL() },wait); return }   // a throttle keeps its trailing write – the last color of a burst (typing, a click) must reach the URL
 	// a hash we did not write is a NAVIGATION in flight (a FAQ specimen link, the boot
@@ -3202,8 +3204,9 @@ const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="${t('u
 const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="${t('ui.nav.next-cat','next category')}"><span class="mstack"><i class="catn catnext"></i><span class="mn mnextc"></span></span>${icon('next2')}</button>`
 // two groups pushed to the modal's sides: prev on the left, next on the right; the category jump rides outermost, small
 const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="${t('ui.nav.label','adjacent color spaces')}"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
-function openModal(s){ behindSeen=null
-	if(modal.hidden) modalReturn=document.activeElement   // the page's scroll locked by CSS (body.mopen)
+function openModal(s,push=true){ behindSeen=null
+	push&&=!openModal.dir&&(modal.hidden||s!==selected)   // a card opened, or a link's – an entry; prev/next walks the one in hand
+	if(modal.hidden){ modalReturn=document.activeElement; addEventListener('wheel',wheelOff,{ passive:false }) }
 	const b=barredByKey.get(s)
 	selected=s; if(!b&&Q!=null) clusterize()   // a native-cell lattice belongs to this dossier; navigation must not leave its marker between cells
 	// a card is a plain modal: the page behind stays where it was. The pinned row stays live above it – its Limit, Quantize
@@ -3211,7 +3214,7 @@ function openModal(s){ behindSeen=null
 	// hero, under the card. Everything else behind the card sleeps
 	if(modal.hidden) document.body.classList.toggle('mdock',dockP()>=1)
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen')
-	urlWrite(spaceURL(s)+keepSearch()+colorHash())
+	urlWrite(spaceURL(s)+keepSearch()+colorHash(),push)
 	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
 	else{ buildDetail(); renderFast(); paintPlanes(false) }
@@ -3249,11 +3252,11 @@ function buildBarred(b){
 		<div class="pcol">${(b.since||b.by)?`<div><i>origin</i><p>${[b.since,b.by].filter(Boolean).join(', ')}</p></div>`:''}<div><i>reference</i><p><a href="${b.url}" target="_blank" rel="nofollow">${host}</a></p></div></div>
 	 </div></div></section>
 	 ${MNAV('mfoot')}` }
-function closeModal(){ if(EMBED) return   // an embedded card is the whole document – Esc, backdrop and ✕ have nothing to return to
+function closeModal(push=true){ if(EMBED) return   // an embedded card is the whole document – Esc, backdrop and ✕ have nothing to return to
 	if(modal._st){ modal._st=0; modal.scrollTop=0 }   // the next card opens at its top: a hidden scroller keeps its offset
 	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen')
 	paintCatalogVals(screenEnts()); paintCatalogGrad(); ric(()=>paintCatalogVals())   // the catalog slept behind the dossier — catch it up to whatever the modal picked: what shows now, its strips from the pool, the band's numbers at idle
-	urlWrite(spaceURL('')+keepSearch()+colorHash())
+	removeEventListener('wheel',wheelOff); urlWrite(spaceURL('')+keepSearch()+colorHash(),push)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
 // over the row the card's empty field lets the pointer through (.modal, CSS): a press there lands on the sleeping page –
 // the backdrop's close – and a wheel anywhere off the card turns the card, as its own scroller would. A close is a press
@@ -3267,7 +3270,11 @@ document.addEventListener('click',e=>{ if(!modal.hidden&&offCard(e.target)&&offC
 // the keyboard's way onto the sleeping page – a Tab past the card's last control, around the window – comes back to the
 // card; the row, live over it, keeps its own
 document.addEventListener('focusin',e=>{ if(!modal.hidden&&pageShell.contains(e.target)&&!e.target.closest('.mhead,.hcolor,.dpop')) detail.focus({preventScroll:true}) })
-addEventListener('wheel',e=>{ if(modal.hidden||e.target.closest?.('.modal,.dpop,#csug')) return; modal.scrollBy({ top:e.deltaY*(e.deltaMode===1?16:1) }) },{ passive:true })   // the backdrop sits behind the scroller now — empty-area clicks land on the modal itself
+function wheelOff(e){ if(e.target.closest?.('.modal,.dpop,#csug')) return; e.preventDefault(); modal.scrollBy({ top:e.deltaY*(e.deltaMode===1?16:1) }) }   // a wheel off the card turns the card, never the page under it – held only while a card is open (openModal), the page's own wheel stays passive
+// Back and Forward walk the cards opened and closed: a card's path opens it, the atlas's closes it – no entry of their own
+addEventListener('popstate',()=>{ if(EMBED) return; urlLast=location.pathname+location.search+location.hash
+	const s=location.pathname.slice(BASE.length).replace(/\.html$/,'')
+	if(known(s)){ if(modal.hidden||s!==selected) openModal(s,false) } else if(!modal.hidden) closeModal(false) })
 document.getElementById('mx').onclick=closeModal
 const barredByKey=new Map(BARRED.map(b=>[b.key,b]))
 const isBarred=s=>barredByKey.has(s)
@@ -6412,7 +6419,7 @@ const route=e=>{ if(e) autoColor=false
 		if(f&&f!==FMT) setFmt(f) } }
 	if(qs) history.replaceState(null,'',spaceURL(slug||'')+keepSearch()+(h?'#'+h:''))   // normalize the 404 bounce – ?s= becomes the path, the rest of the query (?embed) stays
 	urlLast=location.pathname+location.search+location.hash   // the navigation is CONSUMED – syncURL may write over it from now on
-	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
+	if(slug){ if(modal.hidden||slug!==selected||!detail.dataset.wired) openModal(slug,false); else if(!isBarred(slug)){ renderFast(); paintPlanes(false) } }   // a BAKED shell (stamped pages ship the modal pre-open) is content, not wiring — only openModal makes it live
 	else{ renderFast(); paintCatalogGrad() } }
 try{ const g0=new URLSearchParams(location.search).get('g'); if(GROUPS[g0]) grouping=g0 }catch{}   // arrival restores a shared grouping (a language switch keeps ?g=) – the cut only: ensureCat builds the catalog in it, once; a regroup here drew it, then the drift path redrew the default family over it while grouping stayed set, so its own tab went dead
 if(EMBED&&!known(BOOT.seg)&&!known(BOOT.q)){ EMBED=false; delete document.documentElement.dataset.embed }   // ?embed off a name view frames nothing – the full page shows
