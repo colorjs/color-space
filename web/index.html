@@ -569,10 +569,13 @@ body.himg #imgfloat{ display:block }
 .fqa ul{ margin:0; padding:0 0 var(--s5) 1.1em; color:var(--body); line-height:1.55; font-size:var(--t3) }   /* same padding rule as p, for the structured answers */
 .fqa li{ margin:.3em 0 } .fqa li::marker{ color:var(--soft) }
 .fqa p:has(+ ul){ padding-bottom:var(--s2) }   /* a lead-in line hugs its list */
+/* the unfold's beat: an answer's few lines the menus' (short, eased out); the Alternatives' whole sheet a long one, eased in
+   and out – at the short beat its strong ease-out spent most of the height in the first frame, read as no unfold at all */
+.fqa{ --unf:var(--dur-short); --unfe:var(--ease-out) } .vsd{ --unf:var(--dur-long); --unfe:var(--ease-in-out) }
 @media(prefers-reduced-motion:no-preference){
 	@supports (interpolate-size:allow-keywords){   /* the questions' answers and the Alternatives' sheet unfold alike – where a height eases to auto; elsewhere by script (Safari's discrete block-size held the content at 0 through the transition) */
 	:is(.fqa,.vsd){ interpolate-size:allow-keywords }
-	:is(.fqa,.vsd)::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
+	:is(.fqa,.vsd)::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--unf) var(--unfe), opacity var(--unf) var(--unfe), content-visibility var(--unf) allow-discrete }
 	:is(.fqa,.vsd)[open]::details-content{ opacity:1; block-size:auto } }
 }
 @media(max-width:740px){ .fqs{ grid-template-columns:1fr } .fqcol+.fqcol>.fqa:first-child{ border-top:1px solid var(--hair) }   /* stacked columns: the rule the column break was providing */
@@ -6319,17 +6322,15 @@ if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp 
 // the questions' answers and the Alternatives' sheet unfold where CSS can't ease a height to auto (no interpolate-size:
 // Safari, Firefox): the details' own height eased from where it stands to where it lands, by the Web Animations API; a
 // press mid-way turns it back from there; reduced motion, at once
-if(!CSS.supports('interpolate-size','allow-keywords')){ const rs=getComputedStyle(document.documentElement)
-	const ms=parseFloat(rs.getPropertyValue('--dur-short'))||220, ease=rs.getPropertyValue('--ease-out').trim()||'ease-out'
-	for(const d of document.querySelectorAll('details.fqa,details.vsd')){ const sm=d.querySelector('summary')
+if(!CSS.supports('interpolate-size','allow-keywords')) for(const d of document.querySelectorAll('details.fqa,details.vsd')){ const sm=d.querySelector('summary')
 		sm.addEventListener('click',e=>{ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return
 			e.preventDefault(); const open=!d.open||d._shut, from=d.getBoundingClientRect().height
 			d._anim?.cancel(); d._shut=!open; d.style.overflow='clip'
 			if(open) d.open=true
 			const cs=getComputedStyle(d), to=open?d.getBoundingClientRect().height:sm.getBoundingClientRect().height+['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((t,k)=>t+parseFloat(cs[k]),0)
-			const a=d._anim=d.animate([{ height:from+'px' },{ height:to+'px' }],{ duration:ms, easing:ease, fill:'forwards' })   // held at its end till the details itself is there – no frame at full height before a close lands
+			const ds=getComputedStyle(d), a=d._anim=d.animate([{ height:from+'px' },{ height:to+'px' }],{ duration:parseFloat(ds.getPropertyValue('--unf'))||220, easing:ds.getPropertyValue('--unfe').trim()||'ease-out', fill:'forwards' })   // the beat CSS gives it (--unf, --unfe)   // held at its end till the details itself is there – no frame at full height before a close lands
 			a.pause(); requestAnimationFrame(()=>requestAnimationFrame(()=>{ if(d._anim===a) a.play() }))   // held at its start through the frame that lays the sheet out (WebKit: 120 ms) – else the ease was spent before its first frame
-			a.onfinish=()=>{ d._anim=null; if(d._shut){ d.open=false; d._shut=false } a.cancel(); d.style.overflow='' } }) } }
+			a.onfinish=()=>{ d._anim=null; if(d._shut){ d.open=false; d._shut=false } a.cancel(); d.style.overflow='' } }) }
 // API code panel — tabs swap which snippet shows
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const panes=[...tabs.querySelectorAll(':scope > [data-p]')], btns=[...tabs.querySelectorAll('.tabrow button')]
