@@ -570,9 +570,9 @@ body.himg #imgfloat{ display:block }
 .fqa li{ margin:.3em 0 } .fqa li::marker{ color:var(--soft) }
 .fqa p:has(+ ul){ padding-bottom:var(--s2) }   /* a lead-in line hugs its list */
 @media(prefers-reduced-motion:no-preference){
-	.fqa{ interpolate-size:allow-keywords }
-	.fqa::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
-	.fqa[open]::details-content{ opacity:1; block-size:auto }
+	:is(.fqa,.vsd){ interpolate-size:allow-keywords }   /* the questions' answers and the Alternatives' sheet unfold alike */
+	:is(.fqa,.vsd)::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
+	:is(.fqa,.vsd)[open]::details-content{ opacity:1; block-size:auto }
 }
 @media(max-width:740px){ .fqs{ grid-template-columns:1fr } .fqcol+.fqcol>.fqa:first-child{ border-top:1px solid var(--hair) }   /* stacked columns: the rule the column break was providing */
 	.fqa summary{ font-size:var(--t3); padding:var(--s3) 0 }   /* phone scale — the space names' size, --s3 of air */
@@ -722,6 +722,12 @@ body.himg #imgfloat{ display:block }
 .more:is(:hover,:focus-visible){ color:var(--ink) }
 .more i{ display:none; font-style:normal } .more .ic{ transition:rotate var(--dur-short) var(--ease-out) } .more[aria-expanded="true"] .ic{ rotate:180deg }
 .sec.open .more .mo,.sec:not(.open) .more .le,body.flt .fold,.sec.open .fns{ display:none }
+/* a family unfolded by its "more": the tiles it held back come in from just under their places, one after another in the
+   page's order (--i, js: 30 ms a tile, ten at most) – the names in the line become tiles, they don't teleport in. Only as
+   the "more" is pressed (.unfold, fold), never as a rebuild renders a family open; folding back, they go at once */
+.sec.unfold>.tiles>.ent{ transition:color var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out),opacity var(--dur-short) var(--ease-out) calc(var(--i,0) * 30ms),translate var(--dur-short) var(--ease-out) calc(var(--i,0) * 30ms) }
+@starting-style{ .sec.unfold>.tiles>.ent{ opacity:0; translate:0 var(--s2) } }
+@media(prefers-reduced-motion:reduce){ @starting-style{ .sec.unfold>.tiles>.ent{ translate:none } } }   /* still: the fade alone */
 .shw,.stip{ display:none }   /* mobile section headings and their descriptions — the rail carries both on desktop */
 @media(max-width:1079px){ .cat,.introcopy,.faq,.compare{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 0; font-size:var(--t4); font-weight:800; letter-spacing:-.01em }   /* a family's title as large as its spaces' (a lead card's, t4) – a smaller heading over them read as a caption, not the shelf they are on */
@@ -762,7 +768,7 @@ body.himg #imgfloat{ display:block }
 /* the tools side by side, a tool a row (more may come), a fact a column: the list view's sheet, read, not pressed – a
    row pointed at lit as the list's, its cells one line (the sheet scrolls sideways when narrow, the names held at its
    start), its numbers in columns; a name its project's mark and its link */
-.compare .tblw{ margin-top:var(--s5) } .compare .tbl{ table-layout:auto } .compare .tbl :is(th,td){ overflow:visible; vertical-align:middle; font-variant-numeric:tabular-nums } .compare .tbl tbody tr{ cursor:auto }
+.compare .tblw{ margin-top:0; padding-top:var(--s5) }   /* padding, not margin: a first child's margin escapes ::details-content and lands after its unfold, an end-jump (the questions' way) */ .compare .tbl{ table-layout:auto } .compare .tbl :is(th,td){ overflow:visible; vertical-align:middle; font-variant-numeric:tabular-nums } .compare .tbl tbody tr{ cursor:auto }
 .compare .tbl th[scope=row]{ position:sticky; left:0; background:var(--paper) } .compare .tbl tbody tr:hover,.compare .tbl tbody tr:hover th{ background:var(--lift) }   /* the row pointed at a step lighter, not darker: read along, not pressed */
 .compare .tbl thead th[title]{ cursor:help } .compare .tbl td:is(.kit,[data-t]){ white-space:normal; line-height:1.9 } .compare .kit>div{ width:12rem } .compare td[data-t]{ min-width:7rem }   /* two lines at most, the longest toolkit's and targets' (ColorAide's, color-space's) – at any width: a narrow screen scrolls the sheet sideways rather than stack them */   /* a cell's own measure caps the column – the parts wrap, the targets get the room */ .compare .kit code{ margin-inline-end:var(--s1) }   /* the toolkit's parts as code, as many lines as they take; the targets too */
 .compare .sbar{ display:block; width:5rem; height:var(--s1); background:linear-gradient(90deg,var(--ink) calc(var(--v) * 100%),var(--hair) 0) }   /* speed a bar, the fastest the whole run: what is near, what is far, at a look */
@@ -3053,6 +3059,11 @@ const OPEN=new Set()
 // a family folds and unfolds by its "more"; folding back, the control stays under the pointer – the tiles it held back
 // leave above it, not the page from under it
 const fold=(sec,b)=>{ const on=!sec.classList.contains('open'), y0=b.getBoundingClientRect().top
+	clearTimeout(sec._unfold); sec.classList.remove('unfold')
+	// the tiles about to show, in order, each its place in the entrance (CSS .unfold) – set before they first render
+	if(on){ sec.querySelectorAll('.tiles>.ent').forEach(e=>e.style.removeProperty('--i')); let k=0
+		for(const e of sec.querySelectorAll('.tiles>.ent')) if(!e.getClientRects().length) e.style.setProperty('--i',Math.min(k++,9))
+		sec.classList.add('unfold'); sec._unfold=setTimeout(()=>sec.classList.remove('unfold'),9*30+400) }
 	sec.classList.toggle('open',on); b.setAttribute('aria-expanded',on); OPEN[on?'add':'delete'](sec.dataset.k)
 	if(!on) return scrollBy(0,b.getBoundingClientRect().top-y0)
 	// the tiles it shows were never on the page (display:none – never observed, never painted): those on screen take their
