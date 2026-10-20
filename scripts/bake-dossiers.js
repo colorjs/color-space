@@ -105,7 +105,7 @@ export async function bakeDossiers(site, i18n) {
 			if (!modal.test(h)) throw new Error(`bake-dossiers: modal anchor missing in ${pre}${s}.html`)
 			h = h.replace(modal, '<div class="modal" id="modal"$1>')
 			if (!h.includes('<body>')) throw new Error(`bake-dossiers: body anchor missing in ${pre}${s}.html`)
-			h = h.replace('<body>', '<body class="mopen" style="overflow:hidden">')   // the card open over the first screen, the pinned row live above it (openModal's state)
+			h = h.replace('<body>', '<body class="mopen">')   // the card open over the first screen, the pinned row live above it (openModal's state) – the page's scroll locked by that class (CSS), never an inline style no close would take back
 			writeFileSync(file, h)
 		}
 		await page.close()

@@ -912,7 +912,7 @@ body.himg #imgfloat{ display:block }
    stays LIVE: the current color, the filters, Limit, Quantize and Vision all keep working while the dossier is open
    (the row's own paper masks content passing under). */
 .modal[hidden]{ display:none }
-html{ scrollbar-gutter:stable } body.mopen{ overflow:hidden } body.mopen .modal{ right:calc(-1 * var(--sb,0px)) }   /* the page's scroll locked under a card, one bar: the page's gives way to the card's in the same place – its room kept (the gutter), so nothing under it moves, and the card reaching into it. The page's own bar beside the card's read as two */
+body.mopen{ overflow:hidden; padding-right:var(--sb,0px) }   /* the page's scroll locked under a card, one bar: the page's gives way and the card's – a fixed scroller over the whole window – stands where it was; the page padded by its width (--sb, kept as it was), so nothing under it moves. Its room kept instead (scrollbar-gutter) painted over the card's bar: no bar at all */
 /* the card comes and goes as the menus do: a fade and a short rise – translate set only on the way, so the resting card
    is no containing block. The fade is the card's own layer (the compositor's), its figures landing under it */
 .modal{ transition:display var(--dur-short) allow-discrete }
@@ -1750,7 +1750,7 @@ const icon=n=>`<svg class="ic${n==='x'?' ix':''}" viewBox="0 0 24 24" aria-hidde
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
 const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200, AUTO_SLOW=34, AUTO_SETTLE=1500   // twenty steps a second – ten read as a stutter. AUTO_SLOW: the frame, in ms, past which the orbit eases off (autoGap doubles, twice, then parks) – sustained, under 30 fps: a slow engine (Safari, a phone) steps less often, a fast one keeps the pace
 const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
-let autoColor=false, autoStart=0, autoLast=0, autoJ='', autoF=0, autoFt=0, autoFtAt=0, autoGap=0, autoBest=AUTO_SLOW/2, cardAt=-Infinity, autoHold=0   // autoFtAt: when the pace was last restarted or acted on. autoHold: the moment the color field took focus – the orbit stands still while a color is being typed
+let autoColor=false, autoStart=0, autoLast=0, autoT=0, autoJ='', autoF=0, autoFt=0, autoFtAt=0, autoGap=0, autoBest=AUTO_SLOW/2, cardAt=-Infinity, autoHold=0   // autoFtAt: when the pace was last restarted or acted on. autoHold: the moment the color field took focus – the orbit stands still while a color is being typed
 // the last scroll anywhere – the page's, a dossier's, a list's sideways: a card's hover warm-up waits a scroll out (wireEnt),
 // the solid's turn holds through it (spin3), the orbit's pace leaves its frames out (autoStep)
 const SCROLL_QUIET=200; let scrollAt=-Infinity
@@ -1767,25 +1767,24 @@ const autoStep=t=>{ if(!autoColor) return
 	if(t-Math.max(scrollAt,cardAt)<SCROLL_QUIET+AUTO_SETTLE){ autoFt=0; autoFtAt=t }
 	// a press that may yet take the color (a finger on a strip, sideways a drag) holds it where it stands, and it goes on from
 	// there – no leap at the release (a held orbit's clock once ran on under the press)
-	if(PICK){ autoStart+=t-autoLast; autoLast=t }
-	// the pace: under a card every frame, as a drag paints its instruments – the catalog round it on its own tier
+	const dt=autoT?t-autoT:0; autoT=t
+	if(PICK) autoStart+=dt
+	// every frame the color moves – the thumbs, the markers, the numbers glide (a light frame); the paint that costs, a step
+	// at the pace: under a card every frame, as a drag paints its instruments – the catalog round it on its own tier
 	// (catalogBehind); on the catalog twenty steps a second, its strips' cost
-	else if(!autoHold&&t-autoLast>=Math.max(autoGap,open()?0:AUTO_FRAME)){ autoLast=t; const gap=Math.max(autoGap,open()?0:AUTO_FRAME)
+	else if(!autoHold){ const gap=Math.max(autoGap,open()?0:AUTO_FRAME), full=t-autoLast>=gap; if(full) autoLast=t
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
-		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true)
+		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true,!full)
+		if(full){
 		// a device that can't hold the pace (a weak CPU, a dossier's GL instruments on a weak GPU) steps less often – twice
 		// the gap, then twice again, five steps a second at the least – and wins a step back once its frames run at the
 		// display's own speed for three seconds. It never stops: a still color reads as one picked (it once parked, at four
 		// tenths of a second a step, for fifteen seconds)
 		if(autoFt>AUTO_SLOW&&t-autoFtAt>1000){ autoFt=0; autoFtAt=t; if(gap<4*AUTO_FRAME) autoGap=gap?gap*2:AUTO_FRAME }
-		else if(autoGap&&autoFt&&autoFt<autoBest*1.3&&t-autoFtAt>3000){ autoGap=autoGap>AUTO_FRAME?autoGap/2:0; autoFtAt=t } }
+		else if(autoGap&&autoFt&&autoFt<autoBest*1.3&&t-autoFtAt>3000){ autoGap=autoGap>AUTO_FRAME?autoGap/2:0; autoFtAt=t } } }
 	requestAnimationFrame(autoStep) }
-// the orbit's step on the catalog's strips where it steps slowly – the pace eased off (a tenth of a second a step or more),
-// or the rows round a card on their 400 ms tier (catalogBehind): each strip's next face glides over its last in the step's
-// time, linearly – a glide, not a step (paintCatalogGrad, setCatalogGradient). 0: a step, as the hand's
-const orbitGlide=()=>{ if(!autoColor||PDOWN) return 0; const g=open()?4*CATALOG_VALUE_THROTTLE:Math.max(autoGap,AUTO_FRAME); return g>=100?g:0 }
 // a channel's number taken in hand holds the orbit, as the color field does: a value typed takes the color (its input's
 // scheduleFast), let go untouched the orbit goes on from where it stood – a click is a look, not a pick
 document.addEventListener('focusin',e=>{ if(autoColor&&!autoHold&&e.target.matches?.('.cv,.nv')) autoHold=performance.now() })
@@ -1795,7 +1794,7 @@ addEventListener('blur',()=>{ if(document.activeElement===cvalEl&&!cvalEl.value.
 const ambient=()=>{ BOOT.hash=''; autoHold=0; STOPS=null; GRAD=null; STOPI=0; M0.s=DEFAULT.s; M0.vals=DEFAULT.vals.slice(); master=M0
 	urlLast=spaceURL(open()?selected:'')+keepSearch(); history.replaceState(null,'',urlLast)
 	if(matchMedia('(prefers-reduced-motion: reduce)').matches){ scheduleFast(true); return }
-	if(!autoColor){ autoColor=true; autoStart=autoLast=performance.now(); requestAnimationFrame(autoStep) } }
+	if(!autoColor){ autoColor=true; autoStart=autoLast=performance.now(); autoT=0; requestAnimationFrame(autoStep) } }
 // nothing chosen yet: the boot gray, or the ambient orbit's own frame – an invitation, never
 // an asserted value. Reference AND values: the default space's sliders mutate master in place
 const virginNow=()=>{ const mj=master.vals.join(); return !BOOT.hash&&((master===M0&&mj===DEFAULT.vals.join())||(autoColor&&mj===autoJ)) }
@@ -3280,7 +3279,7 @@ function buildBarred(b){
 	 </div></div></section>
 	 ${MNAV('mfoot')}` }
 function closeModal(push=true){ if(EMBED) return   // an embedded card is the whole document – Esc, backdrop and ✕ have nothing to return to
-	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen')
+	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.removeProperty('overflow')   // a name view stamped before the lock was CSS's (and kept offline) carries it inline – let go too, or its catalog never scrolls
 	paintCatalogVals(screenEnts()); paintCatalogGrad(); ric(()=>paintCatalogVals())   // the catalog slept behind the dossier — catch it up to whatever the modal picked: what shows now, its strips from the pool, the band's numbers at idle
 	removeEventListener('wheel',wheelOff); urlWrite(spaceURL('')+keepSearch()+colorHash(),push)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
@@ -4443,7 +4442,7 @@ function snapshot3dMask(mesh,key=mesh?._sceneKey){ if(!mesh||!key) return mesh
 	const bm=mask3||(mask3=document.createElement('canvas')), S2=mesh.width
 	if(bm.width!==S2) bm.width=bm.height=S2
 	const b2=bm.getContext('2d'); b2.clearRect(0,0,S2,S2); b2.drawImage(mesh,0,0)
-	bm._sceneKey=key; return bm }
+	bm._sceneKey=key; bm._rev=(bm._rev||0)+1; return bm }
 // a figure's width, kept by a ResizeObserver: read at every draw, between the draw's own writes, it forced a layout of the
 // dossier each time – the solid's at every step of the orbit, most of its frame
 const boxRO=new ResizeObserver(es=>{ for(const e of es) e.target._cw=Math.round(e.contentRect.width) })
@@ -4526,11 +4525,15 @@ function draw3d(){ if(!mesh3||!open()) return
 		if(drewGL) bodyM=snapshot3dMask(meshCv,sceneKey)
 		if(drewGL&&(sheet3||frame3)) mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3)
 		if(drewGL) meshCv._sceneKey=sceneKey }
-	ctx.clearRect(0,0,S2,S2)
+	// the hud – the grid through the body, a hovered slider's line or plane's cut – is the scene's and the hover's, not the
+	// color's: a color moving alone (the orbit, a drag) leaves it as it stands, only the marker's overlay drawn again – the
+	// two 1000-px canvases a frame re-sent to the GPU were most of the solid's cost under the orbit
+	const hudKey=`${sceneKey}|${drewGL}|${bodyM===mask3?mask3._rev:0}|${hover3?`${hover3.a},${hover3.b},${hover3.i}|${mv}`:''}`, hud=cv._hudKey!==hudKey; cv._hudKey=hudKey
+	if(hud) ctx.clearRect(0,0,S2,S2)
 	const prj=n=>{ const p=rot(n); return { x:S2/2+p.x*sc, y:S2/2-p.y*sc, z:p.z } }
 	// a GPU space whose program is still linking shows the frame alone for a beat —
 	// never a low-res preview that then "sharpens" (the ready callback repaints)
-	if(!drewGL&&!mesh3.gpu){ const arr=(tris3||[]).map(t=>{ const ps=t.map(i2=>prj(mesh3.verts[i2].n))
+	if(hud&&!drewGL&&!mesh3.gpu){ const arr=(tris3||[]).map(t=>{ const ps=t.map(i2=>prj(mesh3.verts[i2].n))
 			const r=[0,1,2].map(k=>Math.round(t.reduce((sum,i2)=>sum+mesh3.verts[i2].rgb[k],0)/3))
 			return { ps, z:(ps[0].z+ps[1].z+ps[2].z)/3, hex:hex(r) } }).sort((u1,u2)=>u1.z-u2.z)
 		for(const t of arr){ ctx.fillStyle=t.hex; ctx.beginPath(); ctx.moveTo(t.ps[0].x,t.ps[0].y); ctx.lineTo(t.ps[1].x,t.ps[1].y); ctx.lineTo(t.ps[2].x,t.ps[2].y); ctx.closePath(); ctx.fill() } }
@@ -4656,7 +4659,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	// THRU_LIGHT recolours those lines to white — dark ink drowns on the colourful body;
 	// flip it to false to revert to the plain (dark) grid showing through
 	const THRU_LIGHT=true
-	if(drewGL&&gd){ const gt=thru3||(thru3=document.createElement('canvas'))
+	if(hud&&drewGL&&gd){ const gt=thru3||(thru3=document.createElement('canvas'))
 		if(gt.width!==S2) gt.width=gt.height=S2
 		const g2=gt.getContext('2d')
 		g2.clearRect(0,0,S2,S2); g2.drawImage(gcv,0,0)
@@ -4691,7 +4694,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	// volume: in front of the body it veils it, behind it the body wins (per pixel),
 	// and the cross-section stays a clean hole cut at the membership wall.
 	// Cylindrical spaces curve naturally: samples run through the solid's own map3.
-	if(hover3&&mv&&pts3Map){ const cls3=classify(pts3S), chs=cls3.ch
+	if(hud&&hover3&&mv&&pts3Map){ const cls3=classify(pts3S), chs=cls3.ch
 		const P3=v2=>{ const n=pts3Map(v2); return n.every(isFinite)?prj(n):null }
 		ctx.save(); ctx.lineJoin=ctx.lineCap='round'
 		if(hover3.i!=null){ const c=chs[hover3.i], N=72
@@ -5788,14 +5791,11 @@ const RAMP_GUIDES=48
 let gbgMs
 const transitionMs=el=>{ const d=getComputedStyle(el).transitionDuration.split(',')[0].trim(); return parseFloat(d)*(d.endsWith('ms')?1:1000)||0 }
 // a new layer fades in from its @starting-style – no forced reflow per strip to arm the transition
-// morph: true, the page's cross-fade (--dur-short, eased out); a number, a glide of that many ms, linear – the orbit's
-// slow steps (orbitGlide), each face crossing over the last as the next comes
 const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=bg
 		ch._gradStack?.forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=null; return }
 	if(!ch._gradStack){ const base=document.createElement('i'); base.className='gbg'; base.setAttribute('aria-hidden','true')
 		base.style.background=ch.style.background; ch.prepend(base); ch.style.background='var(--panel)'; ch._gradStack=[base] }
 	const next=document.createElement('i'); next.className='gbg in'; next.setAttribute('aria-hidden','true'); next.style.background=bg
-	if(typeof morph==='number') next.style.transition=`opacity ${morph}ms linear`
 	ch._gradStack.at(-1).after(next); ch._gradStack.push(next)
 	let done=false
 	const finish=()=>{ if(done)return; done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
@@ -5805,7 +5805,7 @@ const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=b
 		stack.slice(0,i).forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=stack.slice(i) }
 	const onend=e=>{ if(e.propertyName==='opacity') finish() }
 	next.addEventListener('transitionend',onend)
-	const ms=typeof morph==='number'?morph:gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
+	const ms=gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
 const catalogLeadSpace=()=>open()&&!isBarred(selected)?selected:master.s
 // a strip's answer laid on – the row stamped whole once its last strip has it
 const sweepPaint=(ch,css,key,fade)=>{ setCatalogGradient(ch,css+', var(--checker)',fade); ch._g=key
@@ -5820,7 +5820,7 @@ const SWEEP=sweeps(sweepPaint)
 // colors and render lensless, the GL law again – their lists are the page's, so a palette's strips are computed here, a
 // frame's budget at a time. A cross-fade (fade) only for a settled change on screen: one no one sees is a layer, a
 // transition and a timer per strip for nothing, and one a frame would stack them
-function paintCatalogGrad(ents,now=false,morph=!(PDOWN||autoColor)||orbitGlide()){ const hx=hex(RGB()), leadSpace=catalogLeadSpace(), pal=PALMODES.has(Q), t=TRIPLE[Q]&&Q
+function paintCatalogGrad(ents,now=false,morph=!(PDOWN||autoColor)){ const hx=hex(RGB()), leadSpace=catalogLeadSpace(), pal=PALMODES.has(Q), t=TRIPLE[Q]&&Q
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
 		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:RAMP_GUIDES, lead=s===leadSpace, lens=gmFor(cls); if(!vals)return
 		const fade=screenVis.has(s)&&morph
@@ -5909,18 +5909,20 @@ const paintCatalogThrottledValues=()=>{ const wait=CATALOG_VALUE_THROTTLE-(perfo
 		vfF={}; vfM=master; const active=activeCatalogEnt(), rows=screenEnts().filter(ent=>ent!==active)
 		paintCatalogVals(rows,{thumbs:false}); catValueLast=performance.now() }
 	if(wait<=0) paint(); else if(!catValueTimer) catValueTimer=setTimeout(paint,wait) }
-// the catalog behind an open dossier – the rows round the card – on the numbers' 100 ms tier, the last color always
-// landing: in the card's own frame its thumbs, marks and numbers once cost as much as the card (a word of the field
-// taken: 60 ms, half of it restyling the rows behind); its strips the pool's, though not under a hand held in the card –
-// they wait for its release (catUp) – and the card's close catches all of it up (closeModal)
+// the catalog behind an open dossier – the rows round the card: their thumbs move with every frame of the card
+// (renderFast), their strips and numbers a step every 400 ms (BEHIND_MS), the last color always landing – the orbit's and a
+// hand's in the card alike, the strips from the pool, a drag's included (they once waited for its release: the rows round
+// the card stood still, then leapt); the card's close catches all of it up (closeModal)
+const BEHIND_MS=400   // the rows round a card a step every 400 ms: their thumbs carry the motion, a strip's sweep a third of a second late reads as no lag
 let behindT=0, behindLast=0, behindSeen=null   // behindSeen: the catalog shows round the card – a phone's sheet hides it whole (CSS), asked once a card
 addEventListener('resize',()=>{ behindSeen=null })   // a turned phone may show it again
+const behindShown=()=>behindSeen??=getComputedStyle(cat).visibility!=='hidden'   // asked once a card: a phone's sheet hides the catalog whole (CSS)
 const catalogBehind=()=>{ if(behindT) return
 	behindT=setTimeout(()=>{ behindT=0; if(!open()) return
-		if((behindSeen??=getComputedStyle(cat).visibility!=='hidden')===false) return   // nothing of it on screen: its rows catch up as the card closes
+		if(!behindShown()) return   // nothing of it on screen: its rows catch up as the card closes
 		behindLast=performance.now(); vfF={}; vfM=master
-		const rows=screenEnts(); paintCatalogPickers(rows); paintCatalogVals(rows,{thumbs:false}); if(!PDOWN) paintCatalogGrad(rows)
-		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) },Math.max(0,(autoColor?4:1)*CATALOG_VALUE_THROTTLE-(performance.now()-behindLast))) }   // the orbit's under a card: the card every frame, the rows round it a step every 400 ms
+		const rows=screenEnts(); paintCatalogVals(rows,{thumbs:false}); paintCatalogGrad(rows,false,false)
+		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) },Math.max(0,BEHIND_MS-(performance.now()-behindLast))) }
 // at rest: the numbers in full, and the band round the screen at the color too – the rows a scroll brings in next are ready
 const settleCatalog=()=>{ OWED&=~1; flushCatalogValues(); paintCatalogGrad() }
 // where a coordinate of the plane's space lands on a plane, in % of its box: the dossier's planes in their mode – the disc,
@@ -6093,7 +6095,9 @@ const MODS=e=>e.altKey||e.shiftKey||e.metaKey||e.ctrlKey
 	addEventListener('pointerdown',off,true)
 	addEventListener('blur',off)
 	document.documentElement.addEventListener('pointerleave',off) }
-function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in hand IS master – a writer that replaced master replaced it
+// light: the orbit's frame between its steps – the color's place (the thumbs, the markers, the numbers, the face) moves
+// every frame, the paint that costs (the strips, the GL instruments, the solid, the code) at the step's pace
+function renderFast(solid=true,light=false){ if(STOPS) STOPS[STOPI]=master   // the stop in hand IS master – a writer that replaced master replaced it
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
 	// the color's public face: the row's rhombus + value. Under a palette-class
@@ -6109,13 +6113,13 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 			ftrEl.style.color=wl>=0.18?'#000':'#fff' } }   // the slot's swatch + its tick-pair ring track the current color
 	// An inherited --cur on <html> made Chrome recalculate all ~8,000 elements per drag
 	// frame. Stamp only its consumers; native accent-color catches up at rest.
-	setCurrentUI(fx); heroPaint(); if(!PDOWN) lineagePaint(frgb); paintPstack(); paintBand()
+	setCurrentUI(fx); heroPaint(); if(!PDOWN&&!light) lineagePaint(frgb); paintPstack(); paintBand()
 	// the untouched color stays an invitation (placeholder), not an asserted value — see virginNow
 	const virgin=virginNow()
 	if(virgin!==VIRGIN){ VIRGIN=virgin; document.body.classList.toggle('virgin',virgin); if(!virgin&&cvalEl) cvalEl.placeholder='' }
-	if(cvalEl&&document.activeElement!==cvalEl&&!IMGBUSY){ const nv=virgin?'':SAID?.k===heldKey()?SAID.v:STOPS?stopsSay():dispVal(fx); if(cvalEl.value!==nv){ cvalEl.value=nv; PDOWN||autoColor?fitMoving():fitVal() } }   // many colors read as the list – or the gradient – they are
-	if(virgin&&cvalEl&&!IMGBUSY) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value – in hand, the color the orbit stood at, Tab takes it   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
-	paintWarn()
+	if(cvalEl&&document.activeElement!==cvalEl&&!IMGBUSY&&!light){ const nv=virgin?'':SAID?.k===heldKey()?SAID.v:STOPS?stopsSay():dispVal(fx); if(cvalEl.value!==nv){ cvalEl.value=nv; PDOWN||autoColor?fitMoving():fitVal() } }   // many colors read as the list – or the gradient – they are
+	if(virgin&&cvalEl&&!IMGBUSY&&!light) cvalEl.placeholder=dispVal(fx)   // a value-shaped hint in the chosen format, never an asserted value – in hand, the color the orbit stood at, Tab takes it   // a value-shaped hint in the chosen format, never an asserted value; in hand, the field asks for one
+	if(!light) paintWarn()   // the field's words at the step's pace: twenty a second is already more than a reader takes in
 	if(cxEl){ cxEl.classList.toggle('inv',virgin); cxEl.classList.toggle('empty',!virgin&&!cvalEl?.value.trim()); cvxEl.hidden=virgin }   // after the value's write: a color just taken (the orbit's, held) is no empty field   // the orbit's color shown; a typed color cleared, no color   // nothing picked yet – the value is a placeholder, the gamut tag and the notation wait
 	if(!PDOWN&&!virgin&&!PEEK) syncURL(hx)   // the URL keeps the exact coordinate – a suggestion only looked at never reaches it
 	{ const amb=virgin||autoColor; if(document.documentElement.classList.contains('ambient')!==amb) document.documentElement.classList.toggle('ambient',amb) }
@@ -6126,13 +6130,13 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 				palmEl.lastElementChild.textContent=b.n
 				palmEl.title=t('ui.palette.near','nearest {q} entry ({m}) – click to snap to {n}',{q:Q,m:MLABEL[QM],n:b.n})
 				palmEl.removeAttribute('data-tip') } } }   // re-arm the bubble with the fresh title
-	if(open()) catalogBehind()   // an open card's frame is the card's: the catalog round it follows a tier later
+	if(open()){ if(behindShown()) paintCatalogPickers(screenEnts(),frgb,fx); if(!light) catalogBehind() }   // an open card's frame is the card's: the rows round it keep their thumbs moving with it, their strips and numbers a tier later
 	else{ const active=activeCatalogEnt()
-		if(active){ paintCatalogVals([active]); paintCatalogGrad([active],true) }   // the row in hand: its strips in this frame, with its thumbs
-		paintCatalogPickers(screenEnts(),frgb,fx)   // every visible thumb follows the hand; offscreen rows catch up on entry
+		if(active&&!light){ paintCatalogVals([active]); paintCatalogGrad([active],true) }   // the row in hand: its strips in this frame, with its thumbs
+		paintCatalogPickers(screenEnts(),frgb,fx)   // every visible thumb follows the hand, and the orbit every frame; offscreen rows catch up on entry
 		paintCatalogThrottledValues()   // background numbers use the 100ms tier
-		paintCatalogGrad(screenEnts())   // every other strip on screen, every change, at full quality: asked of the pool, painted as it answers
-		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) }   // a card's planes follow the color as its strips do
+		if(!light){ paintCatalogGrad(screenEnts())   // every other strip on screen, every change, at full quality: asked of the pool, painted as it answers
+			for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) } }   // a card's planes follow the color as its strips do
 	if(!open()||isBarred(selected)||detail._s!==selected) return   // barred cards have no live color content; a baked shell waits to be built (its space isn't `selected` yet)
 	detailTk(fx,ink(frgb))   // the dossier's own frame keeps its thumbs and lanes in the FACE color
 	const s=selected, cls=classify(s), vals=valsFor(s)
@@ -6145,16 +6149,16 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 	const barGL=planeGLStatus(s)==='ready'
 	const barGM=gmFor(cls)   // the one sweep-lens rule — see gmFor
 	const hpb=HIMG?histC.get(s):null
-	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]; stripMarks(bar,s,i); if(!PDOWN) barInk(bar)
+	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]; stripMarks(bar,s,i); if(!PDOWN&&!light) barInk(bar)
 		// the image's distribution, in the dossier's own lane – same curve as the catalog's
-		if(!PDOWN&&(hpb||bar._hist)){ const p=hpb?.[i]||null
+		if(!PDOWN&&!light&&(hpb||bar._hist)){ const p=hpb?.[i]||null
 			let h=bar._hist
 			if(!h){ h=bar._hist=document.createElement('i'); h.className='hist'; h.setAttribute('aria-hidden','true'); h.append(document.createElement('i'))
 				bar.append(h) }
 			if(h._p!==p){ h._p=p
 				if(p){ h.firstChild.style.webkitMaskImage=p; h.firstChild.style.maskImage=p }
 				h.style.display=p?'':'none' } }
-		if(bar!==dragBar){ let bg
+		if(bar!==dragBar&&!light){ let bg
 			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
 			// Every lens paints through the same GPU kernel as the planes: numeric cell
 			// centers, exact web/name/even regions, and per-pixel gamut treatment. The
@@ -6198,7 +6202,7 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 		const qf=qTriple(Q), sk=qf?byteRGB(qf(rgb)).join(','):''
 		if(qf&&pl._snap&&pl._snap.key===sk&&pl!==plFreeze){ cx.style.display=''; cx.style.left=pl._snap.left+'%'; cx.style.top=pl._snap.top+'%' } })
 	// blend: current → pinned end (or auto complement), computed in THIS space, clustered like the sliders
-	if(vals&&!PDOWN){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }
+	if(vals&&!PDOWN&&!light){ let B; if(endB){ try{ B=toSpace(s,endB) }catch{ B=null } }
 	if(!B){ B=rotateHue(cls,vals,180); if(!B){ try{ B=toSpace(s,rgb.map(x=>255-x)) }catch{ B=null } } }
 	const r=detail.querySelector('#irow')
 	if(B&&r){ const rgbB=endB||rgbF(s,B)
@@ -6227,7 +6231,7 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 			if(ispc){ ispc.textContent=disp(cmp); ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
 	// live code snippet – js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
-	if(snip&&!PDOWN){ if(codeTab!=='gl') snip._gk=''   // any other tab rewrites the plate – the GL text must paint again on return
+	if(snip&&!PDOWN&&!light){ if(codeTab!=='gl') snip._gk=''   // any other tab rewrites the plate – the GL text must paint again on return
 		if(codeTab==='ocio'){ const cs=ocioSpace(s)   // the whole colorspace where OCIO's native transforms carry it exactly, else the matrix alone
 			plate(snip,cs?`# ${disp(s)} as an OpenColorIO 2 colorspace, scene reference ACES2065-1: paste it under colorspaces:\n# in your config. Built from OCIO's native transforms only; checked against color-space to 1e-6.\n${cs}`:ocioMatrix(s,definitionOf(s)),'py') }
 		else if(codeTab==='embed') plate(snip,embedCode(s),'html')   // the copy icon copies it (counted as embed-copy)
@@ -6284,15 +6288,16 @@ function renderFast(solid=true){ if(STOPS) STOPS[STOPI]=master   // the stop in 
 	if(PDOWN&&(plFreeze||pkDrag!==null||dragBar)) paintPlanes(true,true)
 	// The 3D marker owns a tiny overlay: held colors move it without repainting the solid,
 	// cloud, coordinate grid or guide layer. Gamut defers only its expensive validity audit.
-	if(solid){ const heldColor=PDOWN&&(dragBar||plFreeze||dragEnt||pkDrag!==null)
+	if(solid&&!light){ const heldColor=PDOWN&&(dragBar||plFreeze||dragEnt||pkDrag!==null)
 		if(heldColor) paint3dMarker()
 		else if(!dragBar&&!plFreeze||mesh3&&mesh3.gpu) draw3d() }
-	gamMarker(PDOWN); paintTC()
+	gamMarker(PDOWN||light); if(!light) paintTC()
 }
-let raf, settleT, planeTrailT=0
-const scheduleFast=(ambient=false)=>{ if(!ambient){ autoColor=false }
-	cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{
-		renderFast()
+let raf, settleT, planeTrailT=0, rfFull=false
+const scheduleFast=(ambient=false,light=false)=>{ if(!ambient){ autoColor=false }
+	rfFull||=!light   // a frame asked in full stays full, whatever light one comes after it before it runs
+	cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const full=rfFull; rfFull=false
+		renderFast(true,!full); if(!full) return
 		// the settle is for a color at rest: the orbit never rests – a frame late past the settle would repaint every row
 		// in full under a color the next step replaces, and that repaint makes the next frame late (a 1 s stall, looping)
 		clearTimeout(settleT); settleT=setTimeout(()=>{ if(PDOWN) owe(1); else if(!open()&&!autoColor) settleCatalog() },CURRENT_SETTLE)
@@ -6477,7 +6482,7 @@ if(EMBED){ const embl=document.getElementById('embl'), out=()=>{ embl.href=new U
 	detail.addEventListener('click',e=>{ const a=e.target.closest('a[href]'), h=a&&(a.getAttribute('href')[0]==='#'?dec(a.getAttribute('href').slice(1)):spaceOf(a)); if(!h||!known(h)) return; e.preventDefault()
 		window.open(new URL(spaceURL(h),location.href).href,'_blank','noopener') }) }
 onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){   // name views orbit too – a dossier first seen at neutral gray reads as an empty instrument
-	autoColor=true; autoStart=autoLast=performance.now(); if(document.activeElement===cvalEl) autoHold=autoStart; requestAnimationFrame(autoStep) } },300))
+	autoColor=true; autoStart=autoLast=performance.now(); autoT=0; if(document.activeElement===cvalEl) autoHold=autoStart; requestAnimationFrame(autoStep) } },300))
 // analytics (js/track.js) counts the pageview at idle – a no-op until a website id is set
 onLoad(()=>(window.requestIdleCallback||setTimeout)(()=>loadStats()))
 onLoad(()=>ric(warmKernels))   // the GL kernels' canvas grown before a first dossier needs it

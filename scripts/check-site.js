@@ -532,16 +532,16 @@ try {
 	assert.notEqual(await backPicker.inputValue(),backMid.picker,'dossier drag updates every background catalog picker immediately')
 	assert.notEqual(await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),backMid.pickerColor,'dossier drag updates every background picker color immediately')
 	assert.equal((await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toLowerCase())),(await page.locator('#cd').inputValue()).toLowerCase(),'background picker colors match the modal drag color')
-	await page.waitForTimeout(110)
-	assert.notEqual(await backValue.inputValue(),backMid.value,'dossier drag updates background catalog numbers on the 100ms tier')
-	await page.waitForTimeout(230)
+	await page.waitForFunction(v=>document.querySelector('.ent[data-s="oklab"] .cv').value!==v,backMid.value,{timeout:1500}).catch(()=>{})
+	assert.notEqual(await backValue.inputValue(),backMid.value,'dossier drag updates background catalog numbers on their 400 ms tier')
+	await page.waitForFunction(g=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'); return (el._g||el.closest('.ent').dataset.g)!==g },backMid.gradient,{timeout:1500}).catch(()=>{})
 	const backHeld=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
-	assert.equal(backHeld,backMid.gradient,'a dossier drag leaves the catalog\'s gradients behind it still until release')
+	assert.notEqual(backHeld,backMid.gradient,'a dossier drag paints the catalog\'s strips behind it on their 400 ms tier, not only at the release')
 	assert.equal(await page.evaluate(()=>document.querySelector('.veil').hidden),false,'a held mouse drag veils the page – one element\'s cursor:none, its marker the pointer')
 	await page.mouse.up(); assert.equal(await page.evaluate(()=>document.querySelector('.veil').hidden),true,'the release lifts the veil at once: the cursor back before any settle')
-	await page.waitForFunction(h=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'), k=el._g||el.closest('.ent').dataset.g; return k!==h&&/:48:(vis|off):/.test(k) },backHeld,{timeout:3000}).catch(()=>{})   // the strips come from the sweep pool, a frame or so after
+	await page.waitForFunction(h=>{ const el=document.querySelector('.ent[data-s="oklab"] .ch'), k=el._g||el.closest('.ent').dataset.g; return k!==h&&/:48:(vis|off):/.test(k) },backMid.gradient,{timeout:3000}).catch(()=>{})   // the strips come from the sweep pool, a frame or so after
 	const backReleased=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
-	assert.notEqual(backReleased,backHeld,'dossier release lands the final color on the background catalog\'s strips')
+	assert.notEqual(backReleased,backMid.gradient,'dossier release lands the final color on the background catalog\'s strips')
 	assert.match(backReleased,/:48:(vis|off):/,'…at full quality')
 	const nativeCancel=await page.evaluate(async()=>{ const r=document.querySelector('.bar2[data-i="1"] .nrg'), bar=r.closest('.bar2'), back=document.querySelector('.ent[data-s="oklab"] .ch'), frame=()=>new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))
 		r.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,pointerId:19,isPrimary:true})); r.value=+r.min+(+r.max-+r.min)*.37; r.dispatchEvent(new Event('input',{bubbles:true})); await frame(); const active=bar.classList.contains('live'), held=back._g||back.closest('.ent').dataset.g
@@ -895,6 +895,7 @@ try {
 	assert.deepEqual(await nameView.evaluate(()=>{ const el=document.getElementById('strip'), st=getComputedStyle(el); return [st.position,st.visibility,el.inert,Math.round(el.getBoundingClientRect().top),getComputedStyle(el.firstElementChild).backgroundColor!=='rgba(0, 0, 0, 0)'] }),['sticky','visible',false,0,true],'the row stays, live and paper, over a first-screen card')
 	await nameView.locator('#mx').click()
 	assert.deepEqual(await nameView.evaluate(()=>[Math.round(document.getElementById('strip').getBoundingClientRect().top),scrollY]),[0,0],'closing the card leaves the first screen in place')
+	assert.ok(await nameView.evaluate(async()=>{ scrollTo(0,600); await new Promise(r=>requestAnimationFrame(r)); const y=scrollY; scrollTo(0,0); return y>0&&getComputedStyle(document.body).overflowY!=='hidden' }),'a card landed on and closed leaves the page scrolling')
 	// the card landed on is an entry of its own: closed, the atlas is the next; Back opens the card again, Forward closes it
 	await nameView.waitForFunction(()=>location.pathname==='/')
 	await nameView.goBack(); await nameView.waitForFunction(()=>!document.getElementById('modal').hidden&&location.pathname==='/oklch')
