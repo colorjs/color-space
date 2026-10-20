@@ -525,10 +525,10 @@ try {
 	await page.waitForTimeout(50)
 	await page.evaluate(()=>document.querySelector('#figseg button[data-v="tc"]').click()); await page.waitForFunction(()=>document.querySelector('#tcap').textContent.trim())   // the transfer curve shown: a figure draws where it is seen
 	const smoothNeighbor=page.locator('.bar2[data-i="1"] .bgc'), smoothBefore=await smoothNeighbor.evaluate(el=>el.toDataURL()), transferBefore=await page.locator('#tcap').innerText()
-	const backPicker=page.locator(`.ent[data-s="${inSight}"] .nrg`).first(), backValue=page.locator(`.ent[data-s="${inSight}"] .cv`).first(), backLane=page.locator(`.ent[data-s="${inSight}"] .ch`).first()
+	const backPicker=page.locator(`.ent[data-s="${inSight}"] .nrg`).first(), backValues=()=>page.evaluate(s=>[...document.querySelectorAll(`.ent[data-s="${s}"] .cv`)].map(el=>el.value).join(' '),inSight), backLane=page.locator(`.ent[data-s="${inSight}"] .ch`).first()
 	const smoothL=page.locator('.bar2[data-i="0"]'), smoothLR=await smoothL.boundingBox()
 	await page.mouse.move(smoothLR.x+smoothLR.width*.36,smoothLR.y+smoothLR.height/2); await page.mouse.down(); await page.waitForTimeout(20)
-	const backMid={picker:await backPicker.inputValue(),pickerColor:await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),value:await backValue.inputValue(),gradient:await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)}, smoothMid=await smoothNeighbor.evaluate(el=>el.toDataURL())
+	const backMid={picker:await backPicker.inputValue(),pickerColor:await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),value:await backValues(),gradient:await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)}, smoothMid=await smoothNeighbor.evaluate(el=>el.toDataURL())
 	await page.mouse.move(smoothLR.x+smoothLR.width*.46,smoothLR.y+smoothLR.height/2)
 	for(let n=0;n<30&&await smoothNeighbor.evaluate((el,before)=>el.toDataURL()===before,smoothMid||smoothBefore);n++) await page.waitForTimeout(10)
 	assert.equal(await page.locator('#bigch .nv').first().inputValue(),'0.46','dossier numeric input follows a smooth drag live')
@@ -538,8 +538,8 @@ try {
 	assert.notEqual(await backPicker.inputValue(),backMid.picker,'dossier drag updates every background catalog picker immediately')
 	assert.notEqual(await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc')),backMid.pickerColor,'dossier drag updates every background picker color immediately')
 	assert.equal((await backPicker.evaluate(el=>getComputedStyle(el).getPropertyValue('--tkc').trim().toLowerCase())),(await page.locator('#cd').inputValue()).toLowerCase(),'background picker colors match the modal drag color')
-	await page.waitForFunction(([v,s])=>document.querySelector(`.ent[data-s="${s}"] .cv`).value!==v,[backMid.value,inSight],{timeout:1500}).catch(()=>{})
-	assert.notEqual(await backValue.inputValue(),backMid.value,'dossier drag updates background catalog numbers on their 250 ms tier')
+	await page.waitForFunction(([v,s])=>[...document.querySelectorAll(`.ent[data-s="${s}"] .cv`)].map(el=>el.value).join(' ')!==v,[backMid.value,inSight],{timeout:1500}).catch(()=>{})   // the row's numbers, not its first: a hue's stays 0 on the gray this drags
+	assert.notEqual(await backValues(),backMid.value,'dossier drag updates background catalog numbers on their 250 ms tier')
 	await page.waitForFunction(([g,s])=>{ const el=document.querySelector(`.ent[data-s="${s}"] .ch`); return (el._g||el.closest('.ent').dataset.g)!==g },[backMid.gradient,inSight],{timeout:1500}).catch(()=>{})
 	const backHeld=await backLane.evaluate(el=>el._g||el.closest('.ent').dataset.g)
 	assert.notEqual(backHeld,backMid.gradient,'a dossier drag paints the catalog\'s strips behind it on their 250 ms tier, not only at the release')
@@ -1006,6 +1006,30 @@ try {
 	await fresh.locator('#cval').press('Escape'); await fresh.waitForTimeout(100)
 	assert.notEqual(await fresh.evaluate(()=>document.activeElement?.id), 'cval', 'Esc lets the field go')
 	assert.equal(await fresh.evaluate(()=>[...document.querySelectorAll('.dpop .mseg[data-lens="m"] button')].every(b=>b.disabled)), true, 'the palette distance is shown, disabled, until a palette is picked')
+	// the field's rise into the row, a frame a scroll step, down and back: the many colors' text under the field eases with it
+	// (its size and width the field's in the same frame – it once kept the hero's or the row's snapshot till the field came to
+	// rest), and where the scroll drives the rise (a timeline) no script writes the field's style on the way
+	{	await fresh.locator('#cval').fill('rgb(68 1 84) – rgb(59 82 158) – rgb(33 145 140) – rgb(92 200 99) – rgb(253 231 37)'); await fresh.locator('#cval').press('Enter'); await fresh.locator('#cval').blur()
+		const r=await fresh.evaluate(async()=>{ const hc=document.getElementById('hcolor'), cv=document.getElementById('cval'), ul=document.querySelector('.cvul'), raf=()=>new Promise(r=>requestAnimationFrame(r))
+			const d=parseFloat(document.querySelector('.page').style.getPropertyValue('--hc-dock')); let writes=0, off=[], mid=0
+			const mo=new MutationObserver(ms=>{ writes+=ms.length }); mo.observe(hc,{ attributes:true, attributeFilter:['style'] })
+			const look=()=>{ const p=+getComputedStyle(hc).getPropertyValue('--dkp'); if(p>0&&p<1) mid++
+				const a=getComputedStyle(cv), b=getComputedStyle(ul); if(a.fontSize!==b.fontSize||Math.abs(cv.getBoundingClientRect().width-ul.getBoundingClientRect().width)>.5) off.push(`${p.toFixed(2)}: ${a.fontSize}/${b.fontSize}`) }
+			for(let y=d-130;y<=d+40;y+=6){ scrollTo(0,y); await raf(); look() }
+			for(let y=d+40;y>=0;y-=6){ scrollTo(0,y); await raf(); look() }
+			mo.disconnect(); return { writes, off, mid, tl:CSS.supports('animation-timeline:scroll()') } })
+		assert.ok(r.mid>4,`the scroll passes through the rise (${r.mid} frames mid-rise)`)
+		assert.deepEqual(r.off,[],'the colors\' text under the field eases with the field, a frame at a time, down and back')
+		if(r.tl) assert.equal(r.writes,0,'where a timeline drives the rise, no script writes the field\'s style during the scroll')
+		// a card opened mid-rise stops the page's scroll, and its timeline with it: the rise is held where it stood (holdDock)
+		const held=()=>fresh.evaluate(()=>[parseFloat(getComputedStyle(document.getElementById('cval')).fontSize),+getComputedStyle(document.getElementById('hcolor')).getPropertyValue('--dkp')])
+		await fresh.evaluate(async()=>{ const d=parseFloat(document.querySelector('.page').style.getPropertyValue('--hc-dock')), run=2*parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--s12'))*parseFloat(getComputedStyle(document.documentElement).fontSize)
+			scrollTo(0,d-run/2); await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))) })
+		const before=await held(); assert.ok(before[1]>0&&before[1]<1,`the page stands mid-rise (${before[1]})`)
+		await fresh.evaluate(()=>document.querySelector('.ent[data-s="lab"] .nm').click()); await fresh.waitForSelector('#modal:not([hidden]) #dtitle')
+		const under=await held()
+		assert.ok(Math.abs(under[0]-before[0])<.05&&Math.abs(under[1]-before[1])<.01,`a card opened mid-rise holds the field's size and its rise where they stood (${before} → ${under})`)
+		await fresh.locator('#mx').click(); await fresh.waitForFunction(()=>document.getElementById('modal').hidden) }
 	await fresh.evaluate(()=>scrollTo(0,900)); await fresh.waitForFunction(()=>document.body.classList.contains('cdock'))   // pinned first – the check is of a pinned field (under load its docking frame can lag the 200ms this waited)
 	// a press where the field shows, as a hand presses – a locator's click first scrolls the whole element into view (the
 	// docked field's box reaches past the row's clip), which is Playwright moving the page, not the field

@@ -289,12 +289,12 @@ body.mopen::before{ content:''; position:fixed; inset:0; z-index:calc(var(--z-mo
 body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color chosen yet: the channels' numbers the orbit's, in the soft ink – shown, not asserted (the placeholder's half ink failed AA, 2.4:1 – a number is read); the one in hand in its own */   /* the empty field's ask: the text's own ink, half there – dark on paper, light on a dark one, and whatever the row's words wear over the top edge's color */
 .qclr{ display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; --ic:14px } .qclr:hover{ color:var(--ink) } .qclr[hidden]{ display:none }
 .qx input::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none }
-.cxw{ display:flex; flex-direction:column; justify-content:center; min-width:0 }
+.cxw{ display:grid; grid-template-columns:minmax(0,1fr); align-content:center; min-width:0 } .cxw>*{ grid-area:1 / 1 }   /* one cell: the field, and its copies laid in the same box – the colors' text under it, the twin that measures it, a row's ghost */
 .hcolor{ --cvfh:var(--t3); --cvf0:var(--cvfh); --cvf:calc(var(--cvf0) + (var(--t2) - var(--cvf0)) * var(--dkp)); --cvl:1.5 } @media(width >= 48rem){ .hcolor:has(>.cx.long){ --cvf0:var(--t2) } }   /* the value's size and line (--cvl: the slogan's, .hsub – the lines under its colors clear of the next line's words): the slogan's over the hero – a long one (over a line at it: js fitLong) the row's where the field has the room – a narrower one keeps the slogan's size and line, more lines rather than smaller words – the row's docked – one var the box's padding is cut to, so the first paint is the last */
-.cxw #cval{ font-size:var(--cvf); font-weight:500; line-height:var(--cvl) }   /* the slogan's size, a step bolder – in the hero and docked alike */
+.cxw #cval,.cxw>*{ font-size:var(--cvf); font-weight:500; font-variant-numeric:tabular-nums; line-height:var(--cvl); text-rendering:inherit }   /* the slogan's size, a step bolder – in the hero and docked alike, the copies with it: the scroll that eases the field eases them, no script between; shaped as the page's text, the field too (a form control's own reset, auto, kerned its letters apart from its copies') */
 .hcolor .cxw{ position:relative; flex:1; align-self:stretch }
-.cvtwin{ position:absolute; visibility:hidden; pointer-events:none; box-sizing:border-box }
-.cvul{ position:absolute; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent }   /* the field's text again, under it */
+.cvtwin{ position:absolute; inset-inline:0; top:0; visibility:hidden; pointer-events:none; box-sizing:border-box }
+.cvul{ position:absolute; inset:0; z-index:0; pointer-events:none; box-sizing:border-box; color:transparent }   /* the field's text again, under it – its box the field's (the cell's), its lines running on past it as the field's scroll */
 /* many in hand: the twin's text the one seen – the others grayer, the color in hand (the caret's, else the held) dark,
    by a highlight – the field's own text unseen over it, its caret and its selection kept. Over the opened edge (.wide)
    every glyph keeps the ink the edge under it gives */
@@ -302,8 +302,8 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 .hcolor:not(.wide)>.cx .cvul.many{ color:var(--soft) } .cvul::highlight(cv-held){ color:var(--ink) }
 .hcolor>.cx.peek .cvul,.hcolor.wide .cvul{ display:none }   /* a row shown, or over the opened edge: no second text */   /* the value's unseen twin: where each color lies, how tall the text runs */   /* the value takes the field's run; the notation and the gamut tag close it on the right */
 @property --cvh{ syntax:'<number>'; inherits:false; initial-value:1.5 }   /* one line: --cvl's (an initial value takes no var) */
-.hcolor #cval{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
-.hcolor #cval{ display:block; width:100%; max-width:none; height:calc(var(--cvh) * 1em); resize:none; overflow:hidden; white-space:pre; scrollbar-width:none; scroll-timeline:--cvs x; field-sizing:fixed } @container style(--dk:0){ .hcolor #cval{ max-height:calc(var(--cvl) * 1em + round(down,var(--hfoot),var(--cvl) * 1em)); white-space:pre-wrap; overflow-wrap:anywhere } }   /* docked, one line – the caret walks it as an input's does; over the hero, its every line, in hand or not – as many as the hero's foot holds under the first, past them it scrolls */
+.hcolor #cval,.hcolor .cxw>*{ padding-inline-start:var(--s2) }   /* the text a gap after the marks' column – a row's text under it at the same place (#csug b's gap) */
+.hcolor #cval{ display:block; width:100%; max-width:none; height:calc(var(--cvh) * 1em); resize:none; overflow:hidden; scrollbar-width:none; scroll-timeline:--cvs x; field-sizing:fixed } .hcolor .cxw>*{ white-space:pre } @container style(--dk:0){ .hcolor #cval{ max-height:calc(var(--cvl) * 1em + round(down,var(--hfoot),var(--cvl) * 1em)) } .hcolor .cxw>*{ white-space:pre-wrap; overflow-wrap:anywhere } }   /* docked, one line – the caret walks it as an input's does; over the hero, its every line, in hand or not – as many as the hero's foot holds under the first, past them it scrolls; the copies wrapping as it does */
 @container style(--dk:1){ .hcolor>.cx{ clip-path:inset(calc(var(--ulw) + var(--s2)) -100vw -100vh -100vw) } }   /* docked, the field under the row's top edge: the edge's line and its reach over it, the edge answering the pointer there as anywhere along the row – the list under it unclipped */ @container style(--dk:1){ .hcolor .cxw{ flex:1 } }   /* docked: as wide as the row's room – to the search – the whole of it the field's */
 @container style(--dk:1){ .hcolor #cval{ width:100%; max-width:none; height:calc(var(--cvl) * 1em); overflow-x:auto } }   /* docked: the row's own size – the value shrinks into it as the page scrolls – and one line, whatever the hero held */
 /* a line longer than its room fades at the end it runs on past – at either end as the caret walks it (the field's own
@@ -354,8 +354,8 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 #csug .src>.ic{ --ic:1em; margin-inline-start:var(--s1); vertical-align:middle; color:var(--ink) } #csug .src:is(:hover,.hot)>.ic{ opacity:1 }   /* the source's ⇄ – the next one, on a press: there only while the source itself is pointed at or lit by the keys, its room kept (the line never shifts) */
 #csug .sws{ display:flex; align-items:center; justify-content:center; flex:none; width:var(--w4); height:1.3em; isolation:isolate }   /* on the value's line, not between it and its word – a sequence's colors together, stacked as the field's, the first on top; the first mark under the field's own, at its left */
 #csug .sgt>span:first-child{ line-height:1.3 } #csug .sgt .q{ font-weight:400; color:var(--body) }   /* a name: the part typed light, the rest set */
-.hcolor>.cx.peek #cval{ color:transparent } .hcolor>.cx.peek .cvghost{ overflow:hidden; text-overflow:clip; color:var(--soft); mask-image:linear-gradient(to right,#000 calc(100% - var(--s8)),transparent) }   /* a row only looked at: on one line (js), faded where it runs past – the field keeps its lines and its height till the row is taken */ @container style(--dk:1){ .cvghost{ overflow:hidden; text-overflow:ellipsis } }   /* docked, one line: a long row shown stops at the field's end, never over the search and the count */   /* a row shown: its text in the field, as a placeholder – what is typed steps aside, kept */
-.cvghost{ position:absolute; z-index:0; box-sizing:border-box; white-space:pre-wrap; overflow-wrap:anywhere; color:var(--soft); pointer-events:none } .cvghost span{ color:transparent } .hcolor #cval{ position:relative; z-index:1 }   /* the first name's rest, greyed in after what is typed */   /* one color's rhombus – the text starts close, in one column; many colors stand each before its value, in the text */
+.hcolor>.cx.peek #cval{ color:transparent } .hcolor>.cx.peek .cvghost{ overflow:hidden; text-overflow:clip; white-space:pre; color:var(--soft); mask-image:linear-gradient(to right,#000 calc(100% - var(--s8)),transparent) }   /* a row only looked at: on one line, faded where it runs past – the field keeps its lines and its height till the row is taken */ @container style(--dk:1){ .cvghost{ overflow:hidden; text-overflow:ellipsis } }   /* docked, one line: a long row shown stops at the field's end, never over the search and the count */   /* a row shown: its text in the field, as a placeholder – what is typed steps aside, kept */
+.cvghost{ position:absolute; inset-inline:0; top:0; z-index:0; box-sizing:border-box; color:var(--soft); pointer-events:none } .cvghost span{ color:transparent } .hcolor #cval{ position:relative; z-index:1 }   /* the first name's rest, greyed in after what is typed */   /* one color's rhombus – the text starts close, in one column; many colors stand each before its value, in the text */
 /* the palette: ONE stack — every stop in palette order, uniform slice slots, and the selected
    stop IS the row's rhombus (the native picker) riding its slot, marked by the picker's
    ring pair. Click a swatch to select it: the diamond moves to that slot; the order never
@@ -2117,8 +2117,7 @@ if(cvalEl){
 	let ghostRest=''
 	const ghostOf=rows=>{ const v=cvalEl.value, n=rows.find(r=>r.name)?.name, at=cvalEl.selectionStart===v.length&&cvalEl.selectionEnd===v.length, w=typedAt()
 		ghostRest=n&&at&&w&&v.trimEnd().endsWith(w)&&n.toLowerCase().startsWith(w.toLowerCase())&&n.length>w.length?n.slice(w.length):''   // the last color's word, finished
-		ghost.replaceChildren(...(ghostRest?[Object.assign(document.createElement('span'),{ textContent:v }),ghostRest]:[]))
-		if(ghostRest){ const cs=getComputedStyle(cvalEl); for(const k of TWIN) ghost.style[k]=cs[k]; ghost.style.width=cvalEl.clientWidth+'px'; ghost.style.left=cvalEl.offsetLeft+'px'; ghost.style.top=cvalEl.offsetTop+'px' } }
+		ghost.replaceChildren(...(ghostRest?[Object.assign(document.createElement('span'),{ textContent:v }),ghostRest]:[])) }   // laid as the field is, in its cell (CSS)
 	let sugShut=false, sugDraw=null, sugChord={ pair:0, palette:0, c:0 }, sugGrad=0
 	// the rhombus: the color's place in the field – a press takes the field, the color in context under it (its notation
 	// is the View menu's, every value's)
@@ -2133,7 +2132,7 @@ if(cvalEl){
 	// typed text stepping aside; the colors as they stood kept: Esc, or the field let go untaken, eases them back
 	let before=null
 	const shown=v=>{ cxEl.classList.toggle('peek',v!=null); if(v==null) return ghostOf([])
-		const cs=getComputedStyle(cvalEl); for(const k of TWIN) ghost.style[k]=cs[k]; Object.assign(ghost.style,{ width:cvalEl.clientWidth+'px', left:cvalEl.offsetLeft+'px', top:cvalEl.offsetTop+'px', whiteSpace:'pre' }); ghost.textContent=v; ghostRest='' }   // a look, one line (CSS: its fade)
+		ghost.textContent=v; ghostRest='' }   // a look: one line, its fade (CSS)
 	const peek=b=>{ PEEK=true; before??={ stops:STOPS&&STOPS.map(c=>({ s:c.s, vals:c.vals.slice() })), grad:GRAD&&{ ...GRAD }, i:STOPI, m:{ s:master.s, vals:master.vals.slice() } }
 		const v=valueOf(b)[0], p=parseInput(v); if(!p) return; shown(v); land(p.stops,p.grad,0) }
 	const unpeek=()=>{ PEEK=false; shown(null); if(!before) return; const b=before; before=null
@@ -2235,10 +2234,10 @@ const tokensOf=str=>{ const g=str.match(/^\s*(?:repeating-)?(?:linear|radial|con
 	const words=(x,y)=>[...str.slice(x,y).matchAll(/[\w-]+%?/g)].map(m=>[x+m.index,x+m.index+m[0].length,null])
 	return [...(g?words(0,a):[]),...parts.flatMap((q,k)=>k<head?words(...trim(q)):[[...trim(q),k-head]]),...words(end,b)].filter(t=>t[0]<t[1]) }
 const tokenAt=(str,p)=>tokensOf(str).find(t=>p>=t[0]&&p<=t[1])??null
-// the field's text laid out as the field lays it – an unseen twin over it: the field knows its height before it takes it
+// the field's text laid out as the field lays it – an unseen twin in its cell, set as it is (CSS): the field knows its height
+// before it takes it
 const twin=cvalEl&&Object.assign(document.createElement('div'),{ className:'cvtwin' })
 twin?.setAttribute('aria-hidden','true'); cvalEl?.after(twin)
-const TWIN=['fontFamily','fontSize','fontWeight','fontVariantNumeric','lineHeight','letterSpacing','paddingLeft','paddingRight','whiteSpace','overflowWrap','wordBreak']
 // …and its seen twin under the text: the field's text, one string, the color in hand inked over the rest by a highlight
 // (the CSS Custom Highlight API's range, no word wrapped) – its docked one-line copy (below) the same
 const ul=cvalEl&&Object.assign(document.createElement('div'),{ className:'cvul' })
@@ -2259,23 +2258,22 @@ let HOTJ=null
 document.addEventListener('stophot',e=>{ HOTJ=e.detail.j
 	for(const b of pstackEl?.querySelectorAll('.pst')||[]) b.classList.toggle('hot',HOTJ!=null&&(b.classList.contains('pill')||+b.dataset.i===HOTJ))
 	const pill=pstackEl?.querySelector('.pill'); if(pill&&HOTJ!=null&&GRAD) pillHot(pill,HOTJ) })
-const lay=()=>{ const cs=getComputedStyle(cvalEl)
-	for(const el of [twin,ul]){ for(const k of TWIN) el.style[k]=cs[k]; el.style.width=cvalEl.clientWidth+'px'
-		el.style.left=cvalEl.offsetLeft+'px'; el.style.top=cvalEl.offsetTop+'px'; el.style.translate=`${-cvalEl.scrollLeft}px ${-cvalEl.scrollTop}px` }
-	twin.textContent=(cvalEl.value||cvalEl.placeholder||' ')+'\u200b'; ulPaint() }
+const lay=()=>{ ul.style.translate=`${-cvalEl.scrollLeft}px ${-cvalEl.scrollTop}px`
+	twin.textContent=(cvalEl.value||cvalEl.placeholder||' ')+'\u200b'; ulPaint() }   // the texts alone – their box and type are the field's own (CSS), through the rise as at rest
 document.addEventListener('selectionchange',()=>{ if(document.activeElement===cvalEl) ulAt() })
 document.addEventListener('stoptake',()=>{ if(ul) ulAt() })   // another stop taken – by a mark, the stack, a plane – its word marked
-cvalEl?.addEventListener('scroll',()=>{ for(const el of [twin,ul]) el.style.translate=`${-cvalEl.scrollLeft}px ${-cvalEl.scrollTop}px` })
+cvalEl?.addEventListener('scroll',()=>{ ul.style.translate=`${-cvalEl.scrollLeft}px ${-cvalEl.scrollTop}px` })
 cvalEl?.addEventListener('blur',()=>{ cvalEl.scrollTo(0,0); ulAt() })   // let go, the value from its start
 // a value longer than a line at the slogan's size (a long gradient, a list) said at the row's – decided at the slogan's
 // size over the hero whatever the field shows now, so the smaller size can't flip it back
-const fitLong=()=>{ if(document.body.classList.contains('cdock')) return; const cs=getComputedStyle(document.documentElement), tk=getComputedStyle(hcolorEl).getPropertyValue('--cvfh').trim()
+const fitLong=()=>{ const cs=getComputedStyle(document.documentElement), tk=getComputedStyle(hcolorEl).getPropertyValue('--cvfh').trim()
 	const big=tk.endsWith('rem')?parseFloat(tk)*parseFloat(cs.fontSize):parseFloat(tk), f0=twin.style.fontSize, w0=twin.style.whiteSpace; twin.style.fontSize=big+'px'; twin.style.whiteSpace='pre-wrap'   // as it would wrap, in hand or not – the size never flips at a focus
-	const long=twin.offsetHeight>big*+getComputedStyle(hcolorEl).getPropertyValue('--cvl')*1.5; twin.style.fontSize=f0; twin.style.whiteSpace=w0; if(cxEl.classList.contains('long')!==long){ cxEl.classList.toggle('long',long); lay() } }
-const fitVal=()=>{ if(!cvalEl) return; lay(); fitLong(); const h=twin.offsetHeight, cs=getComputedStyle(cxEl), pad=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((t,k)=>t+parseFloat(cs[k]),0)   // the box round the lines, as styled – never a measure taken while the lines ease
+	const long=twin.offsetHeight>big*+getComputedStyle(hcolorEl).getPropertyValue('--cvl')*1.5; twin.style.fontSize=f0; twin.style.whiteSpace=w0; cxEl.classList.toggle('long',long) }
+const fitVal=()=>{ if(!cvalEl) return; lay(); if(document.body.classList.contains('cdock')) return   // docked, one line by CSS: the hero's lines, size and frame kept for the way back (refitted there, rise, should the value or the room change meanwhile)
+	fitLong(); const h=twin.offsetHeight, cs=getComputedStyle(cxEl), pad=['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((t,k)=>t+parseFloat(cs[k]),0)   // the box round the lines, as styled – never a measure taken while the lines ease
 	cvalEl.style.setProperty('--cvh',h/parseFloat(getComputedStyle(cvalEl).fontSize))   // in its own ems: the lines it holds, at any size the docking eases it through
 	cxEl.classList.toggle('tall',h>parseFloat(getComputedStyle(cvalEl).lineHeight)*1.5)
-	if(!document.body.classList.contains('cdock')) hqEl.style.setProperty('--hqh',Math.max(0,Math.min(h,parseFloat(getComputedStyle(cvalEl).maxHeight)||h)+pad)+'px') }   // the frame round the lines the hero's foot holds (CSS: the field's max-height)
+	hqEl.style.setProperty('--hqh',Math.max(0,Math.min(h,parseFloat(getComputedStyle(cvalEl).maxHeight)||h)+pad)+'px') }   // the frame round the lines the hero's foot holds (CSS: the field's max-height)
 // in motion (a drag, the orbit) only the words change – their font, the field's box and place do not: the twin takes the
 // text and the lines follow; the full fit, its every style read and measure a forced restyle, waits till the color rests
 let fitT=0
@@ -3168,27 +3166,28 @@ const filterKeep=change=>{ const r=document.documentElement; r.style.overflowAnc
 const cellWords=k=>{ if(k==='coverage') return covTxt()
 	const v=[...act[fiOf(k)]][0]; return FACETS[fiOf(k)]==='channels'?t('ui.filter.ch-n','{n} channels',{n:v}):cap(tagL(v)) }
 // The docked field's room: to the search, a gap short – and where it starts. One element's place against another's is a
-// measure, not CSS's
-const pageEl=document.querySelector('.page'), rootCS=getComputedStyle(document.documentElement)
+// measure, not CSS's – taken as the layout changes (the observer below, a pick's), never at a scroll
+const pageEl=document.querySelector('.page'), rootCS=getComputedStyle(document.documentElement), TL=CSS.supports('animation-timeline:scroll()')
+let riseRun=2*parseFloat(rootCS.getPropertyValue('--s12'))*parseFloat(rootCS.fontSize)   // the rise's run, 2 × s12 (CSS: dkp's range) – read with the layout
 // the field's rise into the row, 0 → 1, read from the scroll as the timeline reads it (CSS: dkp, dk) – over the 2 × s12
 // that end where the field reaches the window's top (--hc-dock), docked from there: one reading for the flag, the size,
 // the width and a card's (.mdock), so a card opened mid-rise leaves the field as it was
-const dockP=()=>{ const run=2*parseFloat(rootCS.getPropertyValue('--s12'))*parseFloat(rootCS.fontSize), d=parseFloat(pageEl.style.getPropertyValue('--hc-dock'))||innerHeight/2
-	return clamp((scrollY-d+run)/run,0,1) }
-let riseP=null   // the rise fitCells last read – none at first: the load's own fit is the frame's (fitField's observer)
-const fitCells=()=>{ const row=stripEl.querySelector('.cells'), p=dockP(), docked=p>=1
-	const cx=cxEl.getBoundingClientRect()
+const dockP=()=>clamp((scrollY-(parseFloat(pageEl.style.getPropertyValue('--hc-dock'))||innerHeight/2)+riseRun)/riseRun,0,1)
+// …held as the page's own where no timeline drives it: an engine without one (Firefox: a frame per scroll, the row's paper
+// with it) and a card, whose lock stops the page's (openModal)
+const holdDock=p=>{ hcolorEl.style.setProperty('--dkp',p); pageEl.style.setProperty('--dk',+(p>=1)); if(!TL) pageEl.style.setProperty('--cvdp',p.toFixed(3)); return p }
+// at a scroll only what the scroll decides: docked or not, and the field refitted as it comes back to rest in the hero – the
+// hero's lines, size and frame are taken there (docked, fitVal keeps them); what the rise shows is the timeline's (CSS)
+let riseP=null   // the rise last read – none at first: the load's own fit is the frame's (fitField's observer)
+const rise=()=>{ const p=TL?dockP():holdDock(dockP()), docked=p>=1
+	if(document.body.classList.contains('cdock')!==docked) document.body.classList.toggle('cdock',docked)   // the notation's menu shuts as its field moves between the hero and the row – it never rides the move
+	if(riseP!==null&&p===0&&p!==riseP) fitField(); riseP=p }
+const fitCells=()=>{ const row=stripEl.querySelector('.cells'), cx=cxEl.getBoundingClientRect()
 	const lo=Math.min(...[...row.querySelectorAll('.fill~*')].filter(e=>e.offsetParent).map(e=>e.getBoundingClientRect().left))   // the first of the row's controls shown: the search, the count – on a phone, where both give way, Filters
 	hcolorEl.style.setProperty('--cdw',Math.max(120,lo-cx.left-12)+'px'); hcolorEl.style.setProperty('--cxl',cx.left+'px')   // the field to the search, a gap short – docked, and the width it eases to as it docks; where it starts, for its list to stay in the window
-	hcolorEl.style.setProperty('--dkp',p); pageEl.style.setProperty('--dk',+docked)   // the rise and the docked look's flag where the scroll can't set them (CSS: --dkp, --dk)
-	if(document.body.classList.contains('cdock')!==docked) document.body.classList.toggle('cdock',docked)   // the notation's menu shuts as its field moves between the hero and the row – it never rides the move
-	if(riseP!==null&&p%1===0&&p!==riseP) fitField(); riseP=p }   // fitted where it comes to rest, the hero's or the row's – never mid-rise, whose eased size and width the lines, the size and the colors' underlay would keep: the hero after a trip to the row as a focus or a fresh load finds it
-// no scroll timeline (Firefox): the same reading, a frame per scroll, for the row's paper the timeline would slide in
-if(!CSS.supports('animation-timeline:scroll()')){ let raf=0
-	const step=()=>{ raf=0; pageEl.style.setProperty('--cvdp',dockP().toFixed(3)) }   // on the page: the row's paper reads it
-	addEventListener('scroll',()=>{ raf||=requestAnimationFrame(step) },{ passive:true }); addEventListener('resize',step); step() }
+	riseRun=2*parseFloat(rootCS.getPropertyValue('--s12'))*parseFloat(rootCS.fontSize); rise() }
 { const ro=new ResizeObserver(()=>fitCells()); ro.observe(stripEl); ro.observe(cxEl); ro.observe(stripEl.querySelector('.qx'))   // the search opening: the docked field's room shrinks to it – the glass never under the field
-	let rq=0; addEventListener('scroll',()=>{ rq||=requestAnimationFrame(()=>{ rq=0; fitCells() }) },{ passive:true }) }   // the color docks as the page scrolls
+	let rq=0; addEventListener('scroll',()=>{ rq||=requestAnimationFrame(()=>{ rq=0; rise() }) },{ passive:true }) }   // the color docks as the page scrolls
 // a pick filters the catalog and inks Filters' mark; Filters' name and tooltip say every pick, its × lets them go
 function paintCells(){ const w=Object.keys(CELLS).filter(isOn).map(cellWords).join(' · '), nm=t('ui.cell.more-any','Filters')
 	fclrEl.hidden=!w&&!qWord
@@ -3240,7 +3239,7 @@ function openModal(s,push=true){ behindSeen=behindRows=null; cardAt=performance.
 	// a card is a plain modal: the page behind stays where it was. The pinned row stays live above it – its Limit, Quantize
 	// and Vision reach the dossier too – and the color with it once docked (.mdock); over the hero the color stays in the
 	// hero, under the card. Everything else behind the card sleeps
-	if(modal.hidden) document.body.classList.toggle('mdock',dockP()>=1)
+	if(modal.hidden) document.body.classList.toggle('mdock',holdDock(dockP())>=1)
 	modal.hidden=false; modal.classList.toggle('barred',!!b); document.body.classList.add('mopen')
 	urlWrite(spaceURL(s)+keepSearch()+colorHash(),push)
 	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
