@@ -1770,14 +1770,15 @@ const autoStep=t=>{ if(!autoColor) return
 	if(autoT&&t-autoT<14){ requestAnimationFrame(autoStep); return }   // sixty a second at most: a 120 Hz screen's every frame doubled the work for no motion seen
 	const dt=autoT?t-autoT:0; autoT=t
 	if(PICK) autoStart+=dt
-	// every frame the color moves – the thumbs, the markers, the numbers glide (a light frame); the paint that costs, a step
-	// at the pace: under a card thirty a second, as a drag paints its instruments – the catalog round it on its own tier
-	// (catalogBehind); on the catalog twenty steps a second, its strips' cost
-	else if(!autoHold){ const gap=Math.max(autoGap,open()?AUTO_CARD:AUTO_FRAME), full=t-autoLast>=gap; if(full) autoLast=t   // a card's instruments thirty times a second – their sweeps move slowly, every frame had them fill the main thread – the thumbs and markers every frame between
+	// every frame the color moves – the thumbs, the markers, the numbers glide (a light frame), and an open card's bars with
+	// them, backed off or not: a GPU sweep each, never stepped (a step cross-faded had its half-clear faces stack denser).
+	// The paint that costs, a step at the pace: under a card thirty a second – the planes, the solid, the figure – the
+	// catalog round it on its own tier (catalogBehind); on the catalog twenty steps a second, its strips' cost
+	else if(!autoHold){ const card=open(), gap=Math.max(autoGap,card?AUTO_CARD:AUTO_FRAME), full=t-autoLast>=gap; if(full) autoLast=t
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
-		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true,!full)
+		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true,!full,card)
 		if(full){
 		// a device that can't hold the pace (a weak CPU, a dossier's GL instruments on a weak GPU) steps less often – twice
 		// the gap, then twice again, five steps a second at the least – and wins a step back once its frames run at the
@@ -6107,7 +6108,7 @@ const MODS=e=>e.altKey||e.shiftKey||e.metaKey||e.ctrlKey
 	document.documentElement.addEventListener('pointerleave',off) }
 // light: the orbit's frame between its steps – the color's place (the thumbs, the markers, the numbers, the face) moves
 // every frame, the paint that costs (the strips, the GL instruments, the solid, the code) at the step's pace
-function renderFast(solid=true,light=false){ if(STOPS) STOPS[STOPI]=master   // the stop in hand IS master – a writer that replaced master replaced it
+function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=master   // the stop in hand IS master – a writer that replaced master replaced it
 	vfF={}; vfM=master   // new frame, new conversions – the memo lives one renderFast-to-renderFast span (drag frames mutate master.vals in place, so identity alone can't carry it)
 	const rgb=RGB(), hx=hex(rgb)
 	// the color's public face: the row's rhombus + value. Under a palette-class
@@ -6168,7 +6169,7 @@ function renderFast(solid=true,light=false){ if(STOPS) STOPS[STOPI]=master   // 
 			if(h._p!==p){ h._p=p
 				if(p){ h.firstChild.style.webkitMaskImage=p; h.firstChild.style.maskImage=p }
 				h.style.display=p?'':'none' } }
-		if(bar!==dragBar&&!light){ let bg
+		if(bar!==dragBar&&bars){ let bg
 			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
 			// Every lens paints through the same GPU kernel as the planes: numeric cell
 			// centers, exact web/name/even regions, and per-pixel gamut treatment. The
@@ -6303,11 +6304,11 @@ function renderFast(solid=true,light=false){ if(STOPS) STOPS[STOPI]=master   // 
 		else if(!dragBar&&!plFreeze||mesh3&&mesh3.gpu) draw3d() }
 	gamMarker(PDOWN||light); if(!light) paintTC()
 }
-let raf, settleT, planeTrailT=0, rfFull=false
-const scheduleFast=(ambient=false,light=false)=>{ if(!ambient){ autoColor=false }
-	rfFull||=!light   // a frame asked in full stays full, whatever light one comes after it before it runs
-	cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const full=rfFull; rfFull=false
-		renderFast(true,!full); if(!full) return
+let raf, settleT, planeTrailT=0, rfFull=false, rfBars=false
+const scheduleFast=(ambient=false,light=false,bars=!light)=>{ if(!ambient){ autoColor=false }
+	rfFull||=!light; rfBars||=bars   // a frame asked in full stays full, whatever light one comes after it before it runs; one with the card's bars, its bars
+	cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const full=rfFull, bars=rfBars; rfFull=rfBars=false
+		renderFast(true,!full,bars); if(!full) return
 		// the settle is for a color at rest: the orbit never rests – a frame late past the settle would repaint every row
 		// in full under a color the next step replaces, and that repaint makes the next frame late (a 1 s stall, looping)
 		clearTimeout(settleT); settleT=setTimeout(()=>{ if(PDOWN) owe(1); else if(!open()&&!autoColor) settleCatalog() },CURRENT_SETTLE)

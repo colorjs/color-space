@@ -59,7 +59,9 @@ const N = LOCUS.length;
 const segA = (i) => LOCUS[i];
 const segB = (i) => i < N - 1 ? LOCUS[i + 1] : LOCUS[0];
 
-// nearest t>0 hit of ray (white + t·dir) with the boundary; returns {i,u,px,py}
+// nearest t>0 hit of ray (white + t·dir) with the boundary; returns {i,u,px,py}. A ray through a corner hits both
+// segments at one point: the first found keeps it unless the other is nearer past rounding – the spectral arc's end
+// over the line of purples at 360 and 700 nm, as the inverse places them (a strict < let float noise pick per ray)
 const cast = (dx, dy) => {
 	let best = null;
 	for (let i = 0; i < N; i++) {
@@ -70,7 +72,7 @@ const cast = (dx, dy) => {
 		const fx = A[1] - Wx, fy = A[2] - Wy;
 		const t = (fx * ey - fy * ex) / denom;
 		const u = (fx * dy - fy * dx) / denom;
-		if (t > 1e-9 && u >= -1e-9 && u <= 1 + 1e-9 && (!best || t < best.t))
+		if (t > 1e-9 && u >= -1e-9 && u <= 1 + 1e-9 && (!best || t < best.t * (1 - 1e-9)))
 			best = { i, t, u, px: Wx + t * dx, py: Wy + t * dy };
 	}
 	return best;
@@ -142,11 +144,19 @@ xyy.dsh = (x, y, Y) => {
 	return [wl, mag / Math.hypot(fwd.px - Wx, fwd.py - Wy), Y];
 };
 
+// the purples' complementary wavelengths run between those opposite the line of purples' ends: ≈ 493.25 nm (its 700 nm
+// end) to ≈ 566.43 nm (its 360 nm end)
+const opposite = ([, x, y]) => dominantWavelength(Wx - (x - Wx), Wy - (y - Wy));
+const PURPLES = [opposite(LOCUS[N - 1]), opposite(LOCUS[0])];
+
 /**
- * DSH -> xyY (exact): colour lies at purity·(locus - white) from white
+ * DSH -> xyY (exact): colour lies at purity·(locus - white) from white. A d naming no colour – between the
+ * spectrum's ends and the purples' complements (0–360 nm, −493.25 to 0, past ±700, below −566.43) – is NaN, not the
+ * nearest end or the spectral colour opposite it (a d of 200 once painted 360 nm's; −450, 568 nm's)
  */
 dsh.xyy = (d, s, Y) => {
 	if (s === 0 || d === 0) return [Wx, Wy, Y];
+	if (d > 0 ? d < 360 || d > 700 : -d < PURPLES[0] || -d > PURPLES[1]) return [NaN, NaN, Y];
 	if (d > 0) {
 		const [lx, ly] = locusAt(d);
 		return [Wx + s * (lx - Wx), Wy + s * (ly - Wy), Y];

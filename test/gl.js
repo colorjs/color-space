@@ -356,6 +356,33 @@ test('gl: float32 — black, white and the primaries stay finite through every s
 	is(bad.slice(0, 12), [], `${bad.length} non-finite outputs (float32, or float64 where JS is finite)`)
 })
 
+// a ray through a corner of the locus polygon hits two segments at one point: at 360 nm the spectral arc's end and the
+// line of purples' – float32 rounding once picked per ray, and a DSH plane's rows through that corner read back as
+// purples, ghosted a line each
+test('gl: float32 — dsh reads a ray through the 360 and 700 nm corners as the arc\'s end, never a purple', () => {
+	const misses = [], inv = (m) => evalGlsl32(glsl('dsh', 'xyy'), m).dsh_xyy, fwd = (m) => evalGlsl32(glsl('xyy', 'dsh'), m).xyy_dsh
+	for (const mode of F32_MODES) {
+		const to = inv(mode), back = fwd(mode)
+		for (const [d, end] of [[360, 360], [700, 700]]) for (let s = 0.05; s < 1; s += 0.0025) for (const Y of [5, 21.586, 60]) {
+			const got = unpack(back(to(pack([d, s, Y].map(Math.fround)))))[0]
+			if (!(Math.abs(got - end) < 0.1)) misses.push(`${mode} d ${d} s ${s.toFixed(4)} Y ${Y}: ${got}`)
+		}
+	}
+	is(misses.slice(0, 12), [], `${misses.length} corner rays read as another wavelength`)
+	is(space.xyy.dsh(...space.dsh.xyy(360, 0.9, 20))[0], 360, 'float64 too: dsh 360 nm at purity 0.9 reads back 360, not −566')
+})
+
+// a d naming no colour – 0–360 nm, past 700, a negative one past the purples' complements (≈ 493.25–566.43 nm) – is no
+// colour in the library and the kernel alike: it once painted the nearest end (a flat 360 nm block) or the spectral
+// colour opposite it (−450 as 568 nm), 70% of DSH's plane
+test('gl: dsh — a wavelength naming no colour is NaN, a real one a colour, in float64 and float32 alike', () => {
+	const cases = [[200, false], [359.9, false], [360, true], [580, true], [700, true], [-450, false], [-493.2, false], [-493.3, true], [-509, true], [-566.4, true], [-566.5, false], [-600, false]]
+	for (const [d, real] of cases) {
+		is(space.dsh.xyy(d, 0.5, 20).slice(0, 2).every(Number.isFinite), real, `library: d ${d} ${real ? 'a colour' : 'no colour'}`)
+		for (const mode of F32_MODES) is(unpack(evalGlsl32(glsl('dsh', 'xyy'), mode).dsh_xyy(pack([d, 0.5, 20].map(Math.fround)))).slice(0, 2).every(Number.isFinite), real, `kernel ${mode}: d ${d}`)
+	}
+})
+
 // iterative chunks whose float64-tuned difference steps once lost float32 entirely
 // (lavapipe: rgb→ryb magenta B 0 vs 62.1; cct-duv Duv at #0000ff −0.0090 vs −0.0283)
 test('gl: float32 — ryb and cct-duv stay within 1e-3 of range', () => {

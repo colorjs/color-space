@@ -15,7 +15,14 @@ const float DSH_LY_[69] = float[69](0.00529, 0.00526, 0.00522, 0.00518, 0.00496,
 
 // t (>0) of the nearest hit of ray (white + t*(dx,dy)) with the closed boundary
 // (69-segment polygon: spectral arc + the line-of-purples closing edge)
+// A ray through a corner hits both segments at one point: a hit counts within 1e-4 of a
+// segment, in chromaticity (float32 bends a ray's direction by ~1e-6 xy near white; the
+// 360-365 nm segment is 4e-4 long, so a parametric 1e-9 let a corner ray miss both and
+// read back as no hue at infinite purity), and the first found keeps it unless another is
+// nearer by more than that – the arc's end over the line of purples at 360 and 700 nm, as
+// dsh.js casts. A DSH plane's rows at the 360 nm corner had ghosted, a line each
 float dsh_castt_(float dx, float dy) {
+	float dl = sqrt(dx * dx + dy * dy);
 	float bestT = 0.0;
 	int bestI = -1;
 	for (int i = 0; i < 69; i++) {
@@ -28,8 +35,9 @@ float dsh_castt_(float dx, float dy) {
 			float fx = ax - 0.3127; float fy = ay - 0.329;
 			float t = (fx * ey - fy * ex) / denom;
 			float u = (fx * dy - fy * dx) / denom;
-			if (t > 1.0e-9 && u >= -1.0e-9 && u <= 1.0 + 1.0e-9) {
-				if (bestI < 0 || t < bestT) { bestT = t; bestI = i; }
+			float ut = 1.0e-4 / sqrt(ex * ex + ey * ey);
+			if (t > 1.0e-9 && u >= -ut && u <= 1.0 + ut) {
+				if (bestI < 0 || (bestT - t) * dl > 1.0e-4) { bestT = t; bestI = i; }
 			}
 		}
 	}
@@ -41,6 +49,7 @@ float dsh_castt_(float dx, float dy) {
 // the winning segment's wavelength (bestWl0) as a running float in step with the
 // loop, alongside the segment index — no float->int cast needed.
 float dsh_castwl_(float dx, float dy) {
+	float dl = sqrt(dx * dx + dy * dy);
 	float bestT = 0.0;
 	int bestI = -1;
 	float bestU = 0.0;
@@ -56,8 +65,9 @@ float dsh_castwl_(float dx, float dy) {
 			float fx = ax - 0.3127; float fy = ay - 0.329;
 			float t = (fx * ey - fy * ex) / denom;
 			float u = (fx * dy - fy * dx) / denom;
-			if (t > 1.0e-9 && u >= -1.0e-9 && u <= 1.0 + 1.0e-9) {
-				if (bestI < 0 || t < bestT) { bestT = t; bestI = i; bestU = u; bestWl0 = wl0; }
+			float ut = 1.0e-4 / sqrt(ex * ex + ey * ey);
+			if (t > 1.0e-9 && u >= -ut && u <= 1.0 + ut) {
+				if (bestI < 0 || (bestT - t) * dl > 1.0e-4) { bestT = t; bestI = i; bestU = clamp(u, 0.0, 1.0); bestWl0 = wl0; }
 			}
 		}
 		wl0 = wl0 + 5.0;
@@ -79,8 +89,9 @@ float dsh_castwl_(float dx, float dy) {
 				float fx = ax - 0.3127; float fy = ay - 0.329;
 				float t = (fx * ey - fy * ex) / denom;
 				float u = (fx * ndy - fy * ndx) / denom;
-				if (t > 1.0e-9 && u >= -1.0e-9 && u <= 1.0 + 1.0e-9) {
-					if (bestI2 < 0 || t < bestT2) { bestT2 = t; bestI2 = i; bestU2 = u; bestWl02 = wl02; }
+				float ut = 1.0e-4 / sqrt(ex * ex + ey * ey);
+				if (t > 1.0e-9 && u >= -ut && u <= 1.0 + ut) {
+					if (bestI2 < 0 || (bestT2 - t) * dl > 1.0e-4) { bestT2 = t; bestI2 = i; bestU2 = clamp(u, 0.0, 1.0); bestWl02 = wl02; }
 				}
 			}
 			wl02 = wl02 + 5.0;
@@ -131,9 +142,12 @@ vec3 xyy_dsh(vec3 c) {
 	return vec3(wl, 1.0 / t, Y);
 }
 
+// a d naming no colour – between the spectrum's ends and the purples' complements – is NaN
+// (dsh.js PURPLES: the wavelengths opposite the line of purples' ends, from the same table)
 vec3 dsh_xyy(vec3 c) {
 	float d = c.x; float s = c.y; float Y = c.z;
 	if (s == 0.0 || d == 0.0) { return vec3(0.3127, 0.329, Y); }
+	if ((d > 0.0 && (d < 360.0 || d > 700.0)) || (d < 0.0 && (-d < 493.24991 || -d > 566.43374))) { float nan_ = sqrt(Y - Y - 1.0); return vec3(nan_, nan_, Y); }
 	if (d > 0.0) {
 		float lx = dsh_locusat_x_(d);
 		float ly = dsh_locusat_y_(d);
