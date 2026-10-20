@@ -58,3 +58,13 @@ the full open→interact→close lifecycle. Cite an authoritative source for any
 The owner is the sole author. Never commit under an agent's identity (no `--author`, no
 `Claude <noreply@anthropic.com>` git user), no `Co-Authored-By` lines for agents, no
 "Generated with" lines. 24 commits of 2026-10 went in as Claude – don't add more.
+
+## Working notes – `.work/`
+
+The owner's plans, drafts and research (outreach, marketing, todo, `research/*`). Tracked, but
+encrypted in git by transcrypt (`.gitattributes`): plain text on disk, ciphertext in every commit
+and on GitHub. A clone reads them only once unlocked: `transcrypt -c aes-256-cbc -p '…' -y`
+(the owner has the password; never ask for it, print it or write it to a file). Without it the files
+read `U2FsdGVkX1…` – leave them alone, don't "fix" them. Commit them by name like any file; before
+pushing a new one, check `git cat-file -p :<file>` starts with `U2FsdGVkX1`. Not public docs:
+nothing outside `.work/` links into it.
