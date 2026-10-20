@@ -265,7 +265,7 @@
     {
       "name": "css",
       "title": "CSS color strings",
-      "description": "A color as CSS Color 4 strings — rgb(), hsl(), hwb(), lab(), lch(), oklab(), oklch() and color(display-p3 | a98-rgb | prophoto-rgb | srgb-linear | xyz-d65 | xyz-d50) — plus #hex inside sRGB. Converted, never gamut-mapped: a string is null where CSS would clamp it into a different color (rgb/hsl/hwb outside sRGB, lightness out of range). `gamut` is the smallest display gamut that holds the color.",
+      "description": "A color as CSS Color 4 strings — rgb(), hsl(), hwb(), lab(), lch(), oklab(), oklch() and color(display-p3 | a98-rgb | prophoto-rgb | rec2020 | srgb-linear | xyz-d65 | xyz-d50) — plus #hex inside sRGB. Converted, never gamut-mapped: a string is null where CSS would clamp it into a different color (rgb/hsl/hwb outside sRGB, lightness out of range). `gamut` is the smallest display gamut that holds the color.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -301,6 +301,7 @@
                 "p3",
                 "a98rgb",
                 "prophoto",
+                "rec2020-display",
                 "xyz",
                 "xyz-d50",
                 "lrgb"
@@ -467,12 +468,12 @@
             "type": "string",
             "enum": [
               "Display & web",
-              "RGB remixes",
+              "Cylindrical",
               "Perceptual",
               "Colorimetry & research",
-              "Video & broadcast",
-              "Film & camera",
-              "Print & paint"
+              "Video",
+              "Camera",
+              "Print"
             ]
           },
           "purpose": {
@@ -486,7 +487,6 @@
               "delivery",
               "print",
               "difference",
-              "measurement",
               "research"
             ]
           }
@@ -773,7 +773,7 @@
   "resources": [
     {
       "name": "data.json",
-      "title": "The 205-space catalog",
+      "title": "The 221-space catalog",
       "uri": "color-space://data.json",
       "description": "Every space: channels and ranges, references, provenance, gamuts, cited conformance points – the language-neutral artifact.",
       "mimeType": "application/json"
