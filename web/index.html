@@ -570,9 +570,10 @@ body.himg #imgfloat{ display:block }
 .fqa li{ margin:.3em 0 } .fqa li::marker{ color:var(--soft) }
 .fqa p:has(+ ul){ padding-bottom:var(--s2) }   /* a lead-in line hugs its list */
 @media(prefers-reduced-motion:no-preference){
-	:is(.fqa,.vsd){ interpolate-size:allow-keywords }   /* the questions' answers and the Alternatives' sheet unfold alike */
+	@supports (interpolate-size:allow-keywords){   /* the questions' answers and the Alternatives' sheet unfold alike – where a height eases to auto; elsewhere by script (Safari's discrete block-size held the content at 0 through the transition) */
+	:is(.fqa,.vsd){ interpolate-size:allow-keywords }
 	:is(.fqa,.vsd)::details-content{ opacity:0; block-size:0; overflow:clip; transition:block-size var(--dur-short) var(--ease-out), opacity var(--dur-short) var(--ease-out), content-visibility var(--dur-short) allow-discrete }
-	:is(.fqa,.vsd)[open]::details-content{ opacity:1; block-size:auto }
+	:is(.fqa,.vsd)[open]::details-content{ opacity:1; block-size:auto } }
 }
 @media(max-width:740px){ .fqs{ grid-template-columns:1fr } .fqcol+.fqcol>.fqa:first-child{ border-top:1px solid var(--hair) }   /* stacked columns: the rule the column break was providing */
 	.fqa summary{ font-size:var(--t3); padding:var(--s3) 0 }   /* phone scale — the space names' size, --s3 of air */
@@ -722,12 +723,12 @@ body.himg #imgfloat{ display:block }
 .more:is(:hover,:focus-visible){ color:var(--ink) }
 .more i{ display:none; font-style:normal } .more .ic{ transition:rotate var(--dur-short) var(--ease-out) } .more[aria-expanded="true"] .ic{ rotate:180deg }
 .sec.open .more .mo,.sec:not(.open) .more .le,body.flt .fold,.sec.open .fns{ display:none }
-/* a family unfolded by its "more": the tiles it held back come in from just under their places, one after another in the
-   page's order (--i, js: 30 ms a tile, ten at most) – the names in the line become tiles, they don't teleport in. Only as
-   the "more" is pressed (.unfold, fold), never as a rebuild renders a family open; folding back, they go at once */
-.sec.unfold>.tiles>.ent{ transition:color var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out),opacity var(--dur-short) var(--ease-out) calc(var(--i,0) * 30ms),translate var(--dur-short) var(--ease-out) calc(var(--i,0) * 30ms) }
-@starting-style{ .sec.unfold>.tiles>.ent{ opacity:0; translate:0 var(--s2) } }
-@media(prefers-reduced-motion:reduce){ @starting-style{ .sec.unfold>.tiles>.ent{ translate:none } } }   /* still: the fade alone */
+/* a family unfolded by its "more": the tiles it held back fade in where they stand, one after another in the page's order
+   (--i, js: 30 ms a tile, ten at most) – the names in the line become tiles, they don't teleport in; no slide, a tile is a
+   place, not a thing arriving. Only as the "more" is pressed (.unfold, fold), never as a rebuild renders a family open;
+   folding back, they go at once */
+.sec.unfold>.tiles>.ent{ transition:color var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out),opacity var(--dur-short) var(--ease-out) calc(var(--i,0) * 30ms) }
+@starting-style{ .sec.unfold>.tiles>.ent{ opacity:0 } }
 .shw,.stip{ display:none }   /* mobile section headings and their descriptions — the rail carries both on desktop */
 @media(max-width:1079px){ .cat,.introcopy,.faq,.compare{ display:block; max-width:64rem; margin:0 auto } .toc{ display:none }
 	.shw{ display:flex; align-items:baseline; justify-content:space-between; gap:var(--s2); margin:0 0 0; font-size:var(--t4); font-weight:800; letter-spacing:-.01em }   /* a family's title as large as its spaces' (a lead card's, t4) – a smaller heading over them read as a caption, not the shelf they are on */
@@ -909,8 +910,15 @@ body.himg #imgfloat{ display:block }
    (the row's own paper masks content passing under). */
 .modal[hidden]{ display:none }
 @media(pointer:coarse){ body.mopen{ overflow:hidden } }   /* the page's scroll locked under a card where a finger scrolls it – an overlay bar there, nothing shifts. A mouse's wheel is held by script (wheelOff): the page's overflow never changes, so its scrollbar never comes and goes – Safari brought a legacy bar back at the close, the whole page a bar's width to the left */
-/* the card comes and goes at once, no fade: its 220 ms fade and rise were Safari's three slow frames of the whole card
-   at every open and close, and a card fading out still took the page's clicks */
+/* the card comes and goes as the menus do: a fade and a short rise – translate set only on the way, so the resting card
+   is no containing block. The fade is the card's own layer (the compositor's), its figures landing under it */
+.modal{ transition:display var(--dur-short) allow-discrete }
+.mbox{ --from:0 var(--s3); transition:opacity var(--dur-short) var(--ease-out),translate var(--dur-short) var(--ease-out) }
+.modal[hidden]{ overflow:hidden; pointer-events:none }   /* leaving, the card's scroller gives up its bar at once – the page's is back, one bar, never two – and a card fading out takes no click: the page under it is the pointer's at once */
+.modal[hidden] .mbox{ opacity:0; translate:var(--from) }
+@starting-style{ .modal:not([hidden]) .mbox{ opacity:0; translate:var(--from) } }
+@media(prefers-reduced-motion:reduce){ .mbox{ --from:0 0 } }   /* still: the fade alone */
+:root[data-embed] .mbox{ transition:none }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
 .mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:visible; box-shadow:var(--modal-shadow) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
@@ -1737,43 +1745,44 @@ const ICONS={ pick:'M13.5 6.5 4 16v4h4l9.25-9.25ZM13.5 6.5l2-2a2.65 2.65 0 0 1 3
 	prev2:'M17 18l-6-6 6-6M11 18l-6-6 6-6', next2:'M7 6l6 6-6 6M13 6l6 6-6 6' }
 const icon=n=>`<svg class="ic${n==='x'?' ix':''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`
 const M0=master   // the untouched boot color — while master still IS it, the value input invites instead of asserting
-const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200, AUTO_SLOW=34, AUTO_SETTLE=1500, AUTO_RETRY=15000   // twenty steps a second – ten read as a stutter. AUTO_SLOW: the frame, in ms, past which the orbit eases off (autoGap doubles, twice, then parks) – sustained, under 30 fps: a slow engine (Safari, a phone) steps less often, a fast one keeps the pace
+const AUTO_FRAME=50, AUTO_PERIOD=45000, AUTO_FADE=2200, AUTO_SLOW=34, AUTO_SETTLE=1500   // twenty steps a second – ten read as a stutter. AUTO_SLOW: the frame, in ms, past which the orbit eases off (autoGap doubles, twice, then parks) – sustained, under 30 fps: a slow engine (Safari, a phone) steps less often, a fast one keeps the pace
 const AUTO_L=space.rgb.oklab(...rgbF(DEFAULT.s,DEFAULT.vals))[0]
-let autoColor=false, autoPark=false, autoStart=0, autoLast=0, autoJ='', autoF=0, autoFt=0, autoFtAt=0, autoGap=AUTO_FRAME, autoHold=0   // autoFtAt: when the pace was last restarted or acted on. autoHold: the moment the color field took focus – the orbit stands still while a color is being typed
+let autoColor=false, autoStart=0, autoLast=0, autoJ='', autoF=0, autoFt=0, autoFtAt=0, autoGap=0, autoBest=AUTO_SLOW/2, cardAt=-Infinity, autoHold=0   // autoFtAt: when the pace was last restarted or acted on. autoHold: the moment the color field took focus – the orbit stands still while a color is being typed
 // the last scroll anywhere – the page's, a dossier's, a list's sideways: a card's hover warm-up waits a scroll out (wireEnt),
-// the orbit and the solid's turn hold through it (autoStep, spin3)
+// the solid's turn holds through it (spin3), the orbit's pace leaves its frames out (autoStep)
 const SCROLL_QUIET=200; let scrollAt=-Infinity
 addEventListener('scroll',()=>{ scrollAt=performance.now() },{passive:true,capture:true})
 const autoStep=t=>{ if(!autoColor) return
-	autoPark=false
 	// the page's pace: its frames' running mean (the last ten or so) – counted once the color has come in (the boot's own
 	// frames are the page's, not the orbit's: they once parked Safari's orbit at its start) and only in view: frames a
 	// window away from view drops are the browser's, not a slow device's
-	autoFt=autoF&&t-autoStart>=AUTO_FADE&&document.hasFocus()&&!document.hidden?autoFt*.9+Math.min(t-autoF,250)*.1:0; autoF=t
-	// the page scrolling: the orbit holds where it stands – a scroll's frames paint the rows it brings in, not every strip
-	// again – and goes on from there once the page rests
-	if(t-scrollAt<SCROLL_QUIET+AUTO_SETTLE){ autoFt=0; autoFtAt=t }   // a scroll's frames, and the second after it while the rows it brought in paint, are the scroll's – not the orbit's pace
-	if(!autoHold&&t-scrollAt<SCROLL_QUIET){ autoStart+=t-autoLast; autoLast=t }
-	else if(!PDOWN&&!autoHold&&t-autoLast>=autoGap){ autoLast=t
+	autoFt=autoF&&t-autoStart>=AUTO_FADE&&document.hasFocus()&&!document.hidden?autoFt*.9+Math.min(t-autoF,250)*.1:0
+	if(autoFt&&t-autoF>=4) autoBest=Math.min(autoBest,t-autoF); autoF=t   // autoBest: the display's own frame, the shortest seen – what "back at speed" means here (17 ms read a 60 Hz screen's jitter as slow, for good)
+	// a scroll's frames, and the second after it while the rows it brought in paint, are the scroll's – not the orbit's pace;
+	// a card opened or walked to, its build's (cardAt): they once halved the orbit under every card, then twice. The orbit
+	// itself goes on through both, as through a turn of the solid – none takes the color, so none holds it
+	if(t-Math.max(scrollAt,cardAt)<SCROLL_QUIET+AUTO_SETTLE){ autoFt=0; autoFtAt=t }
+	// a press that may yet take the color (a finger on a strip, sideways a drag) holds it where it stands, and it goes on from
+	// there – no leap at the release (a held orbit's clock once ran on under the press)
+	if(PICK){ autoStart+=t-autoLast; autoLast=t }
+	// the pace: under a card every frame, as a drag paints its instruments – the catalog round it on its own tier
+	// (catalogBehind); on the catalog twenty steps a second, its strips' cost
+	else if(!autoHold&&t-autoLast>=Math.max(autoGap,open()?0:AUTO_FRAME)){ autoLast=t; const gap=Math.max(autoGap,open()?0:AUTO_FRAME)
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
 		// coprime, so the loop feels like a journey yet closes seamlessly at the wrap
 		master={ s:'oklch', vals:[AUTO_L+0.08*Math.sin(2*r)*w, (0.16+0.05*Math.sin(3*r))*w, h] }; autoJ=master.vals.join(); scheduleFast(true)
 		// a device that can't hold the pace (a weak CPU, a dossier's GL instruments on a weak GPU) steps less often – twice
-		// the gap, then twice again – and, still slow at four tenths of a second a step, PARKS: still ambient (virgin, URL
-		// untouched), just still – and tries again AUTO_RETRY later. Frames back at speed for three seconds win a step back: a
-		// slow spell (a card open over it, a long paint) once halved the pace for good, the next halved it again, then parked
-		// it for good – the orbit slower by the minute, then still
-		if(autoFt>AUTO_SLOW&&t-autoFtAt>1000){ autoFt=0; autoFtAt=t; if(autoGap<4*AUTO_FRAME) autoGap*=2; else{ autoPark=true; autoF=0; setTimeout(wake,AUTO_RETRY); return } }   // parked: the color rests, and settles
-		else if(autoGap>AUTO_FRAME&&autoFt&&autoFt<AUTO_SLOW/2&&t-autoFtAt>3000){ autoGap/=2; autoFtAt=t } }
+		// the gap, then twice again, five steps a second at the least – and wins a step back once its frames run at the
+		// display's own speed for three seconds. It never stops: a still color reads as one picked (it once parked, at four
+		// tenths of a second a step, for fifteen seconds)
+		if(autoFt>AUTO_SLOW&&t-autoFtAt>1000){ autoFt=0; autoFtAt=t; if(gap<4*AUTO_FRAME) autoGap=gap?gap*2:AUTO_FRAME }
+		else if(autoGap&&autoFt&&autoFt<autoBest*1.3&&t-autoFtAt>3000){ autoGap=autoGap>AUTO_FRAME?autoGap/2:0; autoFtAt=t } }
 	requestAnimationFrame(autoStep) }
 // a channel's number taken in hand holds the orbit, as the color field does: a value typed takes the color (its input's
 // scheduleFast), let go untouched the orbit goes on from where it stood – a click is a look, not a pick
 document.addEventListener('focusin',e=>{ if(autoColor&&!autoHold&&e.target.matches?.('.cv,.nv')) autoHold=performance.now() })
 document.addEventListener('focusout',e=>{ if(autoHold&&e.target.matches?.('.cv,.nv')&&!e.relatedTarget?.matches?.('#cval,.cv,.nv')){ autoStart+=performance.now()-autoHold; autoHold=0 } })
-// back from another window or tab: an orbit parked meanwhile goes on
-const wake=()=>{ if(!autoColor||!autoPark||document.hidden) return; autoPark=false; autoF=autoFt=0; autoLast=performance.now(); requestAnimationFrame(autoStep) }
-addEventListener('focus',wake); document.addEventListener('visibilitychange',wake)
 addEventListener('blur',()=>{ if(document.activeElement===cvalEl&&!cvalEl.value.trim()) cvalEl.blur() })   // the window let go: an empty field lets go too – its orbit back; one typed in keeps its list for the return (a screenshot, a glance at another window)
 // the color let go (its value emptied): the boot gray again, the hash gone, the orbit again where motion is welcome
 const ambient=()=>{ BOOT.hash=''; autoHold=0; STOPS=null; GRAD=null; STOPI=0; M0.s=DEFAULT.s; M0.vals=DEFAULT.vals.slice(); master=M0
@@ -3215,7 +3224,7 @@ const MCATPREV=`<button class="mnav mcat prev" data-cdir="-1" aria-label="${t('u
 const MCATNEXT=`<button class="mnav mcat next" data-cdir="1" aria-label="${t('ui.nav.next-cat','next category')}"><span class="mstack"><i class="catn catnext"></i><span class="mn mnextc"></span></span>${icon('next2')}</button>`
 // two groups pushed to the modal's sides: prev on the left, next on the right; the category jump rides outermost, small
 const MNAV=(cls,cat)=>`<nav class="mnavbar ${cls}" aria-label="${t('ui.nav.label','adjacent color spaces')}"><span class="ngrp">${cat?MCATPREV:''}${MNAVPREV}</span><span class="ngrp">${MNAVNEXT}${cat?MCATNEXT:''}</span></nav>`
-function openModal(s,push=true){ behindSeen=null
+function openModal(s,push=true){ behindSeen=null; cardAt=performance.now()
 	push&&=!openModal.dir&&(modal.hidden||s!==selected)   // a card opened, or a link's – an entry; prev/next walks the one in hand
 	if(modal.hidden){ modalReturn=document.activeElement; addEventListener('wheel',wheelOff,{ passive:false }) }
 	const b=barredByKey.get(s)
@@ -3264,7 +3273,6 @@ function buildBarred(b){
 	 </div></div></section>
 	 ${MNAV('mfoot')}` }
 function closeModal(push=true){ if(EMBED) return   // an embedded card is the whole document – Esc, backdrop and ✕ have nothing to return to
-	if(modal._st){ modal._st=0; modal.scrollTop=0 }   // the next card opens at its top: a hidden scroller keeps its offset
 	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen')
 	paintCatalogVals(screenEnts()); paintCatalogGrad(); ric(()=>paintCatalogVals())   // the catalog slept behind the dossier — catch it up to whatever the modal picked: what shows now, its strips from the pool, the band's numbers at idle
 	removeEventListener('wheel',wheelOff); urlWrite(spaceURL('')+keepSearch()+colorHash(),push)
@@ -4318,7 +4326,7 @@ const inSolid3=(s,cls,g3,v)=>{ try{
 }catch{ return false } }
 // split a straight model-space guide into inside/outside-the-solid runs (the dashed
 // marker perpendiculars): membership sampled through unmap3, flips bisected sharp
-function ghostRuns(n0,n1,s,cls,g3){ const NS=24
+function ghostRuns(n0,n1,s,cls,g3){ const NS=12   // twelve samples, each crossing bisected sharp: a guide is split every frame of the orbit
 	const at=t=>n0.map((x2,k)=>x2+(n1[k]-x2)*t)
 	const IN=t=>{ if(!pts3Unmap) return false
 		const v=pts3Unmap(at(t)); return v.every(isFinite)&&inSolid3(s,cls,g3,v) }
@@ -4860,8 +4868,9 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	const planeHTML=(a,b)=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas width="216" height="216"></canvas><div class="cx"></div><button type="button" class="laby" data-ax="y" title="${cname(cls.ch[b])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[b].sym}</button><button type="button" class="labx" data-ax="x" title="${cname(cls.ch[a])} – ${t('ui.dossier.axis-tip','click to turn this axis to the next channel')}">${cls.ch[a].sym}</button>${polarPl(cls,a,b)?`<button class="pmode" title="${t('ui.dossier.disc','disc ↔ square')}"></button>`:triPl(s,cls,a,b)?`<button class="pmode tri t${triPl(s,cls,a,b)}" title="${t('ui.dossier.tri','triangle ↔ square')}"></button>`:''}</div>`
 	// the space's catalog section, read straight off the catalog DOM — one source
 	const dsec=activeSecs().find(c2=>c2.spaces.includes(s)), dcat=dsec?secName(dsec):''   // the ACTIVE grouping's section – from the data, not the catalog DOM (name views open before the catalog builds)
-	// a card scrolled down (the foot's next) starts the next at its top – reset before the new markup, while the old one is
-	// laid out: after it, the reset forced the new card's whole layout inside the click (40–100 ms in Chrome)
+	// a card scrolled down (the foot's next, or a card closed scrolled – a hidden scroller keeps its offset, and a reset at the
+	// close would jump the card fading out) starts the next at its top – reset before the new markup: after it, the reset
+	// forced the new card's whole layout inside the click (40–100 ms in Chrome)
 	if(modal._st){ modal._st=0; modal.scrollTop=0 }
 	detail.innerHTML=`<div class="dh">${dcat?`<p class="dcat">${dcat}</p>`:''}<h1 id="dtitle">${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1><p class="dkinds">${['geo','curve','sig','range','white'].map(k=>kindIcon(k,s,k==='white'&&prof?`${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:'')).join('')}</p></div>
 	 <hr class="dhr">
@@ -5733,13 +5742,13 @@ const glLanded=(k,sp)=>{ if(k==='plane'&&sp) glCards.add(sp)   // a card's plane
 	if(all||K.has('gamut')) paintGamut()
 	if(all||K.has('img')) paintImages() }) }
 setGLReady(glLanded)
-let PDOWN=false
+let PDOWN=false, PICK=false   // PICK: the press may yet take the color – the orbit holds for it (autoStep)
 const veil=document.body.appendChild(Object.assign(document.createElement('div'),{ className:'veil', hidden:true }))   // the drag's cursor: none, over everything
 let veilAt=null, heldEl=null   // where a press on an instrument began – the veil waits for it to move; the instrument held (.held: no cursor over it)
 // a press of any button but the main one starts nothing here – the right one began a drag, hid the cursor under its veil,
 // then its menu took the release, and the drag never ended; a menu asked in a drag (⌃ on a Mac – the fine drag's key) is
 // not opened over an instrument
-addEventListener('pointerdown',e=>{ if(e.button>0){ e.stopPropagation(); return } if(e.isPrimary){ PDOWN=true
+addEventListener('pointerdown',e=>{ if(e.button>0){ e.stopPropagation(); return } if(e.isPrimary){ PDOWN=true; PICK=!!e.target.closest?.('.ch,.bar2')
 	if(e.target.closest?.(e.pointerType==='mouse'?'.ch,.bar2,.pl,.cd,#imgpk':'.pl,.cd,#imgpk')) autoColor=false   // a finger on a strip may be scrolling the page (pan-y): the orbit only holds still – the strip's drag, once it moves sideways, takes the color
 	if(e.pointerType==='mouse'&&e.target.closest?.('.ch:not(.mini .ch),.bar2,.pl')&&!e.target.closest('button')) veilAt=[e.clientX,e.clientY]
 	if(e.pointerType==='mouse'){ heldEl=e.target.closest?.('.ch:not(.mini .ch),.bar2,.pl,.cl,.bch .bnm'); if(heldEl&&!e.target.closest('button')) heldEl.classList.add('held'); else heldEl=null } } },true)
@@ -5755,12 +5764,13 @@ const owe=k=>{ OWED|=k }
 // that frame is on screen: the full repaint (every row's ranges at full quality, the planes at full resolution) once held
 // the frame the cursor came back in, a third of a second. A press before then takes it over; its own release settles
 const afterRelease=fn=>requestAnimationFrame(()=>setTimeout(()=>{ if(!PDOWN) fn() }))
-const lift=()=>{ PDOWN=false; veil.hidden=true; veilAt=null; heldEl?.classList.remove('held'); heldEl=null
+const lift=()=>{ PDOWN=PICK=false; veil.hidden=true; veilAt=null; heldEl?.classList.remove('held'); heldEl=null
 	if(OWED) afterRelease(()=>{ const o=OWED; OWED=0
 		if(o&4) glLanded()
-		if(o&1&&!open()&&(!autoColor||autoPark)) settleCatalog()
+		if(o&1&&!open()&&!autoColor) settleCatalog()
 		if(o&2&&open()&&!isBarred(selected)) queuePlaneSettle() }) }
 addEventListener('pointerup',e=>{ if(e.isPrimary) lift() },true)
+addEventListener('pointercancel',e=>{ if(e.isPrimary) lift() },true)   // a finger's press the page's scroll took: no release follows – a press held for good once held the orbit with it
 addEventListener('contextmenu',e=>{ if(PDOWN&&e.target.closest?.('.ch,.bar2,.pl,.cd,#imgpk,.pl3d,.gam2d,.veil')) e.preventDefault() },true)
 addEventListener('pointercancel',e=>{ if(e.isPrimary) lift() },true)
 addEventListener('blur',lift)
@@ -5900,7 +5910,7 @@ const catalogBehind=()=>{ if(behindT) return
 		if((behindSeen??=getComputedStyle(cat).visibility!=='hidden')===false) return   // nothing of it on screen: its rows catch up as the card closes
 		behindLast=performance.now(); vfF={}; vfM=master
 		const rows=screenEnts(); paintCatalogPickers(rows); paintCatalogVals(rows,{thumbs:false}); if(!PDOWN) paintCatalogGrad(rows)
-		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) },Math.max(0,CATALOG_VALUE_THROTTLE-(performance.now()-behindLast))) }
+		for(const ent of planeEnts) if(screenVis.has(ent.dataset.s)) paintEntPlanes(ent) },Math.max(0,(autoColor?4:1)*CATALOG_VALUE_THROTTLE-(performance.now()-behindLast))) }   // the orbit's under a card: the card every frame, the rows round it a step every 400 ms
 // at rest: the numbers in full, and the band round the screen at the color too – the rows a scroll brings in next are ready
 const settleCatalog=()=>{ OWED&=~1; flushCatalogValues(); paintCatalogGrad() }
 // where a coordinate of the plane's space lands on a plane, in % of its box: the dossier's planes in their mode – the disc,
@@ -6275,7 +6285,7 @@ const scheduleFast=(ambient=false)=>{ if(!ambient){ autoColor=false }
 		renderFast()
 		// the settle is for a color at rest: the orbit never rests – a frame late past the settle would repaint every row
 		// in full under a color the next step replaces, and that repaint makes the next frame late (a 1 s stall, looping)
-		clearTimeout(settleT); settleT=setTimeout(()=>{ if(PDOWN) owe(1); else if(!open()&&(!autoColor||autoPark)) settleCatalog() },CURRENT_SETTLE)
+		clearTimeout(settleT); settleT=setTimeout(()=>{ if(PDOWN) owe(1); else if(!open()&&!autoColor) settleCatalog() },CURRENT_SETTLE)
 		// the planes at most every planeNext (a CPU paint's own cost), and always the last color: a change inside the wait
 		// is painted when it ends, not left on the one before
 		clearTimeout(planeTrailT); planeTrailT=0
@@ -6306,6 +6316,20 @@ function setUITemp(K){ const st=document.documentElement.style
 window.setUITemp=setUITemp   // the future kelvin lens on the hero bar drives this
 const tempQ=new URLSearchParams(location.search).get('temp')
 if(tempQ!=null) setUITemp(+tempQ||0); else{ let k0; try{ k0=localStorage.csTemp }catch{}; if(k0) setUITemp(+k0) }
+// the questions' answers and the Alternatives' sheet unfold where CSS can't ease a height to auto (no interpolate-size:
+// Safari, Firefox): the details' own height eased from where it stands to where it lands, by the Web Animations API; a
+// press mid-way turns it back from there; reduced motion, at once
+if(!CSS.supports('interpolate-size','allow-keywords')){ const rs=getComputedStyle(document.documentElement)
+	const ms=parseFloat(rs.getPropertyValue('--dur-short'))||220, ease=rs.getPropertyValue('--ease-out').trim()||'ease-out'
+	for(const d of document.querySelectorAll('details.fqa,details.vsd')){ const sm=d.querySelector('summary')
+		sm.addEventListener('click',e=>{ if(matchMedia('(prefers-reduced-motion: reduce)').matches) return
+			e.preventDefault(); const open=!d.open||d._shut, from=d.getBoundingClientRect().height
+			d._anim?.cancel(); d._shut=!open; d.style.overflow='clip'
+			if(open) d.open=true
+			const cs=getComputedStyle(d), to=open?d.getBoundingClientRect().height:sm.getBoundingClientRect().height+['paddingTop','paddingBottom','borderTopWidth','borderBottomWidth'].reduce((t,k)=>t+parseFloat(cs[k]),0)
+			const a=d._anim=d.animate([{ height:from+'px' },{ height:to+'px' }],{ duration:ms, easing:ease, fill:'forwards' })   // held at its end till the details itself is there – no frame at full height before a close lands
+			a.pause(); requestAnimationFrame(()=>requestAnimationFrame(()=>{ if(d._anim===a) a.play() }))   // held at its start through the frame that lays the sheet out (WebKit: 120 ms) – else the ease was spent before its first frame
+			a.onfinish=()=>{ d._anim=null; if(d._shut){ d.open=false; d._shut=false } a.cancel(); d.style.overflow='' } }) } }
 // API code panel — tabs swap which snippet shows
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const panes=[...tabs.querySelectorAll(':scope > [data-p]')], btns=[...tabs.querySelectorAll('.tabrow button')]
