@@ -709,14 +709,14 @@ function presentKernel(cv2d, deferred, at) {
 function flushCells() {
 	const b = cells; cells = null
 	if (!b) return
-	const H = CV.height
-	for (const c of b.list) { const d = c.cv2d
-		if (d._glRev !== c.rev) continue   // painted again in the batch: the newer cell is its
-		const ctx = d.getContext('2d')
-		if (b.enc) { const px = new Uint8ClampedArray(c.w * c.h * 4), row = c.w * 4
-			G.readPixels(c.x, c.y, c.w, c.h, G.RGBA, G.UNSIGNED_BYTE, px)
-			const img = new ImageData(c.w, c.h, { colorSpace: 'display-p3' })
-			for (let y = 0; y < c.h; y++) img.data.set(px.subarray((c.h - 1 - y) * row, (c.h - y) * row), y * row)   // GL's rows run bottom up
+	const H = CV.height, live = b.list.filter(c => c.cv2d._glRev === c.rev)   // a canvas painted again in the batch: its newer cell is its
+	// P3 cells go out raw: one read of the batch's box – each read waits on the GPU, and a read a cell cost a frame 7 ms in
+	// Chrome (3.3 for the one), 9.4 in WebKit (6.7)
+	const W = b.enc && Math.max(0, ...live.map(c => c.x + c.w)), BH = b.enc && Math.max(0, ...live.map(c => c.y + c.h)), all = b.enc && W && BH && new Uint8ClampedArray(W * BH * 4)
+	if (all) G.readPixels(0, 0, W, BH, G.RGBA, G.UNSIGNED_BYTE, all)
+	for (const c of live) { const d = c.cv2d, ctx = d.getContext('2d')
+		if (all) { const img = new ImageData(c.w, c.h, { colorSpace: 'display-p3' }), row = c.w * 4
+			for (let y = 0; y < c.h; y++) { const o = ((c.y + c.h - 1 - y) * W + c.x) * 4; img.data.set(all.subarray(o, o + row), y * row) }   // GL's rows run bottom up
 			ctx.putImageData(img, 0, 0) }
 		else { ctx.clearRect(0, 0, d.width, d.height); ctx.drawImage(CV, c.x, H - c.y - c.h, c.w, c.h, 0, 0, d.width, d.height) }
 		presented(d) }

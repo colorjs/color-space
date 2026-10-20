@@ -44,7 +44,7 @@ const siteHTML = () => { const index = readFileSync(join(root, 'web/index.html')
 	const shield = index.match(/<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13c0 5[\s\S]*?<\/svg>/)?.[0]
 	if (!shield) throw new Error('generate-og: the intro\'s shield mark (Reference-tested) is gone from web/index.html')   // the intro's own marks: Reference-tested's shield, Public domain's turned ©
 	return `<!doctype html><html lang="en"><meta charset="utf-8"><link href="./tokens.css" rel="stylesheet"><style>${index.match(/<style>([\s\S]*?)<\/style>/)[1]}</style><style>
-body{ overflow:hidden }
+body{ overflow:hidden } html{ scrollbar-gutter:auto }   /* a card, not a page: no scrollbar's room kept (the page's gutter cut the glow and the frame at its right) */
 .hero{ display:grid; place-items:center; width:auto; height:100vh; margin:0; padding:0 }   /* the page's hero – the top line's glow under it – the card its frame */
 .og{ display:grid; grid-template-columns:auto auto; column-gap:var(--s8) }   /* the locus as tall as the words beside it, the pair centred */
 .hlocus{ position:relative; display:block; align-self:center; height:80%; aspect-ratio:290/318; --tkc:var(--c) }   /* at rest – the colors, no outlines – a little under the words' height */

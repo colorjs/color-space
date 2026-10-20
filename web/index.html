@@ -912,7 +912,7 @@ body.himg #imgfloat{ display:block }
    stays LIVE: the current color, the filters, Limit, Quantize and Vision all keep working while the dossier is open
    (the row's own paper masks content passing under). */
 .modal[hidden]{ display:none }
-@media(pointer:coarse){ body.mopen{ overflow:hidden } }   /* the page's scroll locked under a card where a finger scrolls it – an overlay bar there, nothing shifts. A mouse's wheel is held by script (wheelOff): the page's overflow never changes, so its scrollbar never comes and goes – Safari brought a legacy bar back at the close, the whole page a bar's width to the left */
+html{ scrollbar-gutter:stable } body.mopen{ overflow:hidden } body.mopen .modal{ right:calc(-1 * var(--sb,0px)) }   /* the page's scroll locked under a card, one bar: the page's gives way to the card's in the same place – its room kept (the gutter), so nothing under it moves, and the card reaching into it. The page's own bar beside the card's read as two */
 /* the card comes and goes as the menus do: a fade and a short rise – translate set only on the way, so the resting card
    is no containing block. The fade is the card's own layer (the compositor's), its figures landing under it */
 .modal{ transition:display var(--dur-short) allow-discrete }
@@ -1782,6 +1782,10 @@ const autoStep=t=>{ if(!autoColor) return
 		if(autoFt>AUTO_SLOW&&t-autoFtAt>1000){ autoFt=0; autoFtAt=t; if(gap<4*AUTO_FRAME) autoGap=gap?gap*2:AUTO_FRAME }
 		else if(autoGap&&autoFt&&autoFt<autoBest*1.3&&t-autoFtAt>3000){ autoGap=autoGap>AUTO_FRAME?autoGap/2:0; autoFtAt=t } }
 	requestAnimationFrame(autoStep) }
+// the orbit's step on the catalog's strips where it steps slowly – the pace eased off (a tenth of a second a step or more),
+// or the rows round a card on their 400 ms tier (catalogBehind): each strip's next face glides over its last in the step's
+// time, linearly – a glide, not a step (paintCatalogGrad, setCatalogGradient). 0: a step, as the hand's
+const orbitGlide=()=>{ if(!autoColor||PDOWN) return 0; const g=open()?4*CATALOG_VALUE_THROTTLE:Math.max(autoGap,AUTO_FRAME); return g>=100?g:0 }
 // a channel's number taken in hand holds the orbit, as the color field does: a value typed takes the color (its input's
 // scheduleFast), let go untouched the orbit goes on from where it stood – a click is a look, not a pick
 document.addEventListener('focusin',e=>{ if(autoColor&&!autoHold&&e.target.matches?.('.cv,.nv')) autoHold=performance.now() })
@@ -5784,11 +5788,14 @@ const RAMP_GUIDES=48
 let gbgMs
 const transitionMs=el=>{ const d=getComputedStyle(el).transitionDuration.split(',')[0].trim(); return parseFloat(d)*(d.endsWith('ms')?1:1000)||0 }
 // a new layer fades in from its @starting-style – no forced reflow per strip to arm the transition
+// morph: true, the page's cross-fade (--dur-short, eased out); a number, a glide of that many ms, linear – the orbit's
+// slow steps (orbitGlide), each face crossing over the last as the next comes
 const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=bg
 		ch._gradStack?.forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=null; return }
 	if(!ch._gradStack){ const base=document.createElement('i'); base.className='gbg'; base.setAttribute('aria-hidden','true')
 		base.style.background=ch.style.background; ch.prepend(base); ch.style.background='var(--panel)'; ch._gradStack=[base] }
 	const next=document.createElement('i'); next.className='gbg in'; next.setAttribute('aria-hidden','true'); next.style.background=bg
+	if(typeof morph==='number') next.style.transition=`opacity ${morph}ms linear`
 	ch._gradStack.at(-1).after(next); ch._gradStack.push(next)
 	let done=false
 	const finish=()=>{ if(done)return; done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
@@ -5798,7 +5805,7 @@ const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=b
 		stack.slice(0,i).forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=stack.slice(i) }
 	const onend=e=>{ if(e.propertyName==='opacity') finish() }
 	next.addEventListener('transitionend',onend)
-	const ms=gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
+	const ms=typeof morph==='number'?morph:gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
 const catalogLeadSpace=()=>open()&&!isBarred(selected)?selected:master.s
 // a strip's answer laid on – the row stamped whole once its last strip has it
 const sweepPaint=(ch,css,key,fade)=>{ setCatalogGradient(ch,css+', var(--checker)',fade); ch._g=key
@@ -5813,10 +5820,10 @@ const SWEEP=sweeps(sweepPaint)
 // colors and render lensless, the GL law again – their lists are the page's, so a palette's strips are computed here, a
 // frame's budget at a time. A cross-fade (fade) only for a settled change on screen: one no one sees is a layer, a
 // transition and a timer per strip for nothing, and one a frame would stack them
-function paintCatalogGrad(ents,now=false,morph=!(PDOWN||autoColor)){ const hx=hex(RGB()), leadSpace=catalogLeadSpace(), pal=PALMODES.has(Q), t=TRIPLE[Q]&&Q
+function paintCatalogGrad(ents,now=false,morph=!(PDOWN||autoColor)||orbitGlide()){ const hx=hex(RGB()), leadSpace=catalogLeadSpace(), pal=PALMODES.has(Q), t=TRIPLE[Q]&&Q
 	;(ents||visibleEnts()).forEach(ent=>{ const s=ent.dataset.s
 		const cls=classify(s), vals=valsFor(s), n=s==='rgb'?1:RAMP_GUIDES, lead=s===leadSpace, lens=gmFor(cls); if(!vals)return
-		const fade=morph&&screenVis.has(s)
+		const fade=screenVis.has(s)&&morph
 		const gkey=(lead?master.s+'|'+master.vals.join():hx)+`:0:${n}:${lens}:${qKey(Q)}${pal?':'+QM:''}`
 		;(ent._chs??=ent.querySelectorAll('.ch')).forEach((ch,i)=>{ if(ent===dragEnt&&i===dragEntI) return
 			if(ch._g===gkey){ if(ch._want!==gkey) SWEEP.done(ch,gkey); return }   // the color came back to what the strip shows: a wish for the one between drops
