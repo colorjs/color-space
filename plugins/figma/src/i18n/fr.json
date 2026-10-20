@@ -39,6 +39,10 @@
     "t": "{name} en ordonnée",
     "h": "1f2e239c"
   },
+  "pl.busy": {
+    "t": "Chargement…",
+    "h": "33ce4174"
+  },
   "pl.ch.slider": {
     "t": "Curseur {name}",
     "h": "05035347"

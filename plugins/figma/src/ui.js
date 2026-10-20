@@ -89,7 +89,7 @@ const NAME = 'name'   // the copy list's palette-name option
 // mine: the current paint as this UI last wrote it, shown over any re-read that trails a newer write
 // cur: the paint the host last marked current (p.current), so the panel follows that mark only when it moves
 // mates: the keys of the paints the current one shares its swatch with, an edit writes them all
-const S = { pv: 0, space: 'oklch', quant: 0, gamuts: {}, pairs: {}, disc: {}, snap: true, editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, cur: null, mates: [], vals: null, mine: null, own: [], lossy: false, error: '', live: false }
+const S = { pv: 0, space: 'oklch', quant: 0, gamuts: {}, pairs: {}, disc: {}, snap: true, editable: true, profile: 'SRGB', paints: [], images: [], img: new Map(), virtual: null, more: 0, mixed: 0, key: null, cur: null, mates: [], vals: null, mine: null, own: [], lossy: false, error: '', live: false, reading: false, slow: false, decoding: 0 }
 const $ = id => document.getElementById(id)
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e }
 // the host: Figma's frame, or a VS Code webview (plugins/vscode), whose only way out is its API; both speak {pluginMessage}
@@ -383,7 +383,7 @@ function update() {
 	const p = current()
 	setHidden($('empty'), !!p)
 	// an image still on its way says so; one that couldn't be read falls back to the plain hint
-	setText($('empty'), S.images.some(i => !S.img.has(i.hash)) ? t('pl.empty.reading', 'Reading the image…') : t('pl.empty.hint', 'Select a layer with a solid fill, a gradient or an image.'))
+	setText($('empty'), S.slow ? t('pl.busy', 'Loading…') : S.images.some(i => !S.img.has(i.hash)) ? t('pl.empty.reading', 'Reading the image…') : t('pl.empty.hint', 'Select a layer with a solid fill, a gradient or an image.'))
 	for (const id of ['paints', 'picker', 'spbtn']) setHidden($(id), !p)
 	// a long palette (a page's colors, a stylesheet's) shows the current one, once it is laid out and each time it moves
 	const pl = $('paints'), on = pl.querySelector('[aria-pressed="true"]')
@@ -680,6 +680,7 @@ function paint() {
 			labInk(cv, $('axes').querySelector('.laby'), [[0.03, 0.06], [0.08, 0.06], [0.13, 0.06]])
 			labInk(cv, $('axes').querySelector('.labx'), [[0.96, 0.96], [0.84, 0.96], [0.72, 0.96]])
 			labInk(cv, $('axes').querySelector('.pmode'), [[0.04, 0.96], [0.09, 0.96], [0.04, 0.91]])   // the switch inks like the letters
+			labInk(cv, $('busy'), [[0.96, 0.04], [0.91, 0.04], [0.96, 0.09]])   // and the circle, in the free corner
 			// the lines' ink read off the whole field only: zoomed in, the part in view would turn it at every pan, so it keeps
 			// the ink it had
 			if (whole() || pl._dark == null) pl._dark = fieldDark(cv, pl._dark)
@@ -1173,6 +1174,10 @@ document.documentElement.addEventListener('pointerleave', () => { hovered = null
 /* ---------- an image's pixels: dots on the plane ---------- */
 
 const pending = new Set()
+// a read under way – the host's walk of the layers (a page's thousands), an image's bytes and pixels – turns the circle in
+// the plane's corner (ui.html .busy: it shows only once the read has lasted a moment)
+const busy = () => setHidden($('busy'), !(S.reading || pending.size || S.decoding))
+let slowT = 0
 const decoded = () => S.images.map(i => S.img.get(i.hash)).filter(d => d && d.rgb)
 // the selection's images as one set of unique colors (each with its pixel count), their coordinates in the current
 // space computed in slices across frames – the picker draws first and never waits on them
@@ -1273,12 +1278,45 @@ function refreshVirtual() {
 	sync(true)
 	renderPaints()
 }
+// An image's pixels are decoded and sampled off the panel's thread: a page's photos, each decoded and scaled here, held
+// it ~100 ms apiece. A worker takes the bytes, scales the image to ≤ px a side and returns its opaque pixels as sRGB bytes,
+// as extract.js sampleImage does; where no worker runs (a host's policy) or it can't decode the file, the panel does it
+const SAMPLER = `onmessage = async ({ data: { id, bytes, px } }) => {
+	try {
+		const bmp = await createImageBitmap(new Blob([bytes])), k = Math.min(1, px / Math.max(bmp.width, bmp.height))
+		const w = Math.max(1, Math.round(bmp.width * k)), h = Math.max(1, Math.round(bmp.height * k))
+		const cx = new OffscreenCanvas(w, h).getContext('2d', { willReadFrequently: true })
+		cx.drawImage(bmp, 0, 0, w, h); bmp.close()
+		const d = cx.getImageData(0, 0, w, h).data, out = new Uint8Array(d.length / 4 * 3)
+		let n = 0
+		for (let i = 0; i < d.length; i += 4) if (d[i + 3] >= 128) { out[n++] = d[i]; out[n++] = d[i + 1]; out[n++] = d[i + 2] }
+		const rgb = out.slice(0, n)
+		postMessage({ id, rgb }, [rgb.buffer])
+	} catch (e) { postMessage({ id, error: String(e) }) }
+}`
+let sampler = vscode ? false : null, sampled = 0   // a VS Code webview's policy forbids a worker from a blob: the panel samples there
+const waiting = new Map()
+function sampleOff(bytes, px) {
+	if (sampler === null) try {
+		sampler = new Worker(URL.createObjectURL(new Blob([SAMPLER], { type: 'text/javascript' })))
+		sampler.onmessage = ({ data }) => { const done = waiting.get(data.id); waiting.delete(data.id); done && done(data.rgb || null) }
+		sampler.onerror = () => { sampler = false; for (const done of waiting.values()) done(null); waiting.clear() }   // no worker here: each falls back
+	} catch { sampler = false }
+	if (!sampler) return Promise.resolve(null)
+	const id = ++sampled
+	return new Promise(done => { waiting.set(id, done); sampler.postMessage({ id, bytes, px }) })
+}
 async function receiveImage(m) {
 	pending.delete(m.hash)
+	S.decoding++
+	busy()
 	await new Promise(r => requestAnimationFrame(() => setTimeout(r)))   // the picker's frame first; the image after it
 	let rgb = null
-	try { if (m.bytes) rgb = await sampleImage(new Blob([m.bytes]), 160) } catch {}   // ≤ 160 px a side: dots, and samples enough for a smooth histogram; missing or undecodable: none
+	// ≤ 160 px a side: dots, and samples enough for a smooth histogram; missing or undecodable: none
+	try { if (m.bytes) rgb = await sampleOff(m.bytes, 160) || await sampleImage(new Blob([m.bytes]), 160) } catch {}
 	S.img.set(m.hash, { rgb, mean: rgb && rgb.length ? paletteOf(rgb, 1)[0] : null })   // the pixel nearest the mean (OkLab), standing in as its color
+	S.decoding--
+	busy()
 	refreshVirtual()
 	update()
 }
@@ -1817,7 +1855,18 @@ window.addEventListener('message', e => {
 		useSpace(id)
 		warmFeatured()
 	}
+	// the host began a read: a long one (a page's layers) says so – the circle, and an empty panel's line – once it has
+	// lasted a moment; its answer ends it
+	else if (m.type === 'reading') {
+		S.reading = true
+		clearTimeout(slowT)
+		slowT = setTimeout(() => { if (S.reading) { S.slow = true; update() } }, 250)
+		busy()
+	}
 	else if (m.type === 'selection') {
+		S.reading = S.slow = false
+		clearTimeout(slowT)
+		busy()
 		const profile = m.profile !== S.profile
 		S.profile = m.profile
 		if (typeof m.editable === 'boolean') S.editable = m.editable   // a host whose documents differ (VS Code: a read-only one) says it per read
@@ -1827,6 +1876,7 @@ window.addEventListener('message', e => {
 		// way after release) shows the paint as written, not as it was a moment ago
 		if ((m.ack || 0) < sent && S.mine) for (const p of S.paints) if (S.mine.keys.includes(keyOf(p))) Object.assign(p, { r: S.mine.r, g: S.mine.g, b: S.mine.b, opacity: S.mine.opacity })
 		for (const { hash } of S.images) if (!S.img.has(hash) && !pending.has(hash)) { pending.add(hash); post({ type: 'image', hash }) }
+		busy()
 		S.more = m.more || 0
 		S.mixed = m.mixed || 0
 		let force = profile

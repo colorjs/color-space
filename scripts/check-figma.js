@@ -1412,6 +1412,63 @@ try {
 		await page.context().close()
 	}
 
+	// A page's read runs on Figma's own thread, so it hands the thread back every few milliseconds (code.js SLICE) and a newer
+	// read stops an older one; the panel hears a read began ('reading') and, once it has lasted a moment, turns a circle in
+	// the plane's free corner (top right) – an empty panel says it in words – till the answer lands
+	{
+		const nodes = Array.from({ length: 400 }, (_, k) => ({ id: `13:${k}`, name: `R${k}`, type: 'RECTANGLE', fills: [solid((k % 10) / 10, (k % 7) / 7, (k % 3) / 3)] }))
+		const { page, ui, errors } = await open({ profile: 'SRGB', editorType: 'figma', nodes, selection: [nodes[0].id], stored: { scope: 'page' } })
+		const types = await page.evaluate(() => window.__log.toUI.map(m => m.type))
+		ok(types.indexOf('reading') >= 0 && types.indexOf('reading') < types.indexOf('selection'), `a read says it began before it answers: ${types.slice(0, 4).join(', ')}`)
+		// the host's clock run fast (5 ms a call): the walk must yield – a timer set as the read starts fires before it answers –
+		// and a second read begun meanwhile is the only one that answers
+		const sliced = await page.evaluate(async () => {
+			const real = Date.now, log = window.__log, n0 = log.toUI.filter(m => m.type === 'selection').length
+			let now = real(), tick = null
+			Date.now = () => (now += 5)
+			try {
+				window.__select(['13:1']); window.__select(['13:2'])   // two reads, one after the other
+				setTimeout(() => { tick = log.toUI.filter(m => m.type === 'selection').length })
+				for (let k = 0; k < 400 && log.toUI.filter(m => m.type === 'selection').length === n0; k++) await new Promise(r => setTimeout(r, 5))
+				await new Promise(r => setTimeout(r, 200))
+				return { tick: tick - n0, answers: log.toUI.filter(m => m.type === 'selection').length - n0, current: log.toUI.filter(m => m.type === 'selection').at(-1).paints.find(p => p.current)?.id }
+			} finally { Date.now = real }
+		})
+		ok(sliced.tick === 0, `the walk hands the thread back: a timer set as it starts runs before it answers (${sliced.tick} answers by then)`)
+		ok(sliced.answers === 1 && sliced.current === '13:2', `a newer read stops the older one: ${sliced.answers} answer(s), current ${sliced.current}`)
+		// the circle: hidden while nothing is read; a read that lasts shows it, turning, in the plane's top right corner, at the
+		// letters' half strength; the answer hides it
+		const fr = page.frames().find(f => f !== page.mainFrame())
+		const busy = () => fr.evaluate(() => { const b = document.getElementById('busy'), r = b.getBoundingClientRect(), p = document.getElementById('plane').getBoundingClientRect(), cs = getComputedStyle(b), sp = getComputedStyle(b, '::before')
+			return { hidden: b.hidden, opacity: +cs.opacity, spin: sp.animationName, right: Math.round(p.right - r.right), top: Math.round(r.top - p.top), w: Math.round(r.width) } })
+		ok((await busy()).hidden, 'no read under way: no circle')
+		const first = await fr.evaluate(() => new Promise(done => { window.postMessage({ pluginMessage: { type: 'reading' } }, '*'); setTimeout(() => { const b = document.getElementById('busy'); done({ hidden: b.hidden, opacity: +getComputedStyle(b).opacity }) }) }))
+		ok(!first.hidden && first.opacity === 0, `a read just begun: the circle there, still clear (${JSON.stringify(first)})`)
+		await fr.waitForFunction(() => { const b = document.getElementById('busy'); return !b.hidden && +getComputedStyle(b).opacity === 0.5 }, null, { timeout: 3000 }).catch(() => {})
+		const on = await busy()
+		ok(!on.hidden && on.opacity === 0.5 && on.spin === 'busy' && on.right >= 0 && on.right <= 6 && on.top >= 0 && on.top <= 6, `a read that lasts turns the circle in the plane's top right corner: ${JSON.stringify(on)}`)
+		const last = await page.evaluate(() => window.__log.toUI.filter(m => m.type === 'selection').at(-1))
+		await fr.evaluate(m => window.postMessage({ pluginMessage: m }, '*'), last)
+		await fr.waitForFunction(() => document.getElementById('busy').hidden, null, { timeout: 3000 }).catch(() => {})
+		ok((await busy()).hidden, 'the answer hides it')
+		ok(!errors.length, `slicing page errors: ${errors.join(' | ')}`)
+		await page.context().close()
+	}
+	// an empty panel (no layer selected) says a long read in words, where the plane isn't
+	{
+		const { page, ui, errors } = await open({ profile: 'SRGB', editorType: 'figma', nodes: [{ id: '14:1', name: 'A', type: 'RECTANGLE', fills: [solid(1, 0, 0)] }], selection: [] })
+		const fr = page.frames().find(f => f !== page.mainFrame())
+		// timed in the frame (a timer never fires early, so the wait is at least its own whatever the machine's load)
+		const r = await fr.evaluate(() => new Promise(done => {
+			const e = document.getElementById('empty'), hint = e.textContent, t0 = performance.now()
+			window.postMessage({ pluginMessage: { type: 'reading' } }, '*')
+			setTimeout(() => { const quick = e.textContent; const poll = () => e.textContent !== hint ? done({ hint, quick, slow: e.textContent, after: Math.round(performance.now() - t0) }) : performance.now() - t0 > 3000 ? done({ hint, quick, slow: e.textContent, after: -1 }) : setTimeout(poll, 10); poll() })
+		}))
+		ok(r.quick === r.hint && r.slow === 'Loading…' && r.after >= 240, `an empty panel: the hint through a quick read, then "${r.slow}" after ${r.after} ms`)
+		ok(!errors.length, `empty reading page errors: ${errors.join(' | ')}`)
+		await page.context().close()
+	}
+
 	/* ---------- 2. DISPLAY_P3 document ---------- */
 	{
 		const profile = 'DISPLAY_P3'

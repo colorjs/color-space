@@ -39,6 +39,10 @@
     "t": "{name} nach oben",
     "h": "1f2e239c"
   },
+  "pl.busy": {
+    "t": "Wird geladen…",
+    "h": "33ce4174"
+  },
   "pl.ch.slider": {
     "t": "Regler {name}",
     "h": "05035347"

@@ -142,17 +142,22 @@ async function generate(node) {
 // colors of what it holds. Hidden descendants are skipped (a hidden layer selected itself is read); a huge tree stops
 // at WALK layers – the color slots stop at MAX anyway.
 const WALK = 2000
-function layers(selection, walk = WALK) {
-	const out = [], seen = new Set(), stack = selection.slice().reverse()
-	while (stack.length && out.length < walk) {
-		const n = stack.pop()
-		if (seen.has(n.id)) continue   // a group selected with one of its own layers: that layer once
-		seen.add(n.id)
-		out.push(n)
-		if ('children' in n) for (let k = n.children.length - 1; k >= 0; k--) if (n.children[k].visible !== false) stack.push(n.children[k])
+function* walk(selection, max = WALK) {
+	const seen = new Set(), stack = selection.slice().reverse()
+	let n = 0
+	while (stack.length && n < max) {
+		const node = stack.pop()
+		if (seen.has(node.id)) continue   // a group selected with one of its own layers: that layer once
+		seen.add(node.id)
+		n++
+		yield node
+		if ('children' in node) for (let k = node.children.length - 1; k >= 0; k--) if (node.children[k].visible !== false) stack.push(node.children[k])
 	}
-	return out
 }
+const layers = (selection, max) => [...walk(selection, max)]
+// a hidden layer inside an instance is never read (a hidden one is skipped anyway): Figma then leaves it out of the walk
+// at its source, much the faster on a page of components
+figma.skipInvisibleInstanceChildren = true
 
 // a vector layer's outline, for its icon (Figma's layer list draws a vector as its own shape): its paths in its own box –
 // none when it is longer than a 16 px icon is worth
@@ -167,16 +172,26 @@ function shapeOf(n) {
 
 // reads overlap (a selection change during a write's re-read); only the newest one answers. Each answer carries the
 // last write it has seen (ack: the UI's 'set' seq), so the UI can tell a read that trails its newer writes
+// The plugin runs on Figma's own thread: a read of a whole page (thousands of layers) held Figma and the panel still till
+// it was done. It reads in slices of SLICE ms instead, handing the thread back between them, and a newer read stops an
+// older one at the next slice; the panel is told a read began ('reading'), so a long one shows it is under way
+const SLICE = 12
 let reading = 0, acked = 0
 async function read() {
 	const seq = ++reading, ack = acked, memo = new Map()
 	const paints = [], images = []
-	let more = 0, mixed = 0
+	let more = 0, mixed = 0, t = Date.now()
+	figma.ui.postMessage({ type: 'reading' })
 	// the palette's scope: the selection's layers, or the page's (Figma's own On this page); there the selection's first
 	// color is marked current, so the panel opens on it
 	const page = scope === 'page', max = page ? PAGE : MAX, picked = new Set(page ? layers(figma.currentPage.selection).map(n => n.id) : [])
 	let marked = false
-	for (const node of layers(page ? figma.currentPage.children : figma.currentPage.selection, page ? WALK * 5 : WALK)) {
+	for (const node of walk(page ? figma.currentPage.children : figma.currentPage.selection, page ? WALK * 5 : WALK)) {
+		if (Date.now() - t > SLICE) {
+			await new Promise(r => setTimeout(r))
+			if (seq !== reading) return
+			t = Date.now()
+		}
 		// the layer's kind, as Figma's layer list draws it (the UI's icon for it): its type, a rectangle filled with an image an
 		// IMAGE – and a vector its own outline
 		const layer = node.type === 'RECTANGLE' && Array.isArray(node.fills) && node.fills.some(f => f.type === 'IMAGE' && f.visible !== false) ? 'IMAGE' : node.type, shape = shapeOf(node)

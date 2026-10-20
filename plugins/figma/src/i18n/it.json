@@ -39,6 +39,10 @@
     "t": "{name} in verticale",
     "h": "1f2e239c"
   },
+  "pl.busy": {
+    "t": "Caricamento…",
+    "h": "33ce4174"
+  },
   "pl.ch.slider": {
     "t": "Cursore {name}",
     "h": "05035347"

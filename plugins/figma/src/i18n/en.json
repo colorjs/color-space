@@ -9,6 +9,7 @@
 "pl.axis.out": {"t":"{name} out","h":"1965bef2"},
 "pl.axis.swap": {"t":"{axis}. Click for {other}","h":"689c399f"},
 "pl.axis.up": {"t":"{name} up","h":"1f2e239c"},
+"pl.busy": {"t":"Loading…","h":"33ce4174"},
 "pl.ch.slider": {"t":"{name} slider","h":"05035347"},
 "pl.channels": {"t":"Channels","h":"18e03e2a"},
 "pl.close": {"t":"Close","h":"bbfa773e"},

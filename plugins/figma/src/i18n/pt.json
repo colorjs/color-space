@@ -39,6 +39,10 @@
     "t": "{name} na vertical",
     "h": "1f2e239c"
   },
+  "pl.busy": {
+    "t": "Carregando…",
+    "h": "33ce4174"
+  },
   "pl.ch.slider": {
     "t": "controle deslizante de {name}",
     "h": "05035347"
