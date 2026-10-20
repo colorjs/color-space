@@ -473,7 +473,7 @@ test('gl: a lut chunk composes with its sampler and exact data', async () => {
 	// vertex stage), so measured spaces must discover and bind their LUT there.
 	const { readFileSync } = await import('node:fs')
 	const siteGL=readFileSync(new URL('../web/js/gl.js',import.meta.url),'utf8')
-	is(/draw\.lutN\s*=\s*lutNames\(fsSurf\)/.test(siteGL),true,'3D draw discovers measured-space LUTs')
+	is(/o\.lutN = lutNames\(fs\); st\.draws\.set\(k, o\)/.test(siteGL),true,'3D draw discovers measured-space LUTs')
 	is(/setU\(dr\.u\);\s*bindLuts\(gl,\s*dr\)/.test(siteGL),true,'3D draw binds measured-space LUTs')
 })
 

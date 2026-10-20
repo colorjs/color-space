@@ -1704,7 +1704,7 @@ import { definitionOf, rowsOf, ocioMatrix, formula, constants } from './js/defin
 import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath, GXY, limPath, heroLocus, heroNames, heroAt, HERO_LIMS } from './js/locus.js'
 import GROUPS from './js/groups.js'
 import REACH from './js/reach.js'
-import { softGL, warmKernels, glLinking, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
+import { softGL, warmKernels, glLinking, glSerial, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -1769,6 +1769,10 @@ const autoStep=t=>{ if(!autoColor) return
 	// there – no leap at the release (a held orbit's clock once ran on under the press)
 	if(autoT&&t-autoT<14){ requestAnimationFrame(autoStep); return }   // sixty a second at most: a 120 Hz screen's every frame doubled the work for no motion seen
 	const dt=autoT?t-autoT:0; autoT=t
+	// a frame that comes late – a GPU pipeline's build stood the screen still, a hidden tab – moves the color one step, not
+	// the whole wait: past it the orbit goes on from where it stood, the rows round a card cross-fading a step's change, not
+	// a second's leap (ΔE OK 0.037 across a 1 s stall, measured; 0.009 now – the 300 ms after it)
+	if(dt>4*AUTO_FRAME&&!PICK&&!autoHold) autoStart+=dt-AUTO_FRAME   // a held orbit keeps its own clock (PICK, autoHold)
 	if(PICK) autoStart+=dt
 	// every frame the color moves – the thumbs, the markers, the numbers glide (a light frame), and an open card's bars with
 	// them, backed off or not: a GPU sweep each, never stepped (a step cross-faded had its half-clear faces stack denser).
@@ -2869,7 +2873,7 @@ cat.addEventListener('pointerup',e=>{ const r=e.target; if(r.classList?.contains
 // which cards show them). Square, cut by the Limit – the dossier keeps the discs and cone sections ──
 const PVFLIP=new Set(), planeEnts=new Set()
 function paintEntPlanes(ent){ const s=ent.dataset.s, cls=classify(s), vals=valsFor(s); if(!vals) return
-	const gl=hasPlaneGL(s)&&planeGLStatus(s)==='ready'; if(!gl&&hasPlaneGL(s)) warmGL(s)
+	const gl=hasPlaneGL(s)&&planeGLStatus(s,GM,Q??0)==='ready'; if(!gl&&hasPlaneGL(s)) warmGL(s)
 	const q=typeof Q==='number'?Q:qTriple(Q)
 	ent.querySelectorAll('.pl').forEach(pl=>{ const a=+pl.dataset.a, b=+pl.dataset.b, ca=cls.ch[a], cb=cls.ch[b], cv=pl.querySelector('canvas')
 		const px=gl?Math.min(192,Math.round((pl.clientWidth||96)*(devicePixelRatio||1))):PDOWN?48:96
@@ -2935,7 +2939,7 @@ const wireEnt=ent=>{ const s=ent.dataset.s   // real spaces; barred cards wire t
 	// deliberate hover warms: a pointer that MOVES over the card – a card scrolled under a resting cursor enters it too, and
 	// its 50–150 ms of shader source would land as the scroll resumes. Compilation never lands inside a drag or a scroll
 	let warmed=false
-	const warm=()=>{ if(PDOWN||performance.now()-scrollAt<SCROLL_QUIET){ warmT=setTimeout(warm,300); return } warmT=0; warmed=true; warmGL(s); warmMesh3(s,GM) }
+	const warm=()=>{ if(PDOWN||performance.now()-scrollAt<SCROLL_QUIET){ warmT=setTimeout(warm,300); return } warmT=0; warmed=true; if(!glSerial()){ warmGL(s); warmMesh3(s,GM) } }
 	ent.addEventListener('pointermove',e=>{ if(!warmed&&!warmT&&(e.movementX||e.movementY)) warmT=setTimeout(warm,300) })
 	ent.addEventListener('pointerleave',()=>{ clearTimeout(warmT); warmT=0; warmed=false })
 	const adopt=()=>{ if(master.s!==s){ const mv=valsFor(s); if(!mv) return false; master={ s, vals:mv } } return true }
@@ -3262,7 +3266,7 @@ function openModal(s,push=true){ behindSeen=behindRows=null; cardAt=performance.
 	// frames a second or two). prev/next then opens straight into full-quality paint. Barred neighbours have no GL; a card
 	// shut before then is no walk (the build's bake opens and shuts 205 a language)
 	if(!b){ const dir=openModal.dir||1, todo=[...new Set([ord[(k+dir+n)%n],ord[(k-dir+n)%n],ord[(k+2*dir+2*n)%n]])].filter(s2=>!isBarred(s2))
-		const walk=()=>{ if(selected!==s||modal.hidden||!todo.length) return
+		const walk=()=>{ if(selected!==s||modal.hidden||!todo.length||glSerial()) return   // where a link blocks the page's own thread (glSerial), no walk
 			if(PDOWN||glLinking()||performance.now()-scrollAt<SCROLL_QUIET){ setTimeout(walk,250); return }
 			const s2=todo.shift(); warmGL(s2); warmMesh3(s2,GM); setTimeout(()=>ric(walk,{ timeout:1000 }),250) }
 		setTimeout(()=>ric(walk,{ timeout:1000 }),400) }
@@ -5680,7 +5684,7 @@ function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)||detai
 	// never a low-res preview that then "sharpens" – and the setGLReady callback
 	// paints full-res the moment linking lands (hover/neighbour warming makes that
 	// moment usually be before the modal even opens)
-	const stat=glq!==null&&hasPlaneGL(s)?planeGLStatus(s):null   // one shared program per space – one status for every plane and bar
+	const stat=glq!==null&&hasPlaneGL(s)?planeGLStatus(s,GM,glq):null   // one program per space and lens – one status for every plane and bar
 	const canGL=stat==='ready'
 	const pendGL=stat==='pending'
 	detail.querySelector('#planes')?.classList.toggle('busy',pendGL)   // blank plates pulse till their program lands
@@ -6157,8 +6161,8 @@ function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=
 	let pure=shown; if(shown&&s!==master.s){ try{ pure=toSpace(s,rgb) }catch{} }
 	// bars follow the global clustering mode: smooth gradient, N-step bands, or color-cluster bands
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
-	const barGL=planeGLStatus(s)==='ready'
 	const barGM=gmFor(cls)   // the one sweep-lens rule — see gmFor
+	const barGL=planeGLStatus(s,barGM,Q??0)==='ready'
 	const hpb=HIMG?histC.get(s):null
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]; stripMarks(bar,s,i); if(!PDOWN&&!light) barInk(bar)
 		// the image's distribution, in the dossier's own lane – same curve as the catalog's

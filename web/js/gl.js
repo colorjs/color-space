@@ -75,10 +75,15 @@ function pollLinks() {
 	}
 	if (linking.size) linkT = setTimeout(pollLinks, 25)
 }
+// Where the link runs on the page's own path – the fence after it a round trip that waits the compile out: WebKit, 0.35–1.06 s
+// a kernel – a speculative compile is a freeze on whatever the page does next; there the page compiles a card's own programs
+// alone (glSerial: its hover and prev/next warm-ups stand down). Chrome links on the driver's workers: its fence is free
+let serial = false
+export const glSerial = () => serial
 function track(gl, pr, resolve, st = {}) {
 	st.pr = pr; st.pending = true; st.bad = false; st.gl = gl; st.resolve = resolve
 	if (st.sync) gl.deleteSync(st.sync)
-	if (gl.fenceSync) { st.sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0); gl.flush() }   // WebGL 2; a WebGL 1 context asks the program at once
+	if (gl.fenceSync) { const t = performance.now(); st.sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0); gl.flush(); if (performance.now() - t > 100) serial = true }   // WebGL 2; a WebGL 1 context asks the program at once
 	linking.add(st)
 	if (!linkT) linkT = setTimeout(pollLinks, 0)
 	return st
@@ -124,12 +129,12 @@ function bindLuts(gl, st) {
 const FSQ_VS = `#version 300 es
 void main() { gl_Position = vec4(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0, 0.0, 1.0); }`
 
-// ONE program per space: the swept channel indices ride a uniform (uAB), so all
-// three bars and every plane pair share a single compile — six programs' worth of
+// ONE program per space and lens (planeFS): the swept channel indices ride a uniform (uAB), so
+// all three bars and every plane pair share a single compile — six programs' worth of
 // identical conversion library collapsed into one. Compiles run through a small
 // QUEUE (max 4 in flight): a burst of new spaces (fast scroll) no longer jams the
 // GPU process, so the page's sync GL calls never stall behind a deep driver queue.
-const planeProgs = new Map()   // s → { pr, pending, bad, u?, lutN }
+const planeProgs = new Map()   // `space|lens` → { pr, pending, bad, u?, lutN }
 const QMAX = 4, compileQ = []
 let compiling = 0
 const pump = () => { while (compiling < QMAX && compileQ.length) compileQ.shift()() }
@@ -139,19 +144,30 @@ const pump = () => { while (compiling < QMAX && compileQ.length) compileQ.shift(
 // every value of k is a real address of it, and the pole paints solid (a whole held slice at L = 0 is black, not a
 // ghost of black). A fold moves the color: HSM's mirror, HWB's w + b > 100 (its w alone set back changes the gray).
 // Same color = within ΔXYZ 0.02 + 0.2% (Y = 100 white): f32 noise, far under a visible step; NaN is never the same.
-const sameGLSL = (S, vt) => `bool same_(${vt} a, ${vt} b) { vec3 x = ${S}_xyz(a), y = ${S}_xyz(b); return length(x - y) <= 0.02 + 0.002 * length(x); }`
+// x: the coordinate's own XYZ, taken once by the caller – each conversion a call site is a copy of the space's chain in the
+// GPU pipeline, built whole at its first draw on the thread that composites the screen (Metal under ANGLE); the round trip
+// runs over the channels in a loop bound by a uniform (uDim) for the same reason: unrolled, three copies more
+const sameGLSL = (S, vt) => `bool same_(vec3 x, ${vt} b) { vec3 y = ${S}_xyz(b); return length(x - y) <= 0.02 + 0.002 * length(x); }`
 
-function planeFS(s) {
-	const d = dimOf(s), vt = VT[d]
+// A kernel is built for the lens it draws (L, lensOf): its gamut (uGam), its cluster lens (uClu), its edges (uEdge), its
+// encoding (uEnc) – compile-time constants, the other lenses' code never emitted. Metal under ANGLE builds a program's GPU
+// pipeline whole, at its first draw, on the thread that composites the screen: one kernel holding every lens stood the
+// page still 0.9–1.2 s at each new space (srlab2: palette 240 ms, the round trip through three gamuts 420, JND 145, edges
+// 95, the core 195). A lens taken for the first time builds its own, once
+function planeFS(s, L) {
+	const d = dimOf(s), vt = VT[d], S = san(s), G0 = ['', 'rgb', 'p3', 'rec2020'][L.gam] || ''
 	// Munsell's measured solid has a direct local-rim predicate in its LUT. Using
 	// its iterative inverse merely to rediscover that boundary made every plane
 	// compile and execute the 760-node search per pixel.
 	const faithful = s !== 'rgb' && d <= 3 && s !== 'munsell' && rtFaithful(s)
 	const pairs = s === 'rgb' ? [['rgb', 'xyz']] : [[s, 'rgb'], [s, 'xyz']]
-	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'], ['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'lab'])   // oklab both ways — the cluster lenses (uClu) live in it
-	pairs.push([s, 'p3'], ['rgb', 'p3'])   // a display-p3 destination canvas is painted in its own encoding (uEnc)
-	// the canonical-roundtrip lens (below) needs the INTO-space edge per display gamut
-	if (faithful) pairs.push(['rgb', s], [s, 'p3'], ['p3', s], [s, 'rec2020'], ['rec2020', s])
+	pairs.push(['xyz', 'lrgb'], ['xyz', 'p3-linear'], ['xyz', 'rec2020-linear'])
+	if (L.clu === 1) pairs.push(['rgb', 'oklab'], ['rgb', 'lab'])   // the palette lens's distances
+	if (L.clu === 2) pairs.push(['rgb', 'oklab'], ['oklab', 'rgb'])   // the JND grid lives in OKLab
+	if (L.enc) pairs.push([s, 'p3'], ['rgb', 'p3'])   // a display-p3 destination canvas is painted in its own encoding
+	// the canonical-roundtrip lens (below) needs the INTO-space edge of the display gamut drawn
+	const rtOn = faithful && G0
+	if (rtOn) pairs.push(G0 === 'rgb' ? ['rgb', s] : [s, G0], [G0, s])
 	const lib = glsl(pairs)
 	// a folded coordinate (HSM's mirrored inverse) converts to a plausible color yet
 	// reads back DIFFERENT — not a real color of the shown volume. Same law as the
@@ -164,21 +180,18 @@ function planeFS(s) {
 	// freedom): every coordinate is a legitimate address of the color it shows, so the
 	// canonical-roundtrip lens would ghost nearly the whole field — skip it.
 	// The lens also presumes a FAITHFUL inverse — see rtFaithful.
-	const rt = !faithful ? '' : `
+	const top = G0 === 'rgb' ? '255.0' : '1.0'
+	const rt = !rtOn ? '' : `
 		else {
 			${vt} bk;
 			${dirOnly(s) ? `// a chromaticity space discards luminance: its Y=100 convention overflows every
 			// display encoding, so the clamp below would MOVE every value and ghost the whole
 			// instrument — normalise the direction to peak first, then the round trip is fair
-			if (uGam == 1) { vec3 c0 = ${san(s)}_rgb(v); c0 *= 255.0 / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = rgb_${san(s)}(clamp(c0, 0.0, 255.0)); }
-			else if (uGam == 2) { vec3 c0 = ${san(s)}_p3(v); c0 *= 1.0 / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = p3_${san(s)}(clamp(c0, 0.0, 1.0)); }
-			else { vec3 c0 = ${san(s)}_rec2020(v); c0 *= 1.0 / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = rec2020_${san(s)}(clamp(c0, 0.0, 1.0)); }` : `if (uGam == 1) bk = rgb_${san(s)}(clamp(${san(s)}_rgb(v), 0.0, 255.0));
-			else if (uGam == 2) bk = p3_${san(s)}(clamp(${san(s)}_p3(v), 0.0, 1.0));
-			else bk = rec2020_${san(s)}(clamp(${san(s)}_rec2020(v), 0.0, 1.0));`}
-			for (int k = 0; k < ${d}; k++) {
+			vec3 c0 = ${S}_${G0}(v); c0 *= ${top} / max(max(c0.x, max(c0.y, c0.z)), 1e-5); bk = ${G0}_${S}(clamp(c0, 0.0, ${top}));` : `bk = ${G0}_${S}(clamp(${S}_${G0}(v), 0.0, ${top}));`}
+			for (int k = 0; k < uDim; k++) {
 				float dq = abs(bk[k] - v[k]);
 				${hueK >= 0 ? `if (k == ${hueK}) dq = min(dq, SPAN[k] - dq);` : ''}
-				if (!(dq <= SPAN[k] * 0.03)) { ${vt} w = v; w[k] = bk[k]; if (!same_(v, w)) al = 0.5; }
+				if (!(dq <= SPAN[k] * 0.03)) { ${vt} w = v; w[k] = bk[k]; if (!same_(xv, w)) al = 0.5; }
 			}
 		}`
 	const nativeRim = s === 'munsell' ? `
@@ -188,28 +201,25 @@ function planeFS(s) {
 precision highp float;
 precision highp int;
 ${lib}
-${faithful ? sameGLSL(san(s), vt) : ''}
+${rtOn ? sameGLSL(S, vt) : ''}
 ${spans}
 ${locusGLSL()}
-${namedGLSL()}
-${visSolidGLSL()}
+${L.clu === 1 ? namedGLSL() : ''}
+${L.gam === 4 ? visSolidGLSL() : ''}
 uniform vec4 uV;          // held channel values
 uniform ivec2 uAB;        // swept channel indices: x horizontal, y vertical (-1 = bar)
 uniform vec2 uRX, uRY;    // swept ranges (pan/zoom-windowed)
 uniform vec2 uRes;
 uniform vec2 uOff;        // viewport origin in window px – the strip atlas draws many rects into one canvas
 uniform float uQ;         // numeric coordinate lattice (0 = smooth)
-uniform int uGam;         // 0 off · 1 srgb · 2 p3 · 3 rec2020 · 4 human (spectral locus)
 uniform int uWeb;         // web-safe output snap
 uniform int uPolar;       // 1 → the field is a hue DISC: angle→a, radius→b
 uniform int uTri;         // cone-family vertical section: 1 cone · 2 bicone · 3 W+B triangle
-uniform int uClu;         // color-cluster lens: 1 nearest CSS named color · 2 even OKLab grid
-uniform int uEnc;         // 1 → encode Display P3, for a display-p3 canvas; else sRGB
-uniform int uEdge;        // gamuts drawn as lines over the field, bits: 1 srgb · 2 p3 · 4 rec2020
 uniform float uEdgeW;     // its width, device px
 uniform float uEdgeA;     // its opacity
 uniform float uEdgeInk;   // its ink: 1 white, 0 black, -1 each pixel's own (white on a dark color, black on a light one)
-uniform int uCut;         // 1 → past uGam's gamut is void, not ghost: the field ends where its gamut does
+uniform int uCut;         // 1 → past the lens's gamut is void, not ghost: the field ends where its gamut does
+uniform int uDim;         // the space's channels: the round trip's loop bound (sameGLSL)
 out vec4 O;
 // a gamut's edge as a line's coverage at this pixel (uEdgeW device px wide), lying just past the edge – from half a pixel
 // out. Each channel's distance past its face of the gamut's box, in encoded units over its screen-space gradient, is its
@@ -278,23 +288,20 @@ void main() {
 	vec3 rgb = ${s === 'rgb' ? 'vec3(v[0], v[1], v[2])' : `${san(s)}_rgb(v)`};
 	if (isnan(rgb.x) || isnan(rgb.y) || isnan(rgb.z)) rgb = vec3(0.0);
 	rgb = clamp(rgb, 0.0, 255.0);
-	if (uClu == 1) {   // a palette lens – OKLab Voronoi cells of the bound palette's sites
-		rgb = named_(floor(rgb + 0.5));
-	} else if (uClu == 2) {   // the JND lens – a neutral-centered OKLab grid at ~one just-noticeable step
-		vec3 okp = rgb_oklab(floor(rgb + 0.5));
-		okp = vec3((floor(min(okp.x, .9999) / .023) + .5) * .023, round(okp.y / .023) * .023, round(okp.z / .023) * .023);
-		rgb = floor(clamp(oklab_rgb(okp), 0.0, 255.0) + 0.5);
-	} else if (uClu == 3) {   // the 16-bit lens – RGB565 hardware depth
-		rgb = floor(floor(floor(rgb + 0.5) / 255.0 * vec3(31.0, 63.0, 31.0) + 0.5) / vec3(31.0, 63.0, 31.0) * 255.0 + 0.5);
-	}
+	${L.clu === 1 ? `rgb = named_(floor(rgb + 0.5));   // a palette lens – OKLab Voronoi cells of the bound palette's sites` : ''}
+	${L.clu === 2 ? `// the JND lens – a neutral-centered OKLab grid at ~one just-noticeable step
+	vec3 okp = rgb_oklab(floor(rgb + 0.5));
+	okp = vec3((floor(min(okp.x, .9999) / .023) + .5) * .023, round(okp.y / .023) * .023, round(okp.z / .023) * .023);
+	rgb = floor(clamp(oklab_rgb(okp), 0.0, 255.0) + 0.5);` : ''}
+	${L.clu === 3 ? `rgb = floor(floor(floor(rgb + 0.5) / 255.0 * vec3(31.0, 63.0, 31.0) + 0.5) / vec3(31.0, 63.0, 31.0) * 255.0 + 0.5);   // the 16-bit lens – RGB565 hardware depth` : ''}
 	float al = 1.0;
 	// the limits are a property of the COORDINATE, not the render mode: past the space's
 	// linear-light ceiling (±4× diffuse white for SDR display spaces, 500× for scene-referred/
 	// HDR) the formula's continuation is clamp noise, not colour (Luv's v'→0 pole, CAM16
 	// divergence): void. Smooth, stepped, 16-bit, JND and palette lenses void and ghost
 	// identically; the lens only quantises the colour drawn WHERE a colour exists.
-	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`};
-	vec3 lin = uGam == 2 ? xyz_p3linear(xyz) : uGam == 3 ? xyz_rec2020linear(xyz) : xyz_lrgb(xyz);
+	vec3 xyz = ${s === 'rgb' ? 'rgb_xyz(vec3(v[0], v[1], v[2]))' : `${san(s)}_xyz(v)`}, xv = xyz;   // xv: the round trip's, before a chromaticity space rescales xyz
+	vec3 lin = ${L.gam === 2 ? 'xyz_p3linear(xyz)' : L.gam === 3 ? 'xyz_rec2020linear(xyz)' : 'xyz_lrgb(xyz)'};
 	vec3 lS = xyz_lrgb(xyz), lP = xyz_p3linear(xyz), lR = xyz_rec2020linear(xyz);   // the edges' gamuts, read alike
 	${dirOnly(s) ? `// a CHROMATICITY space discards luminance — the honest gamut question is whether the
 	// DIRECTION is displayable at any luminance: scale to peak (display lenses) and to the
@@ -321,47 +328,50 @@ void main() {
 	// tessellates. The locus alone admits any luminance for a real chromaticity, so the
 	// picker used to paint a far larger field than the solid's cross-section: same word,
 	// two shapes, and the plane read as if zoomed against the solid.
-	else if (uGam == 4 && !(uAB.y < 0 ? inVisSolidExact(xyz) : inVisSolid(xyz))) al = 0.5;`}   // beyond the SURFACE solid but on the locus: a real light – ghost, like every other limit
+	${L.gam === 4 ? 'else if (!(uAB.y < 0 ? inVisSolidExact(xyz) : inVisSolid(xyz))) al = 0.5;' : ''}`}   // beyond the SURFACE solid but on the locus: a real light – ghost, like every other limit
 	// the display lenses instead GHOST real-but-undisplayable colours on top
-	else if (uGam != 0 && uGam != 4) {
+	${L.gam >= 1 && L.gam <= 3 ? `else {
 		// gamut pad in ENCODED units (±half a code value) – a linear pad is ~16 code
 		// values near black, over-painting scale-invariant chroma there (TSL's dark
 		// saturation swept far past the solid's own wall)
 		vec3 enc = mix(lin * 12.92, 1.055 * pow(max(lin, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, lin));
 		if (any(lessThan(enc, vec3(-0.002))) || any(greaterThan(enc, vec3(1.002)))) al = 0.5;${rt}
-	}
+	}` : ''}
 	if (uCut == 1 && al == 0.5) al = 0.0;
-	// the edges: gamuts' boundaries drawn as lines over the field (uEdge), the color painted either side, in one ink the page
+	// the edges: gamuts' boundaries drawn as lines over the field (the lens's), the color painted either side, in one ink the page
 	// names (uEdgeInk) or each pixel's own – white on a dark color, black on a light one (luminance under 0.6); drawn where
 	// a color is
 	float ew = 0.0;
-	if ((uEdge & 1) != 0) ew = max(ew, edgeCov(lS));
-	if ((uEdge & 2) != 0) ew = max(ew, edgeCov(lP));
-	if ((uEdge & 4) != 0) ew = max(ew, edgeCov(lR));
+	${L.edge & 1 ? 'ew = max(ew, edgeCov(lS));' : ''}
+	${L.edge & 2 ? 'ew = max(ew, edgeCov(lP));' : ''}
+	${L.edge & 4 ? 'ew = max(ew, edgeCov(lR));' : ''}
 	if (al == 0.0 || isnan(ew)) ew = 0.0;
 	if (uWeb == 1) rgb = floor(rgb / 51.0 + 0.5) * 51.0;
 	// a display-p3 destination: a smooth field paints the coordinate's own P3 color, not its sRGB
 	// clip; a quantized one re-encodes its sRGB result (palette and web-safe colors are sRGB)
-	if (uEnc == 1) {
-		vec3 p3c = uClu == 0 && uWeb == 0 ? ${san(s)}_p3(v) : rgb_p3(rgb);
-		rgb = any(isnan(p3c)) ? vec3(0.0) : clamp(p3c, 0.0, 1.0) * 255.0;
-	}
+	${L.enc ? `vec3 p3c = ${L.clu === 0 ? `uWeb == 0 ? ${S}_p3(v) : ` : ''}rgb_p3(rgb);
+	rgb = any(isnan(p3c)) ? vec3(0.0) : clamp(p3c, 0.0, 1.0) * 255.0;` : ''}
 	O = vec4(mix(rgb / 255.0, vec3(uEdgeInk >= 0.0 ? uEdgeInk : dot(rgb, vec3(0.2126, 0.7152, 0.0722)) < 153.0 ? 1.0 : 0.0), ew * uEdgeA), al);
 }`
 }
 
-function planeProg(s, soon) {
-	let st = planeProgs.get(s)
+// the lens a kernel is built for (planeFS): a gamut, a cluster lens, the edges drawn, the destination's encoding – what the
+// page draws now is what a warm-up builds next (LENS)
+const lensOf = (gamut, quant, enc = LENS.enc, look = null) => ({ gam: GAMI[gamut] || 0, clu: PALETTES[quant] ? 1 : quant === 'jnd' ? 2 : quant === '565' ? 3 : 0, edge: (look?.edges || []).reduce((m, g) => m | (EDGEB[g] || 0), 0), enc })
+let LENS = { gam: globalThis.matchMedia?.('(color-gamut: p3)').matches ? 2 : 1, clu: 0, edge: 0, enc: 0 }   // till a paint says: the page's Limit by default, the screen's gamut (index.html SHOWS)
+function planeProg(s, soon, L = LENS) {
+	const key = `${s}|${L.gam}${L.clu}${L.edge}${L.enc}`
+	let st = planeProgs.get(key)
 	if (!st) {
-		st = { pr: null, pending: true, bad: false, u: null, lutN: null, label:`plane ${s}`, kind: 'plane', space: s }
-		planeProgs.set(s, st)
+		st = { pr: null, pending: true, bad: false, u: null, lutN: null, label:`plane ${key}`, kind: 'plane', space: s }
+		planeProgs.set(key, st)
 		st.job = () => {
 			st.job = null
 			compiling++
 			st.onSettle = () => { compiling--; pump() }
 			// one try over codegen AND program creation — any throw must settle the slot,
 			// or the queue would jam with `compiling` stuck high
-			try { const fs = planeFS(s); st.lutN = lutNames(fs); build(G, FSQ_VS, fs, () => st.prime && primeKernel(s, st), null, st) }
+			try { const fs = planeFS(s, L); st.lutN = lutNames(fs); build(G, FSQ_VS, fs, null, null, st) }
 			catch(e) { console.warn(`color-space/gl plane ${s}:`,e.message); st.pending = false; st.bad = true; st.onSettle() }
 		}
 		compileQ.push(st.job)
@@ -372,28 +382,21 @@ function planeProg(s, soon) {
 	return st
 }
 
-/** 'ready' | 'pending' | 'no' — starts the async compile on first ask. */
-export function planeGLStatus(s) {
+/** 'ready' | 'pending' | 'no' for the kernel of a lens (the gamut and the quantizer a paint passes) – starts its async
+ *  compile on first ask */
+export function planeGLStatus(s, gamut, quant) {
 	if (!hasPlaneGL(s)) return 'no'
-	const st = planeProg(s, true)
+	const st = planeProg(s, true, gamut === undefined ? LENS : lensOf(gamut, quant))
 	return st.bad ? 'no' : st.pending ? 'pending' : 'ready'
 }
 
 /**
- * Start compiling a space's plane and bar program ahead of need: behind the programs asked for now, or (soon) ahead of
- * the other warm-ups. Primed on a GPU unless told not (prime false): one pixel drawn once it links – where a driver
- * builds its pipeline, a stall then rather than at the first real paint – never on a software rasterizer, kernels kept or not
- * (CS_GL): its first draw compiles the shader on the CPU, seconds every paint after it waits behind
+ * Start compiling a space's plane and bar program – for the lens the page draws now – ahead of need: behind the programs
+ * asked for now, or (soon) ahead of the other warm-ups. Compiled and linked only, on the driver's workers, never drawn: a
+ * pixel drawn to build its GPU pipeline ahead (Metal under ANGLE builds it at the first draw) built it on the thread that
+ * composites the screen – each neighbour warmed after an open stood the page still about a second
  */
-export const warmPlaneGL = (s, soon, prime = true) => { if (hasPlaneGL(s)) { const st = planeProg(s, soon); st.prime ||= prime && !softRaster() } }
-
-// A warmed program draws one pixel once it links: a driver may build the GPU pipeline only at a program's first draw
-// (Metal under ANGLE compiles its shader library there), which would otherwise stall the first real paint
-function primeKernel(s, st) {
-	flushCells()   // a pixel at CV's origin: the open batch's cells go out first
-	const ch = s === 'rgb' ? [0, 1, 2].map(() => ({ min: 0, max: 255 })) : classify(s).ch.slice(0, dimOf(s))
-	drawKernel(st, 1, 1, ch.map(c => (c.min + c.max) / 2), 0, 1, [ch[0].min, ch[0].max], [ch[1].min, ch[1].max], 'srgb', 0, false, 0, 'oklab')
-}
+export const warmPlaneGL = (s, soon) => { if (hasPlaneGL(s)) planeProg(s, soon) }
 
 /**
  * Start compiling a space's programs ahead of need (hover, prev/next neighbours):
@@ -617,7 +620,7 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	G.useProgram(st.pr)
 	// uniform locations resolve lazily at FIRST DRAW — at resolve time the GPU
 	// process is mid-compile-burst and each lookup stalls behind the whole queue
-	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uOff', 'uQ', 'uGam', 'uWeb', 'uPolar', 'uTri', 'uClu', 'uEnc', 'uEdge', 'uEdgeW', 'uEdgeA', 'uEdgeInk', 'uCut', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
+	st.u ??= Object.fromEntries(['uV', 'uAB', 'uRX', 'uRY', 'uRes', 'uOff', 'uQ', 'uWeb', 'uPolar', 'uTri', 'uDim', 'uEdgeW', 'uEdgeA', 'uEdgeInk', 'uCut', 'uMetric', 'uPalIdx', 'uPalSites'].map(n => [n, G.getUniformLocation(st.pr, n)]))
 	bindLuts(G, st)
 	KV4[0] = KV4[1] = KV4[2] = KV4[3] = 0; for (let i = 0; i < Math.min(4, vals.length); i++) KV4[i] = vals[i]
 	G.uniform4f(st.u.uV, KV4[0], KV4[1], KV4[2], KV4[3])
@@ -627,13 +630,10 @@ function kernelDraw(st, w, h, vals, a, b, rx, ry, gamut, quant, polar, tri, metr
 	G.uniform2f(st.u.uRes, w, h)
 	G.uniform2f(st.u.uOff, ox, oy)
 	G.uniform1f(st.u.uQ, typeof quant === 'number' ? quant : 0)
-	G.uniform1i(st.u.uGam, GAMI[gamut] || 0)
 	G.uniform1i(st.u.uWeb, quant === 'web' ? 1 : 0)
 	G.uniform1i(st.u.uPolar, polar ? 1 : 0)
 	G.uniform1i(st.u.uTri, tri || 0)
-	G.uniform1i(st.u.uClu, PALETTES[quant] ? 1 : quant === 'jnd' ? 2 : quant === '565' ? 3 : 0)
-	G.uniform1i(st.u.uEnc, enc)
-	G.uniform1i(st.u.uEdge, (look?.edges || []).reduce((m, g) => m | (EDGEB[g] || 0), 0))
+	if (st.u.uDim) G.uniform1i(st.u.uDim, dimOf(st.space))
 	G.uniform1f(st.u.uEdgeW, look?.width ?? 1)
 	G.uniform1f(st.u.uEdgeA, look?.alpha ?? 1)
 	G.uniform1f(st.u.uEdgeInk, look?.ink ?? -1)
@@ -728,9 +728,10 @@ const presented = cv2d => cv2d.dispatchEvent(new Event('present'))
 // look: { edges: ['srgb' | 'p3' | 'rec2020'…], width: device px, alpha, ink: 1 white | 0 black (else each pixel's), cut } – edges draws those gamuts' boundaries as lines
 // over the field, inked against it; cut voids the field past `gamut` instead of ghosting it
 export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, deferred = false, look = null) {
-	const st = planeProg(s)
+	const enc = encOf(cv2d), L = lensOf(gamut, quant, enc, look); if (!look) LENS = L
+	const st = planeProg(s, true, L)
 	if (!st.pr || st.bad || st.pending) return false
-	const enc = encOf(cv2d), at = cellFor(cv2d.width, cv2d.height, enc)
+	const at = cellFor(cv2d.width, cv2d.height, enc)
 	drawKernel(st, cv2d.width, cv2d.height, vals, a, b, rx, ry, gamut, quant, polar, tri, metric, enc, look, at)
 	return presentKernel(cv2d, deferred, at)
 }
@@ -741,10 +742,11 @@ export function paintPlaneGL(cv2d, s, vals, a, b, rx, ry, gamut, quant, polar, t
  * lens's distance, as for the planes – a bar and a plane of one lens agree.
  */
 export function paintBarGL(cv2d, s, vals, i, ri, gamut, quant = 0, metric, deferred = false, look = null) {
-	const st = planeProg(s)
-	if (!st.pr || st.bad || st.pending) return false
 	if (!cv2d.getContext('2d')) return false   // a canvas claimed by another context type — the CSS ramp covers it
-	const enc = encOf(cv2d), at = cellFor(cv2d.width, cv2d.height, enc)
+	const enc = encOf(cv2d), L = lensOf(gamut, quant, enc, look); if (!look) LENS = L
+	const st = planeProg(s, true, L)
+	if (!st.pr || st.bad || st.pending) return false
+	const at = cellFor(cv2d.width, cv2d.height, enc)
 	drawKernel(st, cv2d.width, cv2d.height, vals, i, -1, ri, [0, 0], gamut, quant, false, 0, metric, enc, look, at)
 	return presentKernel(cv2d, deferred, at)
 }
@@ -965,6 +967,7 @@ function mesh3State(cv) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, st.bakeBuf)
 	gl.bufferData(gl.ARRAY_BUFFER, Math.max(st.tvn, st.vvn, st.lvn) * 28, gl.DYNAMIC_COPY)
 	st.bakeKey = null
+	paneProgs(st)
 	mesh3States.set(cv, st)
 	return st
 }
@@ -1028,28 +1031,30 @@ uniform ivec2 uWb;
 uniform ivec2 uBip;   // bipolar (opponent) channel indexes, else -1
 uniform int uClip;    // 1 → box-in-base space (all-or-nothing achromatic collapse)
 uniform vec3 uWLo, uWHi;   // sanity window for the cone-wall bisection
+uniform int uSteps;   // its steps, 18 – a uniform, so the loop is never unrolled
 out vec3 tV;
 out vec3 tRgb;
 out float tBad;
 void main() {
-	${VT[3]} v = ${s === src ? unit : `${SRC}_${S}(${unit})`};
-	${s !== src ? `// past the encodable cone the coords go non-finite (log of negative light) or
+	${s === src ? `${VT[3]} v = ${unit};` : `// past the encodable cone the coords go non-finite (log of negative light) or
 	// fold into finite garbage (a sign-mirrored transfer, HSI's S at optimal colors),
 	// and a lone bad vertex shreds its triangles. "Bad" = outside the sanity window;
 	// bisect toward the neutral spine until the vertex lands ON the window wall,
 	// closing the surface along the intersection. NaN fails the comparisons too.
-	vec3 blo = uWLo, bhi = uWHi;
-	if (!(v.x > blo.x && v.x < bhi.x && v.y > blo.y && v.y < bhi.y && v.z > blo.z && v.z < bhi.z)) {
-		vec3 nw = ${src === 'xyz' ? 'vec3(aSrc.y * 0.9504559, aSrc.y, aSrc.y * 1.0890578)' : 'vec3((aSrc.r + aSrc.g + aSrc.b) / 3.0)'};
-		float lo = 0.0, hi = 1.0;
-		for (int i = 0; i < 18; i++) {
-			float md = (lo + hi) * 0.5;
-			vec3 vt = ${SRC}_${S}(mix(nw, aSrc, md) ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'});
-			if (vt.x > blo.x && vt.x < bhi.x && vt.y > blo.y && vt.y < bhi.y && vt.z > blo.z && vt.z < bhi.z) { lo = md; } else { hi = md; }
-		}
-		v = ${SRC}_${S}(mix(nw, aSrc, lo) ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'});
-		if (!(v.x > blo.x && v.x < bhi.x && v.y > blo.y && v.y < bhi.y && v.z > blo.z && v.z < bhi.z)) { v = ${SRC}_${S}(nw ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'}); }
-	}` : ''}
+	// One conversion, in one loop: step 0 the vertex itself, then the bisection, then its last step inside (lo), then the
+	// spine – a conversion called at four sites built four copies into the pipeline, and transform feedback's own vertex
+	// variant, built at the first bake on the thread that composites the screen (Metal under ANGLE), stood it still twice
+	// as long (CAM16: 0.45–0.51 s, 0.22 one site)
+	vec3 blo = uWLo, bhi = uWHi, nw = ${src === 'xyz' ? 'vec3(aSrc.y * 0.9504559, aSrc.y, aSrc.y * 1.0890578)' : 'vec3((aSrc.r + aSrc.g + aSrc.b) / 3.0)'}, v = vec3(0.0);
+	float lo = 0.0, hi = 1.0;
+	for (int i = 0; i < uSteps + 3; i++) {
+		float md = i == 0 ? 1.0 : i <= uSteps ? (lo + hi) * 0.5 : i == uSteps + 1 ? lo : 0.0;
+		vec3 vt = ${SRC}_${S}(mix(nw, aSrc, md) ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'});
+		bool inw = vt.x > blo.x && vt.x < bhi.x && vt.y > blo.y && vt.y < bhi.y && vt.z > blo.z && vt.z < bhi.z;
+		if (i == 0) { if (inw) { v = vt; break; } }
+		else if (i <= uSteps) { if (inw) lo = md; else hi = md; }
+		else { v = vt; if (inw) break; }
+	}`}
 	// a color indistinguishable from gray (sub-integer channel delta) – or too dark
 	// to carry chroma at all (chroma ratios degenerate at black: OSA-UCS's C divides
 	// by zero there) – has noise for chroma coordinates (okhsl S at near-white is
@@ -1096,12 +1101,14 @@ void main() {
 	gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 }`
 		const nativeQ=s==='rgb'?'clamp(qv / 255.0, 0.0, 1.0)':`softDisp(${S}_rgb(qv))`
-		const fsSurf = `#version 300 es
+		// cls (drawCls): 0 smooth, 1 a palette/JND/web lens's cells, 2 native 10/20 cells – only the last holds the space's code
+		const surfFS = cls => { const sp = [...(cls === 1 ? [['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'lab']] : []), ...(cls === 2 && s !== 'rgb' ? [[s, 'rgb']] : [])]
+			return `#version 300 es
 precision highp float;
 precision highp int;
-${glsl([['rgb', 'oklab'], ['oklab', 'rgb'], ['rgb', 'lab'], ...(s==='rgb'?[]:[[s, 'rgb']])])}
+${sp.length ? glsl(sp) : ''}
 ${SOFT_DISP}
-${quant3GLSL()}
+${cls === 1 ? quant3GLSL() : ''}
 in vec3 vRgb; in vec3 vN; in vec2 vHueV; in vec3 vF; in float vBad;
 uniform vec3 uCMin, uCMax;
 uniform vec3 uDMin, uDMax;   // the DECLARED box – where the slice outline is drawn
@@ -1158,13 +1165,13 @@ void main() {
 	// The same lens as the bars and planes reaches the solid. Palette lenses posterize
 	// sRGB output; 10/20 quantize the interpolated NATIVE coordinate and color the
 	// whole cell by its center – filled sections, without changing the gamut geometry.
-	if (uQuant >= 101) O.rgb = quant3_(vRgb, uQuant);
-	else if (uQuant > 1) {
+	${cls === 1 ? 'O.rgb = quant3_(vRgb, uQuant);' : ''}
+	${cls === 2 ? `{
 		vec3 span = max(uDMax - uDMin, vec3(1e-9));
 		vec3 f = clamp((vF - uDMin) / span, 0.0, 0.999999);
 		vec3 qv = uDMin + (floor(f * float(uQuant)) + 0.5) / float(uQuant) * span;
 		O.rgb = ${nativeQ};
-	}
+	}` : ''}
 	if (uGrid == 1) {
 		vec3 f = (vF - uDMin) / max(uDMax - uDMin, vec3(1e-9)) * 10.0;
 		vec3 width = fwidth(f);
@@ -1214,7 +1221,7 @@ void main() {
 	// hides it: the far arc still reads, at half weight, the way a hidden line should
 	if (uPass == 3) { if (!onCut) discard; O = vec4(1.0, 1.0, 1.0, 0.38); return; }
 	if (onCut) O = vec4(1.0, 1.0, 1.0, O.a);
-}`
+}` }
 		// caps: the space's own range-box faces. Display gamuts keep them only where
 		// the coords are in-gamut AND canonical (roundtrip), tested per PIXEL; the
 		// human view instead stencils the sliced mesh itself (see the uPass-2 parity)
@@ -1258,9 +1265,10 @@ ${SOFT_DISP}
 in vec3 vV;
 uniform vec3 uMin, uMax;
 uniform ivec4 uMap;
+uniform int uDim;   // 3: the round trip's loop bound (sameGLSL)
 out vec4 O;
 void main() {
-	vec3 lin = xyz_${GLIN}(${S}_xyz(vV));
+	vec3 xc = ${S}_xyz(vV), lin = xyz_${GLIN}(xc);
 	// pad in ENCODED units – a linear pad is several code values wide at black
 	vec3 enc = mix(lin * 12.92, 1.055 * pow(max(lin, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, lin));
 	if (!(enc.x >= -0.002 && enc.x <= 1.002 && enc.y >= -0.002 && enc.y <= 1.002 && enc.z >= -0.002 && enc.z <= 1.002)) discard;
@@ -1269,31 +1277,35 @@ void main() {
 	${s === 'munsell' ? 'if (vV.z > munsell_maxc_(vV.x, vV.y) + 0.0001) discard;' : ''}
 	${faithful ? `vec3 gv = ${gam === 'srgb' ? 'clamp(disp, 0.0, 255.0)' : `clamp(${S}_${G0}(vV), 0.0, 1.0)`};
 	vec3 back = ${G0}_${S}(gv);
-	for (int k = 0; k < 3; k++) {
+	for (int k = 0; k < uDim; k++) {
 		float d = abs(back[k] - vV[k]);
 		if (uMap.y == k) d = min(d, 360.0 - d);
-		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) { vec3 w = vV; w[k] = back[k]; if (!same_(vV, w)) discard; }   // NaN fails too; a pole stays (sameGLSL)
+		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) { vec3 w = vV; w[k] = back[k]; if (!same_(xc, w)) discard; }   // NaN fails too; a pole stays (sameGLSL)
 	}` : `// canonical-roundtrip discard omitted: this space's inverse is approximate
 	// (see rtFaithful) — the law would speckle-discard real cap fragments`}
 	O = vec4(softDisp(disp), 1.0);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
 			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
 		}, (pr) => gl.transformFeedbackVaryings(pr, ['tV', 'tRgb', 'tBad'], gl.INTERLEAVED_ATTRIBS), { kind: 'mesh', space: s })
 		bake.lutN = lutNames(vs)
-		// The draw program is shared across gamuts but not spaces: native 10/20 cells
-		// need this space's own inverse to color each section by its coordinate center.
-		if (!st.draws.has(s)) st.draws.set(s,build(gl, DRAW_VS, fsSurf, (o) => {
-			o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
-			uset(o)
-		}, null, { kind: 'mesh', space: s }))
-		const draw=st.draws.get(s)
-		// Native 10/20 coloring runs space→RGB in the DRAW fragment shader. Measured
-		// spaces therefore need their LUT here too; without it Munsell sections read
-		// the default unit-0 texture and the whole quantized solid rendered black.
-		draw.lutN = lutNames(fsSurf)
+		// The draw program colours the solid by its vertices' RGB: smooth, or in a palette/JND/web lens's cells, it holds no
+		// space's code – one program for every space and gamut, its pipeline built once (Metal under ANGLE builds it whole at
+		// the first draw, on the thread that composites the screen: 0.14 s at every new space). Native 10/20 cells colour each
+		// section by its coordinate center – they need this space's own inverse, a program of its own
+		const draw = cls => { const k = cls === 2 ? s : `·${cls}`
+			if (!st.draws.has(k)) { const fs = surfFS(cls), o = build(gl, DRAW_VS, fs, (o) => {
+					o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
+					uset(o)
+				}, null, { kind: 'mesh', space: cls === 2 ? s : undefined })
+				// Native 10/20 coloring runs space→RGB in the DRAW fragment shader. Measured
+				// spaces therefore need their LUT here too; without it Munsell sections read
+				// the default unit-0 texture and the whole quantized solid rendered black.
+				o.lutN = lutNames(fs); st.draws.set(k, o) }
+			return st.draws.get(k) }
+		draw(0)
 		const caps = !fsCap || s === src ? null : build(gl, vsCap, fsCap, (o) => {
 			o.aFrac = gl.getAttribLocation(o.pr, 'aFrac'); uset(o)
 		}, null, { kind: 'mesh', space: s })
@@ -1320,12 +1332,7 @@ export function warmMesh3(s, gam = 'srgb') {
 // the hovered slice plane, drawn as GEOMETRY in the same scene: the depth buffer
 // resolves the intersection with the body per pixel – hidden inside and behind it,
 // visible in front and beyond – the classic way. Vertices arrive in model space.
-function sheetProg(st) {
-	if (st.sheetP !== undefined) return st.sheetP
-	const gl = st.gl
-	const mk = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o)
-		return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null }
-	const vs = mk(gl.VERTEX_SHADER, `#version 300 es
+const SHEET_VS = `#version 300 es
 precision highp float;
 in vec3 aPos;
 uniform vec2 uRot;
@@ -1336,43 +1343,26 @@ void main() {
 	float X1 = x * ca + z * sa;
 	float Z1 = -x * sa + z * ca;
 	gl_Position = vec4(X1 * uScale, (y * cb - Z1 * sb) * uScale, -(y * sb + Z1 * cb) * 0.7, 1.0);
-}`)
-	const fs = mk(gl.FRAGMENT_SHADER, `#version 300 es
-precision highp float;
-uniform vec4 uTint;
-out vec4 O;
-void main() { O = uTint; }`)
-	if (!vs || !fs) return st.sheetP = null
-	const pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr)
-	if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return st.sheetP = null
-	return st.sheetP = { pr, aPos: gl.getAttribLocation(pr, 'aPos'),
-		uRot: gl.getUniformLocation(pr, 'uRot'), uScale: gl.getUniformLocation(pr, 'uScale'),
-		uTint: gl.getUniformLocation(pr, 'uTint'), buf: gl.createBuffer() }
-}
-
+}`
 // the pane's frame ribbons arrive ALREADY in clip space (the hud extrudes them to
 // screen-true widths); here they only meet the depth buffer – full in the open,
 // ghosted where the body is IN FRONT. The stencil dedups the joins' overlaps so
 // translucent strokes never bead.
-function frameProg(st) {
-	if (st.frameP !== undefined) return st.frameP
-	const gl = st.gl
-	const mk = (t, src) => { const o = gl.createShader(t); gl.shaderSource(o, src); gl.compileShader(o)
-		return gl.getShaderParameter(o, gl.COMPILE_STATUS) ? o : null }
-	const vs = mk(gl.VERTEX_SHADER, `#version 300 es
+const FRAME_VS = `#version 300 es
 precision highp float;
 in vec3 aPos;
-void main() { gl_Position = vec4(aPos, 1.0); }`)
-	const fs = mk(gl.FRAGMENT_SHADER, `#version 300 es
+void main() { gl_Position = vec4(aPos, 1.0); }`
+const TINT_FS = `#version 300 es
 precision highp float;
 uniform vec4 uTint;
 out vec4 O;
-void main() { O = uTint; }`)
-	if (!vs || !fs) return st.frameP = null
-	const pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs); gl.linkProgram(pr)
-	if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) return st.frameP = null
-	return st.frameP = { pr, aPos: gl.getAttribLocation(pr, 'aPos'),
-		uTint: gl.getUniformLocation(pr, 'uTint'), buf: gl.createBuffer() }
+void main() { O = uTint; }`
+// both link with the solid's context, in the background like every program: made at a plane's first hover, their
+// compile and link were waited out there (a status read each), up to 60 ms of the pointer's move
+const paneProgs = (st) => {
+	const gl = st.gl, locs = (o, us) => { o.aPos = gl.getAttribLocation(o.pr, 'aPos'); for (const n of us) o[n] = gl.getUniformLocation(o.pr, n); o.buf = gl.createBuffer() }
+	st.sheetP = build(gl, SHEET_VS, TINT_FS, o => locs(o, ['uRot', 'uScale', 'uTint']), null, { kind: 'mesh' })
+	st.frameP = build(gl, FRAME_VS, TINT_FS, o => locs(o, ['uTint']), null, { kind: 'mesh' })
 }
 
 // ── the image inside the solid: its samples as a point cloud, converted by the SAME
@@ -1403,21 +1393,17 @@ void main() {
 	if (r > 1.0) discard;
 	O = vec4(vec3(1.0), 0.24 * (1.0 - r * r));   // translucent marks accumulate into a white cloud only where samples overlap
 }`
-	const sh = (t, src) => { const h = gl.createShader(t); gl.shaderSource(h, src); gl.compileShader(h); return h }
-	const pr = gl.createProgram()
-	gl.attachShader(pr, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, fsrc))
-	gl.linkProgram(pr)
-	if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { console.warn('color-space/gl cloud:', gl.getProgramInfoLog(pr)); return null }
-	const u = {}
-	for (const n of ['uMin', 'uMax', 'uCMin', 'uCMax', 'uMap', 'uWb', 'uRot', 'uScale', 'uPtS']) u[n] = gl.getUniformLocation(pr, n)
-	return { pr, u, aV: gl.getAttribLocation(pr, 'aV'), aRgb: gl.getAttribLocation(pr, 'aRgb'), aBad: gl.getAttribLocation(pr, 'aBad') }
+	return build(gl, vs, fsrc, (o) => {
+		o.u = Object.fromEntries(['uMin', 'uMax', 'uCMin', 'uCMax', 'uMap', 'uWb', 'uRot', 'uScale', 'uPtS'].map(n => [n, gl.getUniformLocation(o.pr, n)]))
+		o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
+	}, null, { kind: 'mesh', label: 'cloud' })   // linked in the background like every program: an image dropped once waited out its compile
 }
 export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0, metric = 'oklab') {
 	if (!has3dGL(s)) return false
 	const gam = map?.gam ?? 'srgb'
 	const st = mesh3State(cv)
 	const ps = st && mesh3Progs(st, s, gam)
-	const dr = ps && ps.draw
+	const q3 = q3Mode(quant), dr = ps && ps.draw(q3 >= 101 ? 1 : q3 > 1 ? 2 : 0)
 	if (!ps || !ps.bake || ps.bake.bad || ps.bake.pending || !dr || dr.bad || dr.pending) {
 		// never show the previous space while this one compiles – clear and fall back
 		if (st) { st.gl.clearColor(0, 0, 0, 0); st.gl.clear(st.gl.COLOR_BUFFER_BIT | st.gl.DEPTH_BUFFER_BIT) }
@@ -1447,6 +1433,8 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		const wl = map.win?.[0] ?? dl.map((x, k) => x - (dh[k] - x)), wh = map.win?.[1] ?? dh.map((x, k) => x + (x - dl[k]))
 		if (u.uWLo) gl.uniform3f(u.uWLo, wl[0], wl[1], wl[2])
 		if (u.uWHi) gl.uniform3f(u.uWHi, wh[0], wh[1], wh[2])
+		if (u.uSteps) gl.uniform1i(u.uSteps, 18)
+		if (u.uDim) gl.uniform1i(u.uDim, 3)
 		if (u.uOut) gl.uniform1i(u.uOut, map.out ? 1 : 0)
 		if (u.uClip) gl.uniform1i(u.uClip, map.clip ? 1 : 0)
 		gl.uniform4i(u.uMap, map.ti, map.ai ?? -1, map.mi ?? 0, 0)
@@ -1561,8 +1549,8 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		gl.depthFunc(gl.LEQUAL); gl.depthMask(true)
 		gl.uniform1i(dr.u.uPass, 0)
 	}
-	if (sheet && sheet.length) { const sp = sheetProg(st)
-		if (sp) { gl.useProgram(sp.pr)
+	if (sheet && sheet.length) { const sp = st.sheetP
+		if (!sp.pending && !sp.bad) { gl.useProgram(sp.pr)
 			gl.uniform2f(sp.uRot, rot.a, rot.b); gl.uniform1f(sp.uScale, scale)
 			gl.bindBuffer(gl.ARRAY_BUFFER, sp.buf); gl.bufferData(gl.ARRAY_BUFFER, sheet, gl.DYNAMIC_DRAW)
 			gl.enableVertexAttribArray(sp.aPos); gl.vertexAttribPointer(sp.aPos, 3, gl.FLOAT, false, 0, 0)
@@ -1573,8 +1561,8 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			gl.uniform4f(sp.uTint, 1, 1, 1, 0.5)
 			gl.drawArrays(gl.TRIANGLES, 0, sheet.length / 3)
 			gl.depthMask(true) } }
-	if (frame) { const fp = frameProg(st)
-		if (fp) { gl.useProgram(fp.pr)
+	if (frame) { const fp = st.frameP
+		if (!fp.pending && !fp.bad) { gl.useProgram(fp.pr)
 			gl.bindBuffer(gl.ARRAY_BUFFER, fp.buf)
 			gl.enableVertexAttribArray(fp.aPos); gl.vertexAttribPointer(fp.aPos, 3, gl.FLOAT, false, 0, 0)
 			gl.depthMask(false)
@@ -1600,9 +1588,8 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	// sample lands inside the body (sRGB ⊆ every target gamut).
 	const cps = CLOUDA ? (gam === 'srgb' ? ps : mesh3Progs(st, s, 'srgb')) : null
 	if (CLOUDA && cps && cps.bake && !cps.bake.bad && !cps.bake.pending) {
-		st.cloudPr ??= cloudProg(gl)
-		const cp = st.cloudPr
-		if (cp) {
+		const cp = st.cloudPr ??= cloudProg(gl)
+		if (!cp.pending && !cp.bad) {
 			const ckey = s + '|' + CLOUDR   // rgb→space is gamut-independent – no rebake on the gamut switch
 			if (st.cloudKey !== ckey) {
 				st.cloudSrc ??= gl.createBuffer(); st.cloudBuf ??= gl.createBuffer()
