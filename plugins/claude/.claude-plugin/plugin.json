@@ -1,6 +1,6 @@
 {
   "name": "color-space",
-  "version": "3.4.0",
+  "version": "3.5.0",
   "description": "Color math for 221 color spaces, tested against cited sources: conversions with CSS color strings in and out, gamut checks, .cube LUTs, ICC profiles and shader code (GLSL, WGSL, HLSL, MSL) – an MCP server and a skill, so Claude stops writing color matrices from memory.",
   "author": { "name": "Dmitry Ivanov", "url": "https://github.com/dy" },
   "homepage": "https://color-space.io",
