@@ -911,7 +911,9 @@ try {
 	// (the rows round a card once stayed measured from before the build – none – and stood still until the close)
 	{	const wideContext=await browser.newContext({viewport:{width:1440,height:900}}), wide=await wideContext.newPage()
 		await wide.goto(`${server.origin}/oklch?cb=${Date.now()}`,{waitUntil:'networkidle'})
-		await wide.waitForFunction(()=>document.querySelector('.ent[data-s] .nrg')&&document.querySelector('#cd').value!=='#808080',null,{timeout:20000})
+		// the catalog builds at idle or within 2 s (ensureCat's ric) – then its ~650 rows, on CI's software GL a long task
+		// of its own under the card's JS painters: 15 s at an eighth of a laptop's speed (CDP CPU throttling), measured
+		await wide.waitForFunction(()=>document.querySelector('.ent[data-s] .nrg')&&document.querySelector('#cd').value!=='#808080',null,{timeout:45000})
 		const side=await wide.evaluateHandle(()=>{ const m=document.querySelector('.mbox').getBoundingClientRect()
 			return [...document.querySelectorAll('.ent[data-s] .nrg')].find(el=>{ const r=el.closest('.ent').getBoundingClientRect(); return r.width&&r.top>0&&r.bottom<innerHeight&&(r.right>m.right+1||r.left<m.left-1) }) })
 		assert.ok(await side.evaluate(el=>!!el),'a wide name view shows catalog rows round its card')

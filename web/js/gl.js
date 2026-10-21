@@ -945,6 +945,73 @@ export function lightSurf(G = 96) {
 	return out
 }
 
+// ── the bake as a fragment pass: transform feedback's vertex variant was built at a space's first bake, on the thread that
+// composites the screen (Metal under ANGLE), twice the cost of the same conversion drawn plainly (CAM16 0.22 s, 0.09). Where
+// float targets render (EXT_color_buffer_float), a point is a texel: read from its source texture, written to two float
+// targets – (v, bad) and (rgb, 1) – and read out into vertex buffers on the GPU (a pack buffer, no CPU copy). Else the
+// transform feedback bake still runs ──
+const BAKE_W = 1024, BAKE_UNIT = 5
+// a lattice's or a cloud's points as the bake's source: a texel each, RGBA32F
+const bakeSrc = (gl, src, pts) => { const n = pts.length / 3, h = Math.max(1, Math.ceil(n / BAKE_W)), d = new Float32Array(BAKE_W * h * 4)
+	for (let k = 0; k < n; k++) { d[k * 4] = pts[k * 3]; d[k * 4 + 1] = pts[k * 3 + 1]; d[k * 4 + 2] = pts[k * 3 + 2] }
+	src.tex ??= gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, src.tex)
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, BAKE_W, h, 0, gl.RGBA, gl.FLOAT, d)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+	src.n = n; src.h = h; return src }
+// the bake's targets and the vertex buffers they're read into, grown to the rows a bake needs
+function bakeOut(gl, out, h) {
+	if (out.fbo && out.h >= h) return out
+	out.fbo ??= gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, out.fbo)
+	for (const k of [0, 1]) { const t = out[`t${k}`] ??= gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t)
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, BAKE_W, h, 0, gl.RGBA, gl.FLOAT, null)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + k, gl.TEXTURE_2D, t, 0)
+		const b = out[k ? 'b' : 'a'] ??= gl.createBuffer(); gl.bindBuffer(gl.PIXEL_PACK_BUFFER, b); gl.bufferData(gl.PIXEL_PACK_BUFFER, BAKE_W * h * 16, gl.DYNAMIC_COPY) }
+	gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null); gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+	out.h = h; return out
+}
+// the bake's vertex program as that fragment pass: its conversion unchanged, its point a texel of uSrc, its three outputs two
+const bakeFrag = vs => vs.replace('in vec3 aSrc;', 'uniform highp sampler2D uSrc;\nuniform int uN, uW;\nlayout(location = 0) out vec4 O0;\nlayout(location = 1) out vec4 O1;')
+	.replace('out vec3 tV;\nout vec3 tRgb;\nout float tBad;\n', '')
+	.replace('void main() {', 'void main() {\n\tivec2 px_ = ivec2(gl_FragCoord.xy);\n\tif (px_.y * uW + px_.x >= uN) { O0 = vec4(0.0); O1 = vec4(0.0); return; }\n\tvec3 aSrc = texelFetch(uSrc, px_, 0).xyz;\n\tvec3 tV, tRgb; float tBad;')
+	.replace('gl_Position = vec4(0.0, 0.0, 0.0, 1.0);', 'O0 = vec4(tV, tBad); O1 = vec4(tRgb, 1.0);')
+// one bake: src's points through the program into out – either path, the same three outputs a point
+function bakeRun(st, bake, setU, src, out, attrs) {
+	const gl = st.gl
+	// a buffer an attribute points at is no bake's target (transform feedback: INVALID_OPERATION, the bake skipped) – off them first
+	gl.bindBuffer(gl.ARRAY_BUFFER, st.tb)
+	for (const a of attrs) if (a >= 0) { gl.disableVertexAttribArray(a); gl.vertexAttribPointer(a, 1, gl.FLOAT, false, 0, 0) }
+	gl.useProgram(bake.pr); setU(bake.u); bindLuts(gl, bake)
+	if (bake.fs) {
+		bakeOut(gl, out, src.h)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, out.fbo); gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1])
+		gl.viewport(0, 0, BAKE_W, src.h); gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST)
+		gl.activeTexture(gl.TEXTURE0 + BAKE_UNIT); gl.bindTexture(gl.TEXTURE_2D, src.tex); gl.activeTexture(gl.TEXTURE0)
+		gl.uniform1i(bake.u.uSrc, BAKE_UNIT); gl.uniform1i(bake.u.uN, src.n); gl.uniform1i(bake.u.uW, BAKE_W)
+		gl.drawArrays(gl.TRIANGLES, 0, 3)
+		for (const k of [0, 1]) { gl.readBuffer(gl.COLOR_ATTACHMENT0 + k); gl.bindBuffer(gl.PIXEL_PACK_BUFFER, out[k ? 'b' : 'a']); gl.readPixels(0, 0, BAKE_W, src.h, gl.RGBA, gl.FLOAT, 0) }
+		gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null); gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+		gl.enable(gl.BLEND); gl.enable(gl.DEPTH_TEST)
+		return
+	}
+	gl.bindBuffer(gl.ARRAY_BUFFER, src.buf)
+	gl.enableVertexAttribArray(bake.aSrc); gl.vertexAttribPointer(bake.aSrc, 3, gl.FLOAT, false, 0, 0)
+	gl.enable(gl.RASTERIZER_DISCARD)
+	gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, out.buf)
+	gl.beginTransformFeedback(gl.POINTS)
+	gl.drawArrays(gl.POINTS, 0, src.n)
+	gl.endTransformFeedback()
+	gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
+	gl.disable(gl.RASTERIZER_DISCARD)
+}
+// a draw's attributes on a bake's output: (v, bad) | (rgb) 16 bytes a point from the fragment pass, 28 interleaved from
+// transform feedback
+function bakedAttrs(gl, out, p) {
+	const at = (a, n, stride, off) => { if (a < 0) return; gl.enableVertexAttribArray(a); gl.vertexAttribPointer(a, n, gl.FLOAT, false, stride, off) }
+	if (out.a) { gl.bindBuffer(gl.ARRAY_BUFFER, out.a); at(p.aV, 3, 16, 0); at(p.aBad, 1, 16, 12); gl.bindBuffer(gl.ARRAY_BUFFER, out.b); at(p.aRgb, 3, 16, 0) }
+	else { gl.bindBuffer(gl.ARRAY_BUFFER, out.buf); at(p.aV, 3, 28, 0); at(p.aRgb, 3, 28, 12); at(p.aBad, 1, 28, 24) }
+}
+
 const mesh3States = new WeakMap()   // canvas → { gl, progs: Map, buffers }
 function mesh3State(cv) {
 	if (mesh3States.has(cv)) return mesh3States.get(cv)
@@ -960,12 +1027,13 @@ function mesh3State(cv) {
 		tb: buf(geo.tpos), ti: ibuf(geo.tidx), tn: geo.tidx.length, tvn: geo.tpos.length / 3,
 		vb: buf(vsf.pos), vi: ibuf(vsf.idx), vn: vsf.idx.length, vvn: vsf.pos.length / 3,
 		lb: buf(lsf.pos), li: ibuf(lsf.idx), ln: lsf.idx.length, lvn: lsf.pos.length / 3,
-		cb: buf(geo.cpos), ci: ibuf(geo.cidx), cn: geo.cidx.length }
-	// the conversion BAKE lands here (v, rgb, bad — 7 floats a vertex), sized for
-	// the larger lattice; one slot — a space/gamut switch simply rebakes
-	st.bakeBuf = gl.createBuffer()
-	gl.bindBuffer(gl.ARRAY_BUFFER, st.bakeBuf)
-	gl.bufferData(gl.ARRAY_BUFFER, Math.max(st.tvn, st.vvn, st.lvn) * 28, gl.DYNAMIC_COPY)
+		cb: buf(geo.cpos), ci: ibuf(geo.cidx), cn: geo.cidx.length,
+		pts: { srgb: geo.tpos, vis: vsf.pos, locus: lsf.pos }, src: {}, out: {}, fsBake: !!gl.getExtension('EXT_color_buffer_float') }
+	// the conversion BAKE lands in st.out (v, rgb, bad a vertex – bakeRun: two float targets read into vertex buffers, or
+	// without them a transform feedback buffer sized for the larger lattice); one slot – a space/gamut switch simply rebakes
+	if (!st.fsBake) { st.out.buf = gl.createBuffer()
+		gl.bindBuffer(gl.ARRAY_BUFFER, st.out.buf)
+		gl.bufferData(gl.ARRAY_BUFFER, Math.max(st.tvn, st.vvn, st.lvn) * 28, gl.DYNAMIC_COPY) }
 	st.bakeKey = null
 	paneProgs(st)
 	mesh3States.set(cv, st)
@@ -1018,8 +1086,8 @@ function mesh3Progs(st, s, gam = 'srgb') {
 		if (s !== src) pairs.push([src, s])
 		if (src !== 'rgb' && s !== 'rgb') pairs.push([src, 'rgb'])
 		// the BAKE: the space conversion, singularity collapse, achromatic taper and
-		// display knee run ONCE per (space, gamut) — captured per lattice vertex by
-		// transform feedback; the shared DRAW program consumes the capture per frame
+		// display knee run ONCE per (space, gamut) — captured per lattice vertex (bakeRun:
+		// a fragment pass, or transform feedback); the DRAW program consumes the capture per frame
 		const vs = `#version 300 es
 precision highp float;
 precision highp int;
@@ -1285,11 +1353,12 @@ void main() {
 	// (see rtFaithful) — the law would speckle-discard real cap fragments`}
 	O = vec4(softDisp(disp), 1.0);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uSrc', 'uN', 'uW', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
-		const bake = build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
-			o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
-		}, (pr) => gl.transformFeedbackVaryings(pr, ['tV', 'tRgb', 'tBad'], gl.INTERLEAVED_ATTRIBS), { kind: 'mesh', space: s })
+		const bake = st.fsBake ? build(gl, FSQ_VS, bakeFrag(vs), uset, null, { kind: 'mesh', space: s, fs: true })   // a fragment pass (bakeRun)
+			: build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
+				o.aSrc = gl.getAttribLocation(o.pr, 'aSrc'); uset(o)
+			}, (pr) => gl.transformFeedbackVaryings(pr, ['tV', 'tRgb', 'tBad'], gl.INTERLEAVED_ATTRIBS), { kind: 'mesh', space: s })
 		bake.lutN = lutNames(vs)
 		// The draw program colours the solid by its vertices' RGB: smooth, or in a palette/JND/web lens's cells, it holds no
 		// space's code – one program for every space and gamut, its pipeline built once (Metal under ANGLE builds it whole at
@@ -1448,36 +1517,16 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		gl.uniform2f(u.uRot, rot.a, rot.b)
 		gl.uniform1f(u.uScale, scale)
 	}
-	// ── the bake: run the conversion ONCE per (space, gamut) – transform feedback
-	// captures {v, rgb, bad} per lattice vertex; a switch simply rebakes the slot ──
+	// ── the bake: run the conversion ONCE per (space, gamut) – {v, rgb, bad} per lattice vertex (bakeRun: a fragment pass,
+	// or transform feedback); a switch simply rebakes the slot ──
 	const bkey = s + '|' + gam
 	if (st.bakeKey !== bkey) {
-		gl.useProgram(ps.bake.pr); setU(ps.bake.u); bindLuts(gl, ps.bake)
-		// the draw pass leaves its attribute POINTERS on the capture buffer – a buffer
-		// referenced by any vertex attribute (even a disabled one, per ANGLE) may not
-		// be the TF target: INVALID_OPERATION silently skips the bake and the old
-		// capture draws under new indices. Disable AND repoint before capturing.
-		gl.bindBuffer(gl.ARRAY_BUFFER, hs.b)
-		for (const a of [dr.aV, dr.aRgb, dr.aBad]) {
-			gl.disableVertexAttribArray(a)
-			gl.vertexAttribPointer(a, 1, gl.FLOAT, false, 0, 0)
-		}
-		gl.enableVertexAttribArray(ps.bake.aSrc); gl.vertexAttribPointer(ps.bake.aSrc, 3, gl.FLOAT, false, 0, 0)
-		gl.enable(gl.RASTERIZER_DISCARD)
-		gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, st.bakeBuf)
-		gl.beginTransformFeedback(gl.POINTS)
-		gl.drawArrays(gl.POINTS, 0, hs.cnt)
-		gl.endTransformFeedback()
-		gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
-		gl.disable(gl.RASTERIZER_DISCARD)
+		const lat = gam === 'vis' || gam === 'locus' ? gam : 'srgb'
+		bakeRun(st, ps.bake, setU, st.fsBake ? st.src[lat] ??= bakeSrc(gl, {}, st.pts[lat]) : { buf: hs.b, n: hs.cnt }, st.out, [dr.aV, dr.aRgb, dr.aBad])
+		gl.viewport(0, 0, cv.width, cv.height)
 		st.bakeKey = bkey
 	}
-	const bindBaked = () => {
-		gl.bindBuffer(gl.ARRAY_BUFFER, st.bakeBuf)
-		gl.enableVertexAttribArray(dr.aV); gl.vertexAttribPointer(dr.aV, 3, gl.FLOAT, false, 28, 0)
-		gl.enableVertexAttribArray(dr.aRgb); gl.vertexAttribPointer(dr.aRgb, 3, gl.FLOAT, false, 28, 12)
-		gl.enableVertexAttribArray(dr.aBad); gl.vertexAttribPointer(dr.aBad, 1, gl.FLOAT, false, 28, 24)
-	}
+	const bindBaked = () => bakedAttrs(gl, st.out, dr)
 	gl.useProgram(dr.pr); setU(dr.u); bindLuts(gl, dr)
 	if (dr.u.uPalIdx) gl.uniform1i(dr.u.uPalIdx, PAL_UNIT)
 	if (dr.u.uPalSites) gl.uniform1i(dr.u.uPalSites, SITE_UNIT)
@@ -1592,29 +1641,15 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		if (!cp.pending && !cp.bad) {
 			const ckey = s + '|' + CLOUDR   // rgb→space is gamut-independent – no rebake on the gamut switch
 			if (st.cloudKey !== ckey) {
-				st.cloudSrc ??= gl.createBuffer(); st.cloudBuf ??= gl.createBuffer()
-				gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudSrc)
-				gl.bufferData(gl.ARRAY_BUFFER, CLOUDA, gl.DYNAMIC_DRAW)
-				st.cloudN = CLOUDA.length / 3
-				// the TF target must not be referenced by ANY attribute pointer (see the lattice
-				// bake above) – repoint every index that could still sit on cloudBuf
-				for (const a2 of [dr.aV, dr.aRgb, dr.aBad, cp.aV, cp.aRgb, cp.aBad]) if (a2 >= 0) {
-					gl.disableVertexAttribArray(a2)
-					gl.vertexAttribPointer(a2, 1, gl.FLOAT, false, 0, 0)
-				}
-				gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudBuf)
-				gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudN * 28, gl.DYNAMIC_COPY)
-				gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, null)
-				gl.useProgram(cps.bake.pr); setU(cps.bake.u); bindLuts(gl, cps.bake)
-				gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudSrc)
-				gl.enableVertexAttribArray(cps.bake.aSrc); gl.vertexAttribPointer(cps.bake.aSrc, 3, gl.FLOAT, false, 0, 0)
-				gl.enable(gl.RASTERIZER_DISCARD)
-				gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, st.cloudBuf)
-				gl.beginTransformFeedback(gl.POINTS)
-				gl.drawArrays(gl.POINTS, 0, st.cloudN)
-				gl.endTransformFeedback()
-				gl.bindBufferBase(gl.TRANSFORM_FEEDBACK_BUFFER, 0, null)
-				gl.disable(gl.RASTERIZER_DISCARD)
+				st.cloudN = CLOUDA.length / 3; st.cloudOut ??= {}
+				let src
+				if (cps.bake.fs) src = bakeSrc(gl, st.cloudSrc ??= {}, CLOUDA)
+				else { src = st.cloudSrc ??= { buf: gl.createBuffer() }; src.n = st.cloudN
+					gl.bindBuffer(gl.ARRAY_BUFFER, src.buf); gl.bufferData(gl.ARRAY_BUFFER, CLOUDA, gl.DYNAMIC_DRAW)
+					st.cloudOut.buf ??= gl.createBuffer(); gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudOut.buf)
+					gl.bufferData(gl.TRANSFORM_FEEDBACK_BUFFER, st.cloudN * 28, gl.DYNAMIC_COPY); gl.bindBuffer(gl.TRANSFORM_FEEDBACK_BUFFER, null) }
+				bakeRun(st, cps.bake, setU, src, st.cloudOut, [dr.aV, dr.aRgb, dr.aBad, cp.aV, cp.aRgb, cp.aBad])
+				gl.viewport(0, 0, cv.width, cv.height)
 				st.cloudKey = ckey
 				st.bakeKey = ''   // the lattice's own bake state was disturbed – let it rebake next frame
 			}
@@ -1626,10 +1661,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			gl.uniform2f(cp.u.uRot, rot.a, rot.b)
 			gl.uniform1f(cp.u.uScale, scale)
 			gl.uniform1f(cp.u.uPtS, Math.max(1.75, cv.width / 280))
-			gl.bindBuffer(gl.ARRAY_BUFFER, st.cloudBuf)
-			gl.enableVertexAttribArray(cp.aV); gl.vertexAttribPointer(cp.aV, 3, gl.FLOAT, false, 28, 0)
-			gl.enableVertexAttribArray(cp.aRgb); gl.vertexAttribPointer(cp.aRgb, 3, gl.FLOAT, false, 28, 12)
-			gl.enableVertexAttribArray(cp.aBad); gl.vertexAttribPointer(cp.aBad, 1, gl.FLOAT, false, 28, 24)
+			bakedAttrs(gl, st.cloudOut, cp)
 			gl.disable(gl.DEPTH_TEST); gl.depthMask(false)
 			gl.drawArrays(gl.POINTS, 0, st.cloudN)
 			gl.depthMask(true); gl.enable(gl.DEPTH_TEST)

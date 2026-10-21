@@ -2351,10 +2351,13 @@ async function upBuild(){ upPop.querySelectorAll('.upim').forEach(b=>{ if(b._url
 	const ub=Object.assign(document.createElement('button'),{type:'button',className:'upim upld',title:t('ui.img.upload-tip','upload your own'),ariaLabel:t('ui.img.upload','upload an image'),innerHTML:'<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M4.5 20h15"/></svg>'})
 	ub.addEventListener('click',()=>{ upOpen(false); cvFile?.click() })
 	upPop.append(ub) }
+// at idle, or by its timeout at the latest: the color's orbit animates every frame, and a slow device's page is never idle
+// while it runs – the catalog behind a card landed on waited a minute and more for an idle moment, without a timeout
+const ric=window.requestIdleCallback?.bind(window)||(fn=>setTimeout(()=>{ const t0=performance.now(); fn({timeRemaining:()=>Math.max(0,8-(performance.now()-t0))}) },40))
 // the stripe follows the memory: rebuilt as it opens (and once at idle, so the first open is never empty)
 const upOpen=on=>{ if(on!==upPop.matches(':popover-open')) on?upPop.showPopover():upPop.hidePopover() }
 upPop.addEventListener('beforetoggle',e=>{ if(e.newState==='open') upB??=upBuild().finally(()=>{ upB=null }) })
-document.body.append(upPop); (window.requestIdleCallback||setTimeout)(()=>{ upB??=upBuild().finally(()=>{ upB=null }) })
+document.body.append(upPop); ric(()=>{ upB??=upBuild().finally(()=>{ upB=null }) },{ timeout:3000 })
 // ── the image floater: the dropped image LIVES bottom-right, macOS-screenshot style —
 // crisp at full resolution; a CLICK picks the pixel under the pointer, a quiet ✕ lets
 // the image go. It outlives the dossier's scrim. ──
@@ -2443,7 +2446,6 @@ const valsIn=(m,s)=>{ if(s===m.s) return m.vals
 // strip: no canvas, no per-frame work, and it inherits the picker's ink like everything
 // else in the lane.
 const HBINS=768, HSAMP=24576, HCLOUD=8192, HSLICE=8
-const ric=window.requestIdleCallback?.bind(window)||(fn=>setTimeout(()=>{ const t0=performance.now(); fn({timeRemaining:()=>Math.max(0,8-(performance.now()-t0))}) },40))
 let HIMG=null, hRev=0, hT=0, IMGBUSY=false   // IMGBUSY: an image being read – the field says so and waits (imgbusy)
 const histC=new Map(), histQ=new Set(), histP=new Map(), histV=new Map()   // lane curves · waiting · half-binned · the samples themselves
 const SVGNS='http://www.w3.org/2000/svg'
@@ -3015,11 +3017,13 @@ wireCat._gen=(wireCat._gen||0)+1
 	for(const e of ents){ const r=e.getBoundingClientRect()
 		if(r.bottom>lo&&r.top<hi) wireEnt(e); else later.push(e) }
 	let i=0
+	// at idle, or by a timeout a few rows at a time: under the orbit a slow device is never idle, and a row it never wired
+	// took no hand
 	const step=dl=>{ if(gen!==wireCat._gen) return
-		if(PDOWN){ ric(step); return }   // idle hydration is background work, never drag work
-		while(i<later.length&&dl.timeRemaining()>3) wireEnt(later[i++])
-		if(i<later.length) ric(step) }
-	if(later.length) ric(step) }
+		if(PDOWN){ ric(step,{ timeout:1000 }); return }   // idle hydration is background work, never drag work
+		for(let k=0;i<later.length&&(dl.didTimeout?k<8:dl.timeRemaining()>3);k++) wireEnt(later[i++])
+		if(i<later.length) ric(step,{ timeout:1000 }) }
+	if(later.length) ric(step,{ timeout:1000 }) }
 }
 
 
@@ -5807,7 +5811,13 @@ const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=b
 	if(typeof morph==='number') next.style.transition=`opacity ${morph}ms linear`
 	ch._gradStack.at(-1).after(next); ch._gradStack.push(next)
 	let done=false
-	const finish=()=>{ if(done)return; done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
+	// done only once this layer stands whole: a fade started late, or over again (a busy frame, a style flushed mid-fade),
+	// is waited out – an end heard or a timer run while it still stood clear dropped the faces under it, and the strip
+	// flashed the bare panel (a card scrolled under the orbit: its plates painting in, the rows round it a step each 250 ms)
+	const finish=()=>{ if(done)return
+		const run=next.isConnected&&next.getAnimations().find(a=>a.transitionProperty==='opacity'&&a.playState==='running')
+		if(run){ run.finished.then(finish,finish); return }
+		done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
 		const stack=ch._gradStack, i=stack?.indexOf(next)??-1; if(i<0)return
 		// Once this opaque checker-backed layer reaches 1, everything below it is
 		// visually covered. Newer in-flight layers remain exactly where they are.
@@ -6364,7 +6374,7 @@ if(!CSS.supports('interpolate-size','allow-keywords')) for(const d of document.q
 	const activate=(p,focus=false)=>{ btns.forEach(x=>{ const on=x.dataset.p===p; x.classList.toggle('on',on); x.setAttribute('aria-selected',String(on)); x.tabIndex=on?0:-1; if(on&&focus)x.focus({preventScroll:true}) }); panes.forEach(x=>x.hidden=x.dataset.p!==p) }
 	btns.forEach((b,i)=>{ b.onclick=()=>activate(b.dataset.p); b.onkeydown=e=>{ if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(e.key))return; e.preventDefault(); let n=i; if(/Left|Up/.test(e.key))n=(i-1+btns.length)%btns.length; if(/Right|Down/.test(e.key))n=(i+1)%btns.length; if(e.key==='Home')n=0; if(e.key==='End')n=btns.length-1; activate(btns[n].dataset.p,true) } })   // ↑↓ too: beside the code the tabs stand in a column
 	// the plates painted once the page rests – the section is far under the fold
-	;(globalThis.requestIdleCallback||setTimeout)(()=>{ for(const p of tabs.querySelectorAll('pre:not(.snip)')) paint(p,p.dataset.lang) }) })()
+	;ric(()=>{ for(const p of tabs.querySelectorAll('pre:not(.snip)')) paint(p,p.dataset.lang) },{ timeout:3000 }) })()
 // the lut/icc tabs are live exporters: pick spaces → download the real file, generated in the browser
 ;(()=>{ const tabs=document.getElementById('apitabs'); if(!tabs) return
 	const sci2=x=>x===0?'0':x.toExponential(1)
@@ -6436,8 +6446,8 @@ renderFast(); paintCatalogGrad()
 	if(!hm.querySelector('.hlocus')) hm.insertAdjacentHTML('beforeend',heroLocus(esc(t('ui.hero.home','color-space home')),...names))
 	else hm.querySelector('.hlocus .lims').innerHTML=heroNames(...names)
 	const box=hm.querySelector('.hlocus'), svg=box.firstElementChild, mk=box.querySelector('.cx'), lim=svg.querySelector('#hl-lim path')   // the mark: the planes' own picker (.cx), a fixed size over a drawing that scales
-	const fill=()=>(window.requestIdleCallback||setTimeout)(()=>{ const u=locusFill(([a,b])=>[a*.857-.107,(1-b)*.955-.055],320,352), im=svg.querySelector('image'), lit=()=>box.classList.add('lit')
-		im?.addEventListener('load',lit,{ once:true }); setTimeout(lit,1000); svg.querySelectorAll('image').forEach(i=>i.setAttribute('href',u)) })
+	const fill=()=>ric(()=>{ const u=locusFill(([a,b])=>[a*.857-.107,(1-b)*.955-.055],320,352), im=svg.querySelector('image'), lit=()=>box.classList.add('lit')
+		im?.addEventListener('load',lit,{ once:true }); setTimeout(lit,1000); svg.querySelectorAll('image').forEach(i=>i.setAttribute('href',u)) },{ timeout:1000 })
 	document.readyState==='complete'?fill():addEventListener('load',fill,{ once:true })   // painted once, after all else has loaded, at idle; lit as it shows
 	// the checker at the sliders' 12 px, whatever the drawing's scale
 	new ResizeObserver(()=>{ const k=svg.getScreenCTM()?.a; if(k) svg.querySelector('#hl-chk').setAttribute('patternTransform',`scale(${(1/k).toFixed(4)})`) }).observe(box)
@@ -6487,7 +6497,7 @@ const route=e=>{ if(e) autoColor=false
 try{ const g0=new URLSearchParams(location.search).get('g'); if(GROUPS[g0]) grouping=g0 }catch{}   // arrival restores a shared grouping (a language switch keeps ?g=) – the cut only: ensureCat builds the catalog in it, once; a regroup here drew it, then the drift path redrew the default family over it while grouping stayed set, so its own tab went dead
 if(EMBED&&!known(BOOT.seg)&&!known(BOOT.q)){ EMBED=false; delete document.documentElement.dataset.embed }   // ?embed off a name view frames nothing – the full page shows
 if(cat.children.length||!(BOOT.hash||known(BOOT.q)||known(BOOT.seg))) ensureCat()
-else if(!EMBED) (window.requestIdleCallback||setTimeout)(ensureCat)   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil (an embed never shows it, so never builds it)
+else if(!EMBED) ric(ensureCat,{ timeout:2000 })   // name views ship #cat EMPTY — the dossier opens first, the catalog builds behind the veil (an embed never shows it, so never builds it)
 if(BOOT.hash||known(BOOT.q)||known(BOOT.seg)) route()
 addEventListener('hashchange',route)   // same-document deep links switch spaces too
 if(EMBED){ const embl=document.getElementById('embl'), out=()=>{ embl.href=new URL(spaceURL(selected)+colorHash(),location.href).href }
@@ -6499,7 +6509,7 @@ if(EMBED){ const embl=document.getElementById('embl'), out=()=>{ embl.href=new U
 onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){   // name views orbit too – a dossier first seen at neutral gray reads as an empty instrument
 	autoColor=true; autoStart=autoLast=performance.now(); autoT=0; if(document.activeElement===cvalEl) autoHold=autoStart; requestAnimationFrame(autoStep) } },300))
 // analytics (js/track.js) counts the pageview at idle – a no-op until a website id is set
-onLoad(()=>(window.requestIdleCallback||setTimeout)(()=>loadStats()))
+onLoad(()=>ric(()=>loadStats(),{ timeout:3000 }))
 onLoad(()=>ric(warmKernels))   // the GL kernels' canvas grown before a first dossier needs it
 // the language select (stamped by the build when there is a language to choose): the same page in
 // the other language – space, view and color carried over; a real navigation, never an in-place swap
