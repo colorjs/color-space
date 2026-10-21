@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"이미지를 불러와 모든 채널 막대에 이미지의 색 표시","h":"45c530f2"},
 "ui.hero.line": {"t":"<a href=\"#hq\" data-way=\"color\">색</a>, <a href=\"#hq\" data-way=\"palette\">팔레트</a>, <a href=\"#hq\" data-way=\"gradient\">그러데이션</a>, <a href=\"#hq\" data-way=\"image\">이미지</a>를 모든 색공간으로 표현해 보세요. <a href=\"#cat\" data-door=\"family:display\">화면</a>에서 <a href=\"#cat\" data-door=\"family:surface\">인쇄</a>까지, <a href=\"#cat\" data-door=\"purpose:picking\">색 선택</a>에서 <a href=\"#cat\" data-door=\"purpose:research\">연구</a>까지, <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a>년부터 <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>년까지.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Figma 플러그인","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">레퍼런스 가이드</span> 색공간","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">레퍼런스 가이드</span> 색공간","h":"71961035"},
 "ui.hero.vscode-label": {"t":"VS Code 확장","h":"3048793f"},
 "ui.icc.label": {"t":"ICC 프로파일","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s}: .icc v2 행렬+TRC 디스플레이 프로파일 – Photoshop, macOS/Windows 색 관리","h":"341e3ae0"},

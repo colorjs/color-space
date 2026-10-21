@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"carica un’immagine per visualizzarne i colori su ogni striscia","h":"45c530f2"},
 "ui.hero.line": {"t":"Guarda un <a href=\"#hq\" data-way=\"color\">colore</a>, una <a href=\"#hq\" data-way=\"palette\">palette</a>, un <a href=\"#hq\" data-way=\"gradient\">gradiente</a> o un’<a href=\"#hq\" data-way=\"image\">immagine</a> in ogni spazio colore. Dagli <a href=\"#cat\" data-door=\"family:display\">schermi</a> alla <a href=\"#cat\" data-door=\"family:surface\">stampa</a>, dai <a href=\"#cat\" data-door=\"purpose:picking\">selettori di colore</a> alla <a href=\"#cat\" data-door=\"purpose:research\">ricerca</a>, dal <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> al <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Estensione per Figma","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">Guida di riferimento</span> Spazi colore","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">Guida di riferimento</span> Spazi colore","h":"71961035"},
 "ui.hero.vscode-label": {"t":"Estensione per VS Code","h":"3048793f"},
 "ui.icc.label": {"t":"profilo icc","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} come profilo display .icc v2 matrice+TRC – Photoshop, gestione del colore di macOS/Windows","h":"341e3ae0"},

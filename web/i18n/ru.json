@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"загрузить изображение и показать его цвета на каждой полосе","h":"45c530f2"},
 "ui.hero.line": {"t":"<a href=\"#hq\" data-way=\"color\">Цвет</a>, <a href=\"#hq\" data-way=\"palette\">палитры</a>, <a href=\"#hq\" data-way=\"gradient\">градиенты</a> и <a href=\"#hq\" data-way=\"image\">изображения</a> во всех цветовых пространствах: от <a href=\"#cat\" data-door=\"family:display\">экранов</a> до <a href=\"#cat\" data-door=\"family:surface\">полиграфии</a>, от <a href=\"#cat\" data-door=\"purpose:picking\">выбора цвета</a> до <a href=\"#cat\" data-door=\"purpose:research\">исследований</a>, <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a>–<a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Плагин для Figma","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">Справочник</span> Цветовые пространства","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">Справочник</span> Цветовые пространства","h":"71961035"},
 "ui.hero.vscode-label": {"t":"Расширение для VS Code","h":"3048793f"},
 "ui.icc.label": {"t":"ICC-профиль","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} как дисплейный профиль .icc v2 с матрицей+TRC – Photoshop, управление цветом macOS/Windows","h":"341e3ae0"},

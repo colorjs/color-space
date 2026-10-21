@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"ein Bild einlesen – seine Farben auf jedem Streifen","h":"45c530f2"},
 "ui.hero.line": {"t":"<a href=\"#hq\" data-way=\"color\">Farbe</a>, <a href=\"#hq\" data-way=\"palette\">Palette</a>, <a href=\"#hq\" data-way=\"gradient\">Verlauf</a> oder <a href=\"#hq\" data-way=\"image\">Bild</a> in jedem Farbraum darstellen. Vom <a href=\"#cat\" data-door=\"family:display\">Bildschirm</a> bis zum <a href=\"#cat\" data-door=\"family:surface\">Druck</a>, vom <a href=\"#cat\" data-door=\"purpose:picking\">Farbwähler</a> bis zur <a href=\"#cat\" data-door=\"purpose:research\">Forschung</a>, von <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> bis <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Figma-Plugin","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">Referenz</span> Farbräume","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">Referenz</span> Farbräume","h":"71961035"},
 "ui.hero.vscode-label": {"t":"Erweiterung für VS Code","h":"3048793f"},
 "ui.icc.label": {"t":"ICC-Profil","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} als .icc-Displayprofil v2 mit Matrix+TRC – Photoshop, Farbmanagement von macOS/Windows","h":"341e3ae0"},

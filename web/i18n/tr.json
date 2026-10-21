@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"görüntü yükleyip renklerini her şeritte görün","h":"45c530f2"},
 "ui.hero.line": {"t":"<a href=\"#hq\" data-way=\"color\">Rengi</a>, <a href=\"#hq\" data-way=\"palette\">paleti</a>, <a href=\"#hq\" data-way=\"gradient\">gradyanı</a> ya da <a href=\"#hq\" data-way=\"image\">görüntüyü</a> her renk uzayında görün. <a href=\"#cat\" data-door=\"family:display\">Ekranlardan</a> <a href=\"#cat\" data-door=\"family:surface\">baskıya</a>, <a href=\"#cat\" data-door=\"purpose:picking\">renk seçiminden</a> <a href=\"#cat\" data-door=\"purpose:research\">araştırmaya</a>, <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a>–<a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Figma eklentisi","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">Başvuru rehberi</span> Renk uzayları","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">Başvuru rehberi</span> Renk uzayları","h":"71961035"},
 "ui.hero.vscode-label": {"t":"VS Code uzantısı","h":"3048793f"},
 "ui.icc.label": {"t":"icc profili","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s}, .icc v2 matris+TRC ekran profili olarak – Photoshop, macOS/Windows renk yönetimi","h":"341e3ae0"},

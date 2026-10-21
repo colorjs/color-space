@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"charger une image pour afficher ses couleurs sur chaque bande","h":"45c530f2"},
 "ui.hero.line": {"t":"Affichez une <a href=\"#hq\" data-way=\"color\">couleur</a>, une <a href=\"#hq\" data-way=\"palette\">palette</a>, un <a href=\"#hq\" data-way=\"gradient\">dégradé</a> ou une <a href=\"#hq\" data-way=\"image\">image</a> dans tous les espaces colorimétriques. Des <a href=\"#cat\" data-door=\"family:display\">écrans</a> à l’<a href=\"#cat\" data-door=\"family:surface\">impression</a>, des <a href=\"#cat\" data-door=\"purpose:picking\">sélecteurs de couleur</a> à la <a href=\"#cat\" data-door=\"purpose:research\">recherche</a>, de <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> à <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Module Figma","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">Guide de référence</span> Espaces colorimétriques","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">Guide de référence</span> Espaces colorimétriques","h":"71961035"},
 "ui.hero.vscode-label": {"t":"Extension VS Code","h":"3048793f"},
 "ui.icc.label": {"t":"profil icc","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} en profil d’écran .icc v2 matrice+TRC – Photoshop, gestion des couleurs de macOS/Windows","h":"341e3ae0"},

@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"चित्र खोलकर हर पट्टी पर उसके रंग देखें","h":"45c530f2"},
 "ui.hero.line": {"t":"किसी <a href=\"#hq\" data-way=\"color\">रंग</a>, <a href=\"#hq\" data-way=\"palette\">पैलेट</a>, <a href=\"#hq\" data-way=\"gradient\">ग्रेडिएंट</a> या <a href=\"#hq\" data-way=\"image\">इमेज</a> को हर रंग स्थान में देखें। <a href=\"#cat\" data-door=\"family:display\">स्क्रीन</a> से <a href=\"#cat\" data-door=\"family:surface\">छपाई</a> तक, <a href=\"#cat\" data-door=\"purpose:picking\">रंग चुनने</a> से <a href=\"#cat\" data-door=\"purpose:research\">शोध</a> तक, <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> से <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a> तक।","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Figma प्लगइन","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">संदर्भ गाइड</span> रंग स्थान","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">संदर्भ गाइड</span> रंग स्थान","h":"71961035"},
 "ui.hero.vscode-label": {"t":"VS Code एक्सटेंशन","h":"3048793f"},
 "ui.icc.label": {"t":"icc प्रोफ़ाइल","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s}, .icc v2 मैट्रिक्स+TRC डिस्प्ले प्रोफ़ाइल के रूप में – Photoshop, macOS/Windows कलर मैनेजमेंट","h":"341e3ae0"},

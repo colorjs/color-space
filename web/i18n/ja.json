@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"画像を読み込んで、すべてのバーに画像の色を表示","h":"45c530f2"},
 "ui.hero.line": {"t":"<a href=\"#hq\" data-way=\"color\">色</a>、<a href=\"#hq\" data-way=\"palette\">パレット</a>、<a href=\"#hq\" data-way=\"gradient\">グラデーション</a>、<a href=\"#hq\" data-way=\"image\">画像</a>を、あらゆる色空間で見る。<a href=\"#cat\" data-door=\"family:display\">画面</a>から<a href=\"#cat\" data-door=\"family:surface\">印刷</a>まで、<a href=\"#cat\" data-door=\"purpose:picking\">色選択</a>から<a href=\"#cat\" data-door=\"purpose:research\">研究</a>まで、<a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a>年から<a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>年まで。","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Figmaプラグイン","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">リファレンス</span> 色空間","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">リファレンス</span> 色空間","h":"71961035"},
 "ui.hero.vscode-label": {"t":"VS Code拡張機能","h":"3048793f"},
 "ui.icc.label": {"t":"ICCプロファイル","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s}を.icc v2の行列＋TRCディスプレイプロファイルとして：Photoshop、macOS／Windowsのカラーマネジメント","h":"341e3ae0"},

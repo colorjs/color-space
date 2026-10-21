@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"завантажити зображення – його кольори на кожній смузі","h":"45c530f2"},
 "ui.hero.line": {"t":"Перегляньте <a href=\"#hq\" data-way=\"color\">колір</a>, <a href=\"#hq\" data-way=\"palette\">палітру</a>, <a href=\"#hq\" data-way=\"gradient\">градієнт</a> або <a href=\"#hq\" data-way=\"image\">зображення</a> в кожному колірному просторі. Від <a href=\"#cat\" data-door=\"family:display\">вебу</a> до <a href=\"#cat\" data-door=\"family:surface\">друку</a>, від <a href=\"#cat\" data-door=\"purpose:picking\">вибору кольору</a> до <a href=\"#cat\" data-door=\"purpose:research\">досліджень</a>, від <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> до <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Плагін для Figma","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">Довідник</span> Колірні простори","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">Довідник</span> Колірні простори","h":"71961035"},
 "ui.hero.vscode-label": {"t":"Розширення для VS Code","h":"3048793f"},
 "ui.icc.label": {"t":"ICC-профіль","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} як дисплейний профіль .icc v2 з матрицею+TRC – Photoshop, керування кольором macOS/Windows","h":"341e3ae0"},

@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"导入图像，在每条色带上显示图像中的颜色","h":"45c530f2"},
 "ui.hero.line": {"t":"在每个色彩空间中查看<a href=\"#hq\" data-way=\"color\">颜色</a>、<a href=\"#hq\" data-way=\"palette\">调色板</a>、<a href=\"#hq\" data-way=\"gradient\">渐变</a>或<a href=\"#hq\" data-way=\"image\">图像</a>。从<a href=\"#cat\" data-door=\"family:display\">屏幕</a>到<a href=\"#cat\" data-door=\"family:surface\">印刷</a>，从<a href=\"#cat\" data-door=\"purpose:picking\">取色</a>到<a href=\"#cat\" data-door=\"purpose:research\">研究</a>，从 <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> 年到 <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a> 年。","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Figma 插件","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">参考手册</span> 色彩空间","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">参考手册</span> 色彩空间","h":"71961035"},
 "ui.hero.vscode-label": {"t":"VS Code 扩展","h":"3048793f"},
 "ui.icc.label": {"t":"ICC 配置文件","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} 导出为 .icc v2 矩阵+TRC 显示器配置文件——Photoshop、macOS/Windows 色彩管理","h":"341e3ae0"},

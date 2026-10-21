@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"buka gambar untuk melihat warnanya pada setiap pita","h":"45c530f2"},
 "ui.hero.line": {"t":"Lihat <a href=\"#hq\" data-way=\"color\">warna</a>, <a href=\"#hq\" data-way=\"palette\">palet</a>, <a href=\"#hq\" data-way=\"gradient\">gradien</a>, atau <a href=\"#hq\" data-way=\"image\">gambar</a> di setiap ruang warna. Dari <a href=\"#cat\" data-door=\"family:display\">web</a> hingga <a href=\"#cat\" data-door=\"family:surface\">cetak</a>, dari <a href=\"#cat\" data-door=\"purpose:picking\">pemilih warna</a> hingga <a href=\"#cat\" data-door=\"purpose:research\">riset</a>, dari <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> hingga <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Plugin Figma","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">Referensi</span> Ruang Warna","h":"5fd5a83c"},
+"ui.hero.title": {"t":"<span class=\"hk\">Referensi</span> Ruang Warna","h":"71961035"},
 "ui.hero.vscode-label": {"t":"Ekstensi VS Code","h":"3048793f"},
 "ui.icc.label": {"t":"profil icc","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} sebagai profil layar .icc v2 matriks+TRC—Photoshop, manajemen warna macOS/Windows","h":"341e3ae0"},
