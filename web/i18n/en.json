@@ -1498,7 +1498,7 @@
 "ui.hero.image-tip": {"t":"read an image – its colors on every strip","h":"45c530f2"},
 "ui.hero.line": {"t":"See a <a href=\"#hq\" data-way=\"color\">color</a>, <a href=\"#hq\" data-way=\"palette\">palette</a>, <a href=\"#hq\" data-way=\"gradient\">gradient</a> or <a href=\"#hq\" data-way=\"image\">image</a> in every color space. From <a href=\"#cat\" data-door=\"family:display\">web</a> to <a href=\"#cat\" data-door=\"family:surface\">print</a>, <a href=\"#cat\" data-door=\"purpose:picking\">pickers</a> to <a href=\"#cat\" data-door=\"purpose:research\">research</a>, <a href=\"#cat\" data-door=\"era:1860\"><span id=\"y0\">1860</span></a> to <a href=\"#cat\" data-door=\"era:2020\"><span id=\"y1\">2026</span></a>.","h":"eba68c99"},
 "ui.hero.plugin-label": {"t":"Figma plugin","h":"ea29cf46"},
-"ui.hero.title": {"t":"<span class=\"hk\">An atlas of</span> Color Spaces","h":"71961035"},
+"ui.hero.title": {"t":"<span class=\"hk\">An open atlas of</span> Color Spaces","h":"71961035"},
 "ui.hero.vscode-label": {"t":"VS Code extension","h":"3048793f"},
 "ui.icc.label": {"t":"icc profile","h":"efb1c1e8"},
 "ui.icc.mntr": {"t":"{s} as an .icc v2 matrix+TRC display profile – Photoshop, macOS/Windows color management","h":"341e3ae0"},
