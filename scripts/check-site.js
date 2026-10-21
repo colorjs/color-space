@@ -942,7 +942,7 @@ try {
 		const result={layers:stack.length,preserved:stack.includes(inFlight),before,after,opaqueUnderlay:stack.slice(0,-1).some(el=>+getComputedStyle(el).opacity===1)}
 		await sleep(500); result.remaining=lane._gradStack?.length||0; return result })
 	assert.equal(interrupted.layers>=2,true,'an interrupted gradient transition retains its in-flight composite')
-	assert.equal(interrupted.preserved&&interrupted.after>=interrupted.before,true,'the prior layer continues from its current opacity instead of resetting')
+	assert.equal(interrupted.preserved&&interrupted.after>=interrupted.before,true,`the prior layer continues from its current opacity instead of resetting (${JSON.stringify(interrupted)})`)
 	assert.equal(interrupted.opaqueUnderlay,true,'an interrupted transition keeps an opaque color field underneath—never paper')
 	assert.equal(interrupted.remaining,1,'covered transition layers are removed after the newest field lands')
 	await motion.locator('.ent[data-s="oklch"] .nm').click(); await motion.waitForSelector('#pl3d'); await motion.waitForTimeout(1000)
