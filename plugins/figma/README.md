@@ -45,9 +45,9 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   it once zoomed, and a double click shows the whole again; a wheel has no zoom. Holding ⌘
   (Ctrl elsewhere) during a drag on the plane or a bar moves the pick a tenth as far as the
   pointer, for fine placement; letting go of ⌘ keeps the offset it built, so the pick never
-  jumps back under the pointer. Otherwise a plane drag snaps to another color's dot within
-  3 px of it – the plane's two channels its, the held one kept, as the site's planes snap;
-  only the colors' dots, never an image's pixels, and never while ⌘ places it finely, nor with Snap to colors off in
+  jumps back under the pointer. Otherwise a plane drag snaps to a dot within 3 px of it – another
+  color's or an image pixel's – the plane's two channels its, the held one kept, as the site's planes snap;
+  the tooltip names the color it would take, ⌥ measures to it; never while ⌘ places it finely, nor with Snap to colors off in
   the settings (on at first, kept). The wheel/square switch is the site's: a crossed circle, or
   in a wheel a crossed square; letters and switch at half strength, whole under the pointer, as
   the site's switch; while a pick on the plane is under way they go – they name no value it takes – and come back at
@@ -358,7 +358,7 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   histogram of that channel too (the site's strip recipe: weighted by pixel count, scaled to
   the 97th percentile), white as the dots are, over the bar's field, or over a plain fill when the image is
   selected alone. The plane and its dots render at up to 1024 px, so a widened panel stays
-  sharp. With only an image selected, its pixel
+  sharp. A plane drag snaps to its pixels as to the other colors' dots (above). With only an image selected, its pixel
   nearest the mean (OkLab) stands in for a paint: the picker explores it and the CSS fields
   copy it, but nothing is written.
 - **The other colors.** The selection's other colors are faint 6 px dots on the plane, where
@@ -410,7 +410,7 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   (as its stroke settings, measured at 2×: 13 px corners, a 40 px head with its name and a close,
   label | control rows; as wide as its rows need); a press elsewhere, Escape or the close shuts
   it. Its rows: Gamut, a segmented control (sRGB | P3 | Rec.2020), Quantize (its icon, then
-  its name), and Snap to colors, a checkbox (a plane drag meeting another color's dot; on at first, kept). Then Hints,
+  its name), and Snap to colors, a checkbox (a plane drag meeting another color's dot or an image's pixel; on at first, kept). Then Hints,
   the keys the panel answers, a line each, as Figma's menus list a shortcut – what it does, its keys at the right in
   the quiet ink: ⇧ drag along one channel, ⌘ drag finely with no snap, ⌥ measure another color, ⌃ scroll zoom the
   plane, a double click the whole plane, ⇧ ↑↓ a value ×10; on Windows and Linux the keys by name (Shift, Ctrl, Alt,
@@ -721,7 +721,8 @@ DISPLAY_P3 file. That includes:
 - a gradient: its stops listed, an edit writing one stop with its alpha and position kept;
   the relaunch button on an edited layer; the notes under the picker
 - an image (a PNG painted by the mock): its pixels as dots, one of its pixels standing in
-  as its color, no opacity row, exploring without a write; the dots' legend naming each kind
+  as its color, no opacity row, exploring without a write; a plane drag 2.5 px off a pixel's dot on it, its L and C, the
+  hue held, 5 px off its own place; the dots' legend naming each kind
 - opacity: a solid's read and typed (past 100% and below 0% clamped), an arrow key's percent,
   a drag landing in one undo step, its knob and color holding through re-reads that trail a
   newer write (mid-drag and after release) while a current re-read is taken,

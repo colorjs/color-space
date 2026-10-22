@@ -2422,6 +2422,18 @@ try {
 		await page.mouse.click(pb.x + pb.width * 0.5, pb.y + pb.height * 0.5)
 		await page.waitForTimeout(100)
 		ok((await page.evaluate(() => window.__log.fromUI.filter(m => m.type === 'set'))).length === sets0, 'the image\'s color explores without writing')
+		// a drag snaps to an image pixel's dot within 3 px as to another color's: its two channels, the held one kept
+		const px = await frame.evaluate(() => { const s = document.querySelector('#plane .density')._snap; return s && [...s.k].map((k, j) => ({ x: s.xy[2 * j], y: s.xy[2 * j + 1], v: [...s.c.v.slice(k * s.c.dim, (k + 1) * s.c.dim)] })) })
+		const [rL, rC] = space.rgb.oklch(...red), rd = px && px.find(d => Math.abs(d.v[0] - rL) < 1e-5 && Math.abs(d.v[1] - rC) < 1e-5)
+		const near = d => [pb.x + pb.width * rd.x + d, pb.y + pb.height * rd.y]
+		await page.mouse.move(pb.x + pb.width * 0.5, pb.y + pb.height * 0.5); await page.mouse.down()
+		await page.mouse.move(...near(5), { steps: 3 })
+		const imPast = await held(ui)
+		await page.mouse.move(...near(2.5), { steps: 2 })
+		const imSnap = await held(ui)
+		await page.mouse.up()
+		ok(rd && Math.abs(imSnap[0] - rd.v[0]) < 1e-9 && Math.abs(imSnap[1] - rd.v[1]) < 1e-9 && Math.abs(imSnap[2] - imPast[2]) < 1e-9, `a drag 2.5 px off an image pixel's dot lands on it: its L and C, the hue held (${imSnap} vs ${rd && rd.v})`)
+		ok(rd && Math.abs(imPast[1] - rd.v[1]) > 1e-6, `…5 px off it, its own place (${imPast})`)
 
 		// a selection without an image: no histogram lanes
 		{ const n2 = await selections(page); await page.evaluate(() => window.__select(['5:1'])); await settle(page, n2); await page.waitForTimeout(200)

@@ -895,10 +895,24 @@ function planeVals(fx, fy) {
 	return next
 }
 // ⇧ held through a drag holds it to one channel, as Figma's and the site's planes do: the one travelled farther from where
-// the press put the color moves, the other stays (a hue the shorter way round). Else the color snaps to another color's
-// dot within a few pixels of it – the plane's two channels its, as the site's planes snap – unless ⌘ places it finely;
-// only the colors' dots: an image's pixels are no target
+// the press put the color moves, the other stays (a hue the shorter way round). Else the color snaps to a dot within a few
+// pixels of it – another color's or an image pixel's – unless ⌘ places it finely
 const SNAP_PX = 3
+// v moved onto the dot nearest its place within SNAP_PX, if any: the plane's two channels its, the held ones kept, as the
+// site's planes snap – a press, the tooltip and ⌥ all take it so; true when it met one
+function snapDot(v, r) {
+	const q = pair(), p = place(v), im = $('plane').querySelector('.density')._snap
+	if (!p) return false
+	const far = (x, y) => Math.hypot((x - p[0]) * r.width, (y - p[1]) * r.height)
+	let best = null, bd = SNAP_PX
+	for (const d of $('marks')._snap || []) { const dd = far(d.x / 100, d.y / 100); if (dd < bd) { bd = dd; best = [d.v[q.a], d.v[q.b]] } }
+	if (im) for (let j = 0; j < im.k.length; j++) {
+		const dd = far(im.xy[2 * j], im.xy[2 * j + 1])
+		if (dd < bd) { bd = dd; const o = im.k[j] * im.c.dim; best = [im.c.v[o + q.a], im.c.v[o + q.b]] }
+	}
+	if (best) [v[q.a], v[q.b]] = best
+	return !!best
+}
 function pick(e) {
 	const r = rectOf($('plane')), q = pair()
 	if (!q || !S.vals) return
@@ -908,12 +922,7 @@ function pick(e) {
 		const d = i => { const t = Math.abs(frac(i, next[i]) - frac(i, v0[i])); return i === hueIdx(cls()) ? Math.min(t, 1 - t) : t }
 		const keep = d(q.a) * r.width >= d(q.b) * r.height ? q.b : q.a
 		next[keep] = v0[keep]
-	} else if (S.snap && !(e.metaKey || e.ctrlKey)) {
-		const p = place(next)
-		let best = null, bd = SNAP_PX
-		if (p) for (const d of $('marks')._snap || []) { const dd = Math.hypot((d.x / 100 - p[0]) * r.width, (d.y / 100 - p[1]) * r.height); if (dd < bd) { bd = dd; best = d } }
-		if (best) { next[q.a] = best.v[q.a]; next[q.b] = best.v[q.b] }
-	}
+	} else if (S.snap && !(e.metaKey || e.ctrlKey)) snapDot(next, r)
 	edit(next)
 }
 const plane$ = $('plane')
@@ -936,6 +945,7 @@ function planeTip(e) {
 		if (fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1) {
 			const [ix, iy] = inPlane(fx, fy), on = Math.hypot(ix - fx, iy - fy) <= 1.5 / r.width
 			let v = planeVals(fx, fy)
+			if (on && S.snap) snapDot(v, r)
 			if (on && steps()) v = v.map((x, i) => at(i, snap(frac(i, x))))
 			if (on && lens()) { const rgb = quantRGB(rgb8Of(v), S.quant); text = named(rgb) || colorName(rgb, into('rgb', S.space, rgb)) }   // a token: 8-bit sRGB
 			else { g = tightGamut(S.space, v); text = colorName(rgb8Of(v), v, g) }
@@ -1142,7 +1152,8 @@ function weighed(e) {
 		return { s: S.space, v }
 	}
 	const r = el.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = 1 - (e.clientY - r.top) / r.height
-	return { s: S.space, v: planeVals(fx, fy), at: [fx * 100, (1 - fy) * 100] }
+	const v = planeVals(fx, fy), met = v && S.snap && snapDot(v, r)
+	return { s: S.space, v, at: met ? spot(v) : [fx * 100, (1 - fy) * 100] }   // a dot met: the ruler to it
 }
 let hovered = null, measuring = false   // the last move over the panel: where ⌥ reads from when the key itself comes
 function measureAt(e) {
@@ -1213,8 +1224,10 @@ function paintDensity(cv, c, q, w, polar, [[a0, a1], [b0, b1]]) {
 	const ctx = cv.getContext('2d')
 	if (cv.width !== w || cv.height !== w) { cv.width = w; cv.height = w }
 	ctx.clearRect(0, 0, w, w)
+	cv._snap = null
 	if (!c) return
-	const r = Math.max(2, w / 190)
+	const r = Math.max(2, w / 190), xy = new Float32Array(c.n * 2), ks = new Int32Array(c.n)
+	let m = 0
 	ctx.fillStyle = '#fff'
 	for (let k = 0; k < c.n; k++) {
 		const fa = (c.v[k * c.dim + q.a] - a0) / (a1 - a0), fb = (c.v[k * c.dim + q.b] - b0) / (b1 - b0)
@@ -1223,8 +1236,10 @@ function paintDensity(cv, c, q, w, polar, [[a0, a1], [b0, b1]]) {
 		if (!(x >= 0 && x <= 1 && y >= 0 && y <= 1)) continue
 		ctx.globalAlpha = 1 - 0.8 ** c.w[k]   // a color seen n times reads as n fifth-opaque dots stacked
 		ctx.fillRect(x * w - r / 2, (1 - y) * w - r / 2, r, r)
+		xy[2 * m] = x; xy[2 * m + 1] = 1 - y; ks[m++] = k
 	}
 	ctx.globalAlpha = 1
+	cv._snap = { xy, k: ks.subarray(0, m), c }   // where each dot shown sits, for a pick to snap to (snapDot)
 }
 // The histogram of each channel over the image's distinct colors (each weighted by its pixel count), the site's lane
 // recipe (web/index.html histMask): a bin per device pixel of the lane, a sample split between the two bins it falls
