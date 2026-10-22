@@ -1921,10 +1921,11 @@ test('shape — a hue angle is polar, whatever its other channels; the curated c
 	// Msh's hue runs 0–2π: classify reads only a 0–360 channel as an angle (the page's hue maths – rotateHue, the planes'
 	// wrap – work in degrees), so it is the one cylindrical space the shape misses
 	is(Object.keys(meta).filter(n => meta[n].method === 'cylindrical' && geoOf(n) !== 'polar'), ['msh'], 'every space data.json calls cylindrical is polar – but Msh, whose hue is in radians')
-	// every card's maker line leads with its shape's mark, inside the maker's span – lead cards and tiles alike
+	// every card's maker line leads with its shape's mark, after the space's bookmark, inside the maker's span – lead cards and
+	// tiles alike
 	const { catHTML } = await import('../web/js/render.js'), html = catHTML()
-	const mark = s => new RegExp(`data-s="${s}"[\\s\\S]*?<span class="by"><span class="au"><span class="ki"[^>]*aria-label="([^"]+)"`).exec(html)?.[1]
-	is(['hwb', 'lab', 'rgb', 'p3-linear'].map(mark), ['Shape: Polar', 'Shape: Opponent', 'Shape: Component', 'Shape: Component'], 'the mark first, its kind named, before the maker – a lead (rgb, hwb, lab) and a tile (p3-linear)')
+	const mark = s => new RegExp(`data-s="${s}"[\\s\\S]*?<span class="by"><span class="au"><button type="button" class="bm" data-bm="${s}"[^>]*>[\\s\\S]*?</button><span class="ki"[^>]*aria-label="([^"]+)"`).exec(html)?.[1]
+	is(['hwb', 'lab', 'rgb', 'p3-linear'].map(mark), ['Shape: Polar', 'Shape: Opponent', 'Shape: Component', 'Shape: Component'], 'the bookmark, then the mark, its kind named, before the maker – a lead (rgb, hwb, lab) and a tile (p3-linear)')
 })
 
 test('white — each white marked in its own color, in the list beside its name; none where a space has none', async () => {
