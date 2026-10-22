@@ -1,10 +1,7 @@
+@import url(study.css);
 /* Workshop: the hero laid on the catalog's grid (?hero=<variant>) – the rail's column and the spaces' column – so the
    title and the field rest over the row's cells (the color at its left edge, the count where the spaces start):
    scrolling down, they shrink where they stand (x unchanged), and the row takes over. Tokens only. */
-.hw-study{ position:fixed; left:var(--s3); bottom:var(--s3); z-index:var(--z-tooltip); display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s1) var(--s3); max-width:min(22rem,calc(100vw - 2 * var(--s3))); padding:var(--s2) var(--s3); font-size:var(--t1); color:var(--body); background:var(--paper); box-shadow:0 0 0 var(--rule-hair) var(--hair),var(--pop-shadow) }
-.hw-study span{ font-weight:700; color:var(--ink) } .hw-study a{ color:var(--soft); font-weight:600; text-decoration:none } .hw-study a:hover{ color:var(--ink) }
-.hw-study a[aria-current]{ color:var(--ink); text-decoration:underline; text-decoration-thickness:var(--ulw); text-underline-offset:4px }
-.hw-study i{ flex-basis:100%; font-style:normal; color:var(--soft) }
 
 /* the catalog's grid, inside the hero: the page's measure, its gutter, the rail's column and gap */
 :root[data-hero]:not([data-hero="center"]) .hmain{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap); align-items:start; width:100%; max-width:var(--maxw); margin-inline:auto }

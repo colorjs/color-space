@@ -10,7 +10,7 @@ export { pairsOf, decOf, fmtc, geoOf, rgbF }   // the dossier imports them from 
 import CATS from './categories.js'
 import PURPOSE, { USE } from './purpose.js'
 import LORE from './lore.js'
-import { OI, PI, VI } from './icons.js'
+import { OI, PI, VI, BM } from './icons.js'
 import REACH from './reach.js'
 import { t, LANG } from './i18n.js'
 import { chEn, chKey } from './vocab.js'
@@ -106,7 +106,7 @@ const shortBy = by => { const x = by.replace(/\s*\([^)]*\)/g, '').trim(), n = x.
 // the years it ran: from its year to its successor's – or its year alone (still current, or retired with no year to give)
 // (short: the end year's last two digits within its century, 1942–76 – a card's corner is narrow)
 export const run = (s, short) => { const y = meta[s].year, z = y && ending(s)?.y; return !y ? '' : !z ? `${y}` : `${y}–${short && String(z).slice(0, 2) === String(y).slice(0, 2) ? String(z).slice(2) : z}` }
-const byline = s => { const m = meta[s], e = ending(s), ki = kindIcon('geo', s); return [m.by ? `<span class="au">${ki}<span class="aun">${shortBy(m.by)}${m.year ? ',' : ''}</span></span>` : ki, m.year && `<span class="tnum yr">${run(s, true)}${e && !e.by ? OI.historical : ''}</span>`].filter(Boolean).join(' ') }   // retired: the box, where an end year would be
+const byline = s => { const m = meta[s], e = ending(s), ki = bookmark(s) + kindIcon('geo', s); return [m.by ? `<span class="au">${ki}<span class="aun">${shortBy(m.by)}${m.year ? ',' : ''}</span></span>` : ki, m.year && `<span class="tnum yr">${run(s, true)}${e && !e.by ? OI.historical : ''}</span>`].filter(Boolean).join(' ') }   // retired: the box, where an end year would be
 // an entry: the featured (lead) card reads in full – name and by-line, its story, the strips, the numbers; a tile
 // keeps the name and year over thin strips and the numbers. Both paint; the prerender bakes a tile's strips coarse
 // (12 guides – the page repaints what scrolls into view at full). Every view's entry is an .ent[data-s] with its
@@ -123,6 +123,9 @@ const entAttrs = (s, cls, vals, st, n) => `data-s="${s}"${vals ? ` data-v="${st.
 // middle/⌘-click opens a tab; a plain click opens the dossier in place (index.html's space-link listener)
 // a list row's name keeps only what its row's own cells don't say: the maker and the years, the kinds are cells there
 const nameLink = (s, row) => `<a class="nm" href="${s}" draggable="false"${row ? '' : ` data-tip-head="${entHead(s)}"`} data-tip="${entTip(s)}"${row ? '' : ` data-tip-tags="${entTags(s)}"`} aria-label="${t('ui.card.open', 'Open {s} color-space dossier', { s })}">${nbh(disp(s))}</a>`
+// a space's bookmark, leading the maker's line (a row's after its name): filled while bookmarked, shown while its card is
+// pointed at. Drawn unmarked – the page marks the bookmarked ones (paintBookmarks), so the template stays the prerender's
+const bookmark = s => `<button type="button" class="bm" data-bm="${s}" aria-pressed="false" title="${t('ui.bookmark.add', 'Bookmark')}" aria-label="${t('ui.bookmark.label', 'Bookmark {name}', { name: disp(s) })}">${BM}</button>`
 const field = (s, c2, i, vals) => `<span class="cvp" title="${cname(c2)}"><i class="cl" aria-hidden="true">${c2.sym.slice(0, 2)}</i><input class="cv tnum" data-i="${i}" inputmode="decimal" spellcheck="false" autocomplete="off" aria-label="${s} ${cname(c2)}"${vals ? ` value="${fmtc(vals[i], c2)}"` : ''}></span>`
 const strip = (s, c2, i, vals, st, n) => `<div class="ch" data-i="${i}"${vals ? ` style="background:linear-gradient(90deg, ${ramp(s, vals, i, c2.min, c2.max, n, limitFor(classify(s))).join(',')}), var(--checker)"` : ''}><input type="range" class="nrg" data-i="${i}" min="${c2.min}" max="${c2.max}" step="any"${vals ? ` value="${vals[i]}" style="--tkc:${st.hx};--tki:${st.ink}"` : ''} tabindex="-1" aria-label="${t('ui.card.slider', '{name} slider', { name: cname(c2) })}"></div>`
 const ent = (s, lead, st) => { const cls = classify(s), vals = valsAt(s, st), n = lead ? 48 : 12
@@ -164,7 +167,7 @@ const CELL = { year: s => (meta[s].year || '') + kindIcon('status', s), ch: (s, 
 const colName = k => ({ name: t('ui.col.name', 'Name'), year: t('ui.col.year', 'Year'), by: t('ui.col.by', 'Made by'), ch: t('ui.col.channels', 'Channels'),
 	cov: t('ui.cell.coverage', 'Coverage'), geo: t('ui.col.shape', 'Shape'), curve: t('ui.col.curve', 'Curve'), sig: t('ui.cell.signal', 'Signal'), range: t('ui.col.range', 'Range'), status: t('ui.cell.status', 'Status'), white: t('ui.col.white', 'White') })[k]
 const trow = (s, st) => { const cls = classify(s), vals = valsAt(s, st)
-	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s, vals)}</td>` : `<th scope="row" class="c-name">${nameLink(s, true)}</th>`).join('')}<td class="c-kind">${KINDS.map(k => kindIcon(k, s)).join('')}</td></tr>` }
+	return `<tr class="ent tr" ${entAttrs(s, cls, vals, st, 12)}><td class="tsw"><div class="chs mini">${cls.ch.map((c2, i) => strip(s, c2, i, vals, st, 12)).join('')}</div></td>${COLS.map(([k, f], i) => i ? `<td class="c-${k}">${(CELL[k] || f)(s, vals)}</td>` : `<th scope="row" class="c-name">${nameLink(s, true)}${bookmark(s)}</th>`).join('')}<td class="c-kind">${KINDS.map(k => kindIcon(k, s)).join('')}</td></tr>` }
 const table = (spaces, st, sort) => `<div class="tblw"><table class="tbl"><thead><tr><th class="tsw"><span class="sr">${t('ui.col.preview', 'Preview')}</span></th>${COLS.map(([k]) => `<th scope="col" class="c-${k}" aria-sort="${sort?.k === k ? (sort.d > 0 ? 'ascending' : 'descending') : 'none'}"><button type="button" data-sort="${k}">${colName(k)}${sort?.k === k ? `<span aria-hidden="true">${sort.d > 0 ? ' ↑' : ' ↓'}</span>` : ''}</button></th>`).join('')}<th scope="col" class="c-kind"><span class="sr">${KINDS.map(colName).join(' · ')}</span></th></tr></thead><tbody>${spaces.map(s => trow(s, st)).join('')}</tbody></table></div>`
 // a list sorted by a column: every space in one shelf, in that order
 export const sorted = ({ k, d }) => { const f = COLS.find(c => c[0] === k)[1]
@@ -179,7 +182,7 @@ export const nextView = view => { const V = VIEWS(), [v, n, tip, ic] = V[(V.find
 
 // a shelf's icon on the rail: the families' glyphs, a purpose's own (the line family the menus draw); era shelves go bare
 const SHELFI = { 'cat.display': OI.display, 'cat.remixes': OI.polar, 'cat.perceptual': OI.opponent, 'cat.colorimetry': OI.chromaticity,
-	'cat.video': OI.delivery, 'cat.camera': OI.scene, 'cat.surface': OI.palettes, ...Object.fromEntries(Object.keys(OI).map(k => ['purpose.' + k, OI[k]])) }
+	'cat.video': OI.delivery, 'cat.camera': OI.scene, 'cat.surface': OI.palettes, bookmarks: BM, ...Object.fromEntries(Object.keys(OI).map(k => ['purpose.' + k, OI[k]])) }
 
 // m: optional color state to bake in ({ s, vals } — the prerender passes DEFAULT);
 // omitted (the page's fingerprint check) → the bare template, byte-stable across colors.
@@ -209,7 +212,7 @@ const more = (c, on) => { const F = folds(c), fs = F.filter(Boolean)
 	return fs.length ? `<div class="fold"><ul class="fns">${heldOrder(c.spaces, Math.min(...fs.map(f => f.at))).map(held(F)).join('')}</ul><button type="button" class="more" aria-expanded="${on}"><span class="mo">${t('ui.fold.more', '{n} more', { n: F.map((f, k) => f ? `<i class="n${k + 1}">${f.n}</i>` : '').join('') })}</span><span class="le">${t('ui.fold.less', 'Less')}</span>${FOLD}</button></div>` : '' }
 export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sort = null, leads = LEADS, adapt = false, open = new Set() } = {}) => { let st = null
 	if (m) { const rgb = rgbF(m.s, m.vals); st = { rgb, hx: hex(rgb), ink: ink(rgb) } }
-	const by = t('ui.group.by', 'group the catalog by'), G = { family: t('ui.group.family', 'Family'), purpose: t('ui.group.purpose', 'Purpose'), era: t('ui.group.era', 'Era'), author: t('ui.group.author', 'Author') }
+	const by = t('ui.group.by', 'group the catalog by'), G = { family: t('ui.group.family', 'Family'), purpose: t('ui.group.purpose', 'Purpose'), era: t('ui.group.era', 'Era'), author: t('ui.group.author', 'Author'), bookmarks: t('ui.group.bookmarks', 'Bookmarks') }
 	const body = c => view === 'list' ? table(c.spaces, st, sort)
 		: `<div class="lead">
 	${c.spaces.slice(0, leads).map(s => ent(s, true, st)).join('')}
@@ -217,5 +220,6 @@ export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sor
 	${adapt ? dupTiles(c.spaces.slice(1, leads), st) : ''}${c.spaces.slice(leads).map(s => ent(s, false, st)).join('')}${more(c, open.has(c.key || c.name))}
 </div>` : ''}`
 	const ti = (c, i) => `<div class="trg"><i class="tsp"></i><div class="ti" data-i="${i}"><button class="tn"${c.tip ? ` data-tip="${secTip(c)}"` : ''}>${SHELFI[c.key] ? `<span class="fic">${SHELFI[c.key]}</span>` : ''}<span class="tt">${secName(c)}</span><span class="tc tnum">${c.spaces.length}</span></button>${c.tip ? `<p class="tip">${secTip(c)}</p>` : ''}</div></div>`
-	const tabs = ['family', 'purpose', 'author', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')   // the rail's, and a tablet's in the first heading (no rail there)
-	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${tabs}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec${view === 'grid' ? folds(c).map((f, k) => f ? ` ${f.r > 1 ? 'f' : 'g'}${k + 1}` : '').join('') + (open.has(c.key || c.name) ? ' open' : '') : ''}" data-sec data-k="${c.key || c.name}"><h2 class="shw">${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<span class="gtabh" role="group" aria-label="${by}">${tabs}</span><select class="gsel" aria-label="${by}">${['family', 'purpose', 'era'].map(g => `<option value="${g}"${g === cut ? ' selected' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }
+	const tabs = ['family', 'purpose', 'author', 'era'].map(g => `<button class="gtag${g === cut ? ' on' : ''}" data-g="${g}" aria-pressed="${g === cut}">${G[g]}</button>`).join('')
+		+ `<button class="gtag gbm${cut === 'bookmarks' ? ' on' : ''}" data-g="bookmarks" aria-pressed="${cut === 'bookmarks'}" title="${G.bookmarks}" aria-label="${G.bookmarks}"${cut === 'bookmarks' ? '' : ' hidden'}>${BM}</button>`   // the bookmarks shelf: its bookmark, there once a space is bookmarked (paintBookmarks)   // the rail's, and a tablet's in the first heading (no rail there)
+	return `<nav class="toc" id="toc">${secs.map(ti).join('')}<div class="trg"><div class="gtabs" aria-label="${by}">${tabs}</div></div></nav><div class="secs" id="secs">` + secs.map((c, si) => `<section class="sec${view === 'grid' ? folds(c).map((f, k) => f ? ` ${f.r > 1 ? 'f' : 'g'}${k + 1}` : '').join('') + (open.has(c.key || c.name) ? ' open' : '') : ''}" data-sec data-k="${c.key || c.name}"><h2 class="shw">${secName(c)}<span class="c tnum">${c.spaces.length}</span>${si === 0 ? `<span class="gtabh" role="group" aria-label="${by}">${tabs}</span><select class="gsel" aria-label="${by}">${['family', 'purpose', 'era', 'bookmarks'].map(g => `<option value="${g}"${g === cut ? ' selected' : g === 'bookmarks' ? ' hidden disabled' : ''}>${G[g]}</option>`).join('')}</select>` : ''}</h2>${c.tip ? `<p class="stip">${secTip(c)}</p>` : ''}${body(c)}</section>`).join('') + `</div><p class="nores" id="nores" hidden></p>` }

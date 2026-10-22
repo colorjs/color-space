@@ -104,7 +104,7 @@ try {
 	  await lens(page,'g',shows); await page.evaluate(()=>{ try{ localStorage.removeItem('csGm') }catch{} })   // back to the default Limit – the display's own – through the row's own menu
 	  assert.equal(await page.evaluate(g=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector(`.hlocus .lims path[data-g="${g}"]`).getAttribute('d'),shows), true, 'the display\'s gamut again: its own region filled') }
 	// a name is the entry's identity: it wraps, never clips (CMYK once read "CM…") – the text's own
-	// extent must fit its box, measured on the text node so the hidden ↗ overhang doesn't count
+	// extent must fit its box, measured on the text node
 	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.ent .nm')].filter(n => n.offsetParent).filter(n => {
 		const r = document.createRange(); r.selectNodeContents(n); return r.getBoundingClientRect().width > n.getBoundingClientRect().width + 1 }).map(n => n.closest('.ent').dataset.s)), [], 'no catalog name is clipped')
 	assert.equal(await page.locator('#cat .stk').count(), 0, 'the catalog carries no spinners – its numbers take typing and ↑ ↓; the spinners are the dossier\'s')
@@ -325,7 +325,7 @@ try {
 	// the shelf cut lives at the rail's FOOT now — tabs regroup without the panel;
 	// the filters then compose on the rebuilt DOM (scene-referred × era = the
 	// camera-log timeline), and the header chips restore every layer
-	assert.equal(await page.locator('.gtabs .gtag').count(), 4, 'the rail offers the four cuts – family, purpose, author, era')
+	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.gtabs .gtag')].map(b => b.dataset.g + (b.hidden ? ' hidden' : ''))), ['family', 'purpose', 'author', 'era', 'bookmarks hidden'], 'the rail offers the four cuts – family, purpose, author, era – and the bookmarks shelf\'s bookmark, hidden till a space is bookmarked')
 	await page.locator('.gtabs .gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtabs .gtag[data-g="era"]').click()
@@ -343,6 +343,17 @@ try {
 	await page.locator('.gtabs .gtag[data-g="author"]').click()
 	assert.deepEqual(await page.evaluate(() => { const k = [...document.querySelectorAll('#cat .sec')].map(s => s.dataset.k); return [k[0], k.at(-1), document.querySelectorAll('#cat .sec .ent').length] }), ['author.cie', 'author.people', 221], 'the Author cut: the CIE first, the researchers last, every space shelved once')
 	await page.locator('.gtabs .gtag[data-g="family"]').click()
+	// the bookmark on a card's maker line keeps the space: the bookmarks shelf's tab shows, and the shelf holds the bookmarked
+	// spaces in the order bookmarked, every one a lead card – side by side to compare; let go there, a card stays till the shelf is redrawn
+	for (const s of ['oklch', 'lab']) { await page.locator(`.ent[data-s="${s}"] .eh`).hover(); await page.locator(`.ent[data-s="${s}"] .bm`).click() }
+	assert.equal(await page.locator('.gtabs [data-g="bookmarks"]').isVisible(), true, 'a space bookmarked: the bookmarks shelf\'s tab shows')
+	await page.locator('.gtabs [data-g="bookmarks"]').click()
+	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#cat .ent[data-s]')].map(e => e.dataset.s + (e.matches('.lc') ? '' : ' tile'))), ['oklch', 'lab'], 'the bookmarks shelf: the bookmarked spaces in the order bookmarked, each a lead card')
+	await page.locator('.ent[data-s="lab"] .bm').click()
+	assert.deepEqual([await page.locator('.ent[data-s="lab"]').isVisible(), await page.locator('.ent[data-s="lab"] .bm').getAttribute('aria-pressed')], [true, 'false'], 'let go on the shelf, a space stays, unmarked, till the shelf is drawn again')
+	await page.locator('.gtabs .gtag[data-g="family"]').click()
+	await page.locator('.ent[data-s="oklch"] .eh').hover(); await page.locator('.ent[data-s="oklch"] .bm').click()
+	assert.equal(await page.locator('.gtabs [data-g="bookmarks"]').isHidden(), true, 'nothing bookmarked: the bookmarks shelf\'s tab hides again')
 	// a language switch keeps ?g=: the page arrives in that cut, built once, and its tabs stay live – the arrival used to
 	// regroup, then the prerender's drift path redrew the family over it with the cut still set, so Family looked picked and Purpose did nothing
 	{	const cutContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), cut = await cutContext.newPage()

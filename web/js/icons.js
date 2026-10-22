@@ -74,4 +74,6 @@ export const OI = {
 	chromaticity: ic('<path d="M7 20 5.5 17 4.3 12 4.5 6 6 4 9.5 5.5 13.5 9 17 12.5 20 15.5z"/>'),
 }
 export const DL = ic('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>')   // a download
+export const BM = ic('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>')   // a bookmark: a space kept to compare – filled while it is (Feather's, MIT)
+export const LINK = ic('<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>')   // a link: a dossier's address, to share (Feather's, MIT)
 export const EYE = ic('<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>')   // Vision's cell

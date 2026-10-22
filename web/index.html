@@ -60,7 +60,10 @@ body{ font-family:var(--f); font-size:var(--t3); line-height:1.45; background:va
 .tnum{ font-variant-numeric:tabular-nums }
 .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap }   /* said, not shown */
 a{ color:var(--ink); font-weight:500; text-decoration:none; text-decoration-thickness:var(--rule-hair); text-underline-offset:.25em; text-decoration-color:color-mix(in oklab,currentColor 45%,transparent) }   /* a link: a step bolder than its text and darker – the ink; pointed at, a hair under it at half its ink (the placeholder's), a step clear of the letters – a thin line, not the pick's bar (tabs, the shelf cut) */
-:is(.hsub,.ftr,.desc,.fqa,.props,.for,.hl-lead) a:hover{ text-decoration-line:underline }   /* in running text: the slogan, the footer, a dossier's story and record, the answers */
+:is(.hsub,.ftr,.desc,.fqa,.props,.for,.hl-lead,.ent,.fns) a,.hl-ms b{ text-decoration-line:underline; text-decoration-color:color-mix(in oklab,currentColor var(--lk,0%),transparent); transition:text-decoration-color var(--dur-micro) var(--ease-out) }
+:is(.hsub,.ftr,.desc,.fqa,.props,.for,.hl-lead,.ent,.fns):hover a,.hl-fig:hover .hl-ms b{ --lk:30% }
+:is(.hsub,.ftr,.desc,.fqa,.props,.for,.hl-lead,.ent,.fns) a:is(:hover,:focus-visible),.hl-ms:is(:hover,:focus-visible) b{ --lk:100% }   /* in running text and on the cards – the slogan, the footer, a dossier's story and record, the answers, a card's name: pointed at, the text shows its links, faint; the one pointed at, a step darker */
+a:not([href^="http"],[href^="mailto:"]),.hl-ms b{ text-decoration-style:dotted }   /* a link that stays on the page – a space's dossier, a door into the catalog, the field's ways – dotted; one that leaves the site, solid */
 .skip{ position:fixed; left:.6rem; top:.6rem; z-index:var(--z-tooltip); background:var(--ink); color:var(--paper); font-size:var(--t1); font-weight:700; text-decoration:none; padding:var(--s2) var(--s3); transform:translateY(-3.6rem); transition:transform var(--dur-micro) var(--ease-out) }
 .skip:focus{ transform:none }
 html{ accent-color:var(--accent) } .dpop{ accent-color:var(--cur,var(--accent)) }   /* native widgets speak the current color too – the menus' ranges, the only native ones, in the --cur their menu already wears: an accent on <html> restyled the whole page at every settle */
@@ -468,9 +471,7 @@ body.himg #imgfloat{ display:block }
 :is(.hl-ms,.hl-ms.end){ border-color:transparent }   /* the leader draws the flag's line */
 .hl-ms b{ display:block; font-weight:700; color:var(--ink); white-space:nowrap }
 :where(p,li,dd,figcaption,.tip){ text-wrap:pretty }   /* running text: no lone word on a last line (never over a float – the cards' heads keep their own wrap) */
-.hl-ms.end b::after{ margin-inline-end:0 }   /* a flag ending on its line keeps the arrow's room, the arrow clear of the line */
-.hl-ms b::after{ content:'↗'; position:absolute; padding-inline-start:.25em; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* the catalog's idiom, as .nm: ↗ opens the space – out of flow at its static place, so an end-aligned name keeps its edge */
-.hl-ms:is(:hover,:focus-visible) b::after{ opacity:1 }
+.hl-ms b{ text-decoration-thickness:var(--rule-hair); text-underline-offset:.25em }   /* the name a link's hair (the page's a) – it opens the space */
 .hl-ms:hover .hl-mw{ color:var(--body) }
 .hl-mk{ display:block } .hl-mw{ display:block; max-width:24ch; text-wrap:balance; hyphens:auto; overflow-wrap:break-word }   /* a note's measure in every language, the room to the next flag permitting; a long word hyphenates, never crosses its line */
 /* the band picked draws its own milestone, alone: the four step back – flag, leader and rhombus – so nothing crosses it */
@@ -478,7 +479,6 @@ body.himg #imgfloat{ display:block }
 .hl-fig.now :is(.hl-ms,.hl-ld,.hl-dm):not(.hl-now){ opacity:0 }
 .hl-fig:not(.now) .hl-now{ display:none }
 .hl-ms.hl-now{ pointer-events:none }
-.hl-now b::after{ opacity:1 }
 /* the stack: one figure. Scrolled away, it is skipped – the orbit restyles the page every frame */
 .hl-st{ position:relative; padding-block:var(--hl-pad); cursor:pointer }   /* no content-visibility: its paint containment would clip the leaders where they rise to their flags */
 .hl-sv{ display:block; width:100%; height:calc(var(--u) * var(--hl-t)); overflow:visible; shape-rendering:crispEdges }
@@ -637,6 +637,7 @@ body.himg #imgfloat{ display:block }
 :is(.gtabs,.gtabh) .gtag{ position:relative; font:inherit; font-size:var(--t2); font-weight:700; color:var(--soft); background:none; border:0; padding:var(--s1) var(--s2); cursor:pointer } .gtabs .gtag:first-child{ margin-inline-start:calc(-1 * var(--s2)) }   /* the first's word on the column's edge */
 :is(.gtabs,.gtabh) .gtag:hover{ color:var(--body) }
 :is(.gtabs,.gtabh) .gtag.on{ color:var(--ink) }   /* the pick in ink, the rest grey – the family titles' own way (.ti.act .tn) */
+:is(.gtabs,.gtabh) .gbm .ic{ --ic:1em; vertical-align:-.15em }   /* the bookmarks shelf's tab: its bookmark, a letter's size on the words' line */
 :is(.gtabs,.gtabh) .gtag::before{ content:''; position:absolute; inset-inline:var(--s2); top:calc(-1 * var(--s1)); height:var(--ulw); background:transparent; transition:background-color var(--dur-micro) var(--ease-out) }
 :is(.gtabs,.gtabh) .gtag:hover::before{ background:var(--ulp) } :is(.gtabs,.gtabh) .gtag.on::before{ background:var(--ula) }   /* and a bar over its word, the word's width – the row hangs from below, its marker faces up */
 /* phones have no rail — a de-chromed select (the dossier's human/srgb voice) rides the
@@ -678,7 +679,7 @@ body.himg #imgfloat{ display:block }
 .sec{ --cols:1 }
 @container secs (width >= 34rem){ .sec{ --cols:2 } }
 @container secs (width >= 52rem){ .sec{ --cols:3 } }
-/* a lead card's own switch, sliders ⇄ planes: under its strips' right end, beside the numbers, waiting for the card to be pointed at */
+/* a lead card's own switch, sliders ⇄ planes: under its strips' right end, beside the numbers */
 .pv{ position:relative; min-width:0 }
 .pvs{ position:absolute; inset-inline-end:0; top:calc(100% + var(--s2)); display:grid; place-items:center; width:var(--s6); height:var(--s6); padding:0; border:0; background:none; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }
 .pvs .fi{ width:16px; height:16px }
@@ -691,9 +692,10 @@ body.himg #imgfloat{ display:block }
 .ent:is(.lc,.tc){ will-change:transform }
 .lead,.tiles{ display:grid; grid-template-columns:repeat(var(--cols),minmax(0,1fr)); gap:var(--s6) var(--s8) }
 /* the prerender's three leads, a narrower grid's way: past its columns' count, a lead shows as a tile (its copy at the
-   tiles' head, render.js dupTiles) – the first paint the layout the rebuild keeps */
-@container secs (width < 34rem){ .lead>.ent:nth-child(2) { display:none } }
-@container secs (width < 52rem){ .lead>.ent:nth-child(3) { display:none } }
+   tiles' head, render.js dupTiles) – the first paint the layout the rebuild keeps. Only there: the bookmarks shelf's leads
+   all show, in as many rows as they take */
+@container secs (width < 34rem){ .lead:has(+.tiles.dup)>.ent:nth-child(2) { display:none } }
+@container secs (width < 52rem){ .lead:has(+.tiles.dup)>.ent:nth-child(3) { display:none } }
 @container secs (width >= 34rem){ .tiles>.ent.dl2{ display:none } }
 @container secs (width >= 52rem){ .tiles>.ent.dl3{ display:none } }
 .tiles{ grid-template-columns:repeat(calc(var(--cols) + 1),minmax(0,1fr)); gap:var(--s5) var(--s6); margin-top:var(--s6) }
@@ -717,7 +719,7 @@ body.himg #imgfloat{ display:block }
    at its end – the shelf tabs' voice, soft until pointed at; open, the control alone at the bottom right, its chevron
    turned */
 .fold{ grid-column:1 / -1; display:flex; align-items:baseline; justify-content:flex-end; gap:var(--s6) } .sec.open .fold{ grid-column:-2 / -1; align-self:end } .sec.open .more{ padding-block:0 }   /* open, at the last column's foot: beside the last tile where the row has room, else a line of its own – at the right either way */
-.fns{ display:flex; flex:1; gap:var(--s6); min-width:0; margin:0; padding:0; font-size:var(--t2); line-height:1.25; list-style:none; overflow-x:auto; scrollbar-width:none; overscroll-behavior-x:contain; white-space:nowrap; contain:paint; mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent) }   /* one line of every name it holds, scrolled sideways – fading at the end it runs on past, the field's way (cvfl, cvfr); a step under a tile's names, the line sized as they are, so their ↗ rides their baseline; paint-contained – without it Chrome painted nothing at all on a right-to-left page (ar) */
+.fns{ display:flex; flex:1; gap:var(--s6); min-width:0; margin:0; padding:0; font-size:var(--t2); line-height:1.25; list-style:none; overflow-x:auto; scrollbar-width:none; overscroll-behavior-x:contain; white-space:nowrap; contain:paint; mask-image:linear-gradient(to right,transparent,#000 var(--fl),#000 calc(100% - var(--fr)),transparent) }   /* one line of every name it holds, scrolled sideways – fading at the end it runs on past, the field's way (cvfl, cvfr); a step under a tile's names, the line sized as they are; paint-contained – without it Chrome painted nothing at all on a right-to-left page (ar) */
 .fns::-webkit-scrollbar{ display:none }
 @supports (animation-timeline:scroll()){ .fns{ animation:cvfl linear both,cvfr linear both; animation-timeline:scroll(self inline),scroll(self inline); animation-range:0 var(--s1),calc(100% - var(--s1)) 100% } }
 @supports not (animation-timeline:scroll()){ .fns{ --fr:var(--s8) } }
@@ -803,16 +805,24 @@ body.himg #imgfloat{ display:block }
 }
 /* hover keeps the catalog flat; no white card and no global dimming */
 .ent{ transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out),filter var(--dur-micro) var(--ease-out) }
-/* the ↗ opens-modal mark rides the title baseline, sized to the title text without extra stroke weight */
-.nm::after{ content:'↗'; position:absolute; padding-inline-start:.3em; white-space:nowrap; font-size:1em; line-height:inherit; font-weight:600; opacity:0; transition:opacity var(--dur-micro) var(--ease-out) }   /* out of flow at its static place – right after the last word, on its line: the hidden mark claims no width, in a name's measure or its line's alignment (a give-back margin under-measured names and, in Safari, shifted an end-aligned one) */
-.nm:hover::after{ opacity:1 }   /* title hover only — ink, same as the title */
 .ent .eh{ position:relative; display:flex; align-items:baseline; min-width:0; --nmf:var(--t4); --nml:1.15; font-size:var(--nmf); line-height:var(--nml) }   /* the name first, the maker and year at the first line's end in what it leaves: the name wraps only where it can't keep a line beside the year – never for the maker, who steps aside whole (.by .au). The head's lines are the name's own */
 .ent .eh .nm{ flex:0 1 auto }
 .ent.tc .eh{ --nmf:var(--t3); --nml:1.25 }
-.ent .eh .nm{ padding-inline-end:1.1em }   /* room for the ↗ its hover shows, in its own em: the maker never sits under it */
 .ent .eh .nm::before{ content:''; position:absolute; inset:0 }   /* the whole head – the name, the year, the maker – opens the card */
 @media(pointer:coarse){ .ent .eh .nm::before{ inset:calc(-1 * var(--s2)) 0 } }   /* a finger's target reaches into the air around the head, not the head itself: a taller name pushed its strips away */
-.ent .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:750; font-size:var(--t4); letter-spacing:-.01em; line-height:1.15; text-align:start; text-wrap:balance; text-decoration:none; cursor:pointer }   /* case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
+/* a space's bookmark (.bm): leading the maker's line, before the shape's mark – a row's after its name, a dossier's at its
+   head's line end; dim→ink, as the switch under the strips; filled while bookmarked and always there; not, it shows while
+   its card or row is pointed at (its room kept: nothing on the line moves) – a touch screen bookmarks from the dossier */
+:is(.bm,.dshare){ display:grid; place-items:center; flex:none; padding:0; border:0; background:none; font:inherit; color:var(--soft); cursor:pointer; transition:color var(--dur-micro) var(--ease-out),opacity var(--dur-micro) var(--ease-out) }
+:is(.bm,.dshare):is(:hover,:focus-visible),.bm[aria-pressed="true"]{ color:var(--ink) }
+.bm[aria-pressed="true"] .ic{ fill:currentColor }
+.by .bm{ position:relative; z-index:1; align-self:center; height:1lh; margin-inline-end:var(--s1); --ic:14px }   /* over the head's link layer */
+.tbl .c-name .bm{ display:inline-grid; vertical-align:middle; margin-inline-start:var(--s1); --ic:1em }
+@media(hover:hover){ .ent .bm[aria-pressed="false"]:not(:focus-visible){ opacity:0 } .ent:is(:hover,:focus-within) .bm[aria-pressed]{ opacity:1 } }
+@media(hover:none){ .ent .bm[aria-pressed="false"]{ display:none } }
+/* the bookmarks shelf: a space let go there stays, dim, its bookmark at hand to take it back – till the shelf is drawn again */
+.cat[data-cut="bookmarks"] .ent:has(.bm[aria-pressed="false"]){ opacity:.35 } .cat[data-cut="bookmarks"] .ent .bm{ display:grid; opacity:1 } .cat[data-cut="bookmarks"] .tbl .bm{ display:inline-grid }
+.ent .nm{ flex:0 1 auto; min-width:0; max-width:100%; padding:0; border:0; background:none; color:inherit; font:inherit; font-weight:750; font-size:var(--t4); letter-spacing:-.01em; line-height:1.15; text-align:start; text-wrap:balance; cursor:pointer }   /* case comes display-final from disp() (uppercasing here would corrupt lαβ); names are the entry's identity, so they wrap (balanced, never at a hyphen – nbh) rather than truncate */
 .ent.tc .eh .nm{ font-size:var(--t3) } :is(.ent.tc .eh,.fns) .nm{ font-weight:650; line-height:1.25 }
 .by{ order:1; flex:1 1 0; display:flex; justify-content:flex-end; align-items:baseline; gap:var(--s1); margin-inline-start:var(--s2); font-size:var(--t1); line-height:1.2; color:var(--soft); white-space:nowrap }   /* the maker and year: what the name leaves of its first line */
 .by::before{ content:'\200b'; width:0; margin-inline-end:calc(-1 * var(--s1)); font-size:var(--nmf); line-height:var(--nml) }   /* a strut of the name's own line: the maker's baseline is the name's */
@@ -925,13 +935,13 @@ body.mopen{ overflow:hidden; padding-right:var(--sb,0px) }   /* the page's scrol
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
 .mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:visible; box-shadow:var(--modal-shadow) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
-/* close × — the page's one cross (.ix), a size up: quiet, top-right, inks on hover */
-.mx{ position:absolute; top:calc(var(--dpad) - 10px); inset-inline-end:calc(var(--dpad) - 10px); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; --ic:24px; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
+/* close × — the page's one cross (.ix), a size up: quiet, in the card's corner (the head's line end is its link and bookmark), inks on hover */
+.mx{ position:absolute; top:var(--s1); inset-inline-end:var(--s1); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; --ic:24px; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--ink) }
 /* embed (/<name>?embed, attribute set by the head script before first paint): the dossier card
    alone fills the frame – no header, catalog, FAQ, footer, scrim or close; prev/next would
    walk the frame away from the space it embeds. One quiet link out rides the category line. */
-:root[data-embed] .page,:root[data-embed] .ftr,:root[data-embed] .skip,:root[data-embed] #uppop,:root[data-embed] .mx,:root[data-embed] .mnavbar{ display:none }
+:root[data-embed] .page,:root[data-embed] .ftr,:root[data-embed] .skip,:root[data-embed] #uppop,:root[data-embed] .mx,:root[data-embed] .mnavbar,:root[data-embed] .dact{ display:none }
 :root[data-embed] .modal{ background:var(--paper); padding-block:0 }   /* no row over it: the card from the frame's top */
 :root[data-embed] .mbox{ width:100%; margin:0; min-height:100dvh; box-shadow:none }   /* the phone sheet's recipe, at every width */
 .embl{ display:none }
@@ -951,7 +961,8 @@ body.mopen{ overflow:hidden; padding-right:var(--sb,0px) }   /* the page's scrol
 .mbox{ --dpad:var(--gut) }   /* the dossier's inset is the page's gutter */
 .detail{ width:100%; padding:var(--dpad) }
 .detail:focus{ outline:none }
-.dh{ position:relative; display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--s1) var(--s3); padding-inline-end:var(--s12) }   /* the kinds a short step past the title: they read as its marks */
+.dh{ position:relative; display:flex; align-items:baseline; flex-wrap:wrap; gap:var(--s1) var(--s3) }   /* the kinds a short step past the title: they read as its marks */
+.dact{ display:flex; gap:var(--s1); margin-inline-start:auto; align-self:center } .dact :is(.bm,.dshare){ width:var(--s8); height:var(--s8); --ic:20px }   /* the title line's end: its link to share, its bookmark */
 .mnavbar.mfoot{ justify-content:space-between; align-items:center; gap:var(--s6) }   /* prev group at the left, next group at the right — the chevrons ride the modal's sides; one line always — long names trim, never wrap */
 .mfoot .ngrp,.mfoot .mnav,.mfoot .mstack{ min-width:0 }   /* let the name shrink — every flex level must yield for the ellipsis to fire */
 .mfoot .mn{ overflow:hidden; text-overflow:ellipsis }
@@ -1317,7 +1328,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .ex1d{ font-weight:700; letter-spacing:.03em; color:var(--soft); border:1px solid var(--ghost); padding:.05em .45em; line-height:1.4; cursor:help }   /* stands in for the size seg when the pair is a pure 1D transfer */
 /* Recipes — four snippets in a real 2×2 */
 /* Not here — full width, flowing into two readable columns */
-/* proprietary catalog cards — an ordinary sheet row (same padding, size, ↗ arrow); only the ® mark is added */
+/* proprietary catalog cards — an ordinary sheet row (same padding, size, hover underline); only the ® mark is added */
 .ent.barred .nm sup{ font-size:.5em; font-weight:600; vertical-align:super; color:var(--soft) }
 /* ── the footer: the motivation and the install command beside four columns of links, the maker and the license under
    them – over the wall, the current color's hue wheel at its lightness, four rows quantized ever coarser (5° → 10° → 20° →
@@ -1702,7 +1713,7 @@ import LORE from './js/lore.js'
 import { primariesOf, trcOf } from './js/profile.js'
 import { definitionOf, rowsOf, ocioMatrix, formula, constants } from './js/definition.js'
 import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath, GXY, limPath, heroLocus, heroNames, heroAt, HERO_LIMS } from './js/locus.js'
-import GROUPS from './js/groups.js'
+import GROUPS, { BOOKMARKS } from './js/groups.js'
 import REACH from './js/reach.js'
 import { softGL, warmKernels, glLinking, glSerial, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
@@ -1720,7 +1731,7 @@ import { okGrid, nearestK } from './js/nearest.js'
 import { sweeps, sweepCSS, stepped, qCells, qBarGradient, QBARN, TRIPLE, byteRGB, rgbKey, sameRGB } from './js/sweep.js'
 import { calc } from './js/calc.js'
 import { SPACES, sections, cname, geoOf as geo, kindIcon, WHITE_XY, whiteHex, unit, disp, nbh, catHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap, close, aside } from './js/render.js'
-import { OI, QI, LI, VI, PI, DL as DLI } from './js/icons.js'
+import { OI, QI, LI, VI, PI, DL as DLI, BM, LINK } from './js/icons.js'
 import BARRED from './js/barred.js'
 import EDITORS, { SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
 import { LENSES, defs as cvdDefs } from './js/cvd.js'
@@ -1807,6 +1818,10 @@ const virginNow=()=>{ const mj=master.vals.join(); return !BOOT.hash&&((master==
 const toastEl=document.getElementById('toast'); let toastT
 const toast=(msg=t('ui.toast.copied','Copied'))=>{ toastEl.textContent=msg; toastEl.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>toastEl.classList.remove('on'),900) }
 const copy=t=>{ navigator.clipboard?.writeText(t); toast() }
+// a dossier's link: its address as it stands – the space, the color, the cut – to the clipboard; a phone's share sheet
+document.addEventListener('click',e=>{ if(!e.target.closest('.dshare')) return
+	if(matchMedia('(pointer:coarse)').matches&&navigator.share) navigator.share({ url:location.href, title:document.title }).catch(()=>{})
+	else copy(location.href) })
 // the spectrum line under the header — a FIXED strip of the visible spectrum, violet at
 // the left, the purple line closing to the right, dark at both ends like the footer wall.
 // Picking is absolute: the pointer's position IS the light (WYSIWYG); a diamond marker
@@ -2931,6 +2946,7 @@ cat.addEventListener('click',e=>{ const ent=e.target.closest('.ent[data-s]'); if
 	if(nm||ent.matches('tr')&&!e.target.closest('.chs:not(.mini),.cvp,input,button,a,select')) openModal(ent.dataset.s) })
 function wireCat(){   // every per-ent attachment, in one place — runs when the catalog EXISTS (ensureCat): index pages sync, name views at idle behind the open dossier
 catEnts.clear(); planeEnts.clear()
+cat.dataset.cut=grouping; wireCat.marked=[...BOOKMARKS].join(); paintBookmarks()   // the cut it shows (CSS: the bookmarks shelf keeps a space let go, dim) and what the bookmarks shelf was drawn from
 for(const s of [...PVFLIP]){ const e=cat.querySelector(`.ent[data-s="${CSS.escape(s)}"]`); if(e?.querySelector('.pvs')) planesOn(e,true); else PVFLIP.delete(s) }   // a rebuilt grid keeps the cards' planes
 // Picker color is inherited once from #cat. Strip the prerender's per-input seed so a
 // row that has never intersected can still acquire the current color through CSS alone.
@@ -3059,6 +3075,16 @@ const slotsOf=s=>{ const m=meta[s]
 const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
 // the shelf cut — a view option, not a filter: same entries, regrouped (groups.js)
 let grouping='family'
+// the bookmarked spaces – a bookmark on a card's maker line and in a dossier's head; kept for the next visit, shelved by
+// the bookmarks cut (its tab a bookmark after Era, there once anything is bookmarked). Every mark is drawn unmarked: this paints the
+// state onto whatever is on the page, the catalog's and the dossier's alike
+try{ for(const s of JSON.parse(localStorage.csBookmarks||'[]')) if(SPACES.includes(s)) BOOKMARKS.add(s) }catch{}
+const paintBookmarks=()=>{ for(const b of document.querySelectorAll('.bm[data-bm]')){ const on=BOOKMARKS.has(b.dataset.bm)
+		b.setAttribute('aria-pressed',on); b.title=on?t('ui.bookmark.remove','Remove bookmark'):t('ui.bookmark.add','Bookmark') }
+	const shown=BOOKMARKS.size>0||grouping==='bookmarks'
+	for(const g of cat.querySelectorAll('[data-g="bookmarks"],.gsel [value="bookmarks"]')){ g.hidden=!shown; if(g.tagName==='OPTION') g.disabled=!shown } }
+const toggleBookmark=s=>{ BOOKMARKS.has(s)?BOOKMARKS.delete(s):BOOKMARKS.add(s); try{ localStorage.csBookmarks=JSON.stringify([...BOOKMARKS]) }catch{}; paintBookmarks() }
+document.addEventListener('click',e=>{ const b=e.target.closest('.bm[data-bm]'); if(b) toggleBookmark(b.dataset.bm) })
 // search matches the space name AND its channel names/symbols ("hue", "lightness", "L"…)
 const sKey=w=>w.toLowerCase().replace(/[\s_-]+/g,' ')   // one separator: display-p3, display_p3 and Display P3 read alike
 const SEARCHSTR=new Map(SPACES.map(s=>{ const ch=classify(s).ch; return [s,sKey(s+' '+disp(s)+' '+(meta[s].aka||[]).join(' ')+' '+ch.map(c=>cname(c)+' '+c.sym).join(' '))] }))   // the DISPLAY name too – "hunter" must find Hunter Lab, not only labh – and its other names: "F-Gamut" finds Rec. 2020
@@ -3097,7 +3123,7 @@ const fold=(sec,b)=>{ const on=!sec.classList.contains('open'), y0=b.getBounding
 cat.addEventListener('click',e=>{ const b=e.target.closest('.more'); if(b) fold(b.closest('.sec'),b) })
 // The color is NOT baked into the markup: what is near the screen paints now, the rest as it scrolls in (io) – the
 // page's one visibility rule; a re-shelve used to sweep all 205 spaces' strips at once
-function rebuild(){ LEADN=leadsNow(); cat.innerHTML=catHTML(null,VIEW==='list'&&SORT?sorted(SORT):GROUPS[grouping](),{ view:VIEW, cut:grouping, sort:SORT, leads:LEADN, open:OPEN }); wireToc(); wireCat(); applyFilter()
+function rebuild(){ LEADN=leadsNow(); cat.innerHTML=catHTML(null,VIEW==='list'&&SORT?sorted(SORT):GROUPS[grouping](),{ view:VIEW, cut:grouping, sort:SORT, leads:grouping==='bookmarks'?Infinity:LEADN, open:OPEN }); wireToc(); wireCat(); applyFilter()   // the bookmarks shelf all lead cards: the same size, side by side, to compare
 	const near=[...catEnts.values()].filter(e=>{ if(!e.offsetParent) return false; const r=e.getBoundingClientRect(); return r.bottom>0&&r.top<innerHeight })   // the screen now; io's margin follows at idle
 	paintCatalogVals(near); paintCatalogGrad(near,true,false) }   // fresh strips, painted in this frame: nothing to morph from, nothing shown empty first
 new ResizeObserver(()=>{ if(VIEW==='grid'&&ensureCat.done&&leadsNow()!==LEADN) rebuild() }).observe(cat)
@@ -3253,7 +3279,7 @@ function openModal(s,push=true){ behindSeen=behindRows=null; cardAt=performance.
 	urlWrite(spaceURL(s)+keepSearch()+colorHash(),push)
 	if(openModal.seen||s!==BOOT.seg) countView(s,disp(s)); openModal.seen=true   // analytics: the tracker runs with auto-track off, so a replaceState open counts here – every one but a /<name> page's own first (its pageview) is counted
 	if(b) buildBarred(b)   // proprietary card: no live color, no plots
-	else{ buildDetail(); renderFast(); paintPlanes(false) }
+	else{ buildDetail(); paintBookmarks(); renderFast(); paintPlanes(false) }
 	detail.dataset.wired=1   // the live dossier replaced any baked shell — route() stops reopening
 	const ord=[...activeSecs().flatMap(c2=>c2.spaces),...BARRED.map(b2=>b2.key)]   // the ACTIVE grouping orders the walk – labels AND actions agree
 	const k=ord.indexOf(s), n=ord.length   // set the neighbour names in every nav bar (top + foot)
@@ -3289,7 +3315,8 @@ function buildBarred(b){
 	 </div></div></section>
 	 ${MNAV('mfoot')}` }
 function closeModal(push=true){ if(EMBED) return   // an embedded card is the whole document – Esc, backdrop and ✕ have nothing to return to
-	ensureCat(); modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.removeProperty('overflow')   // a name view stamped before the lock was CSS's (and kept offline) carries it inline – let go too, or its catalog never scrolls
+	ensureCat(); if(grouping==='bookmarks'&&wireCat.marked!==[...BOOKMARKS].join()) rebuild()   // the bookmarks shelf, as a dossier left it; a card let go on the shelf itself stays, dim, till then
+	modal.hidden=true; document.body.classList.remove('mopen'); document.body.style.removeProperty('overflow')   // a name view stamped before the lock was CSS's (and kept offline) carries it inline – let go too, or its catalog never scrolls
 	paintCatalogVals(screenEnts()); paintCatalogGrad(); ric(()=>paintCatalogVals())   // the catalog slept behind the dossier — catch it up to whatever the modal picked: what shows now, its strips from the pool, the band's numbers at idle
 	removeEventListener('wheel',wheelOff); urlWrite(spaceURL('')+keepSearch()+colorHash(),push)
 	modalReturn?.focus?.({preventScroll:true}); modalReturn=null }
@@ -4892,7 +4919,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	// close would jump the card fading out) starts the next at its top – reset before the new markup: after it, the reset
 	// forced the new card's whole layout inside the click (40–100 ms in Chrome)
 	if(modal._st){ modal._st=0; modal.scrollTop=0 }
-	detail.innerHTML=`<div class="dh">${dcat?`<p class="dcat">${dcat}</p>`:''}<h1 id="dtitle">${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1><p class="dkinds">${['geo','curve','sig','range','white'].map(k=>kindIcon(k,s,k==='white'&&prof?`${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:'')).join('')}</p></div>
+	detail.innerHTML=`<div class="dh">${dcat?`<p class="dcat">${dcat}</p>`:''}<h1 id="dtitle">${disp(s)}${HISTORICAL.has(s)?`<span class="tag htag" title="${TAGTIP.historical}">${tagL('historical')}</span>`:''}</h1><p class="dkinds">${['geo','curve','sig','range','white'].map(k=>kindIcon(k,s,k==='white'&&prof?`${t('ui.dossier.wp','white point XYZ {xyz}',{xyz:prof.w.map(f4).join(' ')})} – ${prof.wSrc==='cie'?t('ui.dossier.wp-cie','CIE 15 tabulated for {ill}, 2° observer',{ill:prof.ill}):t('ui.dossier.wp-calc','computed from the shipped conversion at Y = 1')}`:'')).join('')}</p><span class="dact"><button type="button" class="dshare" title="${t('ui.dossier.share','Copy the link')}" aria-label="${t('ui.dossier.share-label','Copy the link to {name}',{ name:disp(s) })}">${LINK}</button><button type="button" class="bm" data-bm="${s}" aria-pressed="false" aria-label="${t('ui.bookmark.label','Bookmark {name}',{ name:disp(s) })}">${BM}</button></span></div>
 	 <hr class="dhr">
 	 <div class="chead">${bigchHTML}${figSeg}</div>
 	 <section class="dpick${figHTML?'':' nod3'}" id="explore">

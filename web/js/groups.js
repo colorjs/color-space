@@ -1,6 +1,6 @@
 // Catalog regroupings — alternative shelf cuts over the same entries, in catHTML's
 // section shape [{name, tip?, spaces}]. family is the canonical README cut; purpose
-// re-shelves by each space's primary task tag; era by birth year. Derivation is NOT
+// re-shelves by each space's primary task tag; era by birth year; bookmarks are the visitor's own. Derivation is NOT
 // here on purpose: the conversion graph is a tree with two giant hubs (xyz, rgb) —
 // flat buckets would misfile it; it wants its own lineage view.
 import { sections } from './render.js'
@@ -10,6 +10,9 @@ import ERAS from './eras.js'
 import { t } from './i18n.js'
 
 const all = () => sections.flatMap(c => c.spaces)
+// the spaces a visitor bookmarked, in the order bookmarked – the page keeps it (index.html, csBookmarks); the bookmarks cut
+// shelves them
+export const BOOKMARKS = new Set()
 
 // author: who made a space, from its @by – the standards bodies, the people with several spaces to their name, the
 // makers of cameras, displays and software, and the researchers with one or two. A space by a body and a person
@@ -45,4 +48,5 @@ export default {
 		.map(([k, m, name, tip]) => { const spaces = all().filter(s => byOf(s) === k).sort((a, b) => (meta[a].by || '').localeCompare(meta[b].by || '') || meta[a].year - meta[b].year)
 			return { key: 'author.' + k, name: typeof name === 'function' ? name() : name, tip: tip(makers(m, spaces)), spaces } })
 		.filter(c => c.spaces.length),   // a maker's spaces together, then by year
+	bookmarks: () => [{ key: 'bookmarks', name: t('ui.group.bookmarks', 'Bookmarks'), tip: t('ui.group.bookmarks-tip', 'The spaces you bookmarked, side by side – kept in this browser'), spaces: [...BOOKMARKS] }],
 }
