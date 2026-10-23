@@ -1253,10 +1253,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .export.dex{ display:flex; flex-direction:column; gap:var(--s6) }   /* a file a block, each under its own label – the props rhythm */
 .export.dex .dsel select{ font-size:var(--t1) }
 .export.dex .dexp{ gap:var(--s2) }
-.export.dex .exdl{ display:flex; padding:var(--s2) var(--s3) }   /* its block's width, not the column's */
-.export.dex .exdl small{ margin-inline-start:auto }
+.export.dex .exdl{ align-self:flex-start; padding:var(--s2) var(--s3) }   /* its own width: the format beside Download, never pushed off by a long options line */
 .export.dex .dopt{ flex-wrap:nowrap; gap:var(--s3); font-size:var(--t1); color:var(--soft); white-space:nowrap }   /* to · size · its weight – one quiet line under the button, never two */
-.export.dex .dexp{ width:max-content; max-width:100%; align-items:stretch }   /* a file's block as wide as its content: the button and its options line share both edges – the size ends under the button's end */
+.export.dex .dexp{ width:max-content; max-width:100%; align-items:stretch }   /* a file's block as wide as its content: the options line spans it, the size flush at its end */
 .export.dex .dnote{ width:0; min-width:100% }   /* the note wraps inside the block, never widens it */
 .export.dex .dopt .exstat{ margin-inline-start:auto; text-align:end }   /* the file's weight flush right */
 .export.dex .exstat{ font-size:var(--t1) }
