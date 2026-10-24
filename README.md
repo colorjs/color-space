@@ -34,25 +34,25 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 ## Imports
 
-* `color-space` – All 221 interconnected spaces · 70 kB gzip
+* `color-space` – All 221 interconnected spaces. 70 kB gzip
 * `color-space/<name>.js` – One standalone space
-* `color-space/lite` – 54-space working set · 29 kB gzip
-* `color-space/wasm` – lite set as WASM · bare `.wasm` included
+* `color-space/lite` – 54-space working set. 29 kB gzip
+* `color-space/wasm` – lite set as WASM, bare `.wasm` included
 * `color-space/gl` – GLSL/WGSL shader source
-* `color-space/gl/hlsl` · `color-space/gl/msl` – HLSL (DirectX, Unity, Unreal) and Metal, written by naga from the WGSL · `await hlsl('rgb', 'oklch')` · needs the optional peer `naga-wasm` (it declares Node ≥ 24.12; CI runs it on 22, where npm only warns)
+* `color-space/gl/hlsl` · `color-space/gl/msl` – HLSL (DirectX, Unity, Unreal) and Metal, written by naga from the WGSL. `await hlsl('rgb', 'oklch')`. needs the optional peer `naga-wasm` (it declares Node ≥ 24.12; CI runs it on 22, where npm only warns)
 * `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
 * `color-space/ocio` – OpenColorIO colorspaces for Blender, Nuke, Resolve, Houdini: `colorspace(space.sgamut3cine)`, curve and matrix from native transforms, 55 spaces, each checked against the library to 1e-6
-* `color-space/util` – `parse` · `format` CSS colors, `mix`, `gamut`, `visible`, `deltaE`, `contrast` (WCAG), `cvd` (color-vision simulation) · `deltaE('rgb', [255, 0, 0], [250, 0, 0])`
+* `color-space/util` – `parse`, `format` CSS colors, `mix`, `gamut`, `visible`, `deltaE`, `contrast` (WCAG), `cvd` (color-vision simulation), `deltaE('rgb', [255, 0, 0], [250, 0, 0])`
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
 * `color-space/conformance.json` – Cited reference conversions, each with its source, to test any color library against
-* `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default) · `cube` · `icc` · `space` · `spaces` · `mcp` (MCP server for [agents](#agents))
+* `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default), `cube`, `icc`, `space`, `spaces`, `mcp` (MCP server for [agents](#agents))
 
 [Upgrading from v2?](docs/migration.md)
 
 ## Agents
 
-MCP tools – `convert` · `gamut` · `css` · `space` · `spaces` · `cube` · `shader` · `icc` · `code` – so agents call verified math instead of guessing it. A color goes in as any CSS string (`'#ff8000'`, `'oklch(0.7 0.1 50)'`, `'rebeccapurple'`) or as channel values; `shader` writes the conversion as GLSL, WGSL, HLSL or MSL, `code` gives the JS call and its verified colour-science equivalent.
+MCP tools – `convert`, `gamut`, `css`, `space`, `spaces`, `cube`, `shader`, `icc`, `code` – so agents call verified math instead of guessing it. A color goes in as any CSS string (`'#ff8000'`, `'oklch(0.7 0.1 50)'`, `'rebeccapurple'`) or as channel values; `shader` writes the conversion as GLSL, WGSL, HLSL or MSL, `code` gives the JS call and its verified colour-science equivalent.
 
 ```sh
 claude mcp add color-space -- npx -y color-space mcp                                      # Claude Code
