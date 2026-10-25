@@ -1712,7 +1712,7 @@ import LORE from './js/lore.js'
 import { primariesOf, trcOf } from './js/profile.js'
 import { definitionOf, rowsOf, ocioMatrix, formula, constants } from './js/definition.js'
 import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath, GXY, limPath, heroLocus, heroNames, heroAt, HERO_LIMS } from './js/locus.js'
-import GROUPS, { BOOKMARKS } from './js/groups.js'
+import GROUPS, { BOOKMARKS, STARTER } from './js/groups.js'
 import REACH from './js/reach.js'
 import { softGL, warmKernels, glLinking, glSerial, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
@@ -3100,9 +3100,11 @@ const SLOTS=new Map(SPACES.map(s=>[s,slotsOf(s)]))
 // the shelf cut — a view option, not a filter: same entries, regrouped (groups.js)
 let grouping='family'
 // the bookmarked spaces – a bookmark on a card's maker line and in a dossier's head; kept for the next visit, shelved by
-// the bookmarks cut (its tab a bookmark after Era, there once anything is bookmarked). Every mark is drawn unmarked: this paints the
-// state onto whatever is on the page, the catalog's and the dossier's alike
-try{ for(const s of JSON.parse(localStorage.csBookmarks||'[]')) if(SPACES.includes(s)) BOOKMARKS.add(s) }catch{}
+// the bookmarks cut (its tab a bookmark after Era, there while anything is bookmarked). Nothing kept yet: the starter six
+// (groups.js), the visitor's from the first bookmark taken or let go – an emptied shelf stays empty. Every mark is drawn
+// unmarked: this paints the state onto whatever is on the page, the catalog's and the dossier's alike
+{ let kept=null; try{ kept=localStorage.csBookmarks??null }catch{}
+	try{ for(const s of kept==null?STARTER:JSON.parse(kept)) if(SPACES.includes(s)) BOOKMARKS.add(s) }catch{} }
 const paintBookmarks=()=>{ for(const b of document.querySelectorAll('.bm[data-bm]')){ const on=BOOKMARKS.has(b.dataset.bm)
 		b.setAttribute('aria-pressed',on); b.title=on?t('ui.bookmark.remove','Remove bookmark'):t('ui.bookmark.add','Bookmark') }
 	const shown=BOOKMARKS.size>0||grouping==='bookmarks'

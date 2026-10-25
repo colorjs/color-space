@@ -1479,7 +1479,7 @@
 "ui.gamut.vis": {"t":"yüzey","h":"c6359a79"},
 "ui.group.author": {"t":"Geliştirici","h":"5fda23d6"},
 "ui.group.bookmarks": {"t":"Yer işaretleri","h":"ca3cddd2"},
-"ui.group.bookmarks-tip": {"t":"Yer işaretine eklediğiniz uzaylar yan yana – bu tarayıcıda saklanır","h":"97632b64"},
+"ui.group.bookmarks-tip": {"t":"Karşılaştırmak için yan yana uzaylar – başlangıçta gündelik altı tane, dilediğiniz gibi değiştirin; bu tarayıcıda saklanır","h":"d38be9a5"},
 "ui.group.by": {"t":"kataloğu gruplama ölçütü","h":"2c5a8e9a"},
 "ui.group.decade": {"t":"{d} yılları","h":"0b1576dc"},
 "ui.group.era": {"t":"Dönem","h":"f37a89cb"},

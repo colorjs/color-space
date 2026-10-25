@@ -25,6 +25,7 @@ try {
 
 	const scans = []
 	const scan = async name => {
+		await page.waitForFunction(() => document.getAnimations().every(a => !(a instanceof CSSTransition) || a.playState !== 'running'))   // the fades done: a tip mid-fade is no color a reader sees
 		const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze()
 		for (const violation of result.violations) scans.push({ name, violation })
 	}

@@ -1479,7 +1479,7 @@
 "ui.gamut.vis": {"t":"surface","h":"c6359a79"},
 "ui.group.author": {"t":"Auteur","h":"5fda23d6"},
 "ui.group.bookmarks": {"t":"Signets","h":"ca3cddd2"},
-"ui.group.bookmarks-tip": {"t":"Les espaces mis en signet, côte à côte – conservés dans ce navigateur","h":"97632b64"},
+"ui.group.bookmarks-tip": {"t":"Des espaces côte à côte pour les comparer – six d’usage courant pour commencer, à modifier à votre guise, conservés dans ce navigateur","h":"d38be9a5"},
 "ui.group.by": {"t":"regrouper le catalogue par","h":"2c5a8e9a"},
 "ui.group.decade": {"t":"années {d}","h":"0b1576dc"},
 "ui.group.era": {"t":"Époque","h":"f37a89cb"},

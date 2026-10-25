@@ -13,6 +13,10 @@ const all = () => sections.flatMap(c => c.spaces)
 // the spaces a visitor bookmarked, in the order bookmarked – the page keeps it (index.html, csBookmarks); the bookmarks cut
 // shelves them
 export const BOOKMARKS = new Set()
+// …and, till a visitor bookmarks or lets one go, everyone's: a space for each everyday job, each a family's lead – OKLCH to
+// design in, sRGB the default of everything, Display P3 today's screens, HSL the pickers', CIELAB print's and ΔE's, XYZ
+// the hub every conversion passes through
+export const STARTER = ['oklch', 'rgb', 'p3', 'hsl', 'lab', 'xyz']
 
 // author: who made a space, from its @by – the standards bodies, the people with several spaces to their name, the
 // makers of cameras, displays and software, and the researchers with one or two. A space by a body and a person
@@ -48,5 +52,5 @@ export default {
 		.map(([k, m, name, tip]) => { const spaces = all().filter(s => byOf(s) === k).sort((a, b) => (meta[a].by || '').localeCompare(meta[b].by || '') || meta[a].year - meta[b].year)
 			return { key: 'author.' + k, name: typeof name === 'function' ? name() : name, tip: tip(makers(m, spaces)), spaces } })
 		.filter(c => c.spaces.length),   // a maker's spaces together, then by year
-	bookmarks: () => [{ key: 'bookmarks', name: t('ui.group.bookmarks', 'Bookmarks'), tip: t('ui.group.bookmarks-tip', 'The spaces you bookmarked, side by side – kept in this browser'), spaces: [...BOOKMARKS] }],
+	bookmarks: () => [{ key: 'bookmarks', name: t('ui.group.bookmarks', 'Bookmarks'), tip: t('ui.group.bookmarks-tip', 'Spaces side by side to compare – six everyday ones to start, yours to change, kept in this browser'), spaces: [...BOOKMARKS] }],
 }

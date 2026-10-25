@@ -1479,7 +1479,7 @@
 "ui.gamut.vis": {"t":"表面色","h":"c6359a79"},
 "ui.group.author": {"t":"作者","h":"5fda23d6"},
 "ui.group.bookmarks": {"t":"书签","h":"ca3cddd2"},
-"ui.group.bookmarks-tip": {"t":"加入书签的色彩空间并排显示，保存在此浏览器中","h":"97632b64"},
+"ui.group.bookmarks-tip": {"t":"并排比较色彩空间——起初是六个常用的，可随意更改，保存在此浏览器中","h":"d38be9a5"},
 "ui.group.by": {"t":"目录分组方式","h":"2c5a8e9a"},
 "ui.group.decade": {"t":"{d} 年代","h":"0b1576dc"},
 "ui.group.era": {"t":"年代","h":"f37a89cb"},

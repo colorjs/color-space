@@ -332,7 +332,7 @@ try {
 	// the shelf cut lives at the rail's FOOT now — tabs regroup without the panel;
 	// the filters then compose on the rebuilt DOM (scene-referred × era = the
 	// camera-log timeline), and the header chips restore every layer
-	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.gtabs .gtag')].map(b => b.dataset.g + (b.hidden ? ' hidden' : ''))), ['family', 'purpose', 'author', 'era', 'bookmarks hidden'], 'the rail offers the four cuts – family, purpose, author, era – and the bookmarks shelf\'s bookmark, hidden till a space is bookmarked')
+	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.gtabs .gtag')].map(b => b.dataset.g + (b.hidden ? ' hidden' : ''))), ['family', 'purpose', 'author', 'era', 'bookmarks'], 'the rail offers the four cuts – family, purpose, author, era – and the bookmarks shelf\'s bookmark, the starter six on it')
 	await page.locator('.gtabs .gtag[data-g="purpose"]').click()
 	assert.match(await page.locator('.toc .tn').first().textContent(), /Picking/, 'purpose shelves lead the rail')
 	await page.locator('.gtabs .gtag[data-g="era"]').click()
@@ -350,17 +350,21 @@ try {
 	await page.locator('.gtabs .gtag[data-g="author"]').click()
 	assert.deepEqual(await page.evaluate(() => { const k = [...document.querySelectorAll('#cat .sec')].map(s => s.dataset.k); return [k[0], k.at(-1), document.querySelectorAll('#cat .sec .ent').length] }), ['author.cie', 'author.people', 221], 'the Author cut: the CIE first, the researchers last, every space shelved once')
 	await page.locator('.gtabs .gtag[data-g="family"]').click()
-	// the bookmark on a card's maker line keeps the space: the bookmarks shelf's tab shows, and the shelf holds the bookmarked
-	// spaces in the order bookmarked, every one a lead card – side by side to compare; let go there, a card stays till the shelf is redrawn
-	for (const s of ['oklch', 'lab']) { await page.locator(`.ent[data-s="${s}"] .eh`).hover(); await page.locator(`.ent[data-s="${s}"] .bm`).click() }
-	assert.equal(await page.locator('.gtabs [data-g="bookmarks"]').isVisible(), true, 'a space bookmarked: the bookmarks shelf\'s tab shows')
+	// nothing kept yet, the shelf holds the starter six (groups.js STARTER), marked as bookmarked; the bookmark on a card's maker
+	// line adds a space after them, every one a lead card – side by side to compare; let go there, a card stays till the shelf is
+	// redrawn; every one let go, the tab hides and the empty shelf is kept – never the six again
+	const shelf = () => page.evaluate(() => [...document.querySelectorAll('#cat .ent[data-s]')].map(e => e.dataset.s + (e.matches('.lc') ? '' : ' tile')))
+	const starter = ['oklch', 'rgb', 'p3', 'hsl', 'lab', 'xyz']
+	assert.equal(await page.locator('.ent[data-s="oklch"] .bm').getAttribute('aria-pressed'), 'true', 'a starter space comes marked')
+	await page.locator('.ent[data-s="cam16"] .eh').hover(); await page.locator('.ent[data-s="cam16"] .bm').click()
 	await page.locator('.gtabs [data-g="bookmarks"]').click()
-	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('#cat .ent[data-s]')].map(e => e.dataset.s + (e.matches('.lc') ? '' : ' tile'))), ['oklch', 'lab'], 'the bookmarks shelf: the bookmarked spaces in the order bookmarked, each a lead card')
+	assert.deepEqual(await shelf(), [...starter, 'cam16'], 'the bookmarks shelf: the starter six, then the one bookmarked, each a lead card')
 	await page.locator('.ent[data-s="lab"] .bm').click()
 	assert.deepEqual([await page.locator('.ent[data-s="lab"]').isVisible(), await page.locator('.ent[data-s="lab"] .bm').getAttribute('aria-pressed')], [true, 'false'], 'let go on the shelf, a space stays, unmarked, till the shelf is drawn again')
 	await page.locator('.gtabs .gtag[data-g="family"]').click()
-	await page.locator('.ent[data-s="oklch"] .eh').hover(); await page.locator('.ent[data-s="oklch"] .bm').click()
-	assert.equal(await page.locator('.gtabs [data-g="bookmarks"]').isHidden(), true, 'nothing bookmarked: the bookmarks shelf\'s tab hides again')
+	for (const s of [...starter.filter(x => x !== 'lab'), 'cam16']) { await page.locator(`.ent[data-s="${s}"] .eh`).hover(); await page.locator(`.ent[data-s="${s}"] .bm`).click() }
+	assert.equal(await page.locator('.gtabs [data-g="bookmarks"]').isHidden(), true, 'nothing bookmarked: the bookmarks shelf\'s tab hides')
+	assert.equal(await page.evaluate(() => localStorage.csBookmarks), '[]', 'the emptied shelf is kept empty, not filled with the six again')
 	// a language switch keeps ?g=: the page arrives in that cut, built once, and its tabs stay live – the arrival used to
 	// regroup, then the prerender's drift path redrew the family over it with the cut still set, so Family looked picked and Purpose did nothing
 	{	const cutContext = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), cut = await cutContext.newPage()
@@ -865,7 +869,7 @@ try {
 	// a tablet has no rail: the rail's four tabs ride the first heading, a phone's select hidden; a phone, the select alone
 	{	const tabContext = await browser.newContext({ viewport: { width: 900, height: 1100 }, reducedMotion: 'reduce' }), tab = await tabContext.newPage()
 		await tab.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'load' }); await tab.waitForSelector('.sec .gtabh')
-		assert.deepEqual(await tab.evaluate(() => [[...document.querySelectorAll('.sec .gtabh .gtag')].filter(b => b.offsetParent).map(b => b.dataset.g), getComputedStyle(document.querySelector('.gsel')).display]), [['family', 'purpose', 'author', 'era'], 'none'], 'a tablet: the four cuts as tabs in the first heading, no select')
+		assert.deepEqual(await tab.evaluate(() => [[...document.querySelectorAll('.sec .gtabh .gtag')].filter(b => b.offsetParent).map(b => b.dataset.g), getComputedStyle(document.querySelector('.gsel')).display]), [['family', 'purpose', 'author', 'era', 'bookmarks'], 'none'], 'a tablet: the four cuts and the bookmarks shelf as tabs in the first heading, no select')
 		await tab.locator('.sec .gtabh .gtag[data-g="purpose"]').click(); assert.equal(await tab.evaluate(() => document.querySelector('#cat .sec')?.dataset.k), 'purpose.picking', 'its Purpose tab regroups')
 		await tabContext.close() }
 	assert.deepEqual(await mobile.evaluate(() => [document.querySelector('.sec .gtabh')?.offsetParent ?? null, getComputedStyle(document.querySelector('.gsel')).display !== 'none']), [null, true], 'a phone: the select, no tabs')

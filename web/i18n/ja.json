@@ -1479,7 +1479,7 @@
 "ui.gamut.vis": {"t":"物体色","h":"c6359a79"},
 "ui.group.author": {"t":"作者","h":"5fda23d6"},
 "ui.group.bookmarks": {"t":"ブックマーク","h":"ca3cddd2"},
-"ui.group.bookmarks-tip": {"t":"ブックマークした色空間を並べて表示。このブラウザーに保存されます","h":"97632b64"},
+"ui.group.bookmarks-tip": {"t":"色空間を並べて比較。最初は日常的な6つ、自由に変更でき、このブラウザーに保存されます","h":"d38be9a5"},
 "ui.group.by": {"t":"カタログのグループ化","h":"2c5a8e9a"},
 "ui.group.decade": {"t":"{d}年代","h":"0b1576dc"},
 "ui.group.era": {"t":"時代","h":"f37a89cb"},

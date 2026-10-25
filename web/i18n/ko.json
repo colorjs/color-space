@@ -1479,7 +1479,7 @@
 "ui.gamut.vis": {"t":"표면","h":"c6359a79"},
 "ui.group.author": {"t":"제작자","h":"5fda23d6"},
 "ui.group.bookmarks": {"t":"북마크","h":"ca3cddd2"},
-"ui.group.bookmarks-tip": {"t":"북마크한 색공간을 나란히 – 이 브라우저에 보관됩니다","h":"97632b64"},
+"ui.group.bookmarks-tip": {"t":"비교할 색공간을 나란히 – 처음에는 일상적인 여섯 개, 원하는 대로 바꿀 수 있으며 이 브라우저에 보관됩니다","h":"d38be9a5"},
 "ui.group.by": {"t":"카탈로그 묶기 기준","h":"2c5a8e9a"},
 "ui.group.decade": {"t":"{d}년대","h":"0b1576dc"},
 "ui.group.era": {"t":"시대","h":"f37a89cb"},

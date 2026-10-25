@@ -1479,7 +1479,7 @@
 "ui.gamut.vis": {"t":"Oberfläche","h":"c6359a79"},
 "ui.group.author": {"t":"Urheber","h":"5fda23d6"},
 "ui.group.bookmarks": {"t":"Lesezeichen","h":"ca3cddd2"},
-"ui.group.bookmarks-tip": {"t":"Farbräume mit Lesezeichen nebeneinander – in diesem Browser abgelegt","h":"97632b64"},
+"ui.group.bookmarks-tip": {"t":"Farbräume nebeneinander zum Vergleich – sechs alltägliche zum Einstieg, nach Belieben zu ändern, in diesem Browser abgelegt","h":"d38be9a5"},
 "ui.group.by": {"t":"Katalog gruppieren nach","h":"2c5a8e9a"},
 "ui.group.decade": {"t":"{d}er","h":"0b1576dc"},
 "ui.group.era": {"t":"Epoche","h":"f37a89cb"},
