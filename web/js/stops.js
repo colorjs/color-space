@@ -10,7 +10,8 @@
 // neighbour's, so a blend from white rotates no hue.
 // @see https://drafts.csswg.org/css-color-4/#interpolation
 // @see https://drafts.csswg.org/css-images-4/#linear-gradients
-import { classify, hueIdx } from './core.js'
+import { space, classify, hueIdx } from './core.js'
+import { interpolate } from '../../math.js'
 
 // CSS's interpolation spaces, by their CSS names, as the library's ids; any library id reads as itself (`in cam16`)
 const CSS_SPACE = { srgb: 'rgb', 'srgb-linear': 'lrgb', 'display-p3': 'p3', 'a98-rgb': 'a98rgb', 'prophoto-rgb': 'prophoto', rec2020: 'rec2020',
@@ -76,27 +77,25 @@ const placed = stops => { const p = stops.map(x => x.pos)
 		for (let k = i; k < j; k++) p[k] = p[i - 1] + (p[j] - p[i - 1]) * (k - i + 1) / (j - i + 1) }
 	return stops.map((x, i) => ({ c: x.c, pos: p[i] })) }
 
-/** The color `f` of the way from `a` to `b`, both coordinates of `space`, as CSS interpolates: channel by channel, a hue
- *  along `hue`'s arc and taken from the other end where it is powerless (an achromatic end, chroma ≈ 0). */
-export function mix(space, a, b, f, hue = 'shorter') {
-	const cls = classify(space), hi = hueIdx(cls), ci = cls.mags?.[0]?.i ?? -1
-	a = a.slice(); b = b.slice()
-	if (hi >= 0 && ci >= 0) { const span = cls.ch[hi].max - cls.ch[hi].min, tiny = (cls.ch[ci].max - cls.ch[ci].min) * 1e-4
-		if (Math.abs(a[ci]) <= tiny) a[hi] = b[hi]; else if (Math.abs(b[ci]) <= tiny) b[hi] = a[hi]
-		let d = b[hi] - a[hi]
-		if (hue === 'shorter') { if (d > span / 2) d -= span; else if (d < -span / 2) d += span }
-		else if (hue === 'longer') { if (d > 0 && d < span / 2) d -= span; else if (d < 0 && d > -span / 2) d += span }
-		else if (hue === 'increasing') { if (d < 0) d += span }
-		else if (hue === 'decreasing') { if (d > 0) d -= span }
-		const h = a[hi] + d * f, lo = cls.ch[hi].min
-		return a.map((x, i) => i === hi ? ((h - lo) % span + span) % span + lo : x + (b[i] - x) * f) }
-	return a.map((x, i) => x + (b[i] - x) * f) }
+/** The color `f` of the way from `a` to `b`, both coordinates of space `sp`, as CSS interpolates (math.js interpolate):
+ *  its hue channel – any wheel, Munsell's 0–100 too – along `hue`'s arc, a missing one (NaN) the other end's. */
+export function mix(sp, a, b, f, hue = 'shorter') {
+	const cls = classify(sp), hi = hueIdx(cls), w = cls.ch[hi]
+	return interpolate(a, b, f, hi, hue, w?.min, w && w.max - w.min) }
+
+/** Coordinates converted into space `sp`, their hue missing (NaN) where the conversion leaves it powerless: an achromatic
+ *  color's, its OkLCh chroma within 0.000004 of none (CSS Color 4 #powerless: a hue converted is missing when powerless,
+ *  OkLCh's ε; a hue written in the space itself stays as written) */
+export const missing = (sp, v) => { const hi = hueIdx(classify(sp)); if (hi < 0) return v
+	let c; try { c = space[sp].oklch(...v)[1] } catch { return v }
+	return c <= 4e-6 ? v.map((x, i) => i === hi ? NaN : x) : v }
 
 /** A gradient's colors along its whole run, `n` a segment, in its mixing space: [[...vals]] – `to(c, space)` brings a
- *  stop into that space (the page's conversion). The path the planes and the solid draw. */
-export const path = (g, to, n = 24) => { const out = [], { space, hue } = g.mix
-	for (let k = 0; k + 1 < g.stops.length; k++) { const a = to(g.stops[k].c, space), b = to(g.stops[k + 1].c, space); if (!a || !b) continue
-		for (let j = k ? 1 : 0; j <= n; j++) out.push(mix(space, a, b, j / n, hue)) }
+ *  stop into that space (the page's conversion), a stop not written in it losing a powerless hue. The path the planes
+ *  and the solid draw. */
+export const path = (g, to, n = 24) => { const out = [], { space: sp, hue } = g.mix, into = c => { const v = to(c, sp); return v && c.s !== sp ? missing(sp, v) : v }
+	for (let k = 0; k + 1 < g.stops.length; k++) { const a = into(g.stops[k].c), b = into(g.stops[k + 1].c); if (!a || !b) continue
+		for (let j = k ? 1 : 0; j <= n; j++) out.push(mix(sp, a, b, j / n, hue)) }
 	return out }
 
 /** The gradient back as text: its function, its head as written (or the method a named mix needs), each stop in the

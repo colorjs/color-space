@@ -274,7 +274,8 @@ export { gamut, whites, matrix };
 fs.writeFileSync(path.join(dir, 'util.d.ts'), banner + `
 export function parse(str: string): { space: string; values: number[]; alpha: number } | undefined;
 export function format(space: string, values: readonly number[]): string | undefined;
-export function mix(space: string, a: readonly number[], b: readonly number[], t?: number, hue?: 'shorter' | 'longer'): number[];
+export type HueArc = 'shorter' | 'longer' | 'increasing' | 'decreasing';
+export function mix(space: string, a: readonly number[], b: readonly number[], t?: number, hue?: HueArc): number[];
 export function gamut(space: string, values: readonly number[]): 'srgb' | 'p3' | 'rec2020' | 'out' | null;
 export function visible(space: string, values: readonly number[]): boolean;
 export function deltaE(space: string, a: readonly number[], b: readonly number[], method?: '2000' | 'ok'): number;
@@ -286,6 +287,8 @@ export function inv3(m: readonly number[]): number[];
 export function spow(a: number, b: number): number;
 export function cartToPolar(l: number, a: number, b: number, threshold?: number): [number, number, number];
 export function polarToCart(l: number, c: number, h: number): [number, number, number];
+export function interpolate(a: readonly number[], b: readonly number[], t: number, h?: number, arc?: HueArc, lo?: number, span?: number): number[];
+export function clamp(x: number, lo: number, hi: number): number;
 `)
 fs.writeFileSync(path.join(dir, 'transfers.d.ts'), banner + `
 export function srgbToLinear(v: number): number;

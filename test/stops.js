@@ -3,7 +3,7 @@
 // spec's defaults: @see https://drafts.csswg.org/css-color-4/#interpolation · https://drafts.csswg.org/css-images-4/#linear-gradients
 import test, { is, ok } from 'tst'
 import Color from 'colorjs.io'
-import { parseGradient, mix, path, gradientText, shortText, splitTop, DASH } from '../web/js/stops.js'
+import { parseGradient, mix, missing, path, gradientText, shortText, splitTop, DASH } from '../web/js/stops.js'
 
 // a stand-in for the page's single-color parser: hex and oklch() only
 const parse = s => { const h = s.match(/^#([0-9a-f]{6})$/i); if (h) return { s: 'rgb', vals: [0, 2, 4].map(i => parseInt(h[1].slice(i, i + 2), 16)) }
@@ -42,8 +42,22 @@ test('stops: the blend matches colorjs.io, every hue arc', () => {
 })
 
 test('stops: an achromatic end has no hue – the blend takes the other\'s (CSS Color 4: powerless components, interpolating with missing components)', () => {
-	const m = mix('oklch', [1, 0, 0], [0.6, 0.2, 30], 0.5)
-	is(+m[2].toFixed(9), 30, 'white → red rotates no hue')
+	// #powerless: a hue converted is missing where powerless, one written stays as written – colorjs.io's mix does both
+	const g = parseGradient('linear-gradient(in oklch, #ffffff, #0000ff)', parse), toOk = (c, s) => c.s === s ? c.vals : new Color('srgb', c.vals.map(v => v / 255)).to(s).coords
+	const want = new Color('white').mix(new Color('blue'), 0.5, { space: 'oklch' }).coords, got = path(g, toOk, 2)[1]
+	ok(Math.abs(got[2] - want[2]) < 1e-6 && Math.abs(got[1] - want[1]) < 1e-6, `white → blue, converted: blue's hue throughout (${got[2].toFixed(3)} vs ${want[2].toFixed(3)})`)
+	ok(Number.isNaN(missing('oklch', [0.6, 2e-8, 120])[2]), 'a gray converted (its chroma conversion noise): its hue missing')
+	ok(Number.isNaN(missing('hsl', [210, 0, 50])[0]) && Number.isNaN(missing('hwb', [210, 60, 40])[0]), 'hsl\'s and hwb\'s too – no saturation, whiteness and blackness filling the scale')
+	is(missing('oklch', [0.6, 0.1, 30]), [0.6, 0.1, 30], 'a color: its hue kept')
+	is(+mix('oklch', [1, 0, NaN], [0.6, 0.2, 30], 0.5)[2].toFixed(9), 30, 'missing at one end: the other\'s')
+	const w = new Color('oklch', [1, 0, 0]).mix(new Color('oklch', [0.6, 0.2, 30]), 0.5, { space: 'oklch' }).coords
+	is(+mix('oklch', [1, 0, 0], [0.6, 0.2, 30], 0.5)[2].toFixed(9), +w[2].toFixed(9), 'written, achromatic or not: kept, as colorjs.io keeps it')
+})
+
+test('stops: longer between equal hues is the full turn (CSS Color 4 #hue-longer), as colorjs.io', () => {
+	const want = new Color('oklch', [0.6, 0.1, 40]).mix(new Color('oklch', [0.7, 0.1, 40]), 0.5, { space: 'oklch', hue: 'longer' }).coords
+	is(+mix('oklch', [0.6, 0.1, 40], [0.7, 0.1, 40], 0.5, 'longer')[2].toFixed(9), +want[2].toFixed(9))
+	is(mix('munsell', [90, 5, 5], [10, 5, 5], 0.5)[0], 0, 'a wheel of its own span: Munsell\'s 100 hue steps, the short way through 0')
 })
 
 test('stops: the run and the text', () => {

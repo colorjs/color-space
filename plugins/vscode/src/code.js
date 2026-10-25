@@ -20,7 +20,8 @@
  *                         when the colorSpace.shaders setting says how to read them (sRGB or linear), since a vector is
  *                         as often a position; 0–1 components only
  */
-import { WRITE, fx, clamp, splice } from './colors.js'
+import { WRITE, fx, splice } from './colors.js'
+import { clamp } from '../../../math.js'
 
 // a number as code writes it: 0.5, .5, 1., 1e-3, with a float suffix (0.5f, 1.0F, 0.5d), or a byte over 255 (51/255.0)
 const NUM = /^\s*([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)([fFdD]?)\s*(?:\/\s*(255(?:\.0*)?[fF]?)\s*)?$/

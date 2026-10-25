@@ -26,8 +26,15 @@ const n = (x) => Math.round(x) || 0                       // || 0 — never "-0"
 const trim = (x, d) => String(+x.toFixed(d) || 0)         // ≤ d decimals, trailing zeros dropped, never "-0"
 const keep = (x, d) => (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(d)   // exactly d decimals – a live readout keeps its width; never "-0.0"
 
+/** color()'s predefined spaces (#predefined): the name → [library id, the scale of its channels (CSS's 1 → ours), the
+ *  places it is written to]. Read under every name, written under the first of each id but srgb's (rgb() writes it) –
+ *  xyz as xyz-d65, its explicit name */
+export const PREDEF = { 'display-p3': ['p3', 1, 4], 'a98-rgb': ['a98rgb', 1, 4], 'prophoto-rgb': ['prophoto', 1, 5], rec2020: ['rec2020-display', 1, 5],
+	'xyz-d65': ['xyz', 100, 5], 'xyz-d50': ['xyz-d50', 100, 5], 'srgb-linear': ['lrgb', 1, 4], srgb: ['rgb', 255, 4], xyz: ['xyz', 100, 5] }
+
 // the table over a number formatter: CSS's own serialization (trailing zeros dropped), or fixed places
-const table = (f) => { const fn = (name, d, k = 1) => (v) => `color(${name} ${v.map((x) => f(x / k, d)).join(' ')})`
+const table = (f) => { const fn = (name, d, k = 1) => (v) => `color(${name} ${v.map((x) => f(x / k, d)).join(' ')})`, written = {}
+	for (const [name, [id, k, d]] of Object.entries(PREDEF)) if (id !== 'rgb') written[id] ??= fn(name, d, k)
 	return {
 	rgb: (v) => `rgb(${n(v[0])} ${n(v[1])} ${n(v[2])})`,
 	hsl: (v) => `hsl(${f(v[0], 1)} ${f(v[1], 1)}% ${f(v[2], 1)}%)`,
@@ -36,13 +43,7 @@ const table = (f) => { const fn = (name, d, k = 1) => (v) => `color(${name} ${v.
 	lchab: (v) => `lch(${f(v[0], 3)}% ${f(v[1], 3)} ${f(v[2], 3)})`,
 	oklab: (v) => `oklab(${f(v[0], 5)} ${f(v[1], 5)} ${f(v[2], 5)})`,
 	oklch: (v) => `oklch(${f(v[0], 5)} ${f(v[1], 5)} ${f(v[2], 3)})`,
-	p3: fn('display-p3', 4),
-	a98rgb: fn('a98-rgb', 4),
-	prophoto: fn('prophoto-rgb', 5),
-	'rec2020-display': fn('rec2020', 5),
-	xyz: fn('xyz-d65', 5, 100),
-	'xyz-d50': fn('xyz-d50', 5, 100),
-	lrgb: fn('srgb-linear', 4),
+	...written,
 } }
 
 /** library space id → its CSS Color 4 serializer */
@@ -89,12 +90,12 @@ export const exact = (space, v, srgb) => v.every(Number.isFinite)
 // color(rec2020 …) is CSS's 2.4-gamma signal (see the header): rec2020-display, not this
 // library's BT.2020-OETF rec2020.
 // @see https://drafts.csswg.org/css-color-4/#color-syntax
-const PCT = { rgb: [255, 255, 255], hsl: [0, 100, 100], hwb: [0, 100, 100], lab: [100, 125, 125], lchab: [100, 150, 0], oklab: [1, 0.4, 0.4], oklch: [1, 0.4, 0] }
+/** each function's channels' reference ranges – what 100% is (#percentages-of-the-reference-range); 0 where none applies */
+export const PCT = { rgb: [255, 255, 255], hsl: [0, 100, 100], hwb: [0, 100, 100], lab: [100, 125, 125], lchab: [100, 150, 0], oklab: [1, 0.4, 0.4], oklch: [1, 0.4, 0] }
 const FN = { rgb: 'rgb', rgba: 'rgb', hsl: 'hsl', hsla: 'hsl', hwb: 'hwb', lab: 'lab', lch: 'lchab', oklab: 'oklab', oklch: 'oklch' }
 const HUE = { rgb: -1, hsl: 0, hwb: 0, lab: -1, lchab: 2, oklab: -1, oklch: 2 }
-const PREDEF = { srgb: ['rgb', 255], 'srgb-linear': ['lrgb', 1], 'display-p3': ['p3', 1], 'a98-rgb': ['a98rgb', 1], 'prophoto-rgb': ['prophoto', 1],
-	rec2020: ['rec2020-display', 1], xyz: ['xyz', 100], 'xyz-d65': ['xyz', 100], 'xyz-d50': ['xyz-d50', 100] }
-const ANGLE = { deg: 1, grad: 0.9, rad: 180 / Math.PI, turn: 360 }
+/** a hue's units, in degrees (#angles) */
+export const ANGLE = { deg: 1, grad: 0.9, rad: 180 / Math.PI, turn: 360 }
 const num = (t, pct) => {
 	if (t === 'none') return 0
 	const m = /^([+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?)(%|deg|grad|rad|turn)?$/.exec(t)

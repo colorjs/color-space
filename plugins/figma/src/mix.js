@@ -8,7 +8,8 @@
  * (#powerless). Premultiplied alpha is left out: the line is the colors' path, not their coverage.
  * @see https://drafts.csswg.org/css-color-4/#interpolation
  */
-import { space, classify, hueIdx } from '../../../web/js/core.js'
+import { space } from '../../../web/js/core.js'
+import { mix as mixIn, missing } from '../../../web/js/stops.js'
 
 /**
  * @param {{space: string, hue?: string} | null | undefined} mix  the stops' mixing space (a library id); undefined: the
@@ -20,22 +21,7 @@ import { space, classify, hueIdx } from '../../../web/js/core.js'
 export function mixer(mix, id, scale) {
 	if (mix === null) return null
 	if (!mix) return (a, b, f) => ({ r: a.r + (b.r - a.r) * f, g: a.g + (b.g - a.g) * f, b: a.b + (b.b - a.b) * f })
-	const sp = mix.space, hi = hueIdx(classify(sp)), base = c => [c.r * scale, c.g * scale, c.b * scale]
-	const into = c => sp === id ? base(c) : space[id][sp](...base(c)), back = v => sp === id ? v : space[sp][id](...v)
-	const gray = c => space[id].oklch(...base(c))[1] < 1e-4
-	return (a, b, f) => {
-		const x = into(a), y = into(b)
-		if (hi >= 0) {
-			if (gray(a)) x[hi] = y[hi]; else if (gray(b)) y[hi] = x[hi]
-			let h1 = ((x[hi] % 360) + 360) % 360, h2 = ((y[hi] % 360) + 360) % 360
-			const d = h2 - h1
-			if (mix.hue === 'longer') { if (d > 0 && d < 180) h1 += 360; else if (d > -180 && d <= 0) h2 += 360 }
-			else if (mix.hue === 'increasing') { if (h2 < h1) h2 += 360 }
-			else if (mix.hue === 'decreasing') { if (h1 < h2) h1 += 360 }
-			else if (d > 180) h1 += 360; else if (d < -180) h2 += 360
-			x[hi] = h1; y[hi] = h2
-		}
-		const v = back(x.map((u, i) => u + (y[i] - u) * f))
-		return { r: v[0] / scale, g: v[1] / scale, b: v[2] / scale }
-	}
+	const sp = mix.space, base = c => [c.r * scale, c.g * scale, c.b * scale]
+	const into = c => sp === id ? base(c) : missing(sp, space[id][sp](...base(c))), back = v => sp === id ? v : space[sp][id](...v)
+	return (a, b, f) => { const v = back(mixIn(sp, into(a), into(b), f, mix.hue)); return { r: v[0] / scale, g: v[1] / scale, b: v[2] / scale } }
 }

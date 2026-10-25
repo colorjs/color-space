@@ -218,6 +218,13 @@ try {
 	await toCatalog(page)
 	await page.locator('#cval').fill('#123456'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#123456')
 	assert.equal(await page.locator('#cd').inputValue(),'#123456','pointer cancellation releases the catalog drag guard')
+	// the field reads CSS Color 4 as css.js does – angle units, per-channel percentages, none, 8-digit hex (the targets
+	// colorjs.io's: new Color(s).to('srgb')) – and still the catalog's own forms CSS can't write
+	for(const [typed,want] of [['hsl(0.5turn 100% 50%)','#00ffff'],['#ff8000cc','#ff8000'],['lab(54 64% -10%)','#f0189a'],['oklch(none 0 0)','#000000'],['okhsv(30 80 90)','#e44f3d']]){
+		await page.locator('#cval').fill(typed)
+		await page.waitForFunction(w=>document.querySelector('#cd').value.toLowerCase()===w,want,{ timeout:5000 }).catch(()=>{})
+		assert.equal((await page.locator('#cd').inputValue()).toLowerCase(),want,`the field reads ${typed}`) }
+	await page.locator('#cval').fill('#123456'); await page.waitForFunction(()=>document.querySelector('#cd').value.toLowerCase()==='#123456')
 	await page.waitForTimeout(400)   // the typed color's own frame and settle – past them, or they count inside the burst below
 	const nonPointerRoot=await page.evaluate(async()=>{ const src=document.querySelector('.ent[data-s="rgb"] .nrg[data-i="0"]'); let writes=0
 		const observer=new MutationObserver(()=>writes++); observer.observe(document.documentElement,{attributes:true,attributeFilter:['style']})

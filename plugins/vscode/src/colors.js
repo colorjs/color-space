@@ -14,20 +14,17 @@
  * library's rec2020 carries the BT.2020 OETF (css.js), so the same numbers there would name a different color.
  */
 import space from '../../../index.js'
-import { CSS } from '../../../css.js'
+import { CSS, PREDEF as PREDEFINED, PCT, ANGLE as DEG } from '../../../css.js'
+import { clamp } from '../../../math.js'
 import NAMES from '../../../web/js/names.js'
 import { cssShort } from '../../figma/src/notation.js'
 import { gamutMap, DEST } from '../../figma/src/gamut.js'
 
 export const fx = (x, d) => String(+x.toFixed(d) || 0)   // ≤ d decimals, trailing zeros dropped, never "-0"
-export const clamp = (x, lo, hi) => x < lo ? lo : x > hi ? hi : x
 
-// color(<ident> …): the library space, the scale of its channels (CSS's 1 → ours), the places css.js writes
-const PREDEFINED = {
-	'srgb': ['rgb', 255, 4], 'srgb-linear': ['lrgb', 1, 4], 'display-p3': ['p3', 1, 4], 'a98-rgb': ['a98rgb', 1, 4],
-	'prophoto-rgb': ['prophoto', 1, 5], 'rec2020': ['rec2020-display', 1, 5], 'xyz': ['xyz', 100, 5], 'xyz-d65': ['xyz', 100, 5], 'xyz-d50': ['xyz-d50', 100, 5],
-}
-const ANGLE = { '': 1, deg: 1, rad: 180 / Math.PI, grad: 0.9, turn: 360 }
+// color(<ident> …): css.js's PREDEF – the library space, the scale of its channels (CSS's 1 → ours), the places it writes;
+// a hue's units css.js's, a bare number degrees
+const ANGLE = { '': 1, ...DEG }
 // CSS's legacy notations: bound to sRGB, they can't name a wider color (and a gradient of them mixes in sRGB)
 const LEGACY = new Set(['hex', 'named', 'rgb', 'hsl', 'hwb'])
 /** The gamut a notation can name: 'srgb', 'p3', or null for any (oklch(), lab(), color()…) – its own `bound`, else CSS's. */
@@ -90,14 +87,13 @@ export function parseFn(name, body) {
 	const nt = { fn: base, name, legacy: p.legacy, alpha: p.a !== undefined }, [a, b, c] = p.ch, alpha = alphaOf(p.a)
 	if (p.legacy && base === 'rgb' && new Set(p.ch.map(t => t.u === '%')).size > 1) return null   // legacy rgb(): all numbers or all percentages
 	if (p.legacy && base === 'hsl' && (b.u !== '%' || c.u !== '%')) return null                    // legacy hsl(): percentages
-	if (base === 'rgb') return ok({ space: 'rgb', v: p.ch.map(t => clamp(num(t, 255), 0, 255)), alpha, nt })
-	if (base === 'hsl') return ok({ space: 'hsl', v: [hue(a), Math.max(0, num(b, 100)), num(c, 100)], alpha, nt })
-	if (base === 'hwb') return ok({ space: 'hwb', v: [hue(a), num(b, 100), num(c, 100)], alpha, nt })
+	const id = base === 'lch' ? 'lchab' : base, [ra, rb, rc] = PCT[id] || []   // each channel's 100% (css.js PCT)
+	if (base === 'rgb') return ok({ space: 'rgb', v: p.ch.map(t => clamp(num(t, ra), 0, ra)), alpha, nt })
+	if (base === 'hsl') return ok({ space: 'hsl', v: [hue(a), Math.max(0, num(b, rb)), num(c, rc)], alpha, nt })
+	if (base === 'hwb') return ok({ space: 'hwb', v: [hue(a), num(b, rb), num(c, rc)], alpha, nt })
 	nt.pct = a.u === '%'
-	if (base === 'lab') return ok({ space: 'lab', v: [clamp(num(a, 100), 0, 100), num(b, 125), num(c, 125)], alpha, nt })
-	if (base === 'lch') return ok({ space: 'lchab', v: [clamp(num(a, 100), 0, 100), Math.max(0, num(b, 150)), hue(c)], alpha, nt })
-	if (base === 'oklab') return ok({ space: 'oklab', v: [clamp(num(a, 1), 0, 1), num(b, 0.4), num(c, 0.4)], alpha, nt })
-	if (base === 'oklch') return ok({ space: 'oklch', v: [clamp(num(a, 1), 0, 1), Math.max(0, num(b, 0.4)), hue(c)], alpha, nt })
+	if (base === 'lab' || base === 'oklab') return ok({ space: id, v: [clamp(num(a, ra), 0, ra), num(b, rb), num(c, rc)], alpha, nt })
+	if (base === 'lch' || base === 'oklch') return ok({ space: id, v: [clamp(num(a, ra), 0, ra), Math.max(0, num(b, rb)), hue(c)], alpha, nt })
 	return null
 }
 const ok = r => r.v.every(Number.isFinite) && Number.isFinite(r.alpha) ? r : null

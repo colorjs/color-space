@@ -38,7 +38,15 @@ test('util: mix interpolates in the space, hue the short way – as colorjs.io',
 		const ca = new Color(a), cb = new Color(b), ref = ca.mix(cb, 0.3, { space: 'oklch' }).coords
 		ok(near(util.mix('oklch', ca.coords, cb.coords, 0.3), ref, 1e-9), `${a} → ${b} at 0.3`)
 	}
+	for (const hue of ['shorter', 'longer', 'increasing', 'decreasing']) for (const [a, b] of [[[0.5, 0.1, 350], [0.7, 0.2, 10]], [[0.6, 0.1, 40], [0.7, 0.1, 40]], [[0.6, 0.1, 200], [0.7, 0.1, 20]]]) {
+		const ref = new Color('oklch', a).mix(new Color('oklch', b), 0.3, { space: 'oklch', hue }).coords
+		ok(near(util.mix('oklch', a, b, 0.3, hue), ref, 1e-9), `${a[2]}° → ${b[2]}°, ${hue}`) }   // equal hues, longer: the full turn
 	is(util.mix('hsl', [350, 50, 50], [10, 50, 50], 0.5, 'longer'), [180, 50, 50], 'longer: the way round through 180')
+	is(util.mix('oklch', [1, 0, NaN], [0.6, 0.2, 30], 0.5)[2], 30, 'a missing hue (NaN, CSS\'s none): the other color\'s')
+	is(util.interpolate([0, NaN], [1, NaN], 0.5, 1), [0.5, 0], 'missing at both ends: 0, as a missing hue converts')
+	is(util.interpolate([0, 370], [1, -10], 0, 1), [0, 10], 't 0: the first, its hue on the wheel')
+	is(util.interpolate([0, 370], [1, -10], 1, 1), [1, 350], 't 1: the second')
+	is(util.interpolate([0, 90], [1, 10], 0.5, 1, 'shorter', 10, 80), [0.5, 10], 'a wheel of its own: 90 is 10 on [10, 90) – one hue, no turn')
 	is(util.mix('rgb', [0, 0, 0], [255, 255, 255], 0.5), [127.5, 127.5, 127.5], 'no hue: a straight line')
 })
 

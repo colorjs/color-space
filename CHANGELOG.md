@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `color-space/util` exports `interpolate` (CSS Color 4 interpolation of two coordinates: any hue wheel, every hue arc, a missing hue taken from the other end) and `clamp`.
+- `css.js` exports its `PREDEF`, `PCT` and `ANGLE` tables.
+
+### Changed
+
+- `util.mix` takes `increasing` and `decreasing` hue arcs and a missing hue (NaN); `longer` between equal hues is the full turn, as CSS Color 4 defines it.
+
 ## [3.5.0] - 2026-10-19
 
 ### Added

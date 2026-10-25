@@ -7,6 +7,7 @@ import './stops.js' // the field's gradients and lists: CSS's syntax and interpo
 import './sweep.js' // the catalog's strips: one sweepCSS, and the pool that runs it off the main thread
 import './namesearch.js' // the color field's name search
 import './nearest.js' // the large palettes' nearest-site search
+import './wijffelaars.js' // the field's generated colormaps: Wijffelaars et al. 2008, in OKLCh
 import './lex.js' // the code plates' lexer
 
 // the site stages into _site (npm run landing / pages.yml — docs/ stays source-only);

@@ -1,6 +1,8 @@
 // Shared COLOR MATH only — every study brings its own design + interaction.
 // Metadata drives everything: type each channel, then sample gamut-correct fields.
 import space from '../../dist/color-space.js'
+import { clamp } from '../../math.js'
+import { hex as hex6 } from '../../css.js'
 import data from './data.js'
 import visibility from './visible.js'
 
@@ -30,8 +32,8 @@ export const LUTOK = new Set(Object.keys(space).filter(s => bounded3(s)
 export const LUTTGT = new Set(Object.keys(space).filter(s => bounded3(s)
 	&& !meta[s].channels.some(c => c.max === 360 || /hue/i.test(c.name))
 	&& (s === 'rgb' || (() => { try { return fin(space.rgb, space[s]) } catch { return false } })())))
-export const clamp = (v, a, b) => v < a ? a : v > b ? b : v
-export const hex = rgb => '#' + rgb.map(v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0')).join('').toUpperCase()
+export { clamp }
+export const hex = rgb => hex6(rgb).toUpperCase()   // the page writes hex in capitals
 const D = Math.PI / 180
 
 // ── classify each channel from metadata ──
@@ -450,20 +452,6 @@ export function pathToRgb(name) {
 		for (const t of edgesOf(s)) if (!(t in prev)) { prev[t] = s; q.push(t) }
 	}
 	return null
-}
-
-// ── mix two coordinates of the same space; hue channels (0–360) arc shorter or longer around the wheel ──
-export function mixInSpace(name, v1, v2, t, huePath = 'shorter') {
-	const ch = meta[name]?.channels || []
-	return v1.map((a, i) => {
-		const b = v2[i]
-		if (ch[i]?.max === 360) {
-			let d = ((b - a + 540) % 360) - 180
-			if (huePath === 'longer' && d !== 0) d = d > 0 ? d - 360 : d + 360
-			return (a + d * t + 360) % 360
-		}
-		return a + (b - a) * t
-	})
 }
 
 // ── rotate the hue of a coordinate: polar spaces spin the angle, opponent spaces rotate the (a,b) vector ──

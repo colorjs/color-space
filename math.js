@@ -44,6 +44,9 @@ export const inv3 = (m) => {
 	];
 };
 
+/** x held within [lo, hi] */
+export const clamp = (x, lo, hi) => x < lo ? lo : x > hi ? hi : x;
+
 /**
  * Signed power: keeps the sign, raises the magnitude. The standard way every
  * appearance model / gamma curve extends a fractional exponent to negative
@@ -63,6 +66,31 @@ export const cartToPolar = (l, a, b, t = 1e-8) => {
 	const h = c < t ? 0 : Math.atan2(b, a) * 180 / Math.PI;
 	return [l, c, h < 0 ? h + 360 : h];
 };
+
+/**
+ * Two coordinates `t` of the way from `a` to `b`, as CSS Color 4 interpolates them: every channel straight but the hue
+ * `h`, an angle over [lo, lo + span), which goes `arc`'s way round – shorter, longer, increasing, decreasing
+ * (#hue-interpolation, a full turn for `longer` between equal hues) – and, missing (NaN) at one end, takes the other's
+ * (#interpolation-missing); missing at both, `lo`, as a missing component converts. h < 0: no hue.
+ * @see https://drafts.csswg.org/css-color-4/#interpolation
+ * @param {number[]} a @param {number[]} b
+ * @param {number} t
+ * @param {number} [h=-1] the hue channel's index
+ * @param {'shorter'|'longer'|'increasing'|'decreasing'} [arc='shorter']
+ * @returns {number[]}
+ */
+export const interpolate = (a, b, t, h = -1, arc = 'shorter', lo = 0, span = 360) => a.map((x, i) => {
+	if (i !== h) return x + (b[i] - x) * t
+	const w = v => (v % span + span) % span   // onto the wheel, counted from lo
+	let p = Number.isNaN(x) ? b[i] : x, q = Number.isNaN(b[i]) ? x : b[i]
+	if (Number.isNaN(p)) return lo
+	p = w(p - lo); q = w(q - lo); const d = q - p, half = span / 2
+	if (arc === 'longer') { if (d > 0 && d < half) p += span; else if (d > -half && d <= 0) q += span }
+	else if (arc === 'increasing') { if (q < p) q += span }
+	else if (arc === 'decreasing') { if (p < q) p += span }
+	else if (d > half) p += span; else if (d < -half) q += span
+	return w(p + (q - p) * t) + lo
+});
 
 /**
  * Cylindrical (chroma, hue°) -> Cartesian opponent pair (a,b); inverse of

@@ -12,6 +12,7 @@ import NAMES from './web/js/names.js'
 import { deltaE2000, deltaEOK, contrast as wcag } from './web/js/measure.js'
 import { simulate } from './web/js/cvd.js'
 import visibility from './web/js/visible.js'
+import { interpolate } from './math.js'
 
 export * from './math.js'
 
@@ -34,23 +35,16 @@ export const parse = (str) => cssParse(str, NAMES)
 export const format = (id, v) => css(id, v)
 
 /**
- * Mix two colors of one space, `t` of the way from `a` to `b` – a hue channel (0–360) the short way round, or the
- * long one (CSS Color 4 #hue-interpolation).
+ * Mix two colors of one space, `t` of the way from `a` to `b`, as CSS Color 4 interpolates: a hue channel (0–360) the
+ * way `hue` says round (#hue-interpolation), and a hue missing – NaN, CSS's `none` – taken from the other color. A hue
+ * written is a hue kept, achromatic or not (#powerless: only a conversion makes a powerless hue missing).
  * @param {string} id the space both colors are in, and the mix is made in
  * @param {number[]} a @param {number[]} b
  * @param {number} [t=0.5]
- * @param {'shorter'|'longer'} [hue='shorter']
+ * @param {'shorter'|'longer'|'increasing'|'decreasing'} [hue='shorter']
  * @returns {number[]}
  */
-export const mix = (id, a, b, t = 0.5, hue = 'shorter') => {
-	const r = space[id].range
-	return a.map((x, i) => {
-		if (r[i][0] !== 0 || r[i][1] !== 360) return x + (b[i] - x) * t
-		let d = ((b[i] - x + 540) % 360) - 180
-		if (hue === 'longer' && d !== 0) d -= Math.sign(d) * 360
-		return (x + d * t + 360) % 360
-	})
-}
+export const mix = (id, a, b, t = 0.5, hue = 'shorter') => interpolate(a, b, t, space[id].range.findIndex(([lo, hi]) => lo === 0 && hi === 360), hue)
 
 /**
  * The tightest of CSS Color 4's predefined display gamuts holding a color – each channel within half a code value.

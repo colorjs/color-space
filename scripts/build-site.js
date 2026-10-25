@@ -104,7 +104,7 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	// sources: the web/ tree verbatim (index.html template, tokens.css, js/, img/, 404)
 	cpSync(join(root, 'web'), out, { recursive: true, filter: (f) => f !== join(root, 'web/i18n') })   // translation sources stay home; stampPages ships the compiled tables
 	// runtime modules the app imports, placed beside the flattened root
-	for (const f of ['wasm.js', 'lut.js', 'css.js', 'data.json']) cpSync(join(root, f), join(out, f))
+	for (const f of ['wasm.js', 'lut.js', 'css.js', 'math.js', 'data.json']) cpSync(join(root, f), join(out, f))
 	cpSync(join(root, 'conformance.json'), join(out, 'conformance.json'))   // not imported: served for other libraries' test suites
 	mkdirSync(join(out, 'dist'), { recursive: true })
 	for (const f of ['color-space.js', 'color-space-gl.js']) cpSync(join(root, 'dist', f), join(out, 'dist', f))
@@ -183,7 +183,8 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	}
 	// web/ speaks repo-relative paths; the staged site speaks root-relative —
 	// rewrite AFTER generation (build() re-emits index.html from the web source)
-	rewrite(join(out, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"]])
+	rewrite(join(out, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"], ["'../../math.js'", "'../math.js'"], ["'../../css.js'", "'../css.js'"]])
+	rewrite(join(out, 'js/stops.js'), [["'../../math.js'", "'../math.js'"]])
 	rewrite(join(out, 'js/data.js'), [["'../../data.json'", "'../data.json'"]])
 	rewrite(join(out, 'js/gl.js'), [["'../../dist/color-space-gl.js'", "'../dist/color-space-gl.js'"]])
 	rewrite(join(out, 'js/calc.js'), [["'../../lut.js'", "'../lut.js'"], ["'../../icc.js'", "'../icc.js'"]])

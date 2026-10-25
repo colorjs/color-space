@@ -1707,7 +1707,7 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 	<div class="mbox"><button class="mx" id="mx" title="close" aria-label="Close color-space dossier" data-i18n="title:ui.modal.close aria-label:ui.modal.close-label"><svg class="ic ix" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><a class="embl" id="embl" href="./" target="_blank" rel="noopener" title="open this space on color-space.io, in a new tab" data-i18n="title:ui.modal.site">color-space.io ↗</a><div class="detail" id="detail" tabindex="-1"></div></div>
 </div>
 <script type="module">
-import { space, meta, dirOnly, displays, clamp, classify, hueIdx, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, mixInSpace, rotateHue, visibleXYZ, inVisSolid, tightGamut, xyOf } from './js/core.js'
+import { space, meta, dirOnly, displays, clamp, classify, hueIdx, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, rotateHue, visibleXYZ, inVisSolid, tightGamut, xyOf } from './js/core.js'
 import LORE from './js/lore.js'
 import { primariesOf, trcOf } from './js/profile.js'
 import { definitionOf, rowsOf, ocioMatrix, formula, constants } from './js/definition.js'
@@ -1719,10 +1719,10 @@ import { spaces as wasmSpaces } from '../wasm.js'
 import { cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
 import { colorspace as ocioSpace } from '../ocio.js'   // a space as an OpenColorIO colorspace, curve and all, where OCIO's native transforms carry it exactly
-import { CSS as CSSFMT, CSS_DISPLAY } from '../css.js'   // the library's CSS Color 4 serializers – the MCP css tool speaks the same strings
+import { CSS as CSSFMT, CSS_DISPLAY, parse as cssParse } from '../css.js'   // the library's CSS Color 4 serializers and reader – the MCP css tool speaks the same strings
 import { glsl as glslOf } from '../dist/color-space-gl.js'   // the GL tab's source – the very bundle js/gl.js compiles, already in the graph
 import NAMES from './js/names.js'
-import { parseGradient, path as gradPath, gradientText, shortText, dashAt, JOIN } from './js/stops.js'
+import { parseGradient, path as gradPath, mix as mixIn, missing, gradientText, shortText, dashAt, JOIN } from './js/stops.js'
 import { lex } from './js/lex.js'
 import * as PALDATA from './js/palettes.js'
 import { findNames } from './js/namesearch.js'
@@ -1941,17 +1941,27 @@ if(cvalEl){
 	// same set, its ↻ from any set of its kind (a context row's both the next nearest in its set). A color:
 	// meodai's color-name-list (names.color.pizza), Tailwind's, CSS's, the xkcd survey's; a palette: Sanzo Wada's
 	// combinations, the COLOURlovers favourites of nice-color-palettes, Kjetil Golid's chromotome, Itten's chords; a
-	// colormap: matplotlib's, ColorBrewer's, Google's Turbo, d3's own, MATLAB's, Plotly's, cmocean's; a gradient:
+	// colormap: matplotlib's, ColorBrewer's, Wijffelaars et al.'s (made for the color, js/wijffelaars.js), Google's Turbo,
+	// d3's own, MATLAB's, Plotly's, cmocean's; a gradient:
 	// uiGradients', WebGradients', the color's own hue turned in Okhsv
-	const SRC={ tailwind:'Tailwind', names:'CSS', xkcd:'xkcd', meodai:'color-name-list', matplotlib:'matplotlib', colorbrewer:'ColorBrewer', google:'Google', d3:'d3', matlab:'MATLAB', plotly:'Plotly', cmocean:'cmocean', wada:'Sanzo Wada', lospec:'Lospec', nice:'nice-color-palettes', chromotome:'chromotome', itten:'Itten', uigradients:'uiGradients', webgradients:'WebGradients', okhsv:'Okhsv' }
-	// each source's own page – where the row's set lives, opened by the row's ↗ (the set as a whole: none of these sites
-	// keeps a stable address for one of its items)
+	const SRC={ tailwind:'Tailwind', names:'CSS', xkcd:'xkcd', meodai:'color-name-list', matplotlib:'matplotlib', colorbrewer:'ColorBrewer', google:'Google', d3:'d3', matlab:'MATLAB', plotly:'Plotly', cmocean:'cmocean', wada:'Sanzo Wada', wijffelaars:'Wijffelaars', lospec:'Lospec', nice:'nice-color-palettes', chromotome:'chromotome', itten:'Itten', uigradients:'uiGradients', webgradients:'WebGradients', okhsv:'Okhsv' }
+	// each source's own page – where the row's set lives, opened by the row's ↗: the set as a whole, but for
+	// color-name-list's, whose site keeps a page for each name (pizzaOf); Wijffelaars et al.'s the paper
+	// a color-name-list name's own page on names.color.pizza, its address as that site makes it: the name decomposed (NFKD),
+	// its marks dropped, & read "and", every other run dashed; names that meet in one slug – the one losing fewest letters to
+	// it bare, the rest with their hex – and a slug that reads as hex, its hex after it
+	let SLUG=null
+	const slugOf=n=>n.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'color'
+	const pizzaOf=n=>{ if(!SLUG&&MEODAI.length){ const by=new Map(); for(const x of MEODAI){ const k=slugOf(x[0]); by.has(k)?by.get(k).push(x):by.set(k,[x]) }
+			SLUG=new Map(); for(const [k,l] of by){ const lost=m=>[...m.toLowerCase()].filter(c=>!k.includes(c)).length; l.sort((a,b)=>lost(a[0])-lost(b[0])||(a[0]<b[0]?-1:1))
+				l.forEach(([m,rgb],i)=>SLUG.set(m.toLowerCase(),i||/^[0-9a-f]{6}$/.test(k)?k+'-'+hex(rgb).slice(1).toLowerCase():k)) } }
+		const k=SLUG?.get(n); return k&&`https://names.color.pizza/color/${k}/` }
 	const SRCURL={ tailwind:'https://tailwindcss.com/docs/colors', names:'https://www.w3.org/TR/css-color-4/#named-colors', xkcd:'https://xkcd.com/color/rgb/', meodai:'https://names.color.pizza/',
 		matplotlib:'https://matplotlib.org/stable/users/explain/colors/colormaps.html', colorbrewer:'https://colorbrewer2.org/', google:'https://research.google/blog/turbo-an-improved-rainbow-colormap-for-visualization/', d3:'https://d3js.org/d3-scale-chromatic',
-		matlab:'https://www.mathworks.com/help/matlab/ref/colormap.html', plotly:'https://plotly.com/javascript/colorscales/', cmocean:'https://matplotlib.org/cmocean/', wada:'https://sanzo-wada.dmbk.io/', lospec:'https://lospec.com/palette-list',
+		matlab:'https://www.mathworks.com/help/matlab/ref/colormap.html', plotly:'https://plotly.com/javascript/colorscales/', cmocean:'https://matplotlib.org/cmocean/', wijffelaars:'https://doi.org/10.1111/j.1467-8659.2008.01203.x', wada:'https://sanzo-wada.dmbk.io/', lospec:'https://lospec.com/palette-list',
 		nice:'https://github.com/Experience-Monks/nice-color-palettes', chromotome:'https://github.com/kgolid/chromotome', itten:'https://en.wikipedia.org/wiki/Johannes_Itten', uigradients:'https://uigradients.com/',
 		webgradients:'https://webgradients.com/', okhsv:'https://bottosson.github.io/posts/colorpicker/' }
-	const SOURCES={ color:['meodai','tailwind','names','xkcd'], pair:['wada','lospec','chromotome','itten'], palette:['wada','lospec','chromotome','itten'], colormap:['matplotlib','colorbrewer','google','d3','matlab','plotly','cmocean'], gradient:['uigradients','webgradients','okhsv'] }
+	const SOURCES={ color:['meodai','tailwind','names','xkcd'], pair:['wada','lospec','chromotome','itten'], palette:['wada','lospec','chromotome','itten'], colormap:['matplotlib','colorbrewer','wijffelaars','google','d3','matlab','plotly','cmocean'], gradient:['uigradients','webgradients','okhsv'] }
 	const srcOf=read('csSugSrc',{}), useOf=k=>SOURCES[k].includes(srcOf[k])?srcOf[k]:SOURCES[k][0]
 	const nextSrc=(k,s=useOf(k))=>{ const l=SOURCES[k]; srcOf[k]=l[(l.indexOf(s)+1)%l.length]; store('csSugSrc',srcOf) }   // from s: the source the row says
 	const K={ color:t('ui.sug.k.color','color'), neighbor:t('ui.sug.k.neighbor','neighbor'), pair:t('ui.sug.k.pair','pair'), palette:t('ui.sug.k.palette','palette'), colormap:t('ui.sug.k.colormap','colormap'), gradient:t('ui.sug.k.gradient','gradient'), combination:t('ui.sug.k.combination','combination'), togradient:t('ui.sug.k.to-gradient','to gradient'), topalette:t('ui.sug.k.to-palette','to palette'), mixin:t('ui.sug.k.mix-in','mixed in'), recent:t('ui.sug.w.recent','recent'), completed:t('ui.sug.w.completed','completed'), read:t('ui.sug.w.read','read') }
@@ -1967,12 +1977,22 @@ if(cvalEl){
 	// the sets beyond the page's own: Sanzo Wada's combinations (A Dictionary of Color Combinations, 1933 – Matt
 	// DesLauriers' data), the colormaps and the palettes of js/sets.js (both the build's), Lospec's palettes of two to
 	// four (js/lospec.js, scripts/fetch-lospec.js) – with color-name-list, on the first focus
-	let WADA=null, SETS=null, LOSPEC=null
-	const meodai=()=>Promise.all([loadMeodai(),WADA||import('./js/wada.js').then(m=>{ WADA=m }).catch(()=>{}),LOSPEC||import('./js/lospec.js').then(m=>{ LOSPEC=m.default }).catch(()=>{}),SETS||import('./js/sets.js').then(m=>{ SETS=m.default }).catch(()=>{})])
+	let WADA=null, SETS=null, LOSPEC=null, RAMP=null, RAMPS=null
+	const meodai=()=>Promise.all([loadMeodai(),RAMP||import('./js/wijffelaars.js').then(m=>{ RAMP=m }).catch(()=>{}),WADA||import('./js/wada.js').then(m=>{ WADA=m }).catch(()=>{}),LOSPEC||import('./js/lospec.js').then(m=>{ LOSPEC=m.default }).catch(()=>{}),SETS||import('./js/sets.js').then(m=>{ SETS=m.default }).catch(()=>{})])
 		.then(()=>{ if(!cvalEl.value.trim()) sugDraw=null; if(document.activeElement===cvalEl&&!sugEl.hidden) suggest(!!cvalEl.value.trim()&&cvalEl._typed) })   // the ways in drawn again from the lists landed
 	const COLORS=k=>k==='names'?Object.entries(NAMES):k==='meodai'?MEODAI:PALDATA[k]||[]
 	const LISTS=()=>[['names',COLORS('names')],['meodai',MEODAI],['tailwind',PALDATA.tailwind]]
-	const MAPSOF=k=>k==='matplotlib'?MAPS:SETS?.[k]||[]
+	const MAPSOF=k=>k==='matplotlib'?MAPS:k==='wijffelaars'?rampSet():SETS?.[k]||[]
+	// Wijffelaars et al.'s colormaps, made rather than listed (js/wijffelaars.js, the 2008 paper in OKLCh): a hue's
+	// sequential every 30°, plain and cool–warm (w 0.25, the one its study liked best), and diverging to the hue opposite;
+	// five stops each, as the other sets' rows, at a continuous map's contrast (c 0.88, the paper's ceiling)
+	const okHex=c=>hex(space.oklch.rgb(...c))
+	const rampSet=()=>RAMPS??=RAMP?[...Array(12)].flatMap((_,k)=>{ const h=k*30, o=(h+180)%360
+		return [[t('ui.sug.ramp.seq','sequential {h}°',{h}),RAMP.sequential(h,5,{c:.88})],[t('ui.sug.ramp.warm','cool–warm {h}°',{h}),RAMP.sequential(h,5,{c:.88,w:.25})],...h<180?[[t('ui.sug.ramp.div','diverging {h}°–{o}°',{h,o}),RAMP.diverging(h,o,5,{c:.88})]]:[]] }).map(([n,l])=>[n,l.map(okHex).join(' ')]):[]
+	// …and one made for the color in hand: the sequential that meets it exactly – at its own step, or, a gradient run from
+	// it, at the end nearer its lightness, the ramp turned to start there
+	const rampOf=(rgb,from)=>{ const o=space.rgb.oklch(...rgb), at=from?(o[0]<.6?0:4):undefined, r=RAMP.through(o,5,{ at, c:.88 }), l=r.colors.map(okHex)
+		return [t('ui.sug.ramp.seq0','sequential'),from&&at?l.reverse():l] }
 	// a color typed, it in context: the name nearest it (by ΔEok) in the source in use, taking its place in the field; a
 	// palette with a color near it; Itten's chords on his RYB wheel (Itten 1961, The Art of Color – the library's ryb, his
 	// chromatic circle), at most four colors, its ↻ the next chord
@@ -2032,10 +2052,14 @@ if(cvalEl){
 	// from it, the set's gradient nearest it – each its ↻ the next; a gradient typed, one step on
 	const gradOnRows=(pre,p)=>{ if(p.grad) return extendRow(p.stops,p.grad,pre); if(p.stops.length>1) return []
 		const rgb=rgbF(p.stops[0].s,p.stops[0].vals), o=space.rgb.oklab(...rgb), gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
-		const mk=useOf('colormap'), nm=nearGrad(MAPSOF(mk).length?MAPSOF(mk).map(([n,c])=>[n,c.split(' ')]):MAPS.map(([n,c])=>[n,c.split(' ')]),o,nth.colormap,()=>true)
+		const [nm,mk,way]=cmapNear(rgb,o,true)
 		return [gradRow(rgb,sugGrad,pre),
-			...nm?[{ ...row(pre+JOIN+nm[1].slice(1).map(h=>sayAs(hx3(h))).join(JOIN),from(K.colormap,nm[0],MAPSOF(mk).length?mk:'matplotlib','colormap')), way:'near-colormap' }]:[],
+			...nm?[{ ...row(pre+JOIN+nm[1].slice(1).map(h=>sayAs(hx3(h))).join(JOIN),from(K.colormap,nm[0],mk,'colormap')), way }]:[],
 			...ng?[{ ...row(pre+JOIN+ng[1].slice(1).map(h=>sayAs(hx3(h))).join(JOIN)+' in srgb',from(K.gradient,ng[0],gk,'gradient')), way:'near-gradient' }]:[]] }
+	// the colormap for a color, from the source in use: a set's nearest by an end, turned to start at it, its ↻ the next
+	// nearest – or Wijffelaars et al.'s, made for it – [[name, hexes], source, way]; a set not landed, matplotlib's
+	const cmapNear=(rgb,o,from)=>{ const k=useOf('colormap'), mk=MAPSOF(k).length?k:'matplotlib'
+		return mk==='wijffelaars'?[rampOf(rgb,from),mk]:[nearGrad(MAPSOF(mk).map(([n,c])=>[n,c.split(' ')]),o,nth.colormap,()=>true),mk,'near-colormap'] }
 	// a palette in hand, as a gradient – its colors in order, run in OKLCh
 	const asGradRow=st=>[row(st.map(sayTyped(st)).join(JOIN)+' in oklch',{ kind:K.togradient })]   // its colors exactly, as the field says them
 	// a gradient in hand, as a palette – its stops, the list they are
@@ -2093,11 +2117,12 @@ if(cvalEl){
 		// palette; a list, as a gradient; and the chord round the caret's color
 		if(many){ const b=before, st=b?b.stops:STOPS, g=b?b.grad:GRAD
 			return [...nb(.001),...!g&&st.length===2?setRow('palette'):[],...combo,...g?[...extendRow(st,g),...asPalRow(st)]:asGradRow(st)] }
-		// one in hand: its neighbour, a pair and a palette with it, the gradient from it (the source's nearest, else its
-		// hue turned in Okhsv), the chord round it
+		// one in hand: its neighbour, a pair and a palette with it, the chord round it, the gradient from it (the source's
+		// nearest, else its hue turned in Okhsv), the colormap with it
 		const gk=useOf('gradient'), ng=nearGrad(GRADSETS(gk),o,nth.gradient)
 		const own=(v=>{ const p=v&&cssWord(v)&&parseInput(v); return p&&!p.grad&&p.stops.length===1?v:null })(cvalEl.value.trim())   // the color as typed where it is a CSS value – tomato, not its hex
-		return [...nb(.02),...setRow('pair'),...setRow('palette'),...combo,ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,own)] }
+		const [nm,mk,cway]=cmapNear(rgb,o), cmap=nm?[{ ...cmapRow([nm[0],nm[1].join(' ')],mk), way:cway }]:[]   // the colormap with it – Wijffelaars et al.'s through it
+		return [...nb(.02),...setRow('pair'),...setRow('palette'),...combo,ng?{ ...gradSetRow(ng,gk), way:'near-gradient' }:gradRow(rgb,sugGrad,own),...cmap] }
 	// a phrase read – channels named, a name told how to change: the color it came to, written out, first
 	const phraseRow=v=>{ if(parseColor(v)||parseColorList(v)||setNamed(v)) return []; const c=parsePhrase(v); if(!c) return []
 		const rgb=rgbF(c.s,c.vals), w=say3(c.s,hex(rgb),rgb)   // in its own notation where CSS has one, else hex
@@ -2127,7 +2152,7 @@ if(cvalEl){
 	// the typed part of a name light, the rest of it set – as a search engine sets what it adds
 	const hl=(s,q)=>{ const i=q?s.toLowerCase().indexOf(q):-1; return i<0?esc(s):`${esc(s.slice(0,i))}<span class="q">${esc(s.slice(i,i+q.length))}</span>${esc(s.slice(i+q.length))}` }
 	const suggest=typed=>{ const rows=sugShut?[]:sugRows(typed), q=v=>esc(v).replace(/"/g,'&quot;'), typedq=cvalEl.value.trim().toLowerCase()
-		const html=r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.name?` data-n="${q(r.name)}"`:''}${r.tok?' data-tok':''}><b><span class="sws" style="--n:${r.run?1:r.sw.length}">${r.run?`<s class="pill" style="--w:linear-gradient(90deg,${r.run.join(',')})"></s>`:r.sw.map((h,k)=>`<s style="--w:${h};--z:${r.sw.length-k}"></s>`).join('')}</span><span class="sgt"><span>${esc(r.say)}</span>${r.why?`<small>${whyOf(r.why,r.way!=null&&!r.rec,r.name?typedq:'')}</small>`:''}</span></b></button>${SRCURL[r.why?.src]?`<a class="qclr sgo" href="${SRCURL[r.why.src]}" target="_blank" rel="noopener" tabindex="-1" aria-label="${q(t('ui.sug.open','open {site}',{site:SRC[r.why.src]}))}">${icon('out')}</a>`:''}${r.rec?`${r.back?`<button class="qclr sgx sgb" type="button" tabindex="-1" aria-label="${t('ui.sug.back','the one before')}">${icon('back')}</button>`:''}<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:r.way!=null?`<button class="qclr sgx" type="button" tabindex="-1" data-way="${r.way}"${r.at!=null?` data-at="${r.at}"`:''} aria-label="${t('ui.sug.again','another one')}">${icon('again')}</button>`:''}</div>`
+		const html=r=>`<div class="sgr" role="none"><button class="fmtr" type="button" role="option" tabindex="-1" data-v="${q(r.v)}"${r.name?` data-n="${q(r.name)}"`:''}${r.tok?' data-tok':''}><b><span class="sws" style="--n:${r.run?1:r.sw.length}">${r.run?`<s class="pill" style="--w:linear-gradient(90deg,${r.run.join(',')})"></s>`:r.sw.map((h,k)=>`<s style="--w:${h};--z:${r.sw.length-k}"></s>`).join('')}</span><span class="sgt"><span>${esc(r.say)}</span>${r.why?`<small>${whyOf(r.why,r.way!=null&&!r.rec,r.name?typedq:'')}</small>`:''}</span></b></button>${SRCURL[r.why?.src]?`<a class="qclr sgo" href="${r.why.src==='meodai'&&r.name&&pizzaOf(r.name)||SRCURL[r.why.src]}" target="_blank" rel="noopener" tabindex="-1" aria-label="${q(t('ui.sug.open','open {site}',{site:SRC[r.why.src]}))}">${icon('out')}</a>`:''}${r.rec?`${r.back?`<button class="qclr sgx sgb" type="button" tabindex="-1" aria-label="${t('ui.sug.back','the one before')}">${icon('back')}</button>`:''}<button class="qclr sgx" type="button" tabindex="-1" data-v="${q(r.v)}" aria-label="${t('ui.sug.forget','forget it')}">${icon('x')}</button>`:r.way!=null?`<button class="qclr sgx" type="button" tabindex="-1" data-way="${r.way}"${r.at!=null?` data-at="${r.at}"`:''} aria-label="${t('ui.sug.again','another one')}">${icon('again')}</button>`:''}</div>`
 		const rec=rows.filter(r=>r.rec)   // the recent last, apart: what was typed before, not what is suggested
 		sugEl.innerHTML=rows.filter(r=>!r.rec).map(html).join('')+(rec.length?`<div class="sgrec" role="group" aria-label="${esc(K.recent)}">${rec.map(html).join('')}</div>`:'')
 		sugEl.hidden=!rows.length; ghostOf(rows) }
@@ -3341,11 +3366,12 @@ const barredByKey=new Map(BARRED.map(b=>[b.key,b]))
 const isBarred=s=>barredByKey.has(s)
 const ORDER=[...sections.flatMap(c=>c.spaces), ...BARRED.map(b=>b.key)]   // prev/next flows through the proprietary cards too
 // ── header color parser: any CSS-ish color string in → the live master color ──
+// CSS Color 4 as the library reads it (css.js: hex of 3–8 digits, the names, every function, percentages, angle units,
+// none – alpha set aside); then what CSS doesn't write but the catalog does – any space's function or color() form,
+// lenient as typed, a catalog row copied, channels named
 function parseColor(str){ str=str.trim().toLowerCase()
 	if(!str) return null
-	if(str[0]==='#'){ const h=str.length===4?'#'+[...str.slice(1)].map(c=>c+c).join(''):str
-		if(/^#[0-9a-f]{6}$/.test(h)) return { s:'rgb', vals:hex2rgb(h) } }
-	if(NAMES[str]) return { s:'rgb', vals:NAMES[str].slice() }
+	const css=cssParse(str,NAMES); if(css&&SPACES.includes(css.space)) return { s:css.space, vals:css.values }
 	const m2=str.match(/^([a-z][a-z0-9-]*)\s*\(([^)]*)\)$/)
 	if(m2){ let sp=m2[1]; const body=m2[2].split('/')[0]
 		if(sp==='rgba') sp='rgb'; if(sp==='hsla') sp='hsl'
@@ -3353,10 +3379,7 @@ function parseColor(str){ str=str.trim().toLowerCase()
 			sp={'display-p3':'p3','a98-rgb':'a98rgb','prophoto-rgb':'prophoto','xyz-d65':'xyz','xyz':'xyz','srgb-linear':'lrgb','srgb':'rgb'}[parts[0]]||parts[0]
 			const nums=parts.slice(1,4).map(parseFloat)
 			if(sp==='rgb') nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x*2.55; else if(x<=1) nums[i]=x*255 })
-			else if(['p3','rec2020','a98rgb','prophoto','lrgb'].includes(sp)){ nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x/100 })
-				// CSS's rec2020 is a pure 2.4 gamma (BT.1886), not the BT.2020 OETF our rec2020 carries –
-				// decode to linear light and land on rec2020-linear, the same primaries
-				if(sp==='rec2020'){ sp='rec2020-linear'; nums.forEach((x,i)=>{ nums[i]=Math.sign(x)*Math.abs(x)**2.4 }) } }
+			else if(['p3','rec2020','a98rgb','prophoto','lrgb'].includes(sp)) nums.forEach((x,i)=>{ if(parts[i+1]?.includes('%')) nums[i]=x/100 })
 			else if(sp==='xyz'||sp==='xyz-d50') nums.forEach((x,i)=>{ if(!parts[i+1]?.includes('%')&&Math.abs(x)<=1.5) nums[i]=x*100 })
 			return SPACES.includes(sp)&&nums.length===3&&nums.every(isFinite)?{ s:sp, vals:nums }:null }
 		if(sp==='lch') sp='lchab'
@@ -3403,7 +3426,7 @@ let MEODAI=[], meodaiAt=null
 const loadMeodai=()=>meodaiAt??=import('./js/colornames.js').then(({ default:s })=>{ const i=s.lastIndexOf('\n'), hx=s.slice(i+1)
 	MEODAI=s.slice(0,i).split('\n').map((n,k)=>[n,[0,2,4].map(j=>parseInt(hx.substr(k*6+j,2),16))])
 	LISTN=new Map(MEODAI.map(([n,r])=>[n.toLowerCase(),r])); addPalette('meodai',MEODAI.map(x=>x[1])); sitesOf.meodai=null; for(const k in qCaches) if(k.startsWith('meodai')) delete qCaches[k]; return MEODAI }).catch(()=>{ meodaiAt=null; return [] })
-const nameOf=w=>{ XKCDN??=new Map(PALDATA.xkcd); const r=NAMES[w.replace(/\s+/g,'')]||XKCDN.get(w)||LISTN?.get(w); return r&&{ s:'rgb', vals:r.slice() } }
+const nameOf=w=>{ XKCDN??=new Map(PALDATA.xkcd); const n=w.replace(/\s+/g,''), r=Object.hasOwn(NAMES,n)&&NAMES[n]||XKCDN.get(w)||LISTN?.get(w); return r&&{ s:'rgb', vals:r.slice() } }   // CSS's own names only – 'constructor' is none
 function parsePhrase(str){ str=str.trim().toLowerCase(); if(!str) return null
 	const PAIR=/([a-z]+)\s*[:=]?\s*(-?\d*\.?\d+)(%?)/g, pairs=[...str.matchAll(PAIR)].map(m=>[CHW[m[1]]||m[1],+m[2],!!m[3]])
 	if(pairs.length&&pairs.every(p=>p[0].length===1)&&!str.replace(PAIR,' ').replace(/[\s,;]+/g,' ').trim().replace(/^[a-z]+$/,'')){
@@ -6260,7 +6283,7 @@ function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=
 		const pin=detail.querySelector('#pinb'); if(pin&&document.activeElement!==pin) pin.value=hex(rgbB)
 		const dia=detail.querySelector('#idia'); if(dia) dia.style.background=hex(rgbB)   // the rhombus wears the endpoint colour
 		const sp0=detail.querySelector('#isp0'); if(sp0){ sp0.textContent=s; sp0.style.color=ink(rgb) }
-		const mixAt=t=>rgbF(s,mixInSpace(s,vals,B,t,huePath))
+		const mixAt=t=>rgbF(s,mixIn(s,vals,B,t,huePath))
 		const qf=qTriple(Q); let css
 		if(typeof Q==='number'){ const stops=[]
 			for(let k=0;k<Q;k++) stops.push(hex(mixAt((k+0.5)/Q).map(x2=>clamp(Math.round(x2),0,255))))
@@ -6276,10 +6299,10 @@ function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=
 		// blend paths sit one above the other (this space over the comparison)
 		const icmp=detail.querySelector('#icmp'), ispc=detail.querySelector('#ispc')
 		const list=ICMP.filter(k=>k!==s), cmp=list.length?list[cmpIdx%list.length]:null
-		if(icmp&&cmp){ try{ const a3=toSpace(cmp,rgb), b3=toSpace(cmp,rgbB), st=[]
-			for(let k=0;k<=14;k++) st.push(hex(rgbF(cmp,mixInSpace(cmp,a3,b3,k/14))))
+		if(icmp&&cmp){ try{ const a3=missing(cmp,toSpace(cmp,rgb)), b3=missing(cmp,toSpace(cmp,rgbB)), st=[]   // converted: a powerless hue missing
+			for(let k=0;k<=14;k++) st.push(hex(rgbF(cmp,mixIn(cmp,a3,b3,k/14))))
 			icmp.style.background=`linear-gradient(90deg, ${st.join(',')})`
-			if(ispc){ ispc.textContent=disp(cmp); ispc.style.color=ink(rgbF(cmp,a3)) } }catch{ icmp.style.background='none' } } } }
+			if(ispc){ ispc.textContent=disp(cmp); ispc.style.color=ink(rgb) } }catch{ icmp.style.background='none' } } } }
 	// live code snippet – js tab carries the current values; wasm/shader show the other backends
 	const snip=detail.querySelector('#snip')
 	if(snip&&!PDOWN&&!light){ if(codeTab!=='gl') snip._gk=''   // any other tab rewrites the plate – the GL text must paint again on return

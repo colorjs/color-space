@@ -14,7 +14,9 @@
  *                         space): not read
  *   GIMP palettes         .gpl (GIMP, Inkscape, Krita): "GIMP Palette", then one color per line, R G B 0–255 and a name
  */
-import { WRITE, fx, clamp, splice } from './colors.js'
+import { WRITE, fx, splice } from './colors.js'
+import { clamp } from '../../../math.js'
+import { hex } from '../../../css.js'
 
 // a JSON value's object: the balanced braces around offset i (strings skipped)
 function objectAt(text, i) {
@@ -102,7 +104,7 @@ WRITE.dtcg = (nt, to, alpha, text) => {
 	if (nt.hex && out.some(s => s != null)) { parts.push(nt.hex); out.push(WRITE.hex6(to)) }   // an edit renews the fallback, 6-digit sRGB (the spec's own rule)
 	return splice(text, parts, out)
 }
-WRITE.hex6 = to => '#' + to('rgb').map(x => Math.round(clamp(x, 0, 255)).toString(16).padStart(2, '0')).join('')
+WRITE.hex6 = to => hex(to('rgb'))
 
 /* ---------- iTerm2 ---------- */
 
