@@ -6557,6 +6557,21 @@ if(EMBED){ const embl=document.getElementById('embl'), out=()=>{ embl.href=new U
 	// the space it embeds: it opens that space's full page in a new tab instead
 	detail.addEventListener('click',e=>{ const a=e.target.closest('a[href]'), h=a&&(a.getAttribute('href')[0]==='#'?dec(a.getAttribute('href').slice(1)):spaceOf(a)); if(!h||!known(h)) return; e.preventDefault()
 		window.open(new URL(spaceURL(h),location.href).href,'_blank','noopener') }) }
+// WebMCP: where the browser offers it, an agent in this tab calls the library's tools (js/webmcp.js) and `show`, which puts
+// a dossier or a color in front of the person – a card opened as a link opens it, a color taken as the field takes one
+if(document.modelContext&&!EMBED) import('./js/webmcp.js').then(m=>m.default({ name:'show',
+	description:`Show the person, on this page, a color space's dossier (channels, ranges, primaries, transfer, references, downloads) and/or a color. \`color\` is read as the page's color field reads it: any CSS color ('#ff8000', 'oklch(0.7 0.15 50)', 'rebeccapurple'), any of the ${SPACES.length} spaces' function form ('jzazbz(0.01 0.01 0.01)'), several separated by commas, or a CSS gradient. Returns what the page now shows.`,
+	inputSchema:{ type:'object', additionalProperties:false, properties:{
+		space:{ type:'string', description:`a space id, e.g. 'oklch', 'rec2020', 'slog3' (the spaces tool lists all ${SPACES.length})` },
+		color:{ type:'string', description:"the color(s) to show, e.g. '#ff8000' or 'oklch(0.7 0.15 50), #0088ff'" } } },
+	execute({ space:s, color }={}){
+		if(s===undefined&&color===undefined) throw Error('pass `space`, `color`, or both')
+		if(s!==undefined&&!SPACES.includes(s)) throw Error(`unknown space '${s}' – the spaces tool lists all ${SPACES.length}`)
+		const p=color===undefined?null:parseInput(String(color))
+		if(color!==undefined&&!p) throw Error(`not a color the page reads: ${JSON.stringify(color)} – e.g. '#ff8000', 'oklch(0.7 0.15 50)'`)
+		if(s!==undefined&&(modal.hidden||s!==selected)) openModal(s)
+		if(p){ setStops(p.stops,p.grad); scheduleFast(); if(open()) queuePlaneSettle() }
+		return { space:open()?selected:null, color:hex(RGB()).toLowerCase() } } }))   // the color in hand – the first of several
 onLoad(()=>setTimeout(()=>{ if(!BOOT.hash&&master===M0&&!matchMedia('(prefers-reduced-motion: reduce)').matches){   // name views orbit too – a dossier first seen at neutral gray reads as an empty instrument
 	autoColor=true; autoStart=autoLast=performance.now(); autoT=0; if(document.activeElement===cvalEl) autoHold=autoStart; requestAnimationFrame(autoStep) } },300))
 // analytics (js/track.js) counts the pageview at idle – a no-op until a website id is set

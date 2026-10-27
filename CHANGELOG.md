@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `color-space/util` exports `interpolate` (CSS Color 4 interpolation of two coordinates: any hue wheel, every hue arc, a missing hue taken from the other end) and `clamp`.
 - `css.js` exports its `PREDEF`, `PCT` and `ANGLE` tables.
+- `mcp.js` exports `TOOLS` and `call(name, args)`, the tool table and its runner.
+- The site registers the MCP tools through WebMCP (`document.modelContext`), plus `show`: a space's dossier or a color, on the page.
 
 ### Changed
 

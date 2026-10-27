@@ -138,7 +138,7 @@ const CSSCOLOR = { type: 'string', description: "a CSS color instead of `from` +
 const CHANNEL = { type: 'object', required: ['symbol', 'name', 'min', 'max'], properties: { symbol: { type: 'string' }, name: { type: 'string' }, min: { type: 'number' }, max: { type: 'number' } } }
 const CHANNELS = { type: 'array', items: CHANNEL }
 
-const TOOLS = [
+export const TOOLS = [
 	{
 		name: 'convert', title: 'Convert color',
 		description: `Convert a color between any two of the ${N} color spaces, identity included, in each space's conventional ranges (rgb 0-255, oklch L 0-1 / C 0-0.4 / H 0-360, lab L 0-100 …). The color goes in as a CSS string (\`color\`) or as channel values (\`from\` + \`values\`); a batch as \`colors\` – tuples in \`from\`, CSS strings, or both. Out-of-range in, unclamped out: \`inRange\` flags each channel against the target's conventional range (rgb below 0 means outside sRGB); null = undefined at that coordinate.`,
@@ -331,7 +331,7 @@ const CALL = {
 		need(from); need(to)
 		if (!['glsl', 'wgsl', 'hlsl', 'msl'].includes(language)) throw Error('language: glsl, wgsl, hlsl or msl')
 		// loaded on first use: the full chunk registry stays off the server's startup path
-		const emit = language === 'glsl' ? (await import('./gl/index.js')).glsl : (await import(`./gl/${language}.js`)).default
+		const emit = await EMIT[language]()
 		return { language, entry: `${from.replace(/-/g, '')}_${to.replace(/-/g, '')}`, code: await emit(from, to) }
 	},
 	icc({ name, grid }) {
@@ -357,6 +357,10 @@ const CALL = {
 		return { js, python: python || null, pythonFor: python ? `sRGB ↔ ${other}, verified against ${PYVERIFIED}` : null }
 	},
 }
+
+// each language's emitter, named in full so a bundler (the site's, for WebMCP) follows them
+const EMIT = { glsl: async () => (await import('./gl/index.js')).glsl, wgsl: async () => (await import('./gl/wgsl.js')).default,
+	hlsl: async () => (await import('./gl/hlsl.js')).default, msl: async () => (await import('./gl/msl.js')).default }
 
 const BLOB = Symbol('blob')   // a tool result's binary payload, sent as an embedded resource beside its JSON
 // btoa over byte chunks: no Buffer, so the module also runs where only web APIs exist (Workers, Deno, browsers)
@@ -405,19 +409,29 @@ export async function handle(msg) {
 		try { return ok({ contents: [read(params?.uri)] }) } catch (e) { return err(e.code || -32602, e.message, { uri: params?.uri }) }
 	}
 	if (method === 'tools/call') {
-		const name = params?.name, fn = Object.hasOwn(CALL, name) ? CALL[name] : null
-		if (!fn) return err(-32602, `unknown tool '${name}' — tools: ${TOOLS.map((t) => t.name).join(', ')}`)
+		const name = params?.name
+		if (!Object.hasOwn(CALL, name)) return err(-32602, `unknown tool '${name}' — tools: ${TOOLS.map((t) => t.name).join(', ')}`)
 		// input problems come back as tool errors the model can read and correct, not protocol errors
 		try {
-			const a = params.arguments ?? {}
-			if (typeof a !== 'object' || Array.isArray(a)) throw Error('arguments must be an object')
-			const r = await fn(args(name, a))
+			const r = await call(name, params.arguments ?? {})
 			if (typeof r === 'string') return ok({ content: [{ type: 'text', text: r }] })
 			const text = { type: 'text', text: JSON.stringify(r) }
 			return ok({ content: r[BLOB] ? [text, { type: 'resource', resource: r[BLOB] }] : [text], structuredContent: r })
 		} catch (e) { return ok({ content: [{ type: 'text', text: String(e.message || e) }], isError: true }) }
 	}
 	if (id !== undefined) return err(-32601, `method '${method}' not found`)
+}
+
+/**
+ * Run one tool: its arguments checked, its result as the tool returns it – the JSON-RPC
+ * `tools/call` above and the site's WebMCP tools (web/js/webmcp.js) both come through here.
+ * @param {string} name a tool's name (TOOLS)
+ * @param {object} a its arguments
+ */
+export async function call(name, a) {
+	if (!Object.hasOwn(CALL, name)) throw Error(`unknown tool '${name}' — tools: ${TOOLS.map((t) => t.name).join(', ')}`)
+	if (!a || typeof a !== 'object' || Array.isArray(a)) throw Error('arguments must be an object')
+	return CALL[name](args(name, a))
 }
 
 // an internal failure answers the request it belongs to; a notification has no one to tell

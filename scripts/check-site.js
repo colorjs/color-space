@@ -1264,6 +1264,31 @@ try {
 		console.log(`browser (no GPU): a dossier opens through its JS painters in ${opened} ms`)
 		await sc.close() }
 
+	// WebMCP: where the browser offers document.modelContext (stubbed here – the flag isn't Playwright's to set) the page
+	// registers the MCP server's tools and its own `show`. Each library tool answers as mcp.js answers in Node, through
+	// the staged bundle and the page's own copies of the library, data and GL registry (HLSL through the vendored naga)
+	{	const wc = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' }), wp = await wc.newPage(), werr = []
+		wp.on('pageerror', (e) => werr.push(e.message))
+		await wc.addInitScript(() => { const tools = {}; document.modelContext = { tools, registerTool: async (t) => { tools[t.name] = t } } })
+		await wp.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		await wp.waitForFunction(() => Object.keys(document.modelContext.tools).length >= 9)
+		const { TOOLS, call } = await import('../mcp.js')
+		assert.deepEqual(await wp.evaluate(() => Object.keys(document.modelContext.tools).sort()), [...TOOLS.map((t) => t.name).filter((n) => n !== 'icc'), 'show'].sort(), 'WebMCP: the server\'s tools but icc, and show')
+		const run = (name, a) => wp.evaluate(async ([n, a]) => { try { return await document.modelContext.tools[n].execute(a) } catch (e) { return { error: e.message } } }, [name, a])
+		for (const [name, a] of [['convert', { color: '#ff8000', to: 'oklch' }], ['convert', { from: 'lab', colors: [[50, 20, -30], '#00ff80'], to: 'p3' }], ['gamut', { color: 'color(display-p3 1 0 0)' }],
+			['css', { color: 'rebeccapurple' }], ['space', { name: 'slog3' }], ['spaces', { query: 'hdr' }], ['cube', { from: 'rgb', to: 'oklab', size: 3 }],
+			['shader', { from: 'rgb', to: 'oklch', language: 'wgsl' }], ['shader', { from: 'rgb', to: 'oklab', language: 'hlsl' }], ['code', { color: '#ff8000', to: 'lab' }]])
+			assert.deepEqual(await run(name, a), JSON.parse(JSON.stringify(await call(name, a))), `WebMCP ${name}: the page answers as the server does`)
+		assert.match((await run('convert', { color: '#ff8000', to: 'okclh' })).error, /did you mean oklch/, 'WebMCP: a tool\'s error is the server\'s')
+		assert.deepEqual(await run('show', { space: 'oklch', color: '#ff8000' }), { space: 'oklch', color: '#ff8000' }, 'WebMCP show: the dossier and the color, in front of the person')
+		assert.equal(await wp.evaluate(() => !document.getElementById('modal').hidden && document.getElementById('detail')._s), 'oklch', '…the dossier open')
+		assert.match((await run('show', { space: 'nope' })).error, /unknown space/, 'WebMCP show: an unknown space is refused')
+		assert.match((await run('show', { color: 'not a color' })).error, /not a color/, '…and a color the page can\'t read')
+		assert.deepEqual(werr, [], 'WebMCP: no page errors')
+		await wc.close() }
+	// …and where the browser doesn't, the page asks for none of it
+	assert.equal(await page.evaluate(() => performance.getEntriesByType('resource').some((r) => /\/(mcp|js\/webmcp)\.js/.test(r.name))), false, 'no WebMCP: neither module is fetched')
+
 	if (errors.length) throw new Error(errors.join('\n'))
 	console.log('browser: search, coverage filter, CSS parsing, tabs, persisted theme, modal lifecycle, direct route, mobile keyboard, social image, offline shell, quantization boundaries and contour reuse pass')
 } finally {
