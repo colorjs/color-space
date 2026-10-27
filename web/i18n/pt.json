@@ -681,7 +681,6 @@
 "page.desc": {"t":"Coleção aberta de 221 espaços de cor: lista completa, conversor, faixas convencionais, gráficos 3D, código e exportação de LUT. Sem dependências, domínio público.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space — espaços de cor em uma coleção aberta","h":"dcfefaf6"},
 "page.og-desc": {"t":"Uma coleção aberta de 221 espaços de cor. Converta qualquer espaço em qualquer outro, nas suas faixas convencionais, com gráficos 3D, código e LUTs.","h":"f742dd50"},
-"page.space.kicker": {"t":"Espaço de cor","h":"3ad9b036"},
 "page.space.offer": {"t":"Canais, faixas e um conversor para outros {n} espaços.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"Faixas, conversor e LUTs .cube para Rec. 709, P3 e outros espaços.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"Primárias, ponto branco, matriz RGB → XYZ e um conversor para outros {n} espaços.","h":"fb32eadf"},

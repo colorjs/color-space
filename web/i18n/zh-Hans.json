@@ -681,7 +681,6 @@
 "page.desc": {"t":"221 个色彩空间的开放合集：完整列表、转换器、惯用取值范围、三维图表、代码与 LUT 导出。零依赖，公有领域。","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space——开放的色彩空间合集","h":"dcfefaf6"},
 "page.og-desc": {"t":"221 个色彩空间的开放合集。任意两个空间之间均可按惯用取值范围互相转换，附三维图表、代码与 LUT。","h":"f742dd50"},
-"page.space.kicker": {"t":"色彩空间","h":"3ad9b036"},
 "page.space.offer": {"t":"通道、取值范围，以及到其他 {n} 个色彩空间的转换器。","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"取值范围、转换器，以及转换到 Rec. 709、P3 等空间的 .cube LUT。","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"原色、白点、RGB → XYZ 矩阵，以及到其他 {n} 个色彩空间的转换器。","h":"fb32eadf"},

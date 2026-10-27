@@ -25,8 +25,12 @@
 // line on the page lays out again. Loaded now, its swap is the boot one – the one fonts.ready (and the rail) waits for
 document.fonts?.load('1em Inter','\u03b1').catch(()=>{})
 // a classic scrollbar's width (--sb), for the full-bleed bands: re-read as it comes and goes – not while a card is open,
-// whose body pads the bar's room itself
-{ const r=document.documentElement; new ResizeObserver(()=>{ if(!document.body?.classList.contains('mopen')) r.style.setProperty('--sb',innerWidth-r.clientWidth+'px') }).observe(r) }
+// whose body pads the bar's room itself. A name view arrives with its card open, the bar never shown: its width read off
+// a scroller of its own, or the close – the bar coming back – would narrow the page under the hand
+{ const r=document.documentElement, bar=()=>{ const p=document.createElement('div'); p.style.cssText='position:absolute;visibility:hidden;overflow:scroll;width:4rem;height:4rem'; document.body.append(p); const w=p.offsetWidth-p.clientWidth; p.remove(); return w }
+  new ResizeObserver(()=>{ const b=document.body; if(!b) return
+	if(!b.classList.contains('mopen')) r.style.setProperty('--sb',innerWidth-r.clientWidth+'px')
+	else if(!r.style.getPropertyValue('--sb')&&!('embed' in r.dataset)) r.style.setProperty('--sb',bar()+'px') }).observe(r) }
 // iOS zooms the page into any focused field set under 16px – the catalog's numbers, the dossier's – and no CSS turns that
 // off. Its Safari alone lets a maximum scale stop it while the reader's own pinch zoom stays free (iOS 10 on ignores the
 // cap for pinching); anywhere else the cap would lock pinch zoom, so iOS alone gets it – the fields keep their sizes
@@ -1125,7 +1129,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    take (js: hot, the nearest to the pointer) is the held picker exactly – its size, its white ring, its outline – in
    its own color, the held one resting meanwhile (cold): two states, on every instrument. On the hero's
    horseshoe and the xy plate a dot is its own target, a reach round it */
-.sto,.sts b{ position:absolute; width:var(--picker-dot-size); height:var(--picker-dot-size); translate:-50% -50%; border-radius:50%; background:#fff; pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out) }
+.sto,.sts b{ position:absolute; width:var(--picker-dot-size); height:var(--picker-dot-size); translate:-50% -50%; border-radius:50%; background:#fff; box-shadow:var(--picker-shadow); pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),box-shadow var(--dur-micro) var(--ease-out) }   /* the picker's own outline: a white mark parted from a white field */
 :is(.sto,.sts b).hot,:is(.hlocus,.gam2d) .sto:hover{ width:var(--picker-size); height:var(--picker-size); background:var(--w); border:var(--picker-ring) solid #fff; box-shadow:var(--picker-shadow-on) }
 :is(.hlocus,.gam2d) .sto::before{ content:''; position:absolute; inset:calc(-1 * var(--s1)); border-radius:50% }
 .chs.mini .sts b:not(.hot){ width:var(--picker-dot-small-size); height:var(--picker-dot-small-size) }
@@ -2543,11 +2547,11 @@ const clearImage=()=>{ HIMG=null; UIMG=null; BRUSHES.clear(); bMask=null; setMes
 	if(IMGS&&IMGS._user!=null){ IMGS.splice(IMGS._user,1); IMGS._user=null; IMG=IMGS[0]; imgIdx=0 }
 	detail.querySelectorAll('.bar2').forEach(b=>{ if(b._hist){ b._hist._p=null; b._hist.style.display='none' } })
 	cat.querySelectorAll('.ent[data-s]').forEach(e=>delete e.dataset.v)
-	if(open()){ paintPlanes(false); paintImages() } else paintCatalogVals() }
+	if(open()){ paintPlanes(false); paintImages() } else{ paintCatalogVals(); planeEnts.forEach(paintEntPlanes) } }
 const setImage=a=>{ HIMG=a; histC.clear(); histQ.clear(); histP.clear(); histV.clear(); hRev++; document.body.classList.toggle('himg',!!a)   // histV too: a REPLACED image left the old samples cached, blocking every rebin and feeding stale dots
 	meshCloud()
 	if(a?.src) pkShow()
-	if(open()) paintPlanes(false); else paintCatalogVals() }   // a dossier open when the image lands queues ITS space and repaints; the catalog does the same for its rows
+	if(open()) paintPlanes(false); else{ paintCatalogVals(); planeEnts.forEach(paintEntPlanes) } }   // a dossier open when the image lands queues ITS space and repaints; the catalog does the same for its rows
 // binning is RESUMABLE: a sample costs one conversion, and the heaviest inverses are not
 // cheap (munsell's renotation search runs ~65µs — 3000 of them would stall a frame outright),
 // so a space is binned across as many idle slices as it needs, ~8ms at a time.
@@ -2618,7 +2622,7 @@ const histSoon=()=>{ if(hT) return
 			if(!done) break   // half-binned — the next slice picks it up mid-image
 			histQ.delete(s)
 			const ent=cat.querySelector('.ent[data-s="'+CSS.escape(s)+'"]')
-			if(ent){ delete ent.dataset.v; paintCatalogVals([ent]) }
+			if(ent){ delete ent.dataset.v; paintCatalogVals([ent]); if(planeEnts.has(ent)) paintEntPlanes(ent) }
 			if(open()&&selected===s) paintPlanes(false) }   // …and the open dossier's planes, which read the same samples as a 2-D field
 		if(histQ.size) histSoon() },{timeout:400}) }
 // per-frame conversion memo: a drag frame asks for the same conversions twice (the value
@@ -2922,7 +2926,9 @@ function paintEntPlanes(ent){ const s=ent.dataset.s, cls=classify(s), vals=valsF
 		if(!(gl&&paintPlaneGL(cv,s,vals,a,b,[ca.min,ca.max],[cb.min,cb.max],GM,Q??0,false,0,QM,true)))   // deferred: copied out with the task's other kernels (gl.js cellFor)
 			try{ plane(cv.getContext('2d'),px,s,vals,a,b,[ca.min,ca.max],[cb.min,cb.max],true,GM,q) }catch{}
 		const x=pl.querySelector('.cx'); x.style.left=clamp((vals[a]-ca.min)/(ca.max-ca.min),0,1)*100+'%'; x.style.top=(1-clamp((vals[b]-cb.min)/(cb.max-cb.min),0,1))*100+'%'
-		planeMarks(pl,s,cls) }) }
+		if(HIMG) paintPlaneDensityLayer(pl,s,a,b,cls,px,px); else if(pl._density) pl._density.style.display='none'   // the image's dots, as the dossier's planes carry them – its strips' histogram in two channels at once
+		planeMarks(pl,s,cls) })
+	if(HIMG&&!histV.has(s)&&!histP.has(s)&&!histQ.has(s)){ histQ.add(s); histSoon() } }
 function planesOn(ent,on){ const s=ent.dataset.s, cls=classify(s), btn=ent.querySelector('.pvs'); if(!btn) return
 	if(on&&!ent.querySelector('.pls')) ent.querySelector('.pv>.chs').after(Object.assign(document.createElement('div'),{className:'pls',
 		innerHTML:pairsOf(cls).map(([a,b])=>`<div class="pl" data-a="${a}" data-b="${b}"><canvas></canvas><i class="cx"></i><span class="laby">${cls.ch[b].sym}</span><span class="labx">${cls.ch[a].sym}</span></div>`).join('')}))
@@ -3646,7 +3652,8 @@ let viewFromURL=null   // assigned by the injection below; the boot route calls 
 	paintLens=()=>{
 		{ const b=document.getElementById('c-layout'), n=nextView(VIEW); b.setAttribute('aria-label',n.label); b.title=n.title
 			if(b.dataset.view!==n.v){ b.dataset.view=n.v; b.querySelector('.ci').innerHTML=n.ic } }   // the layout's mark: the view it turns to – the build stamps the first visit's
-		{ const v=document.getElementById('c-view'); v.title=v.querySelector('small').textContent }   // never inked; its mark the menu's own – the settings of how every value is written and seen
+		{ const v=document.getElementById('c-view'); v.title=v.querySelector('small').textContent
+			if(v.dataset.g!==GM){ v.dataset.g=GM; v.querySelector('.ci').innerHTML=LI[GM] } }   // never inked; its mark the Limit in force – the reach every value is seen in (the build stamps the default's)
 		const now={ q:qKey(Q), m:QM, g:GM, v:VIS, n:FMT }
 		document.querySelectorAll('.dpop select[data-lens]').forEach(b=>{ b.value=now[b.dataset.lens] })
 		document.querySelectorAll('.dpop .mseg[data-lens]').forEach(b=>segShow(b,now[b.dataset.lens]))
@@ -5615,10 +5622,10 @@ function paintImages(){ const row=detail.querySelector('#imgrow'); if(!row||!row
 // cloud's voice in 2D. Density emerges from overlap (fixed per-dot alpha), not from a
 // coarse splat grid soft-scaled up (that read as blur, not as points).
 function planeDensity(pl,s,a,b,cls,w,h){
-	const rec=histV.get(s); if(!rec) return null
-	const vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}, fl=flip3(cls,a,b), pol=pl._polar, tri=pl._tri
+	const vw=pl._vw||{x0:0,x1:1,y0:0,y1:1}, fl=pl.closest('#detail')?flip3(cls,a,b):0, pol=pl._polar, tri=pl._tri   // a card's plane is never flipped (planePos)
 	const key=s+'|'+a+','+b+'|'+(pol?'p':tri?'t'+tri:'r')+'|'+vw.x0+','+vw.x1+','+vw.y0+','+vw.y1+'|'+w+'x'+h+'|'+hRev
-	if(pl._dk===key) return pl._dc
+	if(pl._dk===key) return pl._dc   // drawn: kept past the samples (histV keeps a few spaces' – a shelf of cards in planes holds more)
+	const rec=histV.get(s); if(!rec) return null
 	pl._dk=key; pl._dc=null
 	const { v, dim, n }=rec, ca=cls.ch[a], cb=cls.ch[b], msk=brushMask()
 	const cvd=Object.assign(document.createElement('canvas'),{width:w,height:h})

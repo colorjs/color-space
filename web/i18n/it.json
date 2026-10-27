@@ -681,7 +681,6 @@
 "page.desc": {"t":"Raccolta aperta di 221 spazi colore: elenco completo, convertitore, intervalli standard, grafici 3D, codice ed esportazione LUT. Senza dipendenze, pubblico dominio.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space – gli spazi colore in un’unica raccolta aperta","h":"dcfefaf6"},
 "page.og-desc": {"t":"Una raccolta aperta di 221 spazi colore. Converti qualsiasi spazio in un altro nei suoi intervalli standard, con grafici 3D, codice e LUT.","h":"f742dd50"},
-"page.space.kicker": {"t":"Spazio colore","h":"3ad9b036"},
 "page.space.offer": {"t":"Canali, intervalli e un convertitore verso altri {n} spazi.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"Intervalli, convertitore e LUT .cube verso Rec. 709, P3 e altri spazi.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"Primari, punto di bianco, matrice RGB → XYZ e un convertitore verso altri {n} spazi.","h":"fb32eadf"},

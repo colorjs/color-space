@@ -681,7 +681,6 @@
 "page.desc": {"t":"Collection ouverte de 221 espaces colorimétriques : liste complète, convertisseur, plages usuelles, graphiques 3D, code et export LUT. Sans dépendances, domaine public.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space – les espaces colorimétriques en une collection ouverte","h":"dcfefaf6"},
 "page.og-desc": {"t":"Une collection ouverte de 221 espaces colorimétriques. Convertissez d’un espace à l’autre dans ses plages usuelles, avec des graphiques 3D, du code et des LUT.","h":"f742dd50"},
-"page.space.kicker": {"t":"Espace colorimétrique","h":"3ad9b036"},
 "page.space.offer": {"t":"Canaux, plages et un convertisseur vers {n} autres espaces.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"Plages, convertisseur et LUT .cube vers Rec. 709, P3 et d’autres espaces.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"Primaires, point blanc, matrice RGB → XYZ et un convertisseur vers {n} autres espaces.","h":"fb32eadf"},

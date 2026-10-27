@@ -41,6 +41,8 @@ export const VI = {
 	grid: fi('<path d="M3 3h4.5v4.5H3zM8.5 3h4.5v4.5H8.5zM3 8.5h4.5v4.5H3zM8.5 8.5h4.5v4.5H8.5z"/>'),
 	table: fi('<path d="M3 3h4.5v1.75H3zM8.5 3h4.5v1.75H8.5zM3 5.75h4.5v1.75H3zM8.5 5.75h4.5v1.75H8.5zM3 8.5h4.5v1.75H3zM8.5 8.5h4.5v1.75H8.5zM3 11.25h4.5v1.75H3zM8.5 11.25h4.5v1.75H8.5z"/>'),   // a sheet: two equal columns, four rows – the grid's own square, cut into rows
 }
+// a curve's axes as the Limit's marks draw their locus: a hair, faint (1 of 16 there, 1.5 of 24 here) – the curve the mark
+const AXES = '<path d="M4 4v16h16" stroke-width="1.5" opacity=".45"/>'
 // what a space is and what it is for: the facets' options, the shelves' glyphs
 export const OI = {
 	// what it is for
@@ -62,13 +64,13 @@ export const OI = {
 	polar: ic('<circle cx="12" cy="12" r="8"/><path d="M12 12 17.66 6.34"/>'),   // polar coordinates: the disc, a radius from its centre to the rim – a color's angle and its distance out
 	display: ic('<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/>'),
 	scene: ic('<rect x="3" y="7" width="13" height="10" rx="1.5"/><path d="M16 10.5 21 8v8l-5-2.5"/>'),
-	gamma: ic('<path d="M4 4v16h16"/><path d="M4 20C5.5 11 11 6.5 20 5"/>'),
-	linear: ic('<path d="M4 4v16h16"/><path d="M4 20 20 5"/>'),
-	perceptual: ic('<path d="M4 4v16h16"/><path d="M4 20C4.5 9 9 5.5 20 5"/>'),
-	log: ic('<path d="M4 4v16h16"/><path d="M4 16.5C7 9 11 7 20 5.5"/>'),
-	pq: ic('<path d="M4 4v16h16"/><path d="M4 20C5 12 7 8 11 6.5S17 5 20 4.5"/>'),
-	hlg: ic('<path d="M4 4v16h16"/><path d="M4 20Q6.5 11 11 10T20 5"/>'),
-	lumachroma: ic('<path d="M4 4v16h16"/><path d="M4 20C5.5 11 11 6.5 20 5"/><path d="M8 16h3.5M13.5 16H17"/>'),   // a tone curve (the luma) over two short levels around the middle (its two chroma differences): Y′CbCr's layout
+	gamma: ic(AXES + '<path d="M4 20C5.5 11 11 6.5 20 5"/>'),
+	linear: ic(AXES + '<path d="M4 20 20 5"/>'),
+	perceptual: ic(AXES + '<path d="M4 20C4.5 9 9 5.5 20 5"/>'),
+	log: ic(AXES + '<path d="M4 16.5C7 9 11 7 20 5.5"/>'),
+	pq: ic(AXES + '<path d="M4 20C5 12 7 8 11 6.5S17 5 20 4.5"/>'),
+	hlg: ic(AXES + '<path d="M4 20Q6.5 11 11 10T20 5"/>'),
+	lumachroma: ic(AXES + '<path d="M4 20C5.5 11 11 6.5 20 5"/><path d="M8 16h3.5M13.5 16H17"/>'),   // a tone curve (the luma) over two short levels around the middle (its two chroma differences): Y′CbCr's layout
 	current: ic('<path d="M3 12h4l3-8 4 16 3-8h4"/>'),   // a pulse: alive, in use today
 	historical: ic('<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>'),   // the archive box: put away – the filter's mark and a retired card's, one sign
 	chromaticity: ic('<path d="M7 20 5.5 17 4.3 12 4.5 6 6 4 9.5 5.5 13.5 9 17 12.5 20 15.5z"/>'),

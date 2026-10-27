@@ -36,6 +36,11 @@ if (!existsSync(resolve(SITE, 'index.html'))) throw new Error(`${SITE} is missin
 	for (const pre of langs) assert.deepEqual(facts(resolve(SITE, pre + 'index.html')), en, `${pre}: the facts the English shows`)
 }
 
+// a name view's hero is the atlas's own: the space's name is its dossier's title, there while the dossier is
+{	const hero = (f) => readFileSync(resolve(SITE, f), 'utf8').match(/<h1 class="hh" id="hero-t"[^>]*>[\s\S]*?<\/h1>/)?.[0]
+	assert.equal(hero('oklch.html'), hero('index.html'), 'a name view keeps the atlas\'s title over its dossier')
+}
+
 // a menu's option, picked through the page's own handler: a lens ('q' draw, 'm' distance, 'g' limit, 'v' vision) or,
 // with 'f', a facet value
 // a menu's setting taken as a hand would: a switch's option pressed (a facet's again lets it go), a select's value set
@@ -100,6 +105,7 @@ try {
 	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="srgb"]').getAttribute('d')),true,'the Limit picked in the row\'s menu fills its own region in the locus')
 	  await lens(page,'g','vis'); await page.waitForTimeout(200)
 	  assert.equal(await page.evaluate(()=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector('.hlocus .lims path[data-g="vis"]').getAttribute('d')), true, 'Surface: its own region filled')
+	  assert.equal(await page.evaluate(()=>document.getElementById('c-view').dataset.g),'vis','the View cell\'s mark: the Limit in force')
 	  const shows=await page.evaluate(()=>matchMedia('(color-gamut: p3)').matches?'p3':'srgb')
 	  await lens(page,'g',shows); await page.evaluate(()=>{ try{ localStorage.removeItem('csGm') }catch{} })   // back to the default Limit – the display's own – through the row's own menu
 	  assert.equal(await page.evaluate(g=>document.querySelector('#hl-lim path').getAttribute('d')===document.querySelector(`.hlocus .lims path[data-g="${g}"]`).getAttribute('d'),shows), true, 'the display\'s gamut again: its own region filled') }
@@ -1286,6 +1292,15 @@ try {
 		assert.match((await run('show', { color: 'not a color' })).error, /not a color/, '…and a color the page can\'t read')
 		assert.deepEqual(werr, [], 'WebMCP: no page errors')
 		await wc.close() }
+	// an image over a card's planes: its samples as the dossier's planes draw them, a dot each, unflipped as the card's plane is
+	{	const ic = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' }), ip = await ic.newPage()
+		await ip.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		const ent = ip.locator('.ent[data-s="oklch"]').first(); await ent.scrollIntoViewIfNeeded(); await ent.locator('.pvs').click({ force: true })
+		await ip.locator('#cvfile').setInputFiles(resolve(SITE, 'img/wave.jpg'))
+		await ip.waitForFunction(() => { const d = [...document.querySelectorAll('.ent[data-s="oklch"] .pl canvas.density')]; return d.length === 3 && d.every((c) => c.style.display !== 'none') })
+		await ip.evaluate(() => document.getElementById('imgx').click())   // the image let go: its dots with it
+		assert.equal(await ip.evaluate(() => [...document.querySelectorAll('.ent[data-s="oklch"] .pl canvas.density')].every((c) => c.style.display === 'none')), true, 'an image cleared leaves no dots on a card\'s planes')
+		await ic.close() }
 	// …and where the browser doesn't, the page asks for none of it
 	assert.equal(await page.evaluate(() => performance.getEntriesByType('resource').some((r) => /\/(mcp|js\/webmcp)\.js/.test(r.name))), false, 'no WebMCP: neither module is fetched')
 

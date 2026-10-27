@@ -681,7 +681,6 @@
 "page.desc": {"t":"221 renk uzayından oluşan açık koleksiyon: tam liste, dönüştürücü, standart aralıklar, 3B grafikler, kod ve LUT dışa aktarma. Bağımlılıksız, kamu malı.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space – tek bir açık koleksiyonda renk uzayları","h":"dcfefaf6"},
 "page.og-desc": {"t":"221 renk uzayından oluşan açık koleksiyon. Herhangi bir uzayı standart aralıklarında diğerine dönüştürün; 3B grafikler, kod ve LUT'larla.","h":"f742dd50"},
-"page.space.kicker": {"t":"Renk uzayı","h":"3ad9b036"},
 "page.space.offer": {"t":"Kanallar, aralıklar ve {n} başka uzaya dönüştürücü.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"Aralıklar, dönüştürücü ve Rec. 709, P3 ile diğer uzaylara .cube LUT’ları.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"Ana renkler, beyaz nokta, RGB → XYZ matrisi ve {n} başka uzaya dönüştürücü.","h":"fb32eadf"},

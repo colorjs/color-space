@@ -681,7 +681,6 @@
 "page.desc": {"t":"Offene Sammlung von 221 Farbräumen: vollständige Liste, Konverter, übliche Wertebereiche, 3D-Diagramme, Code und LUT-Export. Keine Abhängigkeiten, gemeinfrei.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space – Farbräume in einer offenen Sammlung","h":"dcfefaf6"},
 "page.og-desc": {"t":"Eine offene Sammlung von 221 Farbräumen. Rechnen Sie jeden Farbraum in jeden anderen um – in seinen üblichen Wertebereichen, mit 3D-Diagrammen, Code und LUTs.","h":"f742dd50"},
-"page.space.kicker": {"t":"Farbraum","h":"3ad9b036"},
 "page.space.offer": {"t":"Kanäle, Wertebereiche und ein Konverter in {n} weitere Farbräume.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"Wertebereiche, Konverter und .cube-LUTs nach Rec. 709, P3 und in weitere Farbräume.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"Primärvalenzen, Weißpunkt, RGB → XYZ-Matrix und ein Konverter in {n} weitere Farbräume.","h":"fb32eadf"},

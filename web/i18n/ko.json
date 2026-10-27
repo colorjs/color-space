@@ -681,7 +681,6 @@
 "page.desc": {"t":"221개 색 공간의 오픈 컬렉션: 전체 목록, 변환기, 관례적 범위, 3D 차트, 코드, LUT 내보내기. 의존성 없음, 퍼블릭 도메인.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space – 색공간을 한데 모은 오픈 컬렉션","h":"dcfefaf6"},
 "page.og-desc": {"t":"221개 색 공간의 오픈 컬렉션. 어떤 색 공간이든 관례적 범위 그대로 다른 색 공간으로 변환하고, 3D 차트, 코드, LUT를 제공.","h":"f742dd50"},
-"page.space.kicker": {"t":"색 공간","h":"3ad9b036"},
 "page.space.offer": {"t":"채널, 범위, 다른 색공간 {n}개로의 변환기.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"범위, 변환기, Rec. 709·P3 등으로의 .cube LUT.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"원색, 백색점, RGB → XYZ 행렬, 다른 색공간 {n}개로의 변환기.","h":"fb32eadf"},

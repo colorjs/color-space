@@ -681,7 +681,6 @@
 "page.desc": {"t":"An open collection of 221 color spaces: complete list, converter, conventional ranges, 3D charts, code and LUT export. Zero dependencies, public domain.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space – color spaces in one open collection","h":"dcfefaf6"},
 "page.og-desc": {"t":"An open collection of 221 color spaces. Convert any space to any other in its conventional ranges, with 3D charts, code and LUTs.","h":"f742dd50"},
-"page.space.kicker": {"t":"Color space","h":"3ad9b036"},
 "page.space.offer": {"t":"Channels, ranges and a converter to {n} other spaces.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"Ranges, converter and .cube LUTs to Rec. 709, P3 and other spaces.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"Primaries, white point, RGB → XYZ matrix and a converter to {n} other spaces.","h":"fb32eadf"},

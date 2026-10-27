@@ -241,7 +241,6 @@ const spaceDoc = (html, s) => {
 	h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(lut ? t('page.space.title-lut', '{name} color space – channels, ranges, conversion LUT | color-space', { name: full })
 		: rgb ? t('page.space.title-rgb', '{name} color space – primaries, XYZ matrix, conversion | color-space', { name: full })
 		: t('page.space.title', '{name} color space – channels, ranges, conversion | color-space', { name: full }))}</title>`)
-	h = swap(h, /<h1 class="hh" id="hero-t"[^>]*>[\s\S]*?<\/h1>/, () => `<h1 class="hh" id="hero-t"><span class="hk">${esc(t('page.space.kicker', 'Color space'))}</span> ${esc(name)}</h1>`)
 	h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)
 	h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(t('page.space.og-title', '{name} color space – color-space', { name }))}">`)
 	h = swap(h, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(short)}">`)

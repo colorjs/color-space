@@ -681,7 +681,6 @@
 "page.desc": {"t":"Koleksi terbuka 221 ruang warna: daftar lengkap, konverter, rentang konvensional, grafik 3D, kode, dan ekspor LUT. Tanpa dependensi, domain publik.","h":"eb1ab329"},
 "page.og-alt": {"t":"color-space—ruang warna dalam satu koleksi terbuka","h":"dcfefaf6"},
 "page.og-desc": {"t":"Koleksi terbuka 221 ruang warna. Konversi ruang apa pun ke ruang lain dalam rentang konvensionalnya, dengan grafik 3D, kode, dan LUT.","h":"f742dd50"},
-"page.space.kicker": {"t":"Ruang warna","h":"3ad9b036"},
 "page.space.offer": {"t":"Kanal, rentang, dan konverter ke {n} ruang lain.","h":"3f7359d6"},
 "page.space.offer-lut": {"t":"Rentang, konverter, dan LUT .cube ke Rec. 709, P3, dan ruang lain.","h":"01a9bcba"},
 "page.space.offer-rgb": {"t":"Warna primer, titik putih, matriks RGB → XYZ, dan konverter ke {n} ruang lain.","h":"fb32eadf"},
