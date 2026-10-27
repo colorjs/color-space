@@ -1280,11 +1280,13 @@ try {
 		await wp.waitForFunction(() => Object.keys(document.modelContext.tools).length >= 9)
 		const { TOOLS, call } = await import('../mcp.js')
 		assert.deepEqual(await wp.evaluate(() => Object.keys(document.modelContext.tools).sort()), [...TOOLS.map((t) => t.name).filter((n) => n !== 'icc'), 'show'].sort(), 'WebMCP: the server\'s tools but icc, and show')
+		// numbers to 12 significant digits: Chrome's V8 and this Node's may round a last bit apart (CI's Node 22 did, in lab → p3)
+		const sig = (r) => JSON.parse(JSON.stringify(r, (k, v) => typeof v === 'number' ? +v.toPrecision(12) : v))
 		const run = (name, a) => wp.evaluate(async ([n, a]) => { try { return await document.modelContext.tools[n].execute(a) } catch (e) { return { error: e.message } } }, [name, a])
 		for (const [name, a] of [['convert', { color: '#ff8000', to: 'oklch' }], ['convert', { from: 'lab', colors: [[50, 20, -30], '#00ff80'], to: 'p3' }], ['gamut', { color: 'color(display-p3 1 0 0)' }],
 			['css', { color: 'rebeccapurple' }], ['space', { name: 'slog3' }], ['spaces', { query: 'hdr' }], ['cube', { from: 'rgb', to: 'oklab', size: 3 }],
 			['shader', { from: 'rgb', to: 'oklch', language: 'wgsl' }], ['shader', { from: 'rgb', to: 'oklab', language: 'hlsl' }], ['code', { color: '#ff8000', to: 'lab' }]])
-			assert.deepEqual(await run(name, a), JSON.parse(JSON.stringify(await call(name, a))), `WebMCP ${name}: the page answers as the server does`)
+			assert.deepEqual(sig(await run(name, a)), sig(await call(name, a)), `WebMCP ${name}: the page answers as the server does`)
 		assert.match((await run('convert', { color: '#ff8000', to: 'okclh' })).error, /did you mean oklch/, 'WebMCP: a tool\'s error is the server\'s')
 		assert.deepEqual(await run('show', { space: 'oklch', color: '#ff8000' }), { space: 'oklch', color: '#ff8000' }, 'WebMCP show: the dossier and the color, in front of the person')
 		assert.equal(await wp.evaluate(() => !document.getElementById('modal').hidden && document.getElementById('detail')._s), 'oklch', '…the dossier open')
