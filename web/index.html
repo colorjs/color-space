@@ -2802,6 +2802,12 @@ const TERMS={
 	[t('term.eotf','EOTF')]:t('term.eotf.tip','electro-optical transfer function – code value in, display light out (the display curve)'),
 	[t('term.pq','PQ')]:t('term.pq.tip','perceptual quantizer (SMPTE ST 2084) – the absolute-luminance HDR curve, up to 10,000 nits'),
 	[t('term.observer','standard observer')]:t('term.observer.tip','the CIE-averaged human eye – the color-matching functions colorimetry is built on') }
+// every space's name as the prose writes it, the longest first (Linear-light sRGB before sRGB) – but a name the
+// descriptions also write in lower case, a word there before a name (Gray, Wavelength); built at the first dossier
+let SNAMES_
+const SNAMES=()=>SNAMES_??=(()=>{ const w=new Set(SPACES.flatMap(x=>meta[x]?.description?.match(/\p{L}+/gu)||[]))
+	return SPACES.map(x=>[disp(x),x]).filter(([n])=>!(/^\p{Lu}\p{Ll}+$/u.test(n)&&w.has(n.toLowerCase()))).sort((a,b)=>b[0].length-a[0].length)
+		.map(([n,x])=>[x,new RegExp(n.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&'),'gu')]) })()
 
 // ── catalog ──
 const cat=document.getElementById('cat')
@@ -5006,20 +5012,24 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	const EC=new Map(), edges=s2=>{ let e=EC.get(s2); if(e) return e; e=new Set([0,s2.length]); for(const g of SEG.segment(s2)){ e.add(g.index); e.add(g.index+g.segment.length) } EC.set(s2,e); return e }
 	const whole=(rx,s2)=>{ for(const m2 of s2.matchAll(rx)){ const a=m2.index, z=a+m2[0].length, nb=(s2[a-1]||'')+(s2[z]||'')
 		const e=SEG&&edges(s2), tail=PST?.exec(s2.slice(z))?.[0].length||0
-		if(e?(e.has(a)||PRE?.test(s2[a-1])&&e.has(a-1))&&(e.has(z)||tail&&e.has(z+tail))&&!/[_-]/.test(nb):!/[\p{L}\p{M}\p{N}_-]/u.test(nb)) return m2 } }   // a hyphen joins: display-referred is one word; a vowel sign (\p{M}) is inside one
+		if(e?(e.has(a)||PRE?.test(s2[a-1])&&e.has(a-1))&&(e.has(z)||tail&&e.has(z+tail))&&!/[_\p{Pd}]/u.test(nb):!/[\p{L}\p{M}\p{N}_\p{Pd}]/u.test(nb)) return m2 } }   // a dash joins: display-referred is one word, Hunt–Pointer–Estévez one name; a vowel sign (\p{M}) is inside one
 	// what a language writes onto a word: Arabic's and, so, by, for, as before it («ونطاق الألوان»), Korean's particles
 	// after it (백색점은) – the term is still there
 	const PRE={ ar:/[وفبلك]/ }[LANG.split('-')[0]], PST={ ko:/^(?:에서는|으로는|에서|에는|으로|이며|이고|이나|까지|부터|보다|처럼|와의|과의|입니다|이다|은|는|이|가|을|를|과|와|의|에|로|도|만|나)/ }[LANG.split('-')[0]]
-	for(const el of detail.querySelectorAll('.desc, .dnotes p')) for(const [t,tip] of Object.entries(TERMS)){
-		const rx=new RegExp(t.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&'),'giu')
-		const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT)
+	// the first match of rx in el's prose, outside a term or a link, becomes the element mk() makes
+	const mark=(el,rx,mk)=>{ const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT)
 		let n; while(n=w.nextNode()){ if(n.parentNode.closest('.term,a')) continue
 			const m2=whole(rx,n.nodeValue); if(!m2) continue
 			n.splitText(m2.index+m2[0].length)
-			const tn=n.splitText(m2.index)
-			const sp=document.createElement('span'); sp.className='term'; sp.title=tip; sp.tabIndex=0; sp.textContent=tn.nodeValue
-			tn.replaceWith(sp)
-			break } }
+			const tn=n.splitText(m2.index), x=mk(); x.textContent=tn.nodeValue
+			tn.replaceWith(x)
+			return true } }
+	const prose=[...detail.querySelectorAll('.desc, .dnotes p')]
+	// another space the prose names opens its dossier – its first mention in the card, a link the stamped page carries
+	// for crawlers too (the name views ship no catalog)
+	for(const [s2,rx] of SNAMES()) if(s2!==s) prose.some(el=>mark(el,rx,()=>{ const a=document.createElement('a'); a.setAttribute('href',s2); return a }))
+	for(const el of prose) for(const [t,tip] of Object.entries(TERMS))
+		mark(el,new RegExp(t.replace(/[.*+?^$\{\}()|[\]\\]/g,'\\$&'),'giu'),()=>{ const sp=document.createElement('span'); sp.className='term'; sp.title=tip; sp.tabIndex=0; return sp })
 	detail.querySelectorAll('.tag[title]').forEach(tag=>{ if(!tag.matches('button')) tag.tabIndex=0 })
 	detail.querySelectorAll('.bar2').forEach(bar=>wireBar(bar,s))
 	if(!detail._nrgWired){ detail._nrgWired=true
