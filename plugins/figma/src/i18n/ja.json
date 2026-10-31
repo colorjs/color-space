@@ -1,362 +1,92 @@
 {
-  "@meta": {
-    "name": "日本語",
-    "reviewed": null
-  },
-  "pl.about.by": {
-    "t": "作者：",
-    "h": "40815864"
-  },
-  "pl.about.support": {
-    "t": "プロジェクトを支援",
-    "h": "f32d5a3b"
-  },
-  "pl.alpha": {
-    "t": "不透明度",
-    "h": "f0fa69f3"
-  },
-  "pl.alpha.slider": {
-    "t": "不透明度のスライダー",
-    "h": "eba4c9b9"
-  },
-  "pl.axis.across": {
-    "t": "横軸：{name}",
-    "h": "ccfbeb87"
-  },
-  "pl.axis.around": {
-    "t": "角度：{name}",
-    "h": "5b613827"
-  },
-  "pl.axis.out": {
-    "t": "半径：{name}",
-    "h": "1965bef2"
-  },
-  "pl.axis.swap": {
-    "t": "{axis}。クリックで{other}に切り替え",
-    "h": "689c399f"
-  },
-  "pl.axis.up": {
-    "t": "縦軸：{name}",
-    "h": "1f2e239c"
-  },
-  "pl.busy": {
-    "t": "読み込み中…",
-    "h": "33ce4174"
-  },
-  "pl.ch.slider": {
-    "t": "{name}のスライダー",
-    "h": "05035347"
-  },
-  "pl.channels": {
-    "t": "チャンネル",
-    "h": "18e03e2a"
-  },
-  "pl.close": {
-    "t": "閉じる",
-    "h": "bbfa773e"
-  },
-  "pl.copied": {
-    "t": "{value} をコピーしました",
-    "h": "7e5f167e"
-  },
-  "pl.copy": {
-    "t": "コピー",
-    "h": "af74f7c5"
-  },
-  "pl.copy.as": {
-    "t": "形式を選んでコピー",
-    "h": "ae97334a"
-  },
-  "pl.dot.edit": {
-    "t": "{what}を編集",
-    "h": "ebb32732"
-  },
-  "pl.dot.paint": {
-    "t": "{layer}、{where}",
-    "h": "6d6831b8"
-  },
-  "pl.dot.src": {
-    "t": "、{type} {name}",
-    "h": "0c005667"
-  },
-  "pl.dots.others": {
-    "t": "選択中のほかの色",
-    "h": "41830e3b"
-  },
-  "pl.dots.pixels": {
-    "t": "画像のピクセル",
-    "h": "7125d5bd"
-  },
-  "pl.drop.label": {
-    "t": "画面から色を選ぶ",
-    "h": "e43f8978"
-  },
-  "pl.drop.tip": {
-    "t": "画面から選ぶ",
-    "h": "f11091db"
-  },
-  "pl.empty.hint": {
-    "t": "単色の塗り、グラデーション、画像のいずれかがあるレイヤーを選択してください。",
-    "h": "6f0c0632"
-  },
-  "pl.empty.reading": {
-    "t": "画像を読み込んでいます…",
-    "h": "0f94976a"
-  },
-  "pl.err.copy": {
-    "t": "ここではクリップボードを使えません。値：{value}",
-    "h": "450d3006"
-  },
-  "pl.err.dropper": {
-    "t": "ここではスポイトツールを使えません。",
-    "h": "3625962f"
-  },
-  "pl.err.nocolor": {
-    "t": "その{space}の値に対応する色はありません。",
-    "h": "016e93d5"
-  },
-  "pl.err.value": {
-    "t": "色ではありません：{text}",
-    "h": "c39d3657"
-  },
-  "pl.fmt.mapped": {
-    "t": "{value}：sRGBに色域マッピング済み",
-    "h": "a1f3fded"
-  },
-  "pl.fold": {
-    "t": "統合",
-    "h": "ea8f0d02"
-  },
-  "pl.gamut": {
-    "t": "色域",
-    "h": "09b42dc9"
-  },
-  "pl.gamut.in": {
-    "t": "{gamut}の色域内。",
-    "h": "c773cbdc"
-  },
-  "pl.gamut.out": {
-    "t": "{gamut}の色域外、色域内にマッピング済み。",
-    "h": "a86a31a2"
-  },
-  "pl.gamut.snapped": {
-    "t": "{name}に合わせました。",
-    "h": "5c74857c"
-  },
-  "pl.grip.label": {
-    "t": "パネルの幅",
-    "h": "c9f20427"
-  },
-  "pl.hint.axis": {
-    "t": "1チャンネルに沿ってドラッグ",
-    "h": "c27bfc42"
-  },
-  "pl.hint.fine": {
-    "t": "細かくドラッグ、スナップなし",
-    "h": "e0d57f7d"
-  },
-  "pl.hint.measure": {
-    "t": "別のカラーを測る",
-    "h": "cddc738f"
-  },
-  "pl.hint.ten": {
-    "t": "値を×10で変更",
-    "h": "60bdf5cb"
-  },
-  "pl.hint.whole": {
-    "t": "平面全体",
-    "h": "da785ad3"
-  },
-  "pl.hint.zoom": {
-    "t": "平面をズーム",
-    "h": "26fd3e84"
-  },
-  "pl.hints": {
-    "t": "ヒント",
-    "h": "eef8e89a"
-  },
-  "pl.key.dblclick": {
-    "t": "ダブルクリック",
-    "h": "1a1729fa"
-  },
-  "pl.key.scroll": {
-    "t": "スクロール",
-    "h": "090a3c80"
-  },
-  "pl.marks": {
-    "t": "ファイル内の色",
-    "h": "b3146392"
-  },
-  "pl.measure.large": {
-    "t": "AA 大",
-    "h": "b0fcb261"
-  },
-  "pl.menu.all": {
-    "t": "すべての色空間",
-    "h": "625ecd25"
-  },
-  "pl.menu.featured": {
-    "t": "注目",
-    "h": "ae31ad5d"
-  },
-  "pl.menu.group": {
-    "t": "系統",
-    "h": "4efb6cb7"
-  },
-  "pl.menu.label": {
-    "t": "色空間",
-    "h": "730220c3"
-  },
-  "pl.menu.more": {
-    "t": "その他",
-    "h": "4bab2d8f"
-  },
-  "pl.menu.none": {
-    "t": "その名前の色空間はありません",
-    "h": "caccce80"
-  },
-  "pl.menu.search": {
-    "t": "色空間を検索",
-    "h": "8e797c41"
-  },
-  "pl.mode.square": {
-    "t": "正方形で表示",
-    "h": "512e7c34"
-  },
-  "pl.mode.tip.square": {
-    "t": "正方形",
-    "h": "82810cb9"
-  },
-  "pl.mode.tip.wheel": {
-    "t": "ホイール",
-    "h": "0d972afc"
-  },
-  "pl.mode.wheel": {
-    "t": "ホイールで表示",
-    "h": "ee941269"
-  },
-  "pl.note.dev": {
-    "t": "Dev Modeは読み取り専用です。下の値をコピーしてください。",
-    "h": "b96e7905"
-  },
-  "pl.note.dots": {
-    "t": "点は{list}です。",
-    "h": "551ab9a8"
-  },
-  "pl.note.editing": {
-    "t": "{type}「{name}」を編集中：これを使うすべてのレイヤーが変わります。",
-    "h": "e5be5d80"
-  },
-  "pl.note.lossy": {
-    "t": "{space}ではこの色を正確に表せません。表示中の値は最も近い{space}の色で、編集するとその値が書き込まれます。",
-    "h": "3b5d84ef"
-  },
-  "pl.note.mixed": {
-    "t": "塗りが混在するテキストはスキップします。全体が同じ塗りのテキストを選択してください。",
-    "h": "faaa5eec"
-  },
-  "pl.note.more": {
-    "t": "最初の{n}色を表示しています。",
-    "h": "12f4e326"
-  },
-  "pl.note.novalue": {
-    "t": "この色には{space}の値がありません。",
-    "h": "6785dd42"
-  },
-  "pl.note.remote": {
-    "t": "この色は{type}「{name}」のもので、このファイルでは編集できません。定義されている場所で編集してください。",
-    "h": "0e0e08b2"
-  },
-  "pl.note.virtual": {
-    "t": "色を編集するには、塗りか線を選択してください。",
-    "h": "137577e0"
-  },
-  "pl.paints": {
-    "t": "選択範囲の色",
-    "h": "49f2849b"
-  },
-  "pl.picker": {
-    "t": "カラーピッカー",
-    "h": "b0220777"
-  },
-  "pl.plane.plane": {
-    "t": "{a}と{b}の平面",
-    "h": "16031466"
-  },
-  "pl.plane.wheel": {
-    "t": "{a}と{b}のホイール",
-    "h": "29862ab2"
-  },
-  "pl.prm": {
-    "t": "設定",
-    "h": "c7f73bb5"
-  },
-  "pl.quant.565": {
-    "t": "16ビット",
-    "h": "dc40838b"
-  },
-  "pl.quant.tip": {
-    "t": "量子化：{name}、{tip}",
-    "h": "3099bfe2"
-  },
-  "pl.row.image": {
-    "t": "画像",
-    "h": "0e762927"
-  },
-  "pl.scope": {
-    "t": "表示する色",
-    "h": "87cba4d7"
-  },
-  "pl.scope.page": {
-    "t": "このページ",
-    "h": "7e439c35"
-  },
-  "pl.scope.selection": {
-    "t": "選択範囲",
-    "h": "05adeee2"
-  },
-  "pl.snap": {
-    "t": "カラーにスナップ",
-    "h": "7cd49dc0"
-  },
-  "pl.space.label": {
-    "t": "色空間",
-    "h": "3ad9b036"
-  },
-  "pl.src.style": {
-    "t": "スタイル",
-    "h": "26ec8d00"
-  },
-  "pl.src.variable": {
-    "t": "バリアブル",
-    "h": "b46d0172"
-  },
-  "pl.tip.more": {
-    "t": "+{n} 件",
-    "h": "85104219"
-  },
-  "pl.value": {
-    "t": "値",
-    "h": "8dce170d"
-  },
-  "pl.void": {
-    "t": "色ではありません",
-    "h": "4fd77c42"
-  },
-  "pl.where.fill": {
-    "t": "塗り{n}",
-    "h": "36efc2ba"
-  },
-  "pl.where.hidden": {
-    "t": "、非表示",
-    "h": "2b33630e"
-  },
-  "pl.where.stop": {
-    "t": "、ストップ{n}",
-    "h": "04957b4a"
-  },
-  "pl.where.stroke": {
-    "t": "線{n}",
-    "h": "376544d9"
-  }
+"@meta": {"name":"日本語","reviewed":null},
+"pl.about.by": "作者：",
+"pl.about.support": "プロジェクトを支援",
+"pl.alpha": "不透明度",
+"pl.alpha.slider": "不透明度のスライダー",
+"pl.axis.across": "横軸：{name}",
+"pl.axis.around": "角度：{name}",
+"pl.axis.out": "半径：{name}",
+"pl.axis.swap": "{axis}。クリックで{other}に切り替え",
+"pl.axis.up": "縦軸：{name}",
+"pl.busy": "読み込み中…",
+"pl.ch.slider": "{name}のスライダー",
+"pl.channels": "チャンネル",
+"pl.close": "閉じる",
+"pl.copied": "{value} をコピーしました",
+"pl.copy": "コピー",
+"pl.copy.as": "形式を選んでコピー",
+"pl.dot.edit": "{what}を編集",
+"pl.dot.paint": "{layer}、{where}",
+"pl.dot.src": "、{type} {name}",
+"pl.dots.others": "選択中のほかの色",
+"pl.dots.pixels": "画像のピクセル",
+"pl.drop.label": "画面から色を選ぶ",
+"pl.drop.tip": "画面から選ぶ",
+"pl.empty.hint": "単色の塗り、グラデーション、画像のいずれかがあるレイヤーを選択してください。",
+"pl.empty.reading": "画像を読み込んでいます…",
+"pl.err.copy": "ここではクリップボードを使えません。値：{value}",
+"pl.err.dropper": "ここではスポイトツールを使えません。",
+"pl.err.nocolor": "その{space}の値に対応する色はありません。",
+"pl.err.value": "色ではありません：{text}",
+"pl.fmt.mapped": "{value}：sRGBに色域マッピング済み",
+"pl.fold": "統合",
+"pl.gamut": "色域",
+"pl.gamut.in": "{gamut}の色域内。",
+"pl.gamut.out": "{gamut}の色域外、色域内にマッピング済み。",
+"pl.gamut.snapped": "{name}に合わせました。",
+"pl.grip.label": "パネルの幅",
+"pl.hint.axis": "1チャンネルに沿ってドラッグ",
+"pl.hint.fine": "細かくドラッグ、スナップなし",
+"pl.hint.measure": "別のカラーを測る",
+"pl.hint.ten": "値を×10で変更",
+"pl.hint.whole": "平面全体",
+"pl.hint.zoom": "平面をズーム",
+"pl.hints": "ヒント",
+"pl.key.dblclick": "ダブルクリック",
+"pl.key.scroll": "スクロール",
+"pl.marks": "ファイル内の色",
+"pl.measure.large": "AA 大",
+"pl.menu.all": "すべての色空間",
+"pl.menu.featured": "注目",
+"pl.menu.group": "系統",
+"pl.menu.label": "色空間",
+"pl.menu.more": "その他",
+"pl.menu.none": "その名前の色空間はありません",
+"pl.menu.search": "色空間を検索",
+"pl.mode.square": "正方形で表示",
+"pl.mode.tip.square": "正方形",
+"pl.mode.tip.wheel": "ホイール",
+"pl.mode.wheel": "ホイールで表示",
+"pl.note.dev": "Dev Modeは読み取り専用です。下の値をコピーしてください。",
+"pl.note.dots": "点は{list}です。",
+"pl.note.editing": "{type}「{name}」を編集中：これを使うすべてのレイヤーが変わります。",
+"pl.note.lossy": "{space}ではこの色を正確に表せません。表示中の値は最も近い{space}の色で、編集するとその値が書き込まれます。",
+"pl.note.mixed": "塗りが混在するテキストはスキップします。全体が同じ塗りのテキストを選択してください。",
+"pl.note.more": "最初の{n}色を表示しています。",
+"pl.note.novalue": "この色には{space}の値がありません。",
+"pl.note.remote": "この色は{type}「{name}」のもので、このファイルでは編集できません。定義されている場所で編集してください。",
+"pl.note.virtual": "色を編集するには、塗りか線を選択してください。",
+"pl.paints": "選択範囲の色",
+"pl.picker": "カラーピッカー",
+"pl.plane.plane": "{a}と{b}の平面",
+"pl.plane.wheel": "{a}と{b}のホイール",
+"pl.prm": "設定",
+"pl.quant.565": "16ビット",
+"pl.quant.tip": "量子化：{name}、{tip}",
+"pl.row.image": "画像",
+"pl.scope": "表示する色",
+"pl.scope.page": "このページ",
+"pl.scope.selection": "選択範囲",
+"pl.snap": "カラーにスナップ",
+"pl.space.label": "色空間",
+"pl.src.style": "スタイル",
+"pl.src.variable": "バリアブル",
+"pl.tip.more": "+{n} 件",
+"pl.value": "値",
+"pl.void": "色ではありません",
+"pl.where.fill": "塗り{n}",
+"pl.where.hidden": "、非表示",
+"pl.where.stop": "、ストップ{n}",
+"pl.where.stroke": "線{n}"
 }

@@ -2622,8 +2622,8 @@ try {
 
 	/* ---------- 8. languages: the browser's, where the plugin has a table for it, else English ---------- */
 	{
-		const tr = l => Object.fromEntries(Object.entries(JSON.parse(readFileSync(dir + `src/i18n/${l}.json`, 'utf8'))).filter(([k]) => k !== '@meta').map(([k, v]) => [k, v.t]))
-		const site = l => Object.fromEntries(Object.entries(JSON.parse(readFileSync(new URL(`../web/i18n/${l}.json`, import.meta.url), 'utf8'))).filter(([k]) => k !== '@meta').map(([k, v]) => [k, v.t]))
+		const tr = l => JSON.parse(readFileSync(dir + `src/i18n/${l}.json`, 'utf8'))
+		const site = l => JSON.parse(readFileSync(new URL(`../web/i18n/${l}.json`, import.meta.url), 'utf8'))
 		const node = { id: '8:1', name: 'Swatch', type: 'RECTANGLE', fills: [solid(0.25, 0.5, 0.75)], strokes: [] }
 		// the browser's languages as the panel's first script reads them (the mock sets navigator.languages: an emulated
 		// locale reaches a sandboxed frame only after its first script has run)

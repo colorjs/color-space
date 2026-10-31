@@ -88,9 +88,8 @@ const rewrite = (file, pairs) => {
 }
 
 export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = {}) {
-	// i18n guard: en.json is what translators translate and what every h is checked against —
-	// an English edit (index.html, data.json, lore…) not re-extracted would leave translations
-	// of OLD English passing as fresh. Same contract as the reach guard below
+	// i18n guard: keep the translators' English catalog in sync with its sources.
+	// Existing translations survive wording changes; CI reports those changes for review.
 	const { catalog } = await import('./i18n-extract.js'), { plan } = await import('./i18n.js'), { SPACES } = await import('../web/js/render.js')
 	if (!existsSync(join(i18n, 'en.json')) || readFileSync(join(i18n, 'en.json'), 'utf8') !== await catalog())
 		throw new Error(`build-site: ${join(i18n, 'en.json')} is stale — the English changed; run: npm run i18n`)

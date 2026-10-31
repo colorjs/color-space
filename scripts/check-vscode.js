@@ -781,7 +781,7 @@ try {
 			const lang = await s.page.evaluate(() => [document.documentElement.dataset.lang, document.documentElement.lang])
 			const tr = loc === 'zh-tw' ? null : JSON.parse(readFileSync(dir + `src/i18n/${code[loc] || loc}.json`, 'utf8'))
 			const page = await s.page.locator('#scope option[value="page"]').textContent()
-			ok(lang[0] === loc && lang[1] === (tr ? code[loc] || loc : 'en') && page === (tr ? tr['pl.scope.page'].t : 'In this file'), `VS Code in ${loc}: the panel in ${lang[1]}, "${page}"`)
+			ok(lang[0] === loc && lang[1] === (tr ? code[loc] || loc : 'en') && page === (tr ? tr['pl.scope.page'] : 'In this file'), `VS Code in ${loc}: the panel in ${lang[1]}, "${page}"`)
 			ok(!s.errors.length, `${loc} page errors: ${s.errors.join(' | ')}`)
 			await s.close()
 		}

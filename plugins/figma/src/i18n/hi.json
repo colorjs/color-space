@@ -1,362 +1,92 @@
 {
-  "@meta": {
-    "name": "हिन्दी",
-    "reviewed": null
-  },
-  "pl.about.by": {
-    "t": "निर्माता:",
-    "h": "40815864"
-  },
-  "pl.about.support": {
-    "t": "साथ दें",
-    "h": "f32d5a3b"
-  },
-  "pl.alpha": {
-    "t": "अपारदर्शिता",
-    "h": "f0fa69f3"
-  },
-  "pl.alpha.slider": {
-    "t": "ओपेसिटी स्लाइडर",
-    "h": "eba4c9b9"
-  },
-  "pl.axis.across": {
-    "t": "{name} आड़ा",
-    "h": "ccfbeb87"
-  },
-  "pl.axis.around": {
-    "t": "{name} चक्र के चारों ओर",
-    "h": "5b613827"
-  },
-  "pl.axis.out": {
-    "t": "{name} केंद्र से बाहर की ओर",
-    "h": "1965bef2"
-  },
-  "pl.axis.swap": {
-    "t": "{axis}। {other} पर बदलने के लिए क्लिक करें",
-    "h": "689c399f"
-  },
-  "pl.axis.up": {
-    "t": "{name} खड़ा",
-    "h": "1f2e239c"
-  },
-  "pl.busy": {
-    "t": "लोड हो रहा है…",
-    "h": "33ce4174"
-  },
-  "pl.ch.slider": {
-    "t": "{name} स्लाइडर",
-    "h": "05035347"
-  },
-  "pl.channels": {
-    "t": "चैनल",
-    "h": "18e03e2a"
-  },
-  "pl.close": {
-    "t": "बंद करें",
-    "h": "bbfa773e"
-  },
-  "pl.copied": {
-    "t": "{value} कॉपी किया गया",
-    "h": "7e5f167e"
-  },
-  "pl.copy": {
-    "t": "कॉपी करें",
-    "h": "af74f7c5"
-  },
-  "pl.copy.as": {
-    "t": "इस रूप में कॉपी करें",
-    "h": "ae97334a"
-  },
-  "pl.dot.edit": {
-    "t": "{what} बदलें",
-    "h": "ebb32732"
-  },
-  "pl.dot.paint": {
-    "t": "{layer}, {where}",
-    "h": "6d6831b8"
-  },
-  "pl.dot.src": {
-    "t": ", {name} {type}",
-    "h": "0c005667"
-  },
-  "pl.dots.others": {
-    "t": "चुने गए दूसरे रंग",
-    "h": "41830e3b"
-  },
-  "pl.dots.pixels": {
-    "t": "इमेज के पिक्सेल",
-    "h": "7125d5bd"
-  },
-  "pl.drop.label": {
-    "t": "स्क्रीन से रंग चुनें",
-    "h": "e43f8978"
-  },
-  "pl.drop.tip": {
-    "t": "स्क्रीन से चुनें",
-    "h": "f11091db"
-  },
-  "pl.empty.hint": {
-    "t": "सॉलिड फ़िल, ग्रेडिएंट या इमेज वाली लेयर चुनें।",
-    "h": "6f0c0632"
-  },
-  "pl.empty.reading": {
-    "t": "इमेज पढ़ी जा रही है…",
-    "h": "0f94976a"
-  },
-  "pl.err.copy": {
-    "t": "क्लिपबोर्ड यहाँ उपलब्ध नहीं है। मान: {value}",
-    "h": "450d3006"
-  },
-  "pl.err.dropper": {
-    "t": "आईड्रॉपर यहाँ उपलब्ध नहीं है।",
-    "h": "3625962f"
-  },
-  "pl.err.nocolor": {
-    "t": "इन {space} मानों से कोई रंग नहीं बनता।",
-    "h": "016e93d5"
-  },
-  "pl.err.value": {
-    "t": "रंग नहीं: {text}",
-    "h": "c39d3657"
-  },
-  "pl.fmt.mapped": {
-    "t": "{value}: sRGB में मैप किया गया",
-    "h": "a1f3fded"
-  },
-  "pl.fold": {
-    "t": "मिलाएँ",
-    "h": "ea8f0d02"
-  },
-  "pl.gamut": {
-    "t": "गैमट",
-    "h": "09b42dc9"
-  },
-  "pl.gamut.in": {
-    "t": "{gamut} के भीतर।",
-    "h": "c773cbdc"
-  },
-  "pl.gamut.out": {
-    "t": "{gamut} से बाहर, भीतर मैप किया गया।",
-    "h": "a86a31a2"
-  },
-  "pl.gamut.snapped": {
-    "t": "{name} पर स्नैप किया गया।",
-    "h": "5c74857c"
-  },
-  "pl.grip.label": {
-    "t": "पैनल की चौड़ाई",
-    "h": "c9f20427"
-  },
-  "pl.hint.axis": {
-    "t": "एक चैनल पर खींचें",
-    "h": "c27bfc42"
-  },
-  "pl.hint.fine": {
-    "t": "बारीकी से खींचें, बिना स्नैप",
-    "h": "e0d57f7d"
-  },
-  "pl.hint.measure": {
-    "t": "दूसरा रंग मापें",
-    "h": "cddc738f"
-  },
-  "pl.hint.ten": {
-    "t": "मान ×10 बदलें",
-    "h": "60bdf5cb"
-  },
-  "pl.hint.whole": {
-    "t": "पूरा प्लेन",
-    "h": "da785ad3"
-  },
-  "pl.hint.zoom": {
-    "t": "प्लेन ज़ूम करें",
-    "h": "26fd3e84"
-  },
-  "pl.hints": {
-    "t": "संकेत",
-    "h": "eef8e89a"
-  },
-  "pl.key.dblclick": {
-    "t": "डबल-क्लिक",
-    "h": "1a1729fa"
-  },
-  "pl.key.scroll": {
-    "t": "स्क्रॉल",
-    "h": "090a3c80"
-  },
-  "pl.marks": {
-    "t": "दस्तावेज़ के रंग",
-    "h": "b3146392"
-  },
-  "pl.measure.large": {
-    "t": "AA बड़ा",
-    "h": "b0fcb261"
-  },
-  "pl.menu.all": {
-    "t": "सभी कलर स्पेस",
-    "h": "625ecd25"
-  },
-  "pl.menu.featured": {
-    "t": "चुने हुए",
-    "h": "ae31ad5d"
-  },
-  "pl.menu.group": {
-    "t": "परिवार",
-    "h": "4efb6cb7"
-  },
-  "pl.menu.label": {
-    "t": "कलर स्पेस",
-    "h": "730220c3"
-  },
-  "pl.menu.more": {
-    "t": "अन्य",
-    "h": "4bab2d8f"
-  },
-  "pl.menu.none": {
-    "t": "इस नाम का कोई स्पेस नहीं",
-    "h": "caccce80"
-  },
-  "pl.menu.search": {
-    "t": "स्पेस खोजें",
-    "h": "8e797c41"
-  },
-  "pl.mode.square": {
-    "t": "वर्ग के रूप में दिखाएँ",
-    "h": "512e7c34"
-  },
-  "pl.mode.tip.square": {
-    "t": "वर्ग",
-    "h": "82810cb9"
-  },
-  "pl.mode.tip.wheel": {
-    "t": "चक्र",
-    "h": "0d972afc"
-  },
-  "pl.mode.wheel": {
-    "t": "चक्र के रूप में दिखाएँ",
-    "h": "ee941269"
-  },
-  "pl.note.dev": {
-    "t": "Dev Mode केवल पढ़ने के लिए है। नीचे दिए मान कॉपी करें।",
-    "h": "b96e7905"
-  },
-  "pl.note.dots": {
-    "t": "बिंदु {list} हैं।",
-    "h": "551ab9a8"
-  },
-  "pl.note.editing": {
-    "t": "{name} {type} में बदलाव: इसे इस्तेमाल करने वाली हर लेयर बदलेगी।",
-    "h": "e5be5d80"
-  },
-  "pl.note.lossy": {
-    "t": "{space} इस रंग को ठीक-ठीक नहीं रख सकता। ये इसके सबसे पास के {space} मान हैं, और बदलने पर यही लिखे जाते हैं।",
-    "h": "3b5d84ef"
-  },
-  "pl.note.mixed": {
-    "t": "मिली-जुली फ़िल वाला टेक्स्ट छोड़ दिया जाता है। ऐसा टेक्स्ट चुनें जिसकी फ़िल शुरू से अंत तक एक जैसी हो।",
-    "h": "faaa5eec"
-  },
-  "pl.note.more": {
-    "t": "पहले {n} रंग दिखाए जा रहे हैं।",
-    "h": "12f4e326"
-  },
-  "pl.note.novalue": {
-    "t": "इस रंग का कोई {space} मान नहीं है।",
-    "h": "6785dd42"
-  },
-  "pl.note.remote": {
-    "t": "यह रंग {name} {type} से आता है, जिसे यह फ़ाइल नहीं बदल सकती। इसे वहीं बदलें जहाँ यह परिभाषित है।",
-    "h": "0e0e08b2"
-  },
-  "pl.note.virtual": {
-    "t": "रंग बदलने के लिए कोई फ़िल या स्ट्रोक चुनें।",
-    "h": "137577e0"
-  },
-  "pl.paints": {
-    "t": "चयन के रंग",
-    "h": "49f2849b"
-  },
-  "pl.picker": {
-    "t": "कलर पिकर",
-    "h": "b0220777"
-  },
-  "pl.plane.plane": {
-    "t": "{a} और {b} का तल",
-    "h": "16031466"
-  },
-  "pl.plane.wheel": {
-    "t": "{a} और {b} का चक्र",
-    "h": "29862ab2"
-  },
-  "pl.prm": {
-    "t": "सेटिंग्स",
-    "h": "c7f73bb5"
-  },
-  "pl.quant.565": {
-    "t": "16-बिट",
-    "h": "dc40838b"
-  },
-  "pl.quant.tip": {
-    "t": "क्वांटाइज़: {name}, {tip}",
-    "h": "3099bfe2"
-  },
-  "pl.row.image": {
-    "t": "इमेज",
-    "h": "0e762927"
-  },
-  "pl.scope": {
-    "t": "कौन-से रंग",
-    "h": "87cba4d7"
-  },
-  "pl.scope.page": {
-    "t": "इस पेज पर",
-    "h": "7e439c35"
-  },
-  "pl.scope.selection": {
-    "t": "चयन में",
-    "h": "05adeee2"
-  },
-  "pl.snap": {
-    "t": "रंगों पर स्नैप करें",
-    "h": "7cd49dc0"
-  },
-  "pl.space.label": {
-    "t": "कलर स्पेस",
-    "h": "3ad9b036"
-  },
-  "pl.src.style": {
-    "t": "स्टाइल",
-    "h": "26ec8d00"
-  },
-  "pl.src.variable": {
-    "t": "वेरिएबल",
-    "h": "b46d0172"
-  },
-  "pl.tip.more": {
-    "t": "+{n} और",
-    "h": "85104219"
-  },
-  "pl.value": {
-    "t": "मान",
-    "h": "8dce170d"
-  },
-  "pl.void": {
-    "t": "रंग नहीं",
-    "h": "4fd77c42"
-  },
-  "pl.where.fill": {
-    "t": "फ़िल {n}",
-    "h": "36efc2ba"
-  },
-  "pl.where.hidden": {
-    "t": ", अदृश्य",
-    "h": "2b33630e"
-  },
-  "pl.where.stop": {
-    "t": ", स्टॉप {n}",
-    "h": "04957b4a"
-  },
-  "pl.where.stroke": {
-    "t": "स्ट्रोक {n}",
-    "h": "376544d9"
-  }
+"@meta": {"name":"हिन्दी","reviewed":null},
+"pl.about.by": "निर्माता:",
+"pl.about.support": "साथ दें",
+"pl.alpha": "अपारदर्शिता",
+"pl.alpha.slider": "ओपेसिटी स्लाइडर",
+"pl.axis.across": "{name} आड़ा",
+"pl.axis.around": "{name} चक्र के चारों ओर",
+"pl.axis.out": "{name} केंद्र से बाहर की ओर",
+"pl.axis.swap": "{axis}। {other} पर बदलने के लिए क्लिक करें",
+"pl.axis.up": "{name} खड़ा",
+"pl.busy": "लोड हो रहा है…",
+"pl.ch.slider": "{name} स्लाइडर",
+"pl.channels": "चैनल",
+"pl.close": "बंद करें",
+"pl.copied": "{value} कॉपी किया गया",
+"pl.copy": "कॉपी करें",
+"pl.copy.as": "इस रूप में कॉपी करें",
+"pl.dot.edit": "{what} बदलें",
+"pl.dot.paint": "{layer}, {where}",
+"pl.dot.src": ", {name} {type}",
+"pl.dots.others": "चुने गए दूसरे रंग",
+"pl.dots.pixels": "इमेज के पिक्सेल",
+"pl.drop.label": "स्क्रीन से रंग चुनें",
+"pl.drop.tip": "स्क्रीन से चुनें",
+"pl.empty.hint": "सॉलिड फ़िल, ग्रेडिएंट या इमेज वाली लेयर चुनें।",
+"pl.empty.reading": "इमेज पढ़ी जा रही है…",
+"pl.err.copy": "क्लिपबोर्ड यहाँ उपलब्ध नहीं है। मान: {value}",
+"pl.err.dropper": "आईड्रॉपर यहाँ उपलब्ध नहीं है।",
+"pl.err.nocolor": "इन {space} मानों से कोई रंग नहीं बनता।",
+"pl.err.value": "रंग नहीं: {text}",
+"pl.fmt.mapped": "{value}: sRGB में मैप किया गया",
+"pl.fold": "मिलाएँ",
+"pl.gamut": "गैमट",
+"pl.gamut.in": "{gamut} के भीतर।",
+"pl.gamut.out": "{gamut} से बाहर, भीतर मैप किया गया।",
+"pl.gamut.snapped": "{name} पर स्नैप किया गया।",
+"pl.grip.label": "पैनल की चौड़ाई",
+"pl.hint.axis": "एक चैनल पर खींचें",
+"pl.hint.fine": "बारीकी से खींचें, बिना स्नैप",
+"pl.hint.measure": "दूसरा रंग मापें",
+"pl.hint.ten": "मान ×10 बदलें",
+"pl.hint.whole": "पूरा प्लेन",
+"pl.hint.zoom": "प्लेन ज़ूम करें",
+"pl.hints": "संकेत",
+"pl.key.dblclick": "डबल-क्लिक",
+"pl.key.scroll": "स्क्रॉल",
+"pl.marks": "दस्तावेज़ के रंग",
+"pl.measure.large": "AA बड़ा",
+"pl.menu.all": "सभी कलर स्पेस",
+"pl.menu.featured": "चुने हुए",
+"pl.menu.group": "परिवार",
+"pl.menu.label": "कलर स्पेस",
+"pl.menu.more": "अन्य",
+"pl.menu.none": "इस नाम का कोई स्पेस नहीं",
+"pl.menu.search": "स्पेस खोजें",
+"pl.mode.square": "वर्ग के रूप में दिखाएँ",
+"pl.mode.tip.square": "वर्ग",
+"pl.mode.tip.wheel": "चक्र",
+"pl.mode.wheel": "चक्र के रूप में दिखाएँ",
+"pl.note.dev": "Dev Mode केवल पढ़ने के लिए है। नीचे दिए मान कॉपी करें।",
+"pl.note.dots": "बिंदु {list} हैं।",
+"pl.note.editing": "{name} {type} में बदलाव: इसे इस्तेमाल करने वाली हर लेयर बदलेगी।",
+"pl.note.lossy": "{space} इस रंग को ठीक-ठीक नहीं रख सकता। ये इसके सबसे पास के {space} मान हैं, और बदलने पर यही लिखे जाते हैं।",
+"pl.note.mixed": "मिली-जुली फ़िल वाला टेक्स्ट छोड़ दिया जाता है। ऐसा टेक्स्ट चुनें जिसकी फ़िल शुरू से अंत तक एक जैसी हो।",
+"pl.note.more": "पहले {n} रंग दिखाए जा रहे हैं।",
+"pl.note.novalue": "इस रंग का कोई {space} मान नहीं है।",
+"pl.note.remote": "यह रंग {name} {type} से आता है, जिसे यह फ़ाइल नहीं बदल सकती। इसे वहीं बदलें जहाँ यह परिभाषित है।",
+"pl.note.virtual": "रंग बदलने के लिए कोई फ़िल या स्ट्रोक चुनें।",
+"pl.paints": "चयन के रंग",
+"pl.picker": "कलर पिकर",
+"pl.plane.plane": "{a} और {b} का तल",
+"pl.plane.wheel": "{a} और {b} का चक्र",
+"pl.prm": "सेटिंग्स",
+"pl.quant.565": "16-बिट",
+"pl.quant.tip": "क्वांटाइज़: {name}, {tip}",
+"pl.row.image": "इमेज",
+"pl.scope": "कौन-से रंग",
+"pl.scope.page": "इस पेज पर",
+"pl.scope.selection": "चयन में",
+"pl.snap": "रंगों पर स्नैप करें",
+"pl.space.label": "कलर स्पेस",
+"pl.src.style": "स्टाइल",
+"pl.src.variable": "वेरिएबल",
+"pl.tip.more": "+{n} और",
+"pl.value": "मान",
+"pl.void": "रंग नहीं",
+"pl.where.fill": "फ़िल {n}",
+"pl.where.hidden": ", अदृश्य",
+"pl.where.stop": ", स्टॉप {n}",
+"pl.where.stroke": "स्ट्रोक {n}"
 }

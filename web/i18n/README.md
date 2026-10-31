@@ -8,14 +8,14 @@ named by its BCP 47 tag: `pt.json`, `es.json`, `zh-Hans.json`.
 ```json
 {
 "@meta": {"name": "Português", "reviewed": null},
-"ui.header.find": {"t": "buscar espaços…", "h": "60d838c1"},
-"space.oklch.desc": {"t": "OKLCH é a forma cilíndrica…", "h": "…"}
+"ui.header.find": "buscar espaços…",
+"space.oklch.desc": "OKLCH é a forma cilíndrica…"
 }
 ```
 
 - `@meta.name` – the language's own name, shown in the language select.
-- `t` – the translation. `h` – copied unchanged from the same key in `en.json`: it records which
-  English you translated. When the English changes, its `h` changes, and your entry is stale.
+- Every other key maps directly to its translation. English wording changes keep existing
+  translations; no fingerprints or version fields need updating.
 - Keys are namespaced: `page.*` titles and descriptions, `ui.*` interface, `faq.*`, `cat.*`
   families, `purpose.*`, `tag.*` and `channel.*` vocabulary, `space.<id>.*` descriptions and uses,
   `lore.<id>.*`, `editor.*`, `lens.*`.
@@ -111,13 +111,17 @@ node scripts/i18n-extract.js --todo pt > todo.json      # what pt still needs, i
 npm run landing                                    # build; /pt/ pages appear when ready
 ```
 
-A key reads English, per key, wherever its translation is missing, stale or invalid.
+A key reads English, per key, wherever its translation is missing or invalid.
+Existing valid translations stay visible when English changes. CI's **Translation review**
+step compares the English catalog with the pull request's base or the previous push and lists
+the changed text, unchanged translations to review, and missing translations in the job summary.
+This is a review notice, not a deployment gate or a native-speaker approval.
 
 ## Publishing
 
 - A language ships once 95% of the shared strings are translated (`COVER` in scripts/i18n.js) – its
   `/<code>/` index and every space page whose own text is translated, offered in the language select.
-- It stays published through later English edits: a new or reworded string reads English, per key,
-  until retranslated (`npm run i18n` lists them). An English edit never takes a language off the site.
+- It stays published through later English wording edits. A missing or structurally invalid
+  translation reads English, per key (`npm run i18n` lists them).
 - Published pages are in search – indexed, in the sitemap and the hreflang group – reviewed or not.
   After a native reader's review, record it: `"@meta": {"name": "…", "reviewed": "Name, 2026-10-12"}`.

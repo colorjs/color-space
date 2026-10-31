@@ -1,134 +1,35 @@
 {
-  "@meta": {
-    "name": "Deutsch",
-    "reviewed": null
-  },
-  "l10n:(line {0})": {
-    "t": "(Zeile {0})",
-    "h": "20b14f9d"
-  },
-  "l10n:Convert {0} colors to…": {
-    "t": "{0} Farben konvertieren in…",
-    "h": "5127d7ea"
-  },
-  "l10n:Convert {0} to…": {
-    "t": "{0} konvertieren in…",
-    "h": "d7c280ed"
-  },
-  "l10n:In sRGB": {
-    "t": "Passt in sRGB",
-    "h": "79d4bf40"
-  },
-  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
-    "t": "Außerhalb von Display P3 (hex: in sRGB eingepasst)",
-    "h": "f00fddd9"
-  },
-  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
-    "t": "Außerhalb von sRGB, passt in Display P3 (hex: in sRGB eingepasst)",
-    "h": "6bcc306e"
-  },
-  "l10n:Pick in Color Space": {
-    "t": "In Color Space auswählen",
-    "h": "aca4f0eb"
-  },
-  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
-    "t": "Setzen Sie den Cursor auf eine CSS-Farbe oder wählen Sie Text mit CSS-Farben aus.",
-    "h": "fa671cd4"
-  },
-  "nls:command.convert": {
-    "t": "Farbe konvertieren in…",
-    "h": "bbdf2a89"
-  },
-  "nls:command.pick": {
-    "t": "Farbe auswählen",
-    "h": "aa15a325"
-  },
-  "nls:description": {
-    "t": "Bearbeiten Sie die Farben Ihres Codes in OKLCH, Display P3 oder einem von 205 Farbräumen.",
-    "h": "9504e8f3"
-  },
-  "nls:gamut.description": {
-    "t": "Der Farbumfang, in dem der Farbwähler schreibt, für Schreibweisen, die auch Farben eines größeren Farbumfangs ausdrücken können (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` und `hwb()` werden immer innerhalb von sRGB geschrieben.",
-    "h": "e83f271c"
-  },
-  "nls:gamut.p3": {
-    "t": "Display P3: der große Farbumfang aktueller Apple-Displays und vieler anderer",
-    "h": "8f99baf8"
-  },
-  "nls:gamut.srgb": {
-    "t": "sRGB: der Standard-Farbumfang des Webs",
-    "h": "513ae0ad"
-  },
-  "nls:shaders.description": {
-    "t": "Legt fest, ob Vektoren im Bereich 0–1 in Shadern (`vec3`/`vec4` in GLSL, `vec3f` in WGSL, `float3` in HLSL und Metal) Farben sind und wie sie gelesen werden. Standardmäßig aus: Ein Vektor ist ebenso oft eine Position.",
-    "h": "ae2d8ca8"
-  },
-  "nls:shaders.linear": {
-    "t": "vec3(1.0, 0.5, 0.0) und dergleichen sind lineares sRGB",
-    "h": "01333491"
-  },
-  "nls:shaders.off": {
-    "t": "Shader-Vektoren werden nicht als Farben gelesen",
-    "h": "752c47eb"
-  },
-  "nls:shaders.srgb": {
-    "t": "vec3(1.0, 0.5, 0.0) und dergleichen sind gammakodiertes sRGB",
-    "h": "7b7d9db8"
-  },
-  "nls:view.name": {
-    "t": "Color Space",
-    "h": "1a1a59a9"
-  },
-  "pl.dots.others": {
-    "t": "die übrigen Farben",
-    "h": "83231868"
-  },
-  "pl.empty.hint": {
-    "t": "Keine Farben hier. Setzen Sie den Cursor auf eine Farbe in einem Stylesheet, im Code oder in einem Farbdesign, oder öffnen Sie ein Bild.",
-    "h": "7b18d6fa"
-  },
-  "pl.gamut.out": {
-    "t": "Außerhalb von {gamut}; wird beim Bearbeiten eingepasst.",
-    "h": "afb6b216"
-  },
-  "pl.note.dev": {
-    "t": "Dieses Dokument ist schreibgeschützt. Kopieren Sie die Werte unten.",
-    "h": "a6027103"
-  },
-  "pl.note.editing": {
-    "t": "Sie bearbeiten die {type} {name}: Jede Stelle, an der sie verwendet wird, ändert sich mit.",
-    "h": "e8e9c43e"
-  },
-  "pl.note.mixed": {
-    "t": "Einige Farben hier werden nicht gelesen: Diese Bibliothek unterstützt ihren Farbraum nicht (ein .ase-Farbfeld in CMYK, Lab oder Gray; eine iTerm2-Farbe ohne Color Space).",
-    "h": "0de68562"
-  },
-  "pl.note.more": {
-    "t": "Angezeigt werden die ersten {n} Farben.",
-    "h": "3f994db4"
-  },
-  "pl.note.virtual": {
-    "t": "Die Pixel eines Bildes werden hier angezeigt, nicht bearbeitet.",
-    "h": "2776985c"
-  },
-  "pl.paints": {
-    "t": "Farben im Dokument",
-    "h": "8fc80c91"
-  },
-  "pl.scope.page": {
-    "t": "In dieser Datei",
-    "h": "6283815b"
-  },
-  "pl.src.variable": {
-    "t": "Variable",
-    "h": "b46d0172"
-  },
-  "pl.where.fill": {
-    "t": "Zeile {n}",
-    "h": "966d414d"
-  },
-  "pl.where.stroke": {
-    "t": "Zeile {n}",
-    "h": "966d414d"
-  }
+"@meta": {"name":"Deutsch","reviewed":null},
+"l10n:(line {0})": "(Zeile {0})",
+"l10n:Convert {0} colors to…": "{0} Farben konvertieren in…",
+"l10n:Convert {0} to…": "{0} konvertieren in…",
+"l10n:In sRGB": "Passt in sRGB",
+"l10n:Outside Display P3 (hex: mapped into sRGB)": "Außerhalb von Display P3 (hex: in sRGB eingepasst)",
+"l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": "Außerhalb von sRGB, passt in Display P3 (hex: in sRGB eingepasst)",
+"l10n:Pick in Color Space": "In Color Space auswählen",
+"l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": "Setzen Sie den Cursor auf eine CSS-Farbe oder wählen Sie Text mit CSS-Farben aus.",
+"nls:command.convert": "Farbe konvertieren in…",
+"nls:command.pick": "Farbe auswählen",
+"nls:description": "Bearbeiten Sie die Farben Ihres Codes in OKLCH, Display P3 oder einem von 205 Farbräumen.",
+"nls:gamut.description": "Der Farbumfang, in dem der Farbwähler schreibt, für Schreibweisen, die auch Farben eines größeren Farbumfangs ausdrücken können (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` und `hwb()` werden immer innerhalb von sRGB geschrieben.",
+"nls:gamut.p3": "Display P3: der große Farbumfang aktueller Apple-Displays und vieler anderer",
+"nls:gamut.srgb": "sRGB: der Standard-Farbumfang des Webs",
+"nls:shaders.description": "Legt fest, ob Vektoren im Bereich 0–1 in Shadern (`vec3`/`vec4` in GLSL, `vec3f` in WGSL, `float3` in HLSL und Metal) Farben sind und wie sie gelesen werden. Standardmäßig aus: Ein Vektor ist ebenso oft eine Position.",
+"nls:shaders.linear": "vec3(1.0, 0.5, 0.0) und dergleichen sind lineares sRGB",
+"nls:shaders.off": "Shader-Vektoren werden nicht als Farben gelesen",
+"nls:shaders.srgb": "vec3(1.0, 0.5, 0.0) und dergleichen sind gammakodiertes sRGB",
+"nls:view.name": "Color Space",
+"pl.dots.others": "die übrigen Farben",
+"pl.empty.hint": "Keine Farben hier. Setzen Sie den Cursor auf eine Farbe in einem Stylesheet, im Code oder in einem Farbdesign, oder öffnen Sie ein Bild.",
+"pl.gamut.out": "Außerhalb von {gamut}; wird beim Bearbeiten eingepasst.",
+"pl.note.dev": "Dieses Dokument ist schreibgeschützt. Kopieren Sie die Werte unten.",
+"pl.note.editing": "Sie bearbeiten die {type} {name}: Jede Stelle, an der sie verwendet wird, ändert sich mit.",
+"pl.note.mixed": "Einige Farben hier werden nicht gelesen: Diese Bibliothek unterstützt ihren Farbraum nicht (ein .ase-Farbfeld in CMYK, Lab oder Gray; eine iTerm2-Farbe ohne Color Space).",
+"pl.note.more": "Angezeigt werden die ersten {n} Farben.",
+"pl.note.virtual": "Die Pixel eines Bildes werden hier angezeigt, nicht bearbeitet.",
+"pl.paints": "Farben im Dokument",
+"pl.scope.page": "In dieser Datei",
+"pl.src.variable": "Variable",
+"pl.where.fill": "Zeile {n}",
+"pl.where.stroke": "Zeile {n}"
 }

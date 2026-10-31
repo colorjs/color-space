@@ -1,362 +1,92 @@
 {
-  "@meta": {
-    "name": "Español",
-    "reviewed": null
-  },
-  "pl.about.by": {
-    "t": "por",
-    "h": "40815864"
-  },
-  "pl.about.support": {
-    "t": "Apoyar",
-    "h": "f32d5a3b"
-  },
-  "pl.alpha": {
-    "t": "Opacidad",
-    "h": "f0fa69f3"
-  },
-  "pl.alpha.slider": {
-    "t": "Control deslizante de opacidad",
-    "h": "eba4c9b9"
-  },
-  "pl.axis.across": {
-    "t": "{name} en horizontal",
-    "h": "ccfbeb87"
-  },
-  "pl.axis.around": {
-    "t": "{name} como ángulo",
-    "h": "5b613827"
-  },
-  "pl.axis.out": {
-    "t": "{name} como radio",
-    "h": "1965bef2"
-  },
-  "pl.axis.swap": {
-    "t": "{axis}. Clic para ver {other}",
-    "h": "689c399f"
-  },
-  "pl.axis.up": {
-    "t": "{name} en vertical",
-    "h": "1f2e239c"
-  },
-  "pl.busy": {
-    "t": "Cargando…",
-    "h": "33ce4174"
-  },
-  "pl.ch.slider": {
-    "t": "Control deslizante de {name}",
-    "h": "05035347"
-  },
-  "pl.channels": {
-    "t": "Canales",
-    "h": "18e03e2a"
-  },
-  "pl.close": {
-    "t": "Cerrar",
-    "h": "bbfa773e"
-  },
-  "pl.copied": {
-    "t": "Copiado: {value}",
-    "h": "7e5f167e"
-  },
-  "pl.copy": {
-    "t": "Copiar",
-    "h": "af74f7c5"
-  },
-  "pl.copy.as": {
-    "t": "Copiar como",
-    "h": "ae97334a"
-  },
-  "pl.dot.edit": {
-    "t": "Editar {what}",
-    "h": "ebb32732"
-  },
-  "pl.dot.paint": {
-    "t": "{layer}, {where}",
-    "h": "6d6831b8"
-  },
-  "pl.dot.src": {
-    "t": ", {type} {name}",
-    "h": "0c005667"
-  },
-  "pl.dots.others": {
-    "t": "otros colores seleccionados",
-    "h": "41830e3b"
-  },
-  "pl.dots.pixels": {
-    "t": "píxeles de la imagen",
-    "h": "7125d5bd"
-  },
-  "pl.drop.label": {
-    "t": "Tomar un color de la pantalla",
-    "h": "e43f8978"
-  },
-  "pl.drop.tip": {
-    "t": "Tomar de la pantalla",
-    "h": "f11091db"
-  },
-  "pl.empty.hint": {
-    "t": "Seleccionar una capa con relleno sólido, degradado o imagen.",
-    "h": "6f0c0632"
-  },
-  "pl.empty.reading": {
-    "t": "Leyendo la imagen…",
-    "h": "0f94976a"
-  },
-  "pl.err.copy": {
-    "t": "El portapapeles no está disponible aquí. El valor: {value}",
-    "h": "450d3006"
-  },
-  "pl.err.dropper": {
-    "t": "El cuentagotas no está disponible aquí.",
-    "h": "3625962f"
-  },
-  "pl.err.nocolor": {
-    "t": "Esos valores de {space} no corresponden a ningún color.",
-    "h": "016e93d5"
-  },
-  "pl.err.value": {
-    "t": "No es un color: {text}",
-    "h": "c39d3657"
-  },
-  "pl.fmt.mapped": {
-    "t": "{value}: mapeado a sRGB",
-    "h": "a1f3fded"
-  },
-  "pl.fold": {
-    "t": "Combinar",
-    "h": "ea8f0d02"
-  },
-  "pl.gamut": {
-    "t": "Gama",
-    "h": "09b42dc9"
-  },
-  "pl.gamut.in": {
-    "t": "Cabe en {gamut}.",
-    "h": "c773cbdc"
-  },
-  "pl.gamut.out": {
-    "t": "Fuera de {gamut}, mapeado a la gama.",
-    "h": "a86a31a2"
-  },
-  "pl.gamut.snapped": {
-    "t": "Ajustado a {name}.",
-    "h": "5c74857c"
-  },
-  "pl.grip.label": {
-    "t": "Ancho del panel",
-    "h": "c9f20427"
-  },
-  "pl.hint.axis": {
-    "t": "Arrastrar por un canal",
-    "h": "c27bfc42"
-  },
-  "pl.hint.fine": {
-    "t": "Arrastrar fino, sin ajuste",
-    "h": "e0d57f7d"
-  },
-  "pl.hint.measure": {
-    "t": "Medir otro color",
-    "h": "cddc738f"
-  },
-  "pl.hint.ten": {
-    "t": "Cambiar un valor ×10",
-    "h": "60bdf5cb"
-  },
-  "pl.hint.whole": {
-    "t": "Plano entero",
-    "h": "da785ad3"
-  },
-  "pl.hint.zoom": {
-    "t": "Ampliar el plano",
-    "h": "26fd3e84"
-  },
-  "pl.hints": {
-    "t": "Consejos",
-    "h": "eef8e89a"
-  },
-  "pl.key.dblclick": {
-    "t": "Doble clic",
-    "h": "1a1729fa"
-  },
-  "pl.key.scroll": {
-    "t": "Desplazar",
-    "h": "090a3c80"
-  },
-  "pl.marks": {
-    "t": "Colores del documento",
-    "h": "b3146392"
-  },
-  "pl.measure.large": {
-    "t": "AA grande",
-    "h": "b0fcb261"
-  },
-  "pl.menu.all": {
-    "t": "Todos los espacios",
-    "h": "625ecd25"
-  },
-  "pl.menu.featured": {
-    "t": "Destacados",
-    "h": "ae31ad5d"
-  },
-  "pl.menu.group": {
-    "t": "Familia",
-    "h": "4efb6cb7"
-  },
-  "pl.menu.label": {
-    "t": "Espacios de color",
-    "h": "730220c3"
-  },
-  "pl.menu.more": {
-    "t": "Otros",
-    "h": "4bab2d8f"
-  },
-  "pl.menu.none": {
-    "t": "Ningún espacio con ese nombre",
-    "h": "caccce80"
-  },
-  "pl.menu.search": {
-    "t": "Buscar espacios",
-    "h": "8e797c41"
-  },
-  "pl.mode.square": {
-    "t": "Mostrar como cuadrado",
-    "h": "512e7c34"
-  },
-  "pl.mode.tip.square": {
-    "t": "Cuadrado",
-    "h": "82810cb9"
-  },
-  "pl.mode.tip.wheel": {
-    "t": "Rueda",
-    "h": "0d972afc"
-  },
-  "pl.mode.wheel": {
-    "t": "Mostrar como rueda",
-    "h": "ee941269"
-  },
-  "pl.note.dev": {
-    "t": "Dev Mode es de solo lectura. Copiar los valores de abajo.",
-    "h": "b96e7905"
-  },
-  "pl.note.dots": {
-    "t": "Los puntos son {list}.",
-    "h": "551ab9a8"
-  },
-  "pl.note.editing": {
-    "t": "Se está editando el origen ({type} {name}): cambian todas las capas que lo usan.",
-    "h": "e5be5d80"
-  },
-  "pl.note.lossy": {
-    "t": "{space} no puede representar este color con exactitud. Estos valores son su equivalente más cercano en {space}, y al editar se escribe ese equivalente.",
-    "h": "3b5d84ef"
-  },
-  "pl.note.mixed": {
-    "t": "Se omite el texto con rellenos mixtos. Seleccionar un texto con un relleno uniforme.",
-    "h": "faaa5eec"
-  },
-  "pl.note.more": {
-    "t": "Se muestran los primeros {n} colores.",
-    "h": "12f4e326"
-  },
-  "pl.note.novalue": {
-    "t": "Este color no tiene valor en {space}.",
-    "h": "6785dd42"
-  },
-  "pl.note.remote": {
-    "t": "Este color viene de un origen ({type} {name}) que este archivo no puede editar. Editarlo donde está definido.",
-    "h": "0e0e08b2"
-  },
-  "pl.note.virtual": {
-    "t": "Seleccionar un relleno o un trazo para editar un color.",
-    "h": "137577e0"
-  },
-  "pl.paints": {
-    "t": "Colores de la selección",
-    "h": "49f2849b"
-  },
-  "pl.picker": {
-    "t": "Selector de color",
-    "h": "b0220777"
-  },
-  "pl.plane.plane": {
-    "t": "Plano: {a} y {b}",
-    "h": "16031466"
-  },
-  "pl.plane.wheel": {
-    "t": "Rueda: {a} y {b}",
-    "h": "29862ab2"
-  },
-  "pl.prm": {
-    "t": "Ajustes",
-    "h": "c7f73bb5"
-  },
-  "pl.quant.565": {
-    "t": "16 bits",
-    "h": "dc40838b"
-  },
-  "pl.quant.tip": {
-    "t": "Cuantizar: {name}, {tip}",
-    "h": "3099bfe2"
-  },
-  "pl.row.image": {
-    "t": "imagen",
-    "h": "0e762927"
-  },
-  "pl.scope": {
-    "t": "Qué colores",
-    "h": "87cba4d7"
-  },
-  "pl.scope.page": {
-    "t": "En esta página",
-    "h": "7e439c35"
-  },
-  "pl.scope.selection": {
-    "t": "En la selección",
-    "h": "05adeee2"
-  },
-  "pl.snap": {
-    "t": "Ajustar a los colores",
-    "h": "7cd49dc0"
-  },
-  "pl.space.label": {
-    "t": "Espacio de color",
-    "h": "3ad9b036"
-  },
-  "pl.src.style": {
-    "t": "estilo",
-    "h": "26ec8d00"
-  },
-  "pl.src.variable": {
-    "t": "variable",
-    "h": "b46d0172"
-  },
-  "pl.tip.more": {
-    "t": "+{n} más",
-    "h": "85104219"
-  },
-  "pl.value": {
-    "t": "Valor",
-    "h": "8dce170d"
-  },
-  "pl.void": {
-    "t": "No es un color",
-    "h": "4fd77c42"
-  },
-  "pl.where.fill": {
-    "t": "relleno {n}",
-    "h": "36efc2ba"
-  },
-  "pl.where.hidden": {
-    "t": ", oculto",
-    "h": "2b33630e"
-  },
-  "pl.where.stop": {
-    "t": ", parada {n}",
-    "h": "04957b4a"
-  },
-  "pl.where.stroke": {
-    "t": "trazo {n}",
-    "h": "376544d9"
-  }
+"@meta": {"name":"Español","reviewed":null},
+"pl.about.by": "por",
+"pl.about.support": "Apoyar",
+"pl.alpha": "Opacidad",
+"pl.alpha.slider": "Control deslizante de opacidad",
+"pl.axis.across": "{name} en horizontal",
+"pl.axis.around": "{name} como ángulo",
+"pl.axis.out": "{name} como radio",
+"pl.axis.swap": "{axis}. Clic para ver {other}",
+"pl.axis.up": "{name} en vertical",
+"pl.busy": "Cargando…",
+"pl.ch.slider": "Control deslizante de {name}",
+"pl.channels": "Canales",
+"pl.close": "Cerrar",
+"pl.copied": "Copiado: {value}",
+"pl.copy": "Copiar",
+"pl.copy.as": "Copiar como",
+"pl.dot.edit": "Editar {what}",
+"pl.dot.paint": "{layer}, {where}",
+"pl.dot.src": ", {type} {name}",
+"pl.dots.others": "otros colores seleccionados",
+"pl.dots.pixels": "píxeles de la imagen",
+"pl.drop.label": "Tomar un color de la pantalla",
+"pl.drop.tip": "Tomar de la pantalla",
+"pl.empty.hint": "Seleccionar una capa con relleno sólido, degradado o imagen.",
+"pl.empty.reading": "Leyendo la imagen…",
+"pl.err.copy": "El portapapeles no está disponible aquí. El valor: {value}",
+"pl.err.dropper": "El cuentagotas no está disponible aquí.",
+"pl.err.nocolor": "Esos valores de {space} no corresponden a ningún color.",
+"pl.err.value": "No es un color: {text}",
+"pl.fmt.mapped": "{value}: mapeado a sRGB",
+"pl.fold": "Combinar",
+"pl.gamut": "Gama",
+"pl.gamut.in": "Cabe en {gamut}.",
+"pl.gamut.out": "Fuera de {gamut}, mapeado a la gama.",
+"pl.gamut.snapped": "Ajustado a {name}.",
+"pl.grip.label": "Ancho del panel",
+"pl.hint.axis": "Arrastrar por un canal",
+"pl.hint.fine": "Arrastrar fino, sin ajuste",
+"pl.hint.measure": "Medir otro color",
+"pl.hint.ten": "Cambiar un valor ×10",
+"pl.hint.whole": "Plano entero",
+"pl.hint.zoom": "Ampliar el plano",
+"pl.hints": "Consejos",
+"pl.key.dblclick": "Doble clic",
+"pl.key.scroll": "Desplazar",
+"pl.marks": "Colores del documento",
+"pl.measure.large": "AA grande",
+"pl.menu.all": "Todos los espacios",
+"pl.menu.featured": "Destacados",
+"pl.menu.group": "Familia",
+"pl.menu.label": "Espacios de color",
+"pl.menu.more": "Otros",
+"pl.menu.none": "Ningún espacio con ese nombre",
+"pl.menu.search": "Buscar espacios",
+"pl.mode.square": "Mostrar como cuadrado",
+"pl.mode.tip.square": "Cuadrado",
+"pl.mode.tip.wheel": "Rueda",
+"pl.mode.wheel": "Mostrar como rueda",
+"pl.note.dev": "Dev Mode es de solo lectura. Copiar los valores de abajo.",
+"pl.note.dots": "Los puntos son {list}.",
+"pl.note.editing": "Se está editando el origen ({type} {name}): cambian todas las capas que lo usan.",
+"pl.note.lossy": "{space} no puede representar este color con exactitud. Estos valores son su equivalente más cercano en {space}, y al editar se escribe ese equivalente.",
+"pl.note.mixed": "Se omite el texto con rellenos mixtos. Seleccionar un texto con un relleno uniforme.",
+"pl.note.more": "Se muestran los primeros {n} colores.",
+"pl.note.novalue": "Este color no tiene valor en {space}.",
+"pl.note.remote": "Este color viene de un origen ({type} {name}) que este archivo no puede editar. Editarlo donde está definido.",
+"pl.note.virtual": "Seleccionar un relleno o un trazo para editar un color.",
+"pl.paints": "Colores de la selección",
+"pl.picker": "Selector de color",
+"pl.plane.plane": "Plano: {a} y {b}",
+"pl.plane.wheel": "Rueda: {a} y {b}",
+"pl.prm": "Ajustes",
+"pl.quant.565": "16 bits",
+"pl.quant.tip": "Cuantizar: {name}, {tip}",
+"pl.row.image": "imagen",
+"pl.scope": "Qué colores",
+"pl.scope.page": "En esta página",
+"pl.scope.selection": "En la selección",
+"pl.snap": "Ajustar a los colores",
+"pl.space.label": "Espacio de color",
+"pl.src.style": "estilo",
+"pl.src.variable": "variable",
+"pl.tip.more": "+{n} más",
+"pl.value": "Valor",
+"pl.void": "No es un color",
+"pl.where.fill": "relleno {n}",
+"pl.where.hidden": ", oculto",
+"pl.where.stop": ", parada {n}",
+"pl.where.stroke": "trazo {n}"
 }

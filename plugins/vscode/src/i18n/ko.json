@@ -1,134 +1,35 @@
 {
-  "@meta": {
-    "name": "한국어",
-    "reviewed": null
-  },
-  "l10n:(line {0})": {
-    "t": "(줄 {0})",
-    "h": "20b14f9d"
-  },
-  "l10n:Convert {0} colors to…": {
-    "t": "색 {0}개를 다음 형식으로 변환…",
-    "h": "5127d7ea"
-  },
-  "l10n:Convert {0} to…": {
-    "t": "{0}을(를) 다음 형식으로 변환…",
-    "h": "d7c280ed"
-  },
-  "l10n:In sRGB": {
-    "t": "sRGB 안",
-    "h": "79d4bf40"
-  },
-  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
-    "t": "Display P3 밖(hex: sRGB로 색역 매핑됨)",
-    "h": "f00fddd9"
-  },
-  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
-    "t": "sRGB 밖, Display P3 안(hex: sRGB로 색역 매핑됨)",
-    "h": "6bcc306e"
-  },
-  "l10n:Pick in Color Space": {
-    "t": "Color Space에서 선택",
-    "h": "aca4f0eb"
-  },
-  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
-    "t": "커서를 CSS 색에 두거나, CSS 색이 들어 있는 텍스트를 선택하세요.",
-    "h": "fa671cd4"
-  },
-  "nls:command.convert": {
-    "t": "다음 형식으로 색 변환…",
-    "h": "bbdf2a89"
-  },
-  "nls:command.pick": {
-    "t": "색 선택",
-    "h": "aa15a325"
-  },
-  "nls:description": {
-    "t": "코드의 색을 OKLCH, Display P3 등 205개 색공간 어디에서나 편집합니다.",
-    "h": "9504e8f3"
-  },
-  "nls:gamut.description": {
-    "t": "더 넓은 색역의 색을 나타낼 수 있는 표기(`oklch()`, `lab()`, `color(display-p3 …)` 등)에서 색 선택기가 쓰는 색역입니다. `#hex`, `rgb()`, `hsl()`, `hwb()`는 항상 sRGB 안으로 씁니다.",
-    "h": "e83f271c"
-  },
-  "nls:gamut.p3": {
-    "t": "Display P3: 최신 Apple 디스플레이를 비롯한 많은 디스플레이의 광색역",
-    "h": "8f99baf8"
-  },
-  "nls:gamut.srgb": {
-    "t": "sRGB: 웹 표준 색역",
-    "h": "513ae0ad"
-  },
-  "nls:shaders.description": {
-    "t": "셰이더의 0–1 벡터(GLSL의 `vec3`/`vec4`, WGSL의 `vec3f`, HLSL과 Metal의 `float3`)를 색으로 볼지, 어떻게 읽을지 정합니다. 기본값은 꺼짐입니다. 벡터가 위치인 경우도 그만큼 많기 때문입니다.",
-    "h": "ae2d8ca8"
-  },
-  "nls:shaders.linear": {
-    "t": "vec3(1.0, 0.5, 0.0) 같은 값은 선형 광 sRGB",
-    "h": "01333491"
-  },
-  "nls:shaders.off": {
-    "t": "셰이더 벡터를 색으로 읽지 않음",
-    "h": "752c47eb"
-  },
-  "nls:shaders.srgb": {
-    "t": "vec3(1.0, 0.5, 0.0) 같은 값은 감마 인코딩된 sRGB",
-    "h": "7b7d9db8"
-  },
-  "nls:view.name": {
-    "t": "Color Space",
-    "h": "1a1a59a9"
-  },
-  "pl.dots.others": {
-    "t": "나머지 색",
-    "h": "83231868"
-  },
-  "pl.empty.hint": {
-    "t": "여기에는 색이 없습니다. 스타일시트, 코드, 테마의 색에 커서를 두거나 이미지를 여세요.",
-    "h": "7b18d6fa"
-  },
-  "pl.gamut.out": {
-    "t": "{gamut} 밖, 편집 시 안으로 매핑됨.",
-    "h": "afb6b216"
-  },
-  "pl.note.dev": {
-    "t": "이 문서는 읽기 전용입니다. 아래 값을 복사하세요.",
-    "h": "a6027103"
-  },
-  "pl.note.editing": {
-    "t": "{type} {name} 편집 중: 이를 사용하는 모든 곳이 바뀝니다.",
-    "h": "e8e9c43e"
-  },
-  "pl.note.mixed": {
-    "t": "여기 일부 색은 읽을 수 없습니다. 이 라이브러리가 지원하지 않는 색공간이기 때문입니다(CMYK, Lab, Gray로 된 .ase 견본, Color Space가 없는 iTerm2 색).",
-    "h": "0de68562"
-  },
-  "pl.note.more": {
-    "t": "처음 {n}개 색만 표시합니다.",
-    "h": "3f994db4"
-  },
-  "pl.note.virtual": {
-    "t": "이미지의 픽셀은 표시만 되고 편집되지 않습니다.",
-    "h": "2776985c"
-  },
-  "pl.paints": {
-    "t": "문서의 색",
-    "h": "8fc80c91"
-  },
-  "pl.scope.page": {
-    "t": "이 파일",
-    "h": "6283815b"
-  },
-  "pl.src.variable": {
-    "t": "변수",
-    "h": "b46d0172"
-  },
-  "pl.where.fill": {
-    "t": "줄 {n}",
-    "h": "966d414d"
-  },
-  "pl.where.stroke": {
-    "t": "줄 {n}",
-    "h": "966d414d"
-  }
+"@meta": {"name":"한국어","reviewed":null},
+"l10n:(line {0})": "(줄 {0})",
+"l10n:Convert {0} colors to…": "색 {0}개를 다음 형식으로 변환…",
+"l10n:Convert {0} to…": "{0}을(를) 다음 형식으로 변환…",
+"l10n:In sRGB": "sRGB 안",
+"l10n:Outside Display P3 (hex: mapped into sRGB)": "Display P3 밖(hex: sRGB로 색역 매핑됨)",
+"l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": "sRGB 밖, Display P3 안(hex: sRGB로 색역 매핑됨)",
+"l10n:Pick in Color Space": "Color Space에서 선택",
+"l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": "커서를 CSS 색에 두거나, CSS 색이 들어 있는 텍스트를 선택하세요.",
+"nls:command.convert": "다음 형식으로 색 변환…",
+"nls:command.pick": "색 선택",
+"nls:description": "코드의 색을 OKLCH, Display P3 등 205개 색공간 어디에서나 편집합니다.",
+"nls:gamut.description": "더 넓은 색역의 색을 나타낼 수 있는 표기(`oklch()`, `lab()`, `color(display-p3 …)` 등)에서 색 선택기가 쓰는 색역입니다. `#hex`, `rgb()`, `hsl()`, `hwb()`는 항상 sRGB 안으로 씁니다.",
+"nls:gamut.p3": "Display P3: 최신 Apple 디스플레이를 비롯한 많은 디스플레이의 광색역",
+"nls:gamut.srgb": "sRGB: 웹 표준 색역",
+"nls:shaders.description": "셰이더의 0–1 벡터(GLSL의 `vec3`/`vec4`, WGSL의 `vec3f`, HLSL과 Metal의 `float3`)를 색으로 볼지, 어떻게 읽을지 정합니다. 기본값은 꺼짐입니다. 벡터가 위치인 경우도 그만큼 많기 때문입니다.",
+"nls:shaders.linear": "vec3(1.0, 0.5, 0.0) 같은 값은 선형 광 sRGB",
+"nls:shaders.off": "셰이더 벡터를 색으로 읽지 않음",
+"nls:shaders.srgb": "vec3(1.0, 0.5, 0.0) 같은 값은 감마 인코딩된 sRGB",
+"nls:view.name": "Color Space",
+"pl.dots.others": "나머지 색",
+"pl.empty.hint": "여기에는 색이 없습니다. 스타일시트, 코드, 테마의 색에 커서를 두거나 이미지를 여세요.",
+"pl.gamut.out": "{gamut} 밖, 편집 시 안으로 매핑됨.",
+"pl.note.dev": "이 문서는 읽기 전용입니다. 아래 값을 복사하세요.",
+"pl.note.editing": "{type} {name} 편집 중: 이를 사용하는 모든 곳이 바뀝니다.",
+"pl.note.mixed": "여기 일부 색은 읽을 수 없습니다. 이 라이브러리가 지원하지 않는 색공간이기 때문입니다(CMYK, Lab, Gray로 된 .ase 견본, Color Space가 없는 iTerm2 색).",
+"pl.note.more": "처음 {n}개 색만 표시합니다.",
+"pl.note.virtual": "이미지의 픽셀은 표시만 되고 편집되지 않습니다.",
+"pl.paints": "문서의 색",
+"pl.scope.page": "이 파일",
+"pl.src.variable": "변수",
+"pl.where.fill": "줄 {n}",
+"pl.where.stroke": "줄 {n}"
 }

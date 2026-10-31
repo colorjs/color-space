@@ -1,134 +1,35 @@
 {
-  "@meta": {
-    "name": "Italiano",
-    "reviewed": null
-  },
-  "l10n:(line {0})": {
-    "t": "(riga {0})",
-    "h": "20b14f9d"
-  },
-  "l10n:Convert {0} colors to…": {
-    "t": "Converti {0} colori in…",
-    "h": "5127d7ea"
-  },
-  "l10n:Convert {0} to…": {
-    "t": "Converti {0} in…",
-    "h": "d7c280ed"
-  },
-  "l10n:In sRGB": {
-    "t": "Rientra in sRGB",
-    "h": "79d4bf40"
-  },
-  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
-    "t": "Fuori da Display P3 (hex: mappato in sRGB)",
-    "h": "f00fddd9"
-  },
-  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
-    "t": "Fuori da sRGB, rientra in Display P3 (hex: mappato in sRGB)",
-    "h": "6bcc306e"
-  },
-  "l10n:Pick in Color Space": {
-    "t": "Scegli in Color Space",
-    "h": "aca4f0eb"
-  },
-  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
-    "t": "Posiziona il cursore su un colore CSS o seleziona del testo che contiene colori CSS.",
-    "h": "fa671cd4"
-  },
-  "nls:command.convert": {
-    "t": "Converti colore in…",
-    "h": "bbdf2a89"
-  },
-  "nls:command.pick": {
-    "t": "Scegli colore",
-    "h": "aa15a325"
-  },
-  "nls:description": {
-    "t": "Modifica i colori del tuo codice in OKLCH, Display P3 o in uno qualsiasi dei 205 spazi colore.",
-    "h": "9504e8f3"
-  },
-  "nls:gamut.description": {
-    "t": "Il gamut in cui scrive il selettore, per le notazioni che possono esprimere colori di un gamut più ampio (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` e `hwb()` vengono sempre scritti dentro sRGB.",
-    "h": "e83f271c"
-  },
-  "nls:gamut.p3": {
-    "t": "Display P3: il gamut ampio degli attuali schermi Apple e di molti altri",
-    "h": "8f99baf8"
-  },
-  "nls:gamut.srgb": {
-    "t": "sRGB: il gamut standard del web",
-    "h": "513ae0ad"
-  },
-  "nls:shaders.description": {
-    "t": "Determina se i vettori 0–1 negli shader (`vec3`/`vec4` in GLSL, `vec3f` in WGSL, `float3` in HLSL e Metal) sono colori e come leggerli. Disattivato per impostazione predefinita: un vettore è altrettanto spesso una posizione.",
-    "h": "ae2d8ca8"
-  },
-  "nls:shaders.linear": {
-    "t": "vec3(1.0, 0.5, 0.0) e simili sono sRGB in luce lineare",
-    "h": "01333491"
-  },
-  "nls:shaders.off": {
-    "t": "I vettori degli shader non vengono letti come colori",
-    "h": "752c47eb"
-  },
-  "nls:shaders.srgb": {
-    "t": "vec3(1.0, 0.5, 0.0) e simili sono sRGB codificato con gamma",
-    "h": "7b7d9db8"
-  },
-  "nls:view.name": {
-    "t": "Color Space",
-    "h": "1a1a59a9"
-  },
-  "pl.dots.others": {
-    "t": "gli altri colori",
-    "h": "83231868"
-  },
-  "pl.empty.hint": {
-    "t": "Nessun colore qui. Posiziona il cursore su un colore in un foglio di stile, nel codice o in un tema, oppure apri un’immagine.",
-    "h": "7b18d6fa"
-  },
-  "pl.gamut.out": {
-    "t": "Fuori da {gamut}; le modifiche lo mappano nel gamut.",
-    "h": "afb6b216"
-  },
-  "pl.note.dev": {
-    "t": "Questo documento è in sola lettura. Copia i valori qui sotto.",
-    "h": "a6027103"
-  },
-  "pl.note.editing": {
-    "t": "Stai modificando la {type} {name}: cambia ovunque venga usata.",
-    "h": "e8e9c43e"
-  },
-  "pl.note.mixed": {
-    "t": "Alcuni colori qui non vengono letti: questa libreria non supporta il loro spazio colore (un campione .ase in CMYK, Lab o Gray; un colore iTerm2 senza Color Space).",
-    "h": "0de68562"
-  },
-  "pl.note.more": {
-    "t": "Sono mostrati i primi {n} colori.",
-    "h": "3f994db4"
-  },
-  "pl.note.virtual": {
-    "t": "Qui i pixel di un’immagine vengono mostrati, non modificati.",
-    "h": "2776985c"
-  },
-  "pl.paints": {
-    "t": "Colori nel documento",
-    "h": "8fc80c91"
-  },
-  "pl.scope.page": {
-    "t": "In questo file",
-    "h": "6283815b"
-  },
-  "pl.src.variable": {
-    "t": "variabile",
-    "h": "b46d0172"
-  },
-  "pl.where.fill": {
-    "t": "riga {n}",
-    "h": "966d414d"
-  },
-  "pl.where.stroke": {
-    "t": "riga {n}",
-    "h": "966d414d"
-  }
+"@meta": {"name":"Italiano","reviewed":null},
+"l10n:(line {0})": "(riga {0})",
+"l10n:Convert {0} colors to…": "Converti {0} colori in…",
+"l10n:Convert {0} to…": "Converti {0} in…",
+"l10n:In sRGB": "Rientra in sRGB",
+"l10n:Outside Display P3 (hex: mapped into sRGB)": "Fuori da Display P3 (hex: mappato in sRGB)",
+"l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": "Fuori da sRGB, rientra in Display P3 (hex: mappato in sRGB)",
+"l10n:Pick in Color Space": "Scegli in Color Space",
+"l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": "Posiziona il cursore su un colore CSS o seleziona del testo che contiene colori CSS.",
+"nls:command.convert": "Converti colore in…",
+"nls:command.pick": "Scegli colore",
+"nls:description": "Modifica i colori del tuo codice in OKLCH, Display P3 o in uno qualsiasi dei 205 spazi colore.",
+"nls:gamut.description": "Il gamut in cui scrive il selettore, per le notazioni che possono esprimere colori di un gamut più ampio (`oklch()`, `lab()`, `color(display-p3 …)`…). `#hex`, `rgb()`, `hsl()` e `hwb()` vengono sempre scritti dentro sRGB.",
+"nls:gamut.p3": "Display P3: il gamut ampio degli attuali schermi Apple e di molti altri",
+"nls:gamut.srgb": "sRGB: il gamut standard del web",
+"nls:shaders.description": "Determina se i vettori 0–1 negli shader (`vec3`/`vec4` in GLSL, `vec3f` in WGSL, `float3` in HLSL e Metal) sono colori e come leggerli. Disattivato per impostazione predefinita: un vettore è altrettanto spesso una posizione.",
+"nls:shaders.linear": "vec3(1.0, 0.5, 0.0) e simili sono sRGB in luce lineare",
+"nls:shaders.off": "I vettori degli shader non vengono letti come colori",
+"nls:shaders.srgb": "vec3(1.0, 0.5, 0.0) e simili sono sRGB codificato con gamma",
+"nls:view.name": "Color Space",
+"pl.dots.others": "gli altri colori",
+"pl.empty.hint": "Nessun colore qui. Posiziona il cursore su un colore in un foglio di stile, nel codice o in un tema, oppure apri un’immagine.",
+"pl.gamut.out": "Fuori da {gamut}; le modifiche lo mappano nel gamut.",
+"pl.note.dev": "Questo documento è in sola lettura. Copia i valori qui sotto.",
+"pl.note.editing": "Stai modificando la {type} {name}: cambia ovunque venga usata.",
+"pl.note.mixed": "Alcuni colori qui non vengono letti: questa libreria non supporta il loro spazio colore (un campione .ase in CMYK, Lab o Gray; un colore iTerm2 senza Color Space).",
+"pl.note.more": "Sono mostrati i primi {n} colori.",
+"pl.note.virtual": "Qui i pixel di un’immagine vengono mostrati, non modificati.",
+"pl.paints": "Colori nel documento",
+"pl.scope.page": "In questo file",
+"pl.src.variable": "variabile",
+"pl.where.fill": "riga {n}",
+"pl.where.stroke": "riga {n}"
 }

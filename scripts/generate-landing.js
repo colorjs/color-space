@@ -198,7 +198,7 @@ console.log(`site content: prerendered catalog · sitemap + robots + llms · v${
 // the catalog baked in that language, asset URLs one level up (the document sits in
 // /<lang>/, the assets stay at the root; routes stay relative, so ./oklch stays in the
 // language), its own canonical and the hreflang group,
-// and its runtime table (i18n/<lang>.json, fresh + valid keys only) preloaded.
+// and its runtime table (i18n/<lang>.json, valid translations only) preloaded.
 const swap = (h, re, repl) => { if (!re.test(h)) throw new Error(`stamp anchor not found: ${re}`); return h.replace(re, typeof repl === 'string' ? () => repl : repl) }
 // the language select: the row shows its mark (文A), the select itself unseen over it – so its
 // menu names every language by its own name, the current one included
@@ -274,7 +274,7 @@ export function stampPages(out = join(root, '_site'), i18n) {
 		let n = 0
 		for (const s of SPACES) if (L.pages.has(s)) { writeFileSync(join(dir, s + '.html'), head(spaceDoc(html, s), L, s, i18n)); n++ }
 		console.log(L.code === 'en' ? `stamped ${n} per-space atlas documents`
-			: `stamped /${L.code}/: index + ${n} space pages${L.reviewed ? '' : ' (unreviewed)'}${L.stale.length + L.missing.length + L.invalid.length ? ` · ${L.stale.length} stale, ${L.missing.length} missing, ${L.invalid.length} invalid keys read English` : ''}`)
+			: `stamped /${L.code}/: index + ${n} space pages${L.reviewed ? '' : ' (unreviewed)'}${L.missing.length + L.invalid.length ? ` · ${L.missing.length} missing, ${L.invalid.length} invalid keys read English` : ''}`)
 	}
 	use({})
 }

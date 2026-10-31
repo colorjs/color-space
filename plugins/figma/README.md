@@ -401,7 +401,7 @@ The plugin lives in this repository but isn't part of the npm package: package.j
   anything else is English. Arabic isn't offered: the panel is laid out left to right. The
   panel's own words are in `src/i18n/<lang>.json` (the site's format; `build.js` writes
   `src/i18n/en.json` from the call sites); the words it shares with the site (lens names,
-  families, channel names) come from `web/i18n/`. Only fresh, valid translations ship, and
+  families, channel names) come from `web/i18n/`. Valid translations survive English wording changes, and
   a language ships once nearly all its words are translated. None has had a native reader's
   review yet. The tables add about 100 KB to `ui.html`.
 - **Settings.** A sliders mark at the top line's right (Figma's own, from its Advanced stroke

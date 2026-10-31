@@ -1,362 +1,92 @@
 {
-  "@meta": {
-    "name": "简体中文",
-    "reviewed": null
-  },
-  "pl.about.by": {
-    "t": "作者：",
-    "h": "40815864"
-  },
-  "pl.about.support": {
-    "t": "支持本项目",
-    "h": "f32d5a3b"
-  },
-  "pl.alpha": {
-    "t": "不透明度",
-    "h": "f0fa69f3"
-  },
-  "pl.alpha.slider": {
-    "t": "不透明度滑块",
-    "h": "eba4c9b9"
-  },
-  "pl.axis.across": {
-    "t": "横轴：{name}",
-    "h": "ccfbeb87"
-  },
-  "pl.axis.around": {
-    "t": "角度：{name}",
-    "h": "5b613827"
-  },
-  "pl.axis.out": {
-    "t": "半径：{name}",
-    "h": "1965bef2"
-  },
-  "pl.axis.swap": {
-    "t": "{axis}。点击切换为{other}",
-    "h": "689c399f"
-  },
-  "pl.axis.up": {
-    "t": "纵轴：{name}",
-    "h": "1f2e239c"
-  },
-  "pl.busy": {
-    "t": "正在加载…",
-    "h": "33ce4174"
-  },
-  "pl.ch.slider": {
-    "t": "{name} 滑块",
-    "h": "05035347"
-  },
-  "pl.channels": {
-    "t": "通道",
-    "h": "18e03e2a"
-  },
-  "pl.close": {
-    "t": "关闭",
-    "h": "bbfa773e"
-  },
-  "pl.copied": {
-    "t": "已复制 {value}",
-    "h": "7e5f167e"
-  },
-  "pl.copy": {
-    "t": "复制",
-    "h": "af74f7c5"
-  },
-  "pl.copy.as": {
-    "t": "复制为",
-    "h": "ae97334a"
-  },
-  "pl.dot.edit": {
-    "t": "编辑 {what}",
-    "h": "ebb32732"
-  },
-  "pl.dot.paint": {
-    "t": "{layer}，{where}",
-    "h": "6d6831b8"
-  },
-  "pl.dot.src": {
-    "t": "，{type} {name}",
-    "h": "0c005667"
-  },
-  "pl.dots.others": {
-    "t": "所选的其他颜色",
-    "h": "41830e3b"
-  },
-  "pl.dots.pixels": {
-    "t": "图像像素",
-    "h": "7125d5bd"
-  },
-  "pl.drop.label": {
-    "t": "从屏幕上选取颜色",
-    "h": "e43f8978"
-  },
-  "pl.drop.tip": {
-    "t": "从屏幕取色",
-    "h": "f11091db"
-  },
-  "pl.empty.hint": {
-    "t": "请选择带有纯色填充、渐变或图像的图层。",
-    "h": "6f0c0632"
-  },
-  "pl.empty.reading": {
-    "t": "正在读取图像…",
-    "h": "0f94976a"
-  },
-  "pl.err.copy": {
-    "t": "此处无法使用剪贴板。值：{value}",
-    "h": "450d3006"
-  },
-  "pl.err.dropper": {
-    "t": "此处无法使用吸管工具。",
-    "h": "3625962f"
-  },
-  "pl.err.nocolor": {
-    "t": "这些 {space} 值不对应任何颜色。",
-    "h": "016e93d5"
-  },
-  "pl.err.value": {
-    "t": "不是颜色：{text}",
-    "h": "c39d3657"
-  },
-  "pl.fmt.mapped": {
-    "t": "{value}：已映射到 sRGB 色域",
-    "h": "a1f3fded"
-  },
-  "pl.fold": {
-    "t": "合并",
-    "h": "ea8f0d02"
-  },
-  "pl.gamut": {
-    "t": "色域",
-    "h": "09b42dc9"
-  },
-  "pl.gamut.in": {
-    "t": "在 {gamut} 之内。",
-    "h": "c773cbdc"
-  },
-  "pl.gamut.out": {
-    "t": "超出 {gamut}，已映射到色域内。",
-    "h": "a86a31a2"
-  },
-  "pl.gamut.snapped": {
-    "t": "已吸附到 {name}。",
-    "h": "5c74857c"
-  },
-  "pl.grip.label": {
-    "t": "面板宽度",
-    "h": "c9f20427"
-  },
-  "pl.hint.axis": {
-    "t": "沿单一通道拖动",
-    "h": "c27bfc42"
-  },
-  "pl.hint.fine": {
-    "t": "精细拖动，不吸附",
-    "h": "e0d57f7d"
-  },
-  "pl.hint.measure": {
-    "t": "测量另一种颜色",
-    "h": "cddc738f"
-  },
-  "pl.hint.ten": {
-    "t": "数值 ×10 调整",
-    "h": "60bdf5cb"
-  },
-  "pl.hint.whole": {
-    "t": "整个平面",
-    "h": "da785ad3"
-  },
-  "pl.hint.zoom": {
-    "t": "缩放平面",
-    "h": "26fd3e84"
-  },
-  "pl.hints": {
-    "t": "提示",
-    "h": "eef8e89a"
-  },
-  "pl.key.dblclick": {
-    "t": "双击",
-    "h": "1a1729fa"
-  },
-  "pl.key.scroll": {
-    "t": "滚动",
-    "h": "090a3c80"
-  },
-  "pl.marks": {
-    "t": "文件中的颜色",
-    "h": "b3146392"
-  },
-  "pl.measure.large": {
-    "t": "AA 大字",
-    "h": "b0fcb261"
-  },
-  "pl.menu.all": {
-    "t": "全部色彩空间",
-    "h": "625ecd25"
-  },
-  "pl.menu.featured": {
-    "t": "精选",
-    "h": "ae31ad5d"
-  },
-  "pl.menu.group": {
-    "t": "类别",
-    "h": "4efb6cb7"
-  },
-  "pl.menu.label": {
-    "t": "色彩空间",
-    "h": "730220c3"
-  },
-  "pl.menu.more": {
-    "t": "其他",
-    "h": "4bab2d8f"
-  },
-  "pl.menu.none": {
-    "t": "没有这个名称的色彩空间",
-    "h": "caccce80"
-  },
-  "pl.menu.search": {
-    "t": "搜索色彩空间",
-    "h": "8e797c41"
-  },
-  "pl.mode.square": {
-    "t": "以方块显示",
-    "h": "512e7c34"
-  },
-  "pl.mode.tip.square": {
-    "t": "方块",
-    "h": "82810cb9"
-  },
-  "pl.mode.tip.wheel": {
-    "t": "色环",
-    "h": "0d972afc"
-  },
-  "pl.mode.wheel": {
-    "t": "以色环显示",
-    "h": "ee941269"
-  },
-  "pl.note.dev": {
-    "t": "Dev Mode 为只读。请复制下方的数值。",
-    "h": "b96e7905"
-  },
-  "pl.note.dots": {
-    "t": "圆点是{list}。",
-    "h": "551ab9a8"
-  },
-  "pl.note.editing": {
-    "t": "正在编辑{type} {name}：所有使用它的图层都会随之改变。",
-    "h": "e5be5d80"
-  },
-  "pl.note.lossy": {
-    "t": "{space} 无法精确表示这个颜色。这些值是最接近的 {space} 值，编辑时写入的也是它们。",
-    "h": "3b5d84ef"
-  },
-  "pl.note.mixed": {
-    "t": "填充不一致的文本会被跳过。请选择填充完全相同的文本。",
-    "h": "faaa5eec"
-  },
-  "pl.note.more": {
-    "t": "仅显示前 {n} 个颜色。",
-    "h": "12f4e326"
-  },
-  "pl.note.novalue": {
-    "t": "此颜色没有 {space} 值。",
-    "h": "6785dd42"
-  },
-  "pl.note.remote": {
-    "t": "此颜色来自{type} {name}，本文件无法编辑它。请到定义它的地方编辑。",
-    "h": "0e0e08b2"
-  },
-  "pl.note.virtual": {
-    "t": "要编辑颜色，请选择填充或描边。",
-    "h": "137577e0"
-  },
-  "pl.paints": {
-    "t": "所选内容中的颜色",
-    "h": "49f2849b"
-  },
-  "pl.picker": {
-    "t": "拾色器",
-    "h": "b0220777"
-  },
-  "pl.plane.plane": {
-    "t": "{a}与{b}平面",
-    "h": "16031466"
-  },
-  "pl.plane.wheel": {
-    "t": "{a}与{b}色环",
-    "h": "29862ab2"
-  },
-  "pl.prm": {
-    "t": "设置",
-    "h": "c7f73bb5"
-  },
-  "pl.quant.565": {
-    "t": "16 位",
-    "h": "dc40838b"
-  },
-  "pl.quant.tip": {
-    "t": "量化：{name}，{tip}",
-    "h": "3099bfe2"
-  },
-  "pl.row.image": {
-    "t": "图像",
-    "h": "0e762927"
-  },
-  "pl.scope": {
-    "t": "显示哪些颜色",
-    "h": "87cba4d7"
-  },
-  "pl.scope.page": {
-    "t": "此页面",
-    "h": "7e439c35"
-  },
-  "pl.scope.selection": {
-    "t": "所选内容",
-    "h": "05adeee2"
-  },
-  "pl.snap": {
-    "t": "吸附到颜色",
-    "h": "7cd49dc0"
-  },
-  "pl.space.label": {
-    "t": "色彩空间",
-    "h": "3ad9b036"
-  },
-  "pl.src.style": {
-    "t": "样式",
-    "h": "26ec8d00"
-  },
-  "pl.src.variable": {
-    "t": "变量",
-    "h": "b46d0172"
-  },
-  "pl.tip.more": {
-    "t": "+{n} 个",
-    "h": "85104219"
-  },
-  "pl.value": {
-    "t": "值",
-    "h": "8dce170d"
-  },
-  "pl.void": {
-    "t": "不是颜色",
-    "h": "4fd77c42"
-  },
-  "pl.where.fill": {
-    "t": "填充 {n}",
-    "h": "36efc2ba"
-  },
-  "pl.where.hidden": {
-    "t": "，已隐藏",
-    "h": "2b33630e"
-  },
-  "pl.where.stop": {
-    "t": "，色标 {n}",
-    "h": "04957b4a"
-  },
-  "pl.where.stroke": {
-    "t": "描边 {n}",
-    "h": "376544d9"
-  }
+"@meta": {"name":"简体中文","reviewed":null},
+"pl.about.by": "作者：",
+"pl.about.support": "支持本项目",
+"pl.alpha": "不透明度",
+"pl.alpha.slider": "不透明度滑块",
+"pl.axis.across": "横轴：{name}",
+"pl.axis.around": "角度：{name}",
+"pl.axis.out": "半径：{name}",
+"pl.axis.swap": "{axis}。点击切换为{other}",
+"pl.axis.up": "纵轴：{name}",
+"pl.busy": "正在加载…",
+"pl.ch.slider": "{name} 滑块",
+"pl.channels": "通道",
+"pl.close": "关闭",
+"pl.copied": "已复制 {value}",
+"pl.copy": "复制",
+"pl.copy.as": "复制为",
+"pl.dot.edit": "编辑 {what}",
+"pl.dot.paint": "{layer}，{where}",
+"pl.dot.src": "，{type} {name}",
+"pl.dots.others": "所选的其他颜色",
+"pl.dots.pixels": "图像像素",
+"pl.drop.label": "从屏幕上选取颜色",
+"pl.drop.tip": "从屏幕取色",
+"pl.empty.hint": "请选择带有纯色填充、渐变或图像的图层。",
+"pl.empty.reading": "正在读取图像…",
+"pl.err.copy": "此处无法使用剪贴板。值：{value}",
+"pl.err.dropper": "此处无法使用吸管工具。",
+"pl.err.nocolor": "这些 {space} 值不对应任何颜色。",
+"pl.err.value": "不是颜色：{text}",
+"pl.fmt.mapped": "{value}：已映射到 sRGB 色域",
+"pl.fold": "合并",
+"pl.gamut": "色域",
+"pl.gamut.in": "在 {gamut} 之内。",
+"pl.gamut.out": "超出 {gamut}，已映射到色域内。",
+"pl.gamut.snapped": "已吸附到 {name}。",
+"pl.grip.label": "面板宽度",
+"pl.hint.axis": "沿单一通道拖动",
+"pl.hint.fine": "精细拖动，不吸附",
+"pl.hint.measure": "测量另一种颜色",
+"pl.hint.ten": "数值 ×10 调整",
+"pl.hint.whole": "整个平面",
+"pl.hint.zoom": "缩放平面",
+"pl.hints": "提示",
+"pl.key.dblclick": "双击",
+"pl.key.scroll": "滚动",
+"pl.marks": "文件中的颜色",
+"pl.measure.large": "AA 大字",
+"pl.menu.all": "全部色彩空间",
+"pl.menu.featured": "精选",
+"pl.menu.group": "类别",
+"pl.menu.label": "色彩空间",
+"pl.menu.more": "其他",
+"pl.menu.none": "没有这个名称的色彩空间",
+"pl.menu.search": "搜索色彩空间",
+"pl.mode.square": "以方块显示",
+"pl.mode.tip.square": "方块",
+"pl.mode.tip.wheel": "色环",
+"pl.mode.wheel": "以色环显示",
+"pl.note.dev": "Dev Mode 为只读。请复制下方的数值。",
+"pl.note.dots": "圆点是{list}。",
+"pl.note.editing": "正在编辑{type} {name}：所有使用它的图层都会随之改变。",
+"pl.note.lossy": "{space} 无法精确表示这个颜色。这些值是最接近的 {space} 值，编辑时写入的也是它们。",
+"pl.note.mixed": "填充不一致的文本会被跳过。请选择填充完全相同的文本。",
+"pl.note.more": "仅显示前 {n} 个颜色。",
+"pl.note.novalue": "此颜色没有 {space} 值。",
+"pl.note.remote": "此颜色来自{type} {name}，本文件无法编辑它。请到定义它的地方编辑。",
+"pl.note.virtual": "要编辑颜色，请选择填充或描边。",
+"pl.paints": "所选内容中的颜色",
+"pl.picker": "拾色器",
+"pl.plane.plane": "{a}与{b}平面",
+"pl.plane.wheel": "{a}与{b}色环",
+"pl.prm": "设置",
+"pl.quant.565": "16 位",
+"pl.quant.tip": "量化：{name}，{tip}",
+"pl.row.image": "图像",
+"pl.scope": "显示哪些颜色",
+"pl.scope.page": "此页面",
+"pl.scope.selection": "所选内容",
+"pl.snap": "吸附到颜色",
+"pl.space.label": "色彩空间",
+"pl.src.style": "样式",
+"pl.src.variable": "变量",
+"pl.tip.more": "+{n} 个",
+"pl.value": "值",
+"pl.void": "不是颜色",
+"pl.where.fill": "填充 {n}",
+"pl.where.hidden": "，已隐藏",
+"pl.where.stop": "，色标 {n}",
+"pl.where.stroke": "描边 {n}"
 }

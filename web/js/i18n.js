@@ -1,7 +1,7 @@
 // Translations at runtime. A page speaks the language its document declares: the build
 // stamps /<lang>/… documents with <html lang> from their path prefix and compiles
 // web/i18n/<lang>.json into i18n/<lang>.json – key → text, holding only translations that
-// are valid and fresh (their h matches the current English). Every call site carries its
+// are valid. English wording changes keep existing translations. Every call site carries its
 // own English, so a key missing from that table falls back per key, never per page.
 // English documents fetch nothing. Format and workflow: web/i18n/README.md.
 

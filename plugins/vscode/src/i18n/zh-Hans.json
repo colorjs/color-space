@@ -1,134 +1,35 @@
 {
-  "@meta": {
-    "name": "简体中文",
-    "reviewed": null
-  },
-  "l10n:(line {0})": {
-    "t": "（第 {0} 行）",
-    "h": "20b14f9d"
-  },
-  "l10n:Convert {0} colors to…": {
-    "t": "将 {0} 个颜色转换为…",
-    "h": "5127d7ea"
-  },
-  "l10n:Convert {0} to…": {
-    "t": "将 {0} 转换为…",
-    "h": "d7c280ed"
-  },
-  "l10n:In sRGB": {
-    "t": "在 sRGB 之内",
-    "h": "79d4bf40"
-  },
-  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
-    "t": "超出 Display P3（hex：已映射到 sRGB 色域）",
-    "h": "f00fddd9"
-  },
-  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
-    "t": "超出 sRGB，在 Display P3 之内（hex：已映射到 sRGB 色域）",
-    "h": "6bcc306e"
-  },
-  "l10n:Pick in Color Space": {
-    "t": "在 Color Space 中选取",
-    "h": "aca4f0eb"
-  },
-  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
-    "t": "请将光标放在 CSS 颜色上，或选择包含 CSS 颜色的文本。",
-    "h": "fa671cd4"
-  },
-  "nls:command.convert": {
-    "t": "将颜色转换为…",
-    "h": "bbdf2a89"
-  },
-  "nls:command.pick": {
-    "t": "选取颜色",
-    "h": "aa15a325"
-  },
-  "nls:description": {
-    "t": "用 OKLCH、Display P3 或 205 个色彩空间中的任意一个编辑代码中的颜色。",
-    "h": "9504e8f3"
-  },
-  "nls:gamut.description": {
-    "t": "对于能表示更广色域颜色的写法（`oklch()`、`lab()`、`color(display-p3 …)` 等），拾色器写入时所用的色域。`#hex`、`rgb()`、`hsl()` 和 `hwb()` 始终在 sRGB 之内写入。",
-    "h": "e83f271c"
-  },
-  "nls:gamut.p3": {
-    "t": "Display P3：当前 Apple 显示屏及许多其他显示屏的广色域",
-    "h": "8f99baf8"
-  },
-  "nls:gamut.srgb": {
-    "t": "sRGB：网页的标准色域",
-    "h": "513ae0ad"
-  },
-  "nls:shaders.description": {
-    "t": "是否将着色器中的 0–1 向量（GLSL 中的 `vec3`/`vec4`、WGSL 中的 `vec3f`、HLSL 和 Metal 中的 `float3`）视为颜色，以及如何读取。默认关闭：向量同样常用来表示位置。",
-    "h": "ae2d8ca8"
-  },
-  "nls:shaders.linear": {
-    "t": "vec3(1.0, 0.5, 0.0) 等为线性光 sRGB",
-    "h": "01333491"
-  },
-  "nls:shaders.off": {
-    "t": "不将着色器向量读作颜色",
-    "h": "752c47eb"
-  },
-  "nls:shaders.srgb": {
-    "t": "vec3(1.0, 0.5, 0.0) 等为伽马编码的 sRGB",
-    "h": "7b7d9db8"
-  },
-  "nls:view.name": {
-    "t": "Color Space",
-    "h": "1a1a59a9"
-  },
-  "pl.dots.others": {
-    "t": "其他颜色",
-    "h": "83231868"
-  },
-  "pl.empty.hint": {
-    "t": "这里没有颜色。请将光标放在样式表、代码或主题中的颜色上，或打开一张图像。",
-    "h": "7b18d6fa"
-  },
-  "pl.gamut.out": {
-    "t": "超出 {gamut}；编辑时会映射到色域内。",
-    "h": "afb6b216"
-  },
-  "pl.note.dev": {
-    "t": "此文档为只读。请复制下方的数值。",
-    "h": "a6027103"
-  },
-  "pl.note.editing": {
-    "t": "正在编辑{type} {name}：所有使用它的地方都会随之改变。",
-    "h": "e8e9c43e"
-  },
-  "pl.note.mixed": {
-    "t": "此处部分颜色无法读取：本库不支持它们的色彩空间（CMYK、Lab 或 Gray 的 .ase 色板；未设置 Color Space 的 iTerm2 颜色）。",
-    "h": "0de68562"
-  },
-  "pl.note.more": {
-    "t": "仅显示前 {n} 个颜色。",
-    "h": "3f994db4"
-  },
-  "pl.note.virtual": {
-    "t": "这里只显示图像的像素，不编辑图像。",
-    "h": "2776985c"
-  },
-  "pl.paints": {
-    "t": "文档中的颜色",
-    "h": "8fc80c91"
-  },
-  "pl.scope.page": {
-    "t": "此文件",
-    "h": "6283815b"
-  },
-  "pl.src.variable": {
-    "t": "变量",
-    "h": "b46d0172"
-  },
-  "pl.where.fill": {
-    "t": "第 {n} 行",
-    "h": "966d414d"
-  },
-  "pl.where.stroke": {
-    "t": "第 {n} 行",
-    "h": "966d414d"
-  }
+"@meta": {"name":"简体中文","reviewed":null},
+"l10n:(line {0})": "（第 {0} 行）",
+"l10n:Convert {0} colors to…": "将 {0} 个颜色转换为…",
+"l10n:Convert {0} to…": "将 {0} 转换为…",
+"l10n:In sRGB": "在 sRGB 之内",
+"l10n:Outside Display P3 (hex: mapped into sRGB)": "超出 Display P3（hex：已映射到 sRGB 色域）",
+"l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": "超出 sRGB，在 Display P3 之内（hex：已映射到 sRGB 色域）",
+"l10n:Pick in Color Space": "在 Color Space 中选取",
+"l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": "请将光标放在 CSS 颜色上，或选择包含 CSS 颜色的文本。",
+"nls:command.convert": "将颜色转换为…",
+"nls:command.pick": "选取颜色",
+"nls:description": "用 OKLCH、Display P3 或 205 个色彩空间中的任意一个编辑代码中的颜色。",
+"nls:gamut.description": "对于能表示更广色域颜色的写法（`oklch()`、`lab()`、`color(display-p3 …)` 等），拾色器写入时所用的色域。`#hex`、`rgb()`、`hsl()` 和 `hwb()` 始终在 sRGB 之内写入。",
+"nls:gamut.p3": "Display P3：当前 Apple 显示屏及许多其他显示屏的广色域",
+"nls:gamut.srgb": "sRGB：网页的标准色域",
+"nls:shaders.description": "是否将着色器中的 0–1 向量（GLSL 中的 `vec3`/`vec4`、WGSL 中的 `vec3f`、HLSL 和 Metal 中的 `float3`）视为颜色，以及如何读取。默认关闭：向量同样常用来表示位置。",
+"nls:shaders.linear": "vec3(1.0, 0.5, 0.0) 等为线性光 sRGB",
+"nls:shaders.off": "不将着色器向量读作颜色",
+"nls:shaders.srgb": "vec3(1.0, 0.5, 0.0) 等为伽马编码的 sRGB",
+"nls:view.name": "Color Space",
+"pl.dots.others": "其他颜色",
+"pl.empty.hint": "这里没有颜色。请将光标放在样式表、代码或主题中的颜色上，或打开一张图像。",
+"pl.gamut.out": "超出 {gamut}；编辑时会映射到色域内。",
+"pl.note.dev": "此文档为只读。请复制下方的数值。",
+"pl.note.editing": "正在编辑{type} {name}：所有使用它的地方都会随之改变。",
+"pl.note.mixed": "此处部分颜色无法读取：本库不支持它们的色彩空间（CMYK、Lab 或 Gray 的 .ase 色板；未设置 Color Space 的 iTerm2 颜色）。",
+"pl.note.more": "仅显示前 {n} 个颜色。",
+"pl.note.virtual": "这里只显示图像的像素，不编辑图像。",
+"pl.paints": "文档中的颜色",
+"pl.scope.page": "此文件",
+"pl.src.variable": "变量",
+"pl.where.fill": "第 {n} 行",
+"pl.where.stroke": "第 {n} 行"
 }

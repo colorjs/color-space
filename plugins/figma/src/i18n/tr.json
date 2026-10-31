@@ -1,362 +1,92 @@
 {
-  "@meta": {
-    "name": "Türkçe",
-    "reviewed": null
-  },
-  "pl.about.by": {
-    "t": "Geliştiren:",
-    "h": "40815864"
-  },
-  "pl.about.support": {
-    "t": "Destekleyin",
-    "h": "f32d5a3b"
-  },
-  "pl.alpha": {
-    "t": "Opaklık",
-    "h": "f0fa69f3"
-  },
-  "pl.alpha.slider": {
-    "t": "Opaklık kaydırıcısı",
-    "h": "eba4c9b9"
-  },
-  "pl.axis.across": {
-    "t": "Yatayda {name}",
-    "h": "ccfbeb87"
-  },
-  "pl.axis.around": {
-    "t": "Çember boyunca {name}",
-    "h": "5b613827"
-  },
-  "pl.axis.out": {
-    "t": "Yarıçap boyunca {name}",
-    "h": "1965bef2"
-  },
-  "pl.axis.swap": {
-    "t": "{axis}. {other} ile değiştirmek için tıklayın",
-    "h": "689c399f"
-  },
-  "pl.axis.up": {
-    "t": "Dikeyde {name}",
-    "h": "1f2e239c"
-  },
-  "pl.busy": {
-    "t": "Yükleniyor…",
-    "h": "33ce4174"
-  },
-  "pl.ch.slider": {
-    "t": "{name} kaydırıcısı",
-    "h": "05035347"
-  },
-  "pl.channels": {
-    "t": "Kanallar",
-    "h": "18e03e2a"
-  },
-  "pl.close": {
-    "t": "Kapat",
-    "h": "bbfa773e"
-  },
-  "pl.copied": {
-    "t": "{value} kopyalandı",
-    "h": "7e5f167e"
-  },
-  "pl.copy": {
-    "t": "Kopyala",
-    "h": "af74f7c5"
-  },
-  "pl.copy.as": {
-    "t": "Farklı kopyala",
-    "h": "ae97334a"
-  },
-  "pl.dot.edit": {
-    "t": "Düzenle: {what}",
-    "h": "ebb32732"
-  },
-  "pl.dot.paint": {
-    "t": "{layer}, {where}",
-    "h": "6d6831b8"
-  },
-  "pl.dot.src": {
-    "t": ", {type} {name}",
-    "h": "0c005667"
-  },
-  "pl.dots.others": {
-    "t": "seçili diğer renkler",
-    "h": "41830e3b"
-  },
-  "pl.dots.pixels": {
-    "t": "görüntü pikselleri",
-    "h": "7125d5bd"
-  },
-  "pl.drop.label": {
-    "t": "Ekrandan renk seç",
-    "h": "e43f8978"
-  },
-  "pl.drop.tip": {
-    "t": "Ekrandan seç",
-    "h": "f11091db"
-  },
-  "pl.empty.hint": {
-    "t": "Düz dolgu, gradyan ya da görüntü içeren bir katman seçin.",
-    "h": "6f0c0632"
-  },
-  "pl.empty.reading": {
-    "t": "Görüntü okunuyor…",
-    "h": "0f94976a"
-  },
-  "pl.err.copy": {
-    "t": "Pano burada kullanılamıyor. Değer: {value}",
-    "h": "450d3006"
-  },
-  "pl.err.dropper": {
-    "t": "Damlalık burada kullanılamıyor.",
-    "h": "3625962f"
-  },
-  "pl.err.nocolor": {
-    "t": "Bu {space} değerleri hiçbir renge karşılık gelmiyor.",
-    "h": "016e93d5"
-  },
-  "pl.err.value": {
-    "t": "Renk değil: {text}",
-    "h": "c39d3657"
-  },
-  "pl.fmt.mapped": {
-    "t": "{value}: sRGB gamutuna eşlendi",
-    "h": "a1f3fded"
-  },
-  "pl.fold": {
-    "t": "Birleştir",
-    "h": "ea8f0d02"
-  },
-  "pl.gamut": {
-    "t": "Gam",
-    "h": "09b42dc9"
-  },
-  "pl.gamut.in": {
-    "t": "{gamut} içinde.",
-    "h": "c773cbdc"
-  },
-  "pl.gamut.out": {
-    "t": "{gamut} dışında, içine eşlendi.",
-    "h": "a86a31a2"
-  },
-  "pl.gamut.snapped": {
-    "t": "Yaslandı: {name}.",
-    "h": "5c74857c"
-  },
-  "pl.grip.label": {
-    "t": "Panel genişliği",
-    "h": "c9f20427"
-  },
-  "pl.hint.axis": {
-    "t": "Tek kanalda sürükle",
-    "h": "c27bfc42"
-  },
-  "pl.hint.fine": {
-    "t": "İnce sürükle, yaslamasız",
-    "h": "e0d57f7d"
-  },
-  "pl.hint.measure": {
-    "t": "Başka bir rengi ölç",
-    "h": "cddc738f"
-  },
-  "pl.hint.ten": {
-    "t": "Değeri ×10 değiştir",
-    "h": "60bdf5cb"
-  },
-  "pl.hint.whole": {
-    "t": "Tüm düzlem",
-    "h": "da785ad3"
-  },
-  "pl.hint.zoom": {
-    "t": "Düzlemi yakınlaştır",
-    "h": "26fd3e84"
-  },
-  "pl.hints": {
-    "t": "İpuçları",
-    "h": "eef8e89a"
-  },
-  "pl.key.dblclick": {
-    "t": "Çift tıklama",
-    "h": "1a1729fa"
-  },
-  "pl.key.scroll": {
-    "t": "Kaydır",
-    "h": "090a3c80"
-  },
-  "pl.marks": {
-    "t": "Belgenin renkleri",
-    "h": "b3146392"
-  },
-  "pl.measure.large": {
-    "t": "AA büyük",
-    "h": "b0fcb261"
-  },
-  "pl.menu.all": {
-    "t": "Tüm uzaylar",
-    "h": "625ecd25"
-  },
-  "pl.menu.featured": {
-    "t": "Öne çıkanlar",
-    "h": "ae31ad5d"
-  },
-  "pl.menu.group": {
-    "t": "Aile",
-    "h": "4efb6cb7"
-  },
-  "pl.menu.label": {
-    "t": "Renk uzayları",
-    "h": "730220c3"
-  },
-  "pl.menu.more": {
-    "t": "Diğer",
-    "h": "4bab2d8f"
-  },
-  "pl.menu.none": {
-    "t": "Bu adla bir uzay yok",
-    "h": "caccce80"
-  },
-  "pl.menu.search": {
-    "t": "Uzay ara",
-    "h": "8e797c41"
-  },
-  "pl.mode.square": {
-    "t": "Kare olarak göster",
-    "h": "512e7c34"
-  },
-  "pl.mode.tip.square": {
-    "t": "Kare",
-    "h": "82810cb9"
-  },
-  "pl.mode.tip.wheel": {
-    "t": "Çember",
-    "h": "0d972afc"
-  },
-  "pl.mode.wheel": {
-    "t": "Çember olarak göster",
-    "h": "ee941269"
-  },
-  "pl.note.dev": {
-    "t": "Dev Mode salt okunurdur. Aşağıdaki değerleri kopyalayın.",
-    "h": "b96e7905"
-  },
-  "pl.note.dots": {
-    "t": "Noktalar: {list}.",
-    "h": "551ab9a8"
-  },
-  "pl.note.editing": {
-    "t": "Düzenleniyor: {type} {name}. Onu kullanan tüm katmanlar değişir.",
-    "h": "e5be5d80"
-  },
-  "pl.note.lossy": {
-    "t": "{space} bu rengi tam olarak tutamaz. Bu değerler en yakın {space} karşılığıdır; düzenlediğinizde bu karşılık yazılır.",
-    "h": "3b5d84ef"
-  },
-  "pl.note.mixed": {
-    "t": "Karışık dolgulu metin atlanır. Dolgusu baştan sona aynı olan bir metin seçin.",
-    "h": "faaa5eec"
-  },
-  "pl.note.more": {
-    "t": "İlk {n} renk gösteriliyor.",
-    "h": "12f4e326"
-  },
-  "pl.note.novalue": {
-    "t": "Bu rengin {space} değeri yok.",
-    "h": "6785dd42"
-  },
-  "pl.note.remote": {
-    "t": "Bu rengin kaynağı {type} {name}; bu dosya onu düzenleyemez. Tanımlandığı yerde düzenleyin.",
-    "h": "0e0e08b2"
-  },
-  "pl.note.virtual": {
-    "t": "Bir rengi düzenlemek için bir dolgu ya da kontur seçin.",
-    "h": "137577e0"
-  },
-  "pl.paints": {
-    "t": "Seçimdeki renkler",
-    "h": "49f2849b"
-  },
-  "pl.picker": {
-    "t": "Renk seçici",
-    "h": "b0220777"
-  },
-  "pl.plane.plane": {
-    "t": "{a} ve {b} düzlemi",
-    "h": "16031466"
-  },
-  "pl.plane.wheel": {
-    "t": "{a} ve {b} çemberi",
-    "h": "29862ab2"
-  },
-  "pl.prm": {
-    "t": "Ayarlar",
-    "h": "c7f73bb5"
-  },
-  "pl.quant.565": {
-    "t": "16 bit",
-    "h": "dc40838b"
-  },
-  "pl.quant.tip": {
-    "t": "Nicemleme: {name}, {tip}",
-    "h": "3099bfe2"
-  },
-  "pl.row.image": {
-    "t": "görüntü",
-    "h": "0e762927"
-  },
-  "pl.scope": {
-    "t": "Hangi renkler",
-    "h": "87cba4d7"
-  },
-  "pl.scope.page": {
-    "t": "Bu sayfada",
-    "h": "7e439c35"
-  },
-  "pl.scope.selection": {
-    "t": "Seçimde",
-    "h": "05adeee2"
-  },
-  "pl.snap": {
-    "t": "Renklere yasla",
-    "h": "7cd49dc0"
-  },
-  "pl.space.label": {
-    "t": "Renk uzayı",
-    "h": "3ad9b036"
-  },
-  "pl.src.style": {
-    "t": "stil",
-    "h": "26ec8d00"
-  },
-  "pl.src.variable": {
-    "t": "değişken",
-    "h": "b46d0172"
-  },
-  "pl.tip.more": {
-    "t": "+{n} tane daha",
-    "h": "85104219"
-  },
-  "pl.value": {
-    "t": "Değer",
-    "h": "8dce170d"
-  },
-  "pl.void": {
-    "t": "Renk değil",
-    "h": "4fd77c42"
-  },
-  "pl.where.fill": {
-    "t": "dolgu {n}",
-    "h": "36efc2ba"
-  },
-  "pl.where.hidden": {
-    "t": ", gizli",
-    "h": "2b33630e"
-  },
-  "pl.where.stop": {
-    "t": ", durak {n}",
-    "h": "04957b4a"
-  },
-  "pl.where.stroke": {
-    "t": "kontur {n}",
-    "h": "376544d9"
-  }
+"@meta": {"name":"Türkçe","reviewed":null},
+"pl.about.by": "Geliştiren:",
+"pl.about.support": "Destekleyin",
+"pl.alpha": "Opaklık",
+"pl.alpha.slider": "Opaklık kaydırıcısı",
+"pl.axis.across": "Yatayda {name}",
+"pl.axis.around": "Çember boyunca {name}",
+"pl.axis.out": "Yarıçap boyunca {name}",
+"pl.axis.swap": "{axis}. {other} ile değiştirmek için tıklayın",
+"pl.axis.up": "Dikeyde {name}",
+"pl.busy": "Yükleniyor…",
+"pl.ch.slider": "{name} kaydırıcısı",
+"pl.channels": "Kanallar",
+"pl.close": "Kapat",
+"pl.copied": "{value} kopyalandı",
+"pl.copy": "Kopyala",
+"pl.copy.as": "Farklı kopyala",
+"pl.dot.edit": "Düzenle: {what}",
+"pl.dot.paint": "{layer}, {where}",
+"pl.dot.src": ", {type} {name}",
+"pl.dots.others": "seçili diğer renkler",
+"pl.dots.pixels": "görüntü pikselleri",
+"pl.drop.label": "Ekrandan renk seç",
+"pl.drop.tip": "Ekrandan seç",
+"pl.empty.hint": "Düz dolgu, gradyan ya da görüntü içeren bir katman seçin.",
+"pl.empty.reading": "Görüntü okunuyor…",
+"pl.err.copy": "Pano burada kullanılamıyor. Değer: {value}",
+"pl.err.dropper": "Damlalık burada kullanılamıyor.",
+"pl.err.nocolor": "Bu {space} değerleri hiçbir renge karşılık gelmiyor.",
+"pl.err.value": "Renk değil: {text}",
+"pl.fmt.mapped": "{value}: sRGB gamutuna eşlendi",
+"pl.fold": "Birleştir",
+"pl.gamut": "Gam",
+"pl.gamut.in": "{gamut} içinde.",
+"pl.gamut.out": "{gamut} dışında, içine eşlendi.",
+"pl.gamut.snapped": "Yaslandı: {name}.",
+"pl.grip.label": "Panel genişliği",
+"pl.hint.axis": "Tek kanalda sürükle",
+"pl.hint.fine": "İnce sürükle, yaslamasız",
+"pl.hint.measure": "Başka bir rengi ölç",
+"pl.hint.ten": "Değeri ×10 değiştir",
+"pl.hint.whole": "Tüm düzlem",
+"pl.hint.zoom": "Düzlemi yakınlaştır",
+"pl.hints": "İpuçları",
+"pl.key.dblclick": "Çift tıklama",
+"pl.key.scroll": "Kaydır",
+"pl.marks": "Belgenin renkleri",
+"pl.measure.large": "AA büyük",
+"pl.menu.all": "Tüm uzaylar",
+"pl.menu.featured": "Öne çıkanlar",
+"pl.menu.group": "Aile",
+"pl.menu.label": "Renk uzayları",
+"pl.menu.more": "Diğer",
+"pl.menu.none": "Bu adla bir uzay yok",
+"pl.menu.search": "Uzay ara",
+"pl.mode.square": "Kare olarak göster",
+"pl.mode.tip.square": "Kare",
+"pl.mode.tip.wheel": "Çember",
+"pl.mode.wheel": "Çember olarak göster",
+"pl.note.dev": "Dev Mode salt okunurdur. Aşağıdaki değerleri kopyalayın.",
+"pl.note.dots": "Noktalar: {list}.",
+"pl.note.editing": "Düzenleniyor: {type} {name}. Onu kullanan tüm katmanlar değişir.",
+"pl.note.lossy": "{space} bu rengi tam olarak tutamaz. Bu değerler en yakın {space} karşılığıdır; düzenlediğinizde bu karşılık yazılır.",
+"pl.note.mixed": "Karışık dolgulu metin atlanır. Dolgusu baştan sona aynı olan bir metin seçin.",
+"pl.note.more": "İlk {n} renk gösteriliyor.",
+"pl.note.novalue": "Bu rengin {space} değeri yok.",
+"pl.note.remote": "Bu rengin kaynağı {type} {name}; bu dosya onu düzenleyemez. Tanımlandığı yerde düzenleyin.",
+"pl.note.virtual": "Bir rengi düzenlemek için bir dolgu ya da kontur seçin.",
+"pl.paints": "Seçimdeki renkler",
+"pl.picker": "Renk seçici",
+"pl.plane.plane": "{a} ve {b} düzlemi",
+"pl.plane.wheel": "{a} ve {b} çemberi",
+"pl.prm": "Ayarlar",
+"pl.quant.565": "16 bit",
+"pl.quant.tip": "Nicemleme: {name}, {tip}",
+"pl.row.image": "görüntü",
+"pl.scope": "Hangi renkler",
+"pl.scope.page": "Bu sayfada",
+"pl.scope.selection": "Seçimde",
+"pl.snap": "Renklere yasla",
+"pl.space.label": "Renk uzayı",
+"pl.src.style": "stil",
+"pl.src.variable": "değişken",
+"pl.tip.more": "+{n} tane daha",
+"pl.value": "Değer",
+"pl.void": "Renk değil",
+"pl.where.fill": "dolgu {n}",
+"pl.where.hidden": ", gizli",
+"pl.where.stop": ", durak {n}",
+"pl.where.stroke": "kontur {n}"
 }

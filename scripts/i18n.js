@@ -1,13 +1,9 @@
 // Translations, the build side: the markup units web/index.html marks with data-i18n, each
-// language's status against the current English (ok · stale · missing · invalid), the
+// language's status against the current English (ok · missing · invalid), the
 // compiled runtime table, and the plan of which /<lang>/ documents get stamped. Extraction
 // lives in i18n-extract.js, the runtime in web/js/i18n.js, the format in web/i18n/README.md.
-import { createHash } from 'node:crypto'
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-
-// h: the fingerprint of the English a translation was made from – it changes when the English does
-export const hash = (s) => createHash('sha1').update(s).digest('hex').slice(0, 8)
 
 // ── markup units: data-i18n="key attr:key …" – a bare key is the element's content, attr:key
 // one attribute. Script and style bodies are code: their template markup is never a unit.
@@ -63,11 +59,11 @@ export const valid = (en, tr) => typeof tr === 'string' && !!tr.trim() && tagsOf
 // a key belongs to one space's page (its description, use, lore) or to every page (the rest)
 export const ownerOf = (key) => /^(space|lore)\.([^.]+)\./.exec(key)?.[2] ?? ''
 
-// one language against the current English: every key's state, the compiled table (fresh +
-// valid only – the runtime falls back per key for the rest), and the pages it may stamp.
-// A language ships once it is translated: nearly every shared string (COVER – a new or reworded one reads English,
-// per key, until it is translated: an English edit never takes a language off the site), and each space page once its
-// own content is translated at all (a changed sentence reads English until retranslated). A published language is in
+// one language against the current English: every key's state, the compiled table (valid
+// translations – the runtime falls back per key for the rest), and the pages it may stamp.
+// English wording changes keep existing translations; CI lists the changes for review.
+// A language ships once nearly every shared string (COVER) and each space page's own
+// content are translated. A published language is in
 // search – indexed, in the sitemap and the hreflang group – reviewed or not; `reviewed` records the native reader's pass.
 export const COVER = .95
 export function status(en, file, spaces) {
@@ -75,16 +71,16 @@ export function status(en, file, spaces) {
 	const state = {}, table = {}
 	for (const k of keys) {
 		const e = file[k]
-		state[k] = !e?.t ? 'missing' : !valid(en[k].t, e.t) ? 'invalid' : e.h !== en[k].h ? 'stale' : 'ok'
-		if (state[k] === 'ok') table[k] = e.t
+		state[k] = e == null || e === '' ? 'missing' : !valid(en[k], e) ? 'invalid' : 'ok'
+		if (state[k] === 'ok') table[k] = e
 	}
-	const of = (o) => keys.filter((k) => ownerOf(k) === o), done = (k) => state[k] === 'ok' || state[k] === 'stale'
+	const of = (o) => keys.filter((k) => ownerOf(k) === o), done = (k) => state[k] === 'ok'
 	const sh = of(''), shared = sh.filter(done).length >= COVER * sh.length
 	const own = (s) => of(s).every(done)
 	const pages = new Set(meta.reviewed || shared ? ['', ...spaces.filter(own)] : [])
 	const extra = Object.keys(file).filter((k) => k !== '@meta' && !en[k])
 	const count = (s) => keys.filter((k) => state[k] === s)
-	return { meta, table, pages, state, ok: count('ok'), stale: count('stale'), missing: count('missing'), invalid: count('invalid'), extra }
+	return { meta, table, pages, state, ok: count('ok'), missing: count('missing'), invalid: count('invalid'), extra }
 }
 
 // every language in a directory of <lang>.json files (en.json is the source, not a language)

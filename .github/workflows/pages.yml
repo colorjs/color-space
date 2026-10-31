@@ -38,6 +38,10 @@ jobs:
           node-version: 22
           cache: npm
       - uses: actions/configure-pages@v5
+      - name: Translation review
+        env:
+          I18N_BASE: ${{ github.event.before || github.sha }}
+        run: node scripts/i18n-review.js
       # npm ci runs `prepare` — types/meta/data/wasm/dist all regenerate here;
       # nothing generated is committed
       - run: npm ci

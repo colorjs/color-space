@@ -1,134 +1,35 @@
 {
-  "@meta": {
-    "name": "Türkçe",
-    "reviewed": null
-  },
-  "l10n:(line {0})": {
-    "t": "(satır {0})",
-    "h": "20b14f9d"
-  },
-  "l10n:Convert {0} colors to…": {
-    "t": "{0} rengi şuna dönüştür…",
-    "h": "5127d7ea"
-  },
-  "l10n:Convert {0} to…": {
-    "t": "{0} rengini şuna dönüştür…",
-    "h": "d7c280ed"
-  },
-  "l10n:In sRGB": {
-    "t": "sRGB içinde",
-    "h": "79d4bf40"
-  },
-  "l10n:Outside Display P3 (hex: mapped into sRGB)": {
-    "t": "Display P3 dışında (hex: sRGB gamutuna eşlendi)",
-    "h": "f00fddd9"
-  },
-  "l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": {
-    "t": "sRGB dışında, Display P3 içinde (hex: sRGB gamutuna eşlendi)",
-    "h": "6bcc306e"
-  },
-  "l10n:Pick in Color Space": {
-    "t": "Color Space’te seç",
-    "h": "aca4f0eb"
-  },
-  "l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": {
-    "t": "İmleci bir CSS renginin üzerine getirin ya da içinde CSS renkleri olan metni seçin.",
-    "h": "fa671cd4"
-  },
-  "nls:command.convert": {
-    "t": "Rengi Şuna Dönüştür…",
-    "h": "bbdf2a89"
-  },
-  "nls:command.pick": {
-    "t": "Renk Seç",
-    "h": "aa15a325"
-  },
-  "nls:description": {
-    "t": "Kodunuzdaki renkleri OKLCH, Display P3 ya da 205 renk uzayından herhangi birinde düzenleyin.",
-    "h": "9504e8f3"
-  },
-  "nls:gamut.description": {
-    "t": "Daha geniş bir gamuttaki renkleri ifade edebilen gösterimlerde (`oklch()`, `lab()`, `color(display-p3 …)`…) renk seçicinin yazdığı gamut. `#hex`, `rgb()`, `hsl()` ve `hwb()` her zaman sRGB içinde yazılır.",
-    "h": "e83f271c"
-  },
-  "nls:gamut.p3": {
-    "t": "Display P3: güncel Apple ekranlarının ve daha birçok ekranın geniş gamutu",
-    "h": "8f99baf8"
-  },
-  "nls:gamut.srgb": {
-    "t": "sRGB: web’in standart gamutu",
-    "h": "513ae0ad"
-  },
-  "nls:shaders.description": {
-    "t": "Shader’lardaki 0–1 vektörlerinin (GLSL’de `vec3`/`vec4`, WGSL’de `vec3f`, HLSL ve Metal’de `float3`) renk olup olmadığını ve nasıl okunacağını belirler. Varsayılan olarak kapalı: bir vektör, renk kadar sık konum da belirtir.",
-    "h": "ae2d8ca8"
-  },
-  "nls:shaders.linear": {
-    "t": "vec3(1.0, 0.5, 0.0) ve benzerleri doğrusal ışık sRGB değerleridir",
-    "h": "01333491"
-  },
-  "nls:shaders.off": {
-    "t": "Shader vektörleri renk olarak okunmaz",
-    "h": "752c47eb"
-  },
-  "nls:shaders.srgb": {
-    "t": "vec3(1.0, 0.5, 0.0) ve benzerleri gama kodlu sRGB değerleridir",
-    "h": "7b7d9db8"
-  },
-  "nls:view.name": {
-    "t": "Color Space",
-    "h": "1a1a59a9"
-  },
-  "pl.dots.others": {
-    "t": "diğer renkler",
-    "h": "83231868"
-  },
-  "pl.empty.hint": {
-    "t": "Burada renk yok. İmleci stil sayfası, kod ya da temadaki bir rengin üzerine getirin veya bir görüntü açın.",
-    "h": "7b18d6fa"
-  },
-  "pl.gamut.out": {
-    "t": "{gamut} dışında; düzenlenince içine eşlenir.",
-    "h": "afb6b216"
-  },
-  "pl.note.dev": {
-    "t": "Bu belge salt okunurdur. Aşağıdaki değerleri kopyalayın.",
-    "h": "a6027103"
-  },
-  "pl.note.editing": {
-    "t": "Düzenleniyor: {type} {name}. Kullanıldığı her yer değişir.",
-    "h": "e8e9c43e"
-  },
-  "pl.note.mixed": {
-    "t": "Buradaki bazı renkler okunmuyor: renk uzaylarını bu kütüphane desteklemiyor (CMYK, Lab ya da Gray modunda bir .ase renk örneği; Color Space’i olmayan bir iTerm2 rengi).",
-    "h": "0de68562"
-  },
-  "pl.note.more": {
-    "t": "İlk {n} renk gösteriliyor.",
-    "h": "3f994db4"
-  },
-  "pl.note.virtual": {
-    "t": "Görüntünün pikselleri burada gösterilir, düzenlenmez.",
-    "h": "2776985c"
-  },
-  "pl.paints": {
-    "t": "Belgedeki renkler",
-    "h": "8fc80c91"
-  },
-  "pl.scope.page": {
-    "t": "Bu dosyada",
-    "h": "6283815b"
-  },
-  "pl.src.variable": {
-    "t": "değişken",
-    "h": "b46d0172"
-  },
-  "pl.where.fill": {
-    "t": "satır {n}",
-    "h": "966d414d"
-  },
-  "pl.where.stroke": {
-    "t": "satır {n}",
-    "h": "966d414d"
-  }
+"@meta": {"name":"Türkçe","reviewed":null},
+"l10n:(line {0})": "(satır {0})",
+"l10n:Convert {0} colors to…": "{0} rengi şuna dönüştür…",
+"l10n:Convert {0} to…": "{0} rengini şuna dönüştür…",
+"l10n:In sRGB": "sRGB içinde",
+"l10n:Outside Display P3 (hex: mapped into sRGB)": "Display P3 dışında (hex: sRGB gamutuna eşlendi)",
+"l10n:Outside sRGB, in Display P3 (hex: mapped into sRGB)": "sRGB dışında, Display P3 içinde (hex: sRGB gamutuna eşlendi)",
+"l10n:Pick in Color Space": "Color Space’te seç",
+"l10n:Put the cursor on a CSS color, or select text with CSS colors in it.": "İmleci bir CSS renginin üzerine getirin ya da içinde CSS renkleri olan metni seçin.",
+"nls:command.convert": "Rengi Şuna Dönüştür…",
+"nls:command.pick": "Renk Seç",
+"nls:description": "Kodunuzdaki renkleri OKLCH, Display P3 ya da 205 renk uzayından herhangi birinde düzenleyin.",
+"nls:gamut.description": "Daha geniş bir gamuttaki renkleri ifade edebilen gösterimlerde (`oklch()`, `lab()`, `color(display-p3 …)`…) renk seçicinin yazdığı gamut. `#hex`, `rgb()`, `hsl()` ve `hwb()` her zaman sRGB içinde yazılır.",
+"nls:gamut.p3": "Display P3: güncel Apple ekranlarının ve daha birçok ekranın geniş gamutu",
+"nls:gamut.srgb": "sRGB: web’in standart gamutu",
+"nls:shaders.description": "Shader’lardaki 0–1 vektörlerinin (GLSL’de `vec3`/`vec4`, WGSL’de `vec3f`, HLSL ve Metal’de `float3`) renk olup olmadığını ve nasıl okunacağını belirler. Varsayılan olarak kapalı: bir vektör, renk kadar sık konum da belirtir.",
+"nls:shaders.linear": "vec3(1.0, 0.5, 0.0) ve benzerleri doğrusal ışık sRGB değerleridir",
+"nls:shaders.off": "Shader vektörleri renk olarak okunmaz",
+"nls:shaders.srgb": "vec3(1.0, 0.5, 0.0) ve benzerleri gama kodlu sRGB değerleridir",
+"nls:view.name": "Color Space",
+"pl.dots.others": "diğer renkler",
+"pl.empty.hint": "Burada renk yok. İmleci stil sayfası, kod ya da temadaki bir rengin üzerine getirin veya bir görüntü açın.",
+"pl.gamut.out": "{gamut} dışında; düzenlenince içine eşlenir.",
+"pl.note.dev": "Bu belge salt okunurdur. Aşağıdaki değerleri kopyalayın.",
+"pl.note.editing": "Düzenleniyor: {type} {name}. Kullanıldığı her yer değişir.",
+"pl.note.mixed": "Buradaki bazı renkler okunmuyor: renk uzaylarını bu kütüphane desteklemiyor (CMYK, Lab ya da Gray modunda bir .ase renk örneği; Color Space’i olmayan bir iTerm2 rengi).",
+"pl.note.more": "İlk {n} renk gösteriliyor.",
+"pl.note.virtual": "Görüntünün pikselleri burada gösterilir, düzenlenmez.",
+"pl.paints": "Belgedeki renkler",
+"pl.scope.page": "Bu dosyada",
+"pl.src.variable": "değişken",
+"pl.where.fill": "satır {n}",
+"pl.where.stroke": "satır {n}"
 }
