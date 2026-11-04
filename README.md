@@ -50,8 +50,10 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 
 [Upgrading from v2?](docs/migration.md)
 
-## Agents
+<details>
+  <summary><strong>Agents</strong></summary>
 
+  
 MCP tools – `convert`, `gamut`, `css`, `space`, `spaces`, `cube`, `shader`, `icc`, `code` – so agents call verified math instead of guessing it. A color goes in as any CSS string (`'#ff8000'`, `'oklch(0.7 0.1 50)'`, `'rebeccapurple'`) or as channel values; `shader` writes the conversion as GLSL, WGSL, HLSL or MSL, `code` gives the JS call and its verified colour-science equivalent.
 
 ```sh
@@ -70,6 +72,8 @@ Claude Code plugin (the server plus a skill): `/plugin marketplace add colorjs/c
 Over HTTP (Streamable HTTP, stateless): `npx -y color-space mcp --http 8787` on localhost, or host `fetch` from `color-space/mcp.js` in a Worker, Deno or Bun. Skill for agents that load skills: [`plugins/claude/skills/color-space`](plugins/claude/skills/color-space/SKILL.md).
 
 In the browser: [color-space.io](https://color-space.io/) registers the same tools (but `icc`) through [WebMCP](https://developer.chrome.com/docs/ai/webmcp) where Chrome offers it, plus `show`, which opens a space's dossier or sets the page's color in front of the person.
+</details>
+
 
 ## Spaces
 
