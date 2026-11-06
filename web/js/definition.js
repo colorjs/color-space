@@ -3,10 +3,21 @@
 // SMPTE RP 177 from those primaries, pinned in test/index.js to every gamut space's own
 // conversion), and the cited rows the space is tested against (data.json conformance).
 import data from './data.js'
+import { mat3, mul3, inv3 } from '../../math.js'
 
 export const definitionOf = (s) => {
 	const k = data.spaces[s]?.gamut, g = k && data.gamuts[k]
 	return g ? { ...g, key: k, wxy: data.whites[g.white] } : null
+}
+// a space whose white isn't D65, as a chromaticity diagram draws it: in its own XYZ – its primaries and its white where
+// the specification prints them – not in the hub's, where the conversion Bradford-adapts it. toHub: its own XYZ → the
+// hub's; own: the hub's XYZ [x, y, z] → its own. Null where the two agree: a D65 white, or no primaries printed
+const NATIVE = new Map()
+export const nativeOf = (s) => {
+	if (NATIVE.has(s)) return NATIVE.get(s)
+	const g = definitionOf(s), toHub = g && g.white !== 'D65' ? mul3(g.hub, g.inverse) : null, M = toHub && inv3(toHub)
+	const n = toHub && { toHub, own: (v) => mat3(M, v[0], v[1], v[2]) }
+	NATIVE.set(s, n); return n
 }
 export const rowsOf = (s) => data.conformance.filter((r) => r.s === s)
 

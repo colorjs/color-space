@@ -193,7 +193,7 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	// web/ speaks repo-relative paths; the staged site speaks root-relative —
 	// rewrite AFTER generation (build() re-emits index.html from the web source)
 	rewrite(join(out, 'js/core.js'), [["'../../dist/color-space.js'", "'../dist/color-space.js'"], ["'../../math.js'", "'../math.js'"], ["'../../css.js'", "'../css.js'"]])
-	rewrite(join(out, 'js/stops.js'), [["'../../math.js'", "'../math.js'"]])
+	for (const f of ['stops.js', 'definition.js']) rewrite(join(out, 'js', f), [["'../../math.js'", "'../math.js'"]])
 	rewrite(join(out, 'js/data.js'), [["'../../data.json'", "'../data.json'"]])
 	rewrite(join(out, 'js/gl.js'), [["'../../dist/color-space-gl.js'", "'../dist/color-space-gl.js'"]])
 	rewrite(join(out, 'js/calc.js'), [["'../../lut.js'", "'../lut.js'"], ["'../../icc.js'", "'../icc.js'"]])

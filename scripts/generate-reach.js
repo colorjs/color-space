@@ -19,6 +19,7 @@ import { dirname, join } from 'node:path'
 import space from '../index.js'
 import data from '../data.json' with { type: 'json' }
 import { rangesFp } from './build-site.js'   // the stamp build-site verifies against
+import { footroom, inTri } from '../web/js/footroom.js'   // a log curve's codes under black: footroom, no color – the plate's own law
 const meta = data.spaces
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
@@ -106,8 +107,10 @@ const shareOf = s => {
 	if (!to || !back) return null
 	const bs = baseOf(s)
 	const toBase = bs && space[s][bs], bRange = bs && meta[bs].range
+	const ft = footroom(space[s], m)   // a log space reaches only its primaries' triangle: its footroom's negative light once read Samsung Log at 99%
 	let cov = 0
 	for (const [L, a, b] of PTS) {
+		if (ft) { const X = space.lab.xyz(L, a, b), S = X[0] + X[1] + X[2]; if (!(S > 0) || !inTri(ft.tri, X[0] / S, X[1] / S)) continue }
 		let v; try { v = to(L, a, b) } catch { continue }
 		if (!v.every(isFinite)) continue
 		let ok = true

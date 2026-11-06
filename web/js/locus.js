@@ -1,7 +1,7 @@
 // The xy plate's marks – the CIE 1931 2° chromaticity diagram's furniture, drawn as hairlines over the plate (the
 // dossier's #gam2d, whose canvas paints the space's own reach): the spectral locus's wavelengths ticked (380–700 nm,
 // js/core.js) and the D65 white; for the hero, the horseshoe filled and the Limits' outlines named – sRGB, Display P3
-// and Rec. 2020, triangles from their shipped primaries (js/profile.js), Surface and the horseshoe's own. Every color is a point
+// and Rec. 2020, triangles from their shipped primaries (js/profile.js), Surface and the horseshoe's own, and the Planckian locus. Every color is a point
 // inside the horseshoe; a color space is a region of it – these are the regions every other one is read against.
 import { locus, visibleXYZ, space } from './core.js'
 import { primariesOf } from './profile.js'
@@ -35,6 +35,23 @@ export function locusMarks(P) {
 	return `<g class="lt">${TICKS.map(tick).join('')}</g><path class="lw" d="M${f(w[0] - 5)} ${f(w[1])}h10M${f(w[0])} ${f(w[1] - 5)}v10"/>`
 }
 
+// the Planckian locus among the hero's outlines: a black body's chromaticity, 1500 K to 25 000 K (kelvin.js, Krystek 1985),
+// even in mireds – the line an illuminant's white is read against. Ticked and named at the whites the specifications
+// name most, by their correlated temperatures: A 2856 K, D50 5003 K, D65 6504 K (CIE 15:2004 Table T.1) – D65's name over
+// the line, the others under it: D50 and D65 stand a dozen pixels apart
+const K0 = 1500, K1 = 25000, KWHITE = [['A', 2856, 1], ['D50', 5003, 1], ['D65', 6504, -1]]
+const kxy = T => { const v = space.kelvin.xyz(T), s = v[0] + v[1] + v[2]; return [v[0] / s, v[1] / s] }
+const planckLine = P => {
+	const pt = q => P(q).map(f).join(' '), m0 = 1e6 / K0, m1 = 1e6 / K1
+	const line = Array.from({ length: 41 }, (_, i) => pt(kxy(1e6 / (m0 + (m1 - m0) * i / 40)))).join('L')
+	// under the line (away from the greens) or, side -1, over it
+	const nrm = (T, side) => { const a = kxy(T * 1.02), b = kxy(T / 1.02); let nx = a[1] - b[1], ny = -(a[0] - b[0]); const n = Math.hypot(nx, ny), k = (ny > 0 ? -1 : 1) * side / n; return [nx * k, ny * k] }
+	const mark = ([name, T, side]) => { const [x, y] = kxy(T), [nx, ny] = nrm(T, side), c = P([x + nx * .03, y + ny * .03])
+		return [`M${pt([x, y])}L${pt([x + nx * .012, y + ny * .012])}`, `<text x="${f(c[0])}" y="${f(c[1])}" text-anchor="middle" dominant-baseline="middle">${name}</text>`] }
+	const ms = KWHITE.map(mark)
+	return `<g class="lk"><path d="M${line}${ms.map(m => m[0]).join('')}"/>${ms.map(m => m[1]).join('')}</g>`
+}
+
 /** The outlines' names over the mapping `P`, each along its line, outside: a reference gamut's on its blue edge just
  *  below the green corner – where the triangles part (their green corners stand apart; their blue ones nearly meet);
  *  Surface's, `surface`, on its left side's upper run, between the rim and Rec. 2020's edge; the horseshoe's, `light`,
@@ -49,6 +66,7 @@ export function locusNames(P, surface, light) {
 
 /** The xy plate's mapping (gamutPos's, gamGrid's): xy → its 320 × 352 units, v down. */
 export const GXY = ([x, y]) => [(x + 0.107) / 0.857 * 320, (1 - (y + 0.055) / 0.955) * 352]
+export const unGXY = ([u, w]) => [u / 320 * 0.857 - 0.107, (1 - w / 352) * 0.955 - 0.055]   // its inverse: the plate's units → xy
 /** A Limit's outline over `P`: a display's triangle, Surface's region, the horseshoe's own. */
 export const limPath = (g, P) => g === 'vis' ? surfacePath(P) : g === 'locus' ? locusPath(P) : gamutPath(g === 'srgb' ? 'rgb' : g, P)
 export const HERO_LIMS = ['srgb', 'p3', 'rec2020', 'vis', 'locus']   // narrowest first
@@ -62,7 +80,7 @@ export const heroLocus = (home, surface, light, mark) => { const at = mark && he
 /** A chromaticity's place on the hero's drawing, in percent of its box (the viewBox's crop). */
 export const heroAt = q => { const [x, y] = GXY(q); return [(x - 36) / 290 * 100, (y - 18) / 318 * 100] }
 /** …its outlines and their names alone (the names in the page's language). */
-export const heroNames = (surface, light) => HERO_LIMS.map(g => `<path data-g="${g}" d="${limPath(g, GXY)}"/>`).join('') + locusNames(GXY, surface, light)
+export const heroNames = (surface, light) => HERO_LIMS.map(g => `<path data-g="${g}" d="${limPath(g, GXY)}"/>`).join('') + locusNames(GXY, surface, light) + planckLine(GXY)
 
 /** The horseshoe filled – each chromaticity in its own color, at sRGB's full saturation (clipped: the display shows what it
  *  can), nothing past the locus – as a PNG for an `<image>`, `w` × `h` pixels over the plate's `P` mapping inverted by `Q`. */

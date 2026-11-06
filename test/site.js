@@ -31,14 +31,14 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	// per-space pages are atlas copies with their own head — pin the stamp, not the body
 	// (the dossier's Wikipedia link is JS-rendered; one-article-per-space is pinned below)
 	const lmsPage = readFileSync(`${site}/lms.html`, 'utf8')
-	is(lmsPage.split('<title>LMS color space').length - 1, 1, 'LMS page titles its display name, not the slug')
+	is(lmsPage.split('<title>LMS Color Space').length - 1, 1, 'LMS page titles its display name, not the slug')
 	const slogPage = readFileSync(`${site}/slog3.html`, 'utf8')
-	is(slogPage.includes('<title>S-Log3 color space – channels, ranges, conversion LUT | color-space</title>'), true, 'LUT-capable camera log titles the display name and the LUT')
+	is(slogPage.includes('<title>S-Log3 Color Space: Ranges, Converter &amp; .cube LUT</title>'), true, 'LUT-capable camera log titles the display name and the LUT')
 	const proPage = readFileSync(`${site}/prophoto.html`, 'utf8')
-	is(proPage.includes('<title>ProPhoto RGB (ROMM RGB) color space – primaries, XYZ matrix, conversion | color-space</title>'), true, 'an RGB space titles its other name, primaries and matrix')
+	is(proPage.includes('<title>ProPhoto RGB (ROMM RGB) Color Space: Primaries, XYZ Matrix &amp; Converter</title>'), true, 'an RGB space titles its other name, primaries and matrix')
 	is(/<meta name="description" content="[^"]*RGB → XYZ matrix and a converter to \d+ other spaces\.">/.test(proPage), true, 'its snippet closes on what the page holds')
-	is(readFileSync(`${site}/xyy.html`, 'utf8').includes('<title>CIE xyY color space –'), true, 'an alias that spells the name out stands alone')
-	is(readFileSync(`${site}/gray.html`, 'utf8').includes('<title>Gray color space – channels, ranges, conversion | color-space</title>'), true, 'a lowercase alias (grey) stays out of the title')
+	is(readFileSync(`${site}/xyy.html`, 'utf8').includes('<title>CIE xyY Color Space:'), true, 'an alias that spells the name out stands alone')
+	is(readFileSync(`${site}/gray.html`, 'utf8').includes('<title>Gray Color Space: Channels, Ranges &amp; Converter</title>'), true, 'a lowercase alias (grey) stays out of the title')
 	is(/<meta name="description" content="[^"]*\.cube LUTs to Rec\. 709, P3 and other spaces\.">/.test(slogPage), true, 'a camera log’s snippet closes on its LUTs')
 	is(/<meta name="description" content="[^"]*。チャンネル、範囲、[^" ]*">/.test(readFileSync(`${site}/ja/xyb.html`, 'utf8')), true, 'a Japanese snippet joins its offer with no space')
 	// social cards + structured data: every space page carries its own card, the
@@ -227,7 +227,7 @@ test('integrity — _site: display names stamp display-final; empty-filter line 
 	const index = readFileSync(`${site}/index.html`, 'utf8')
 	is(index.split('>lαβ<').length - 1 >= 1, true, 'lαβ card shows the Greek name, not LALPHABETA')
 	// the catalog stays on the index — name views ship #cat empty and carry the name in their own head
-	is(readFileSync(`${site}/lalphabeta.html`, 'utf8').includes('<title>lαβ color space'), true, 'the stamped name view titles the Greek name')
+	is(readFileSync(`${site}/lalphabeta.html`, 'utf8').includes('<title>lαβ Color Space'), true, 'the stamped name view titles the Greek name')
 	is(index.includes('id="nores"'), true, 'no-match line is part of the stamped catalog')
 })
 

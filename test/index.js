@@ -308,6 +308,7 @@ test('integrity — gamut matrices: RP 177 from the primaries, as the spaces con
 	const XYZ = ([x, y]) => [x / y, 1, (1 - x - y) / y], hub = XYZ(data.whites.D65)
 	for (const n of Object.keys(meta).filter(n => meta[n].gamut && n !== 'acesproxy' && typeof space[n].xyz === 'function')) {
 		const w = data.whites[meta[n].white], A = meta[n].white === 'D65' ? M(n) : mul3(bradfordAdaptation(XYZ(w), hub), M(n))
+		is(near(data.gamuts[meta[n].gamut].hub, A, 1e-12), true, `${n}: data.json's hub matrix = ${meta[n].white === 'D65' ? '' : 'Bradford · '}RP 177`)
 		const lo = space.xyz[n](0, 0, 0), hi = space.xyz[n](...mat3(A, 1, 1, 1).map(v => v * 100))
 		const col = i => space[n].xyz(...lo.map((v, j) => j === i ? hi[j] : v)).map(v => v / 100)
 		const err = Math.max(...[0, 1, 2].flatMap(i => col(i).map((v, k) => Math.abs(v - A[k * 3 + i]))))

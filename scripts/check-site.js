@@ -91,7 +91,7 @@ try {
 		return [rows.length, rows.map(r=>stops(r).every(x=>(x.match(/[\d.]+%/g)||[]).length===2)), rows.map(r=>{ const st=stops(r); return st[(st.length-1)/2].startsWith('var(--cur)') }), document.getElementById('strip').style.getPropertyValue('--hues')] }), [4,[true,true,true,true],[true,true,true,true],''], 'the footer wall: one stepped wheel, the current color centered; the top edge the color alone')
 	// the hero's locus: pointed at, its Limits' edges and names, all alike; a press is the site's home – the Limit is the row's menu's
 	{ const box=await page.locator('.hlocus').boundingBox()
-	  assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.hlocus text')].map(t=>t.textContent)),['sRGB','P3','Rec. 2020','Surface','Light'],'the outlines named – the displays, Surface and the horseshoe, Light – no wavelengths')
+	  assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.hlocus text')].map(t=>t.textContent)),['sRGB','P3','Rec. 2020','Surface','Light','A','D50','D65'],'the outlines named – the displays, Surface and the horseshoe, Light, the Planckian locus by the whites on it – no wavelengths')
 	  assert.deepEqual(await page.evaluate(()=>{ const a=document.querySelector('.hlocus'); return [a.tagName,a.getAttribute('href')] }),['A','./'],'the locus is the link home')
 	  const xy=(x,y)=>page.evaluate(([x,y])=>{ const svg=document.querySelector('.hlocus svg'), q=new DOMPoint((x+0.107)/0.857*320,(1-(y+0.055)/0.955)*352).matrixTransform(svg.getScreenCTM()); return [q.x,q.y] },[x,y])
 	  const st=()=>page.evaluate(()=>({ edges:getComputedStyle(document.querySelector('.hlocus .lims')).opacity, on:[...document.querySelectorAll('.hlocus .lims path.on')].map(e=>e.dataset.g).join(), gm:localStorage.csGm||'', fill:document.querySelector('#hl-lim path').getAttribute('d') }))
@@ -458,6 +458,7 @@ try {
 	await page.locator('#cval').fill('red, blue, tomato'); await page.locator('#cval').press('Enter')
 	await page.locator('#cval').click(); await page.evaluate(() => { const c = document.getElementById('cval'); c.setSelectionRange(6, 6); document.dispatchEvent(new Event('selectionchange')) })
 	assert.deepEqual(await page.evaluate(() => [document.querySelector('.cvul').childNodes.length, [...CSS.highlights.get('cv-held')].map(r => r.toString())[0], document.querySelector('.cvul').classList.contains('many')]), [1, 'blue', true], 'the field\'s twin one string, the caret\'s color its highlight')
+	assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('.hlocus .sto[data-j]')].map(d => !!d.dataset.tipHead && /^x [\d.]+\u2003y [\d.]+\u2003Y [\d.]+$/.test(d.dataset.tip))), [true, true], 'the other colors\' dots on the locus tell their value over x, y and Y')
 	await page.locator('#cval').fill('red - orange - gold - lime - teal - blue'); await page.waitForTimeout(300); await page.locator('#cval').press('Enter')
 	await page.locator('#cval').click(); await page.waitForTimeout(500)
 	assert.equal(await page.evaluate(() => [...document.querySelectorAll('#csug small')].some(s => /one step on/.test(s.textContent))), false, 'six stops: no step on')
@@ -721,8 +722,17 @@ try {
 	await page.waitForFunction(()=>document.querySelector('#pl3d .mesh3')?._scale3>0)
 	assert.ok(await page.evaluate(()=>document.querySelector('#pl3d .mesh3')._scale3>0.3), 'the solid keeps its own size while the plates hide')
 	await page.locator('#figseg button[data-v="xy"]').click()
-	assert.deepEqual(await page.evaluate(()=>{ const g=document.querySelector('#gam2d'); return [document.querySelector('#dfig').dataset.v, g.clientWidth>200, g.querySelector('canvas').width>=g.clientWidth, g.querySelectorAll('.gxy :is(.lg,.glim)').length, [...g.querySelectorAll('.gxy text')].some(t=>t.textContent==='520'), getComputedStyle(document.querySelector('#pl3d')).display==='none'||!document.querySelector('#pl3d').offsetParent, localStorage.csFig] }),
-		['xy',true,true,0,true,true,'xy'], 'xy shown alone, painted at its size, ticked, no reference triangle on it; the choice remembered')
+	assert.deepEqual(await page.evaluate(()=>{ const g=document.querySelector('#gam2d'); return [document.querySelector('#dfig').dataset.v, g.clientWidth>200, g.querySelector('canvas').width>=g.clientWidth, g.querySelectorAll('.gxy :is(.lg,.glim)').length, [...g.querySelectorAll('.gxy text')].some(t=>t.textContent==='520'), !!document.querySelector('#pl3d').closest('#gam2d')&&!g.classList.contains('lift')&&getComputedStyle(document.querySelector('#pl3d .mesh3')).visibility==='hidden', localStorage.csFig] }),
+		['xy',true,true,0,true,true,'xy'], 'xy shown alone, painted at its size, ticked, no reference triangle on it – the solid under it, unseen while it lies flat; the choice remembered')
+	// a drag lifts the plate into xyY: the plate the floor, turned with it, the solid over it; a double click lays it flat
+	{ await page.locator('#gam2d').scrollIntoViewIfNeeded(); const b=await page.locator('#gam2d').boundingBox(), x=b.x+b.width/2, y=b.y+b.height/2
+		await page.mouse.move(x,y); await page.mouse.down(); for(let k=1;k<=8;k++){ await page.mouse.move(x+k*3,y-k*8); await page.waitForTimeout(16) }
+		await page.waitForTimeout(200); await page.mouse.up()
+		await page.waitForFunction(()=>document.querySelector('#gam2d').classList.contains('lift')&&document.querySelector('#pl3d .mesh3')._scale3>0)
+		assert.deepEqual(await page.evaluate(()=>[/^matrix\(/.test(document.querySelector('#gam2d .flr').style.transform), getComputedStyle(document.querySelector('#pl3d .mesh3')).visibility, getComputedStyle(document.querySelector('#gam2d .flr .cx')).visibility]),
+			[true,'visible','hidden'], 'a drag lifts the plate: its floor turned, the solid shown, the plate\'s own marks given to the solid\'s')
+		await page.locator('#gam2d').dblclick(); await page.waitForTimeout(100)
+		assert.deepEqual(await page.evaluate(()=>[document.querySelector('#gam2d').classList.contains('lift'), document.querySelector('#gam2d .flr').style.transform]), [false,''], 'a double click lays the plate flat again') }
 	await page.locator('#figseg button[data-v="3d"]').click()
 	await page.locator('#mx').click()
 	await page.waitForFunction(() => document.querySelector('#modal')?.hidden === true)

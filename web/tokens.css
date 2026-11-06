@@ -152,7 +152,8 @@
 	--picker-ring:.15625rem;
 	--picker-line:.075rem;
 	--picker-outline:rgb(0 0 0 / .45);
-	--picker-shadow:0 0 1px var(--picker-outline);
+	--picker-outline-rest:rgb(0 0 0 / .7);   /* at rest the outline is a 1px blur, no spread: darker, so a white dot still parts from a white field */
+	--picker-shadow:0 0 1px var(--picker-outline-rest);
 	--picker-shadow-on:0 0 1px 1px var(--picker-outline);
 	/* its smaller kin: the held color on a tile's thin strips; another color in hand – on a strip, a plane, the locus – a
 	   white dot, a step smaller on a list row's thinnest (the one a press would take grows to the held picker) */
@@ -161,6 +162,7 @@
 	--picker-mini-size:.375rem;   /* a list row's held picker, on its strips a few pixels tall */
 	--picker-mini-ring:.09375rem;
 	--picker-dot-size:.25rem;
+	--edge:oklch(0.32 0.012 70 / .5);   /* a solid's edge: the 3D figure's edge lines (index.html CUT3 at their front alpha), and the corners they meet at – a primary, a white point */
 	--picker-dot-small-size:.1875rem;
 
 	/* ⌥'s measurements (js/ruler.js), on the site and in the panel: Figma's measuring red, its ⌥ redlines' and Dev Mode's */

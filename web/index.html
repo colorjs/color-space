@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title data-i18n="page.title">Color spaces – complete list of 221 spaces, converter &amp; 3D charts | color-space</title>
-<meta name="description" content="An open collection of 221 color spaces: complete list, converter, conventional ranges, 3D charts, code and LUT export. Zero dependencies, public domain." data-i18n="content:page.desc">
+<title data-i18n="page.title">Color Spaces: Converter, Formulas &amp; 3D Gamut Charts</title>
+<meta name="description" content="221 color spaces in one open atlas: convert between any two, see their gamuts in 3D, read primaries, matrices and transfer formulas. Free, public domain." data-i18n="content:page.desc">
+<meta name="robots" content="max-image-preview:large">
 <link rel="canonical" href="https://color-space.io/">
-<meta property="og:title" content="Color spaces – complete list of 221 spaces, converter &amp; 3D charts | color-space" data-i18n="content:page.title">
+<meta property="og:title" content="Color Spaces: Converter, Formulas &amp; 3D Gamut Charts" data-i18n="content:page.title">
 <meta property="og:description" content="An open collection of 221 color spaces. Convert any space to any other in its conventional ranges, with 3D charts, code and LUTs." data-i18n="content:page.og-desc">
 <meta property="og:image" content="https://color-space.io/img/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
@@ -547,7 +548,7 @@ body.himg #imgfloat{ display:block }
 	.hl-lead{ position:absolute; inset-inline-start:0; top:var(--secp); margin:0; pointer-events:none }
 	.hl-fig{ --hl-sh:calc(var(--t5) + var(--s5)) } .hl-anns{ height:calc(var(--hl-ah) + var(--hl-sh)) } .hl-ms{ top:var(--hl-sh) } }   /* the flags' band a title's line taller, the flags (and so their lines) under it – the earliest stood in the title */
 .introcopy::before{ content:''; position:absolute; top:0; left:var(--gut); right:var(--gut); height:1px; background:var(--hair) }
-:is(.introcopy,.hl-lead,.compare) h2{ font-size:var(--t5); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
+:is(.introcopy,.hl-lead,.compare,.faq) h2{ font-size:var(--t5); line-height:1; letter-spacing:-.025em; font-weight:800; margin:0; text-wrap:balance }
 :is(.introcopy,.hl-lead) p{ margin:var(--s4) 0 0; color:var(--body); line-height:1.5; max-width:68ch }
 .hl-lead{ margin-bottom:var(--s8) }   /* narrow: the history's title over its chart */
 .introcopy em{ white-space:nowrap }
@@ -562,7 +563,7 @@ body.himg #imgfloat{ display:block }
    two columns of folded entries. No section title: the questions ARE the invitation */
 :is(.faq,.compare){ position:relative; padding:var(--secp) var(--gut) }
 :is(.faq,.compare)::before{ content:''; position:absolute; top:0; left:var(--gut); right:var(--gut); height:1px; background:var(--hair) }
-.fqs{ min-width:0; display:grid; grid-template-columns:1fr 1fr; column-gap:var(--s8); align-items:start }   /* two FIXED halves, not balancing columns — unfolding one entry must not shuffle its neighbours across columns */
+.faq>h2{ margin-bottom:var(--s4) } .fqs{ min-width:0; display:grid; grid-template-columns:1fr 1fr; column-gap:var(--s8); align-items:start }   /* two FIXED halves, not balancing columns — unfolding one entry must not shuffle its neighbours across columns */
 .fqcol{ min-width:0 }
 .fqa+.fqa{ border-top:1px solid var(--hair) }   /* a soft rule BETWEEN questions only — adjacent siblings, so column tops and bottoms stay clean */
 .fqa summary{ display:flex; align-items:baseline; gap:var(--s3); list-style:none; cursor:pointer; font-size:var(--t4); font-weight:700; letter-spacing:-.015em; line-height:1.25; padding:var(--s4) 0 var(--s5) }
@@ -938,7 +939,7 @@ body.mopen{ overflow:hidden; padding-right:var(--sb,0px) }   /* the page's scrol
 :root[data-embed] .mbox{ transition:none }
 /* the panel flows at its natural height and the viewport scrolls past it; overflow:hidden clips the
    3d canvas's rotation bleed (horizontal) — the panel never scrolls on its own */
-.mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:visible; box-shadow:var(--modal-shadow) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* visible (not hidden) so the sticky footer nav can track the .modal scroller; content is box-sized, nothing to clip */
+.mbox{ position:relative; width:var(--mboxw); margin:6.5rem auto 4rem; background:var(--paper); display:flex; overflow:clip; box-shadow:var(--modal-shadow) }   /* the top gap clears the LIVE header with air – attached, they read as one panel, which they are not */   /* clip, not hidden: no scroller of its own, so the sticky footer nav still tracks the .modal scroller; the card's edge cuts what a figure throws past it (the lifted plate's floor turned, the solid's canvases) */
 /* close × — the page's one cross (.ix), a size up: quiet, in the card's corner (the head's line end is its link and bookmark), inks on hover */
 .mx{ position:absolute; top:var(--s1); inset-inline-end:var(--s1); z-index:var(--z-raised); width:40px; height:40px; display:grid; place-items:center; --ic:24px; border:0; background:transparent; color:var(--soft); cursor:pointer; padding:0 }
 .mx:hover{ color:var(--ink) }
@@ -1049,7 +1050,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    switch at its bottom right; the three figures one height – switching never moves what follows */
 @media(max-width:640px){ .dpick{ grid-template-columns:1fr }
 	.dfig .vgrp:is([data-f="xy"],[data-f="tc"]){ max-width:14rem; translate:-6.25% 0 }   /* the plates' frames as wide as the solid's grid draws, and centred on the column, not their boxes – the label strip at a plate's left half-shifted out (the caption rides with them) */
-	.vgrp[data-f="3d"]{ translate:-4% 0 } .dfig .pl3d{ aspect-ratio:1 } .dfig .pl3d canvas{ top:-18% }   /* the solid's scene, drawn 4% right of its box to meet the plates' frames, centred too; its box square, the scene centred in it – no headroom above and below it */
+	.vgrp[data-f="3d"]{ translate:-4% 0 } .dfig .pl3d{ aspect-ratio:1 } .dfig .pl3d :is(canvas,.p3o){ top:-18% }   /* the solid's scene, drawn 4% right of its box to meet the plates' frames, centred too; its box square, the scene centred in it – no headroom above and below it */
 	.dpick{ gap:var(--s3) } .dfig{ min-height:17rem; justify-content:center }   /* the tallest of the three (the solid's square, the locus's plate) – the shorter centred in it */
 	.dfig .vgrp[data-f="tc"]{ max-width:none; translate:none } .dfig .vgrp[data-f="tc"]>:not(.tform){ max-width:14rem; translate:-6.25% 0 } .vgrp[data-f="tc"] .tform{ align-self:center; justify-items:center }   /* the curve's plot as the other plates are, its formula under it at the column's width, centred */
 	.dgrid2 .props :is(.xylist,.mtx){ font-size:var(--t1); column-gap:var(--s2) }   /* the primaries and the matrix side by side, each in a half */
@@ -1130,8 +1131,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    its own color, the held one resting meanwhile (cold): two states, on every instrument. On the hero's
    horseshoe and the xy plate a dot is its own target, a reach round it */
 .sto,.sts b{ position:absolute; width:var(--picker-dot-size); height:var(--picker-dot-size); translate:-50% -50%; border-radius:50%; background:#fff; box-shadow:var(--picker-shadow); pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),box-shadow var(--dur-micro) var(--ease-out) }   /* the picker's own outline: a white mark parted from a white field */
-:is(.sto,.sts b).hot,:is(.hlocus,.gam2d) .sto:hover{ width:var(--picker-size); height:var(--picker-size); background:var(--w); border:var(--picker-ring) solid #fff; box-shadow:var(--picker-shadow-on) }
-:is(.hlocus,.gam2d) .sto::before{ content:''; position:absolute; inset:calc(-1 * var(--s1)); border-radius:50% }
+:is(.sto,.sts b).hot,:is(.hlocus,.gam2d,.pl3d) .sto:hover{ width:var(--picker-size); height:var(--picker-size); background:var(--w); border:var(--picker-ring) solid #fff; box-shadow:var(--picker-shadow-on) }
+:is(.hlocus,.gam2d,.pl3d) .sto::before{ content:''; position:absolute; inset:calc(-1 * var(--s1)); border-radius:50% }
 .chs.mini .sts b:not(.hot){ width:var(--picker-dot-small-size); height:var(--picker-dot-small-size) }
 .hlocus .sto{ pointer-events:auto }
 :is(.ent.tc,.chs.mini) .sts b.hot{ width:var(--picker-small-size); height:var(--picker-small-size); border-width:var(--picker-small-ring) }
@@ -1147,14 +1148,14 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl.polar canvas{ background:var(--checker); border-radius:50% }
 .pl.parking .cx{ transition:left .15s var(--ease-out),top .15s var(--ease-out) }
 :is(.pl,.hlocus,.gam2d) .cx{ position:absolute; z-index:4; width:var(--picker-size); height:var(--picker-size); transform:translate(-50%,-50%); border-radius:50%; background:var(--tkc,transparent); border:var(--picker-ring) solid #fff; box-shadow:var(--picker-shadow); transition:box-shadow var(--dur-micro) var(--ease-out) }   /* exactly the slider thumb: the current color, the white ring, its shadow – above the axis letters and every mark */
-.pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center; overflow:hidden }   /* taller than square — tall rotations keep their top grid labels */
+.pl3d{ position:relative; width:100%; aspect-ratio:25/29; cursor:grab; touch-action:none; align-self:center }   /* taller than square — tall rotations keep their top grid labels; the scene may run past the box (the card clips) */
 .pl3d:active{ cursor:grabbing }
 /* canvases carry 36% headroom, but the PANEL clips: the solid never encroaches on the header or the gamut plate */
-.pl3d canvas{ position:absolute; left:-14%; top:-10%; display:block; width:136%; height:auto; aspect-ratio:1; pointer-events:none }   /* square canvases, sized by width; the scene sits 4% right of center, aligning a snapped frame with the plates' plots (their left label strips push their frames right) */
+.pl3d :is(canvas,.p3o){ position:absolute; left:-14%; top:-10%; display:block; width:136%; height:auto; aspect-ratio:1; pointer-events:none }   /* square canvases, sized by width; the scene sits 4% right of center, aligning a snapped frame with the plates' plots (their left label strips push their frames right) */
 .pl3d .grid3{ z-index:0 }
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
-.pl3d .marker3{ z-index:3 } .pl3d.busy canvas{ visibility:hidden }   /* a solid not yet drawn shows nothing – never the last one's */
+.pl3d .marker3{ z-index:3 } .pl3d .p3o{ z-index:4 } .pl3d.busy :is(canvas,.p3o){ visibility:hidden }   /* a solid not yet drawn shows nothing – never the last one's */
 .pl3d.busy::after{ content:''; position:absolute; inset:22% 18%; border-radius:50%; background:var(--hair) }   /* …but where it will stand, a soft disc, the sheen crossing it (busy) */
 /* full channel names, set along the direction of increase: x rightward, y upward */
 .pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }
@@ -1251,6 +1252,17 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .gxy .lt path,.gxy .lw{ stroke-opacity:.5 }   /* no rim, no reference triangles: the plate's colors are the horseshoe and the space's own reach */
 .gxy text{ fill:var(--soft); stroke:none; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums }
 .gam2d .cx{ pointer-events:none } .gam2d .sto{ pointer-events:auto; cursor:pointer }   /* another color's mark takes it in hand */
+.prm:not(:hover){ background:var(--edge); box-shadow:none }   /* a corner of the shape at rest: the edges' own gray, not another color's white dot */
+.prm{ cursor:inherit } .pl3d .sto{ pointer-events:auto } .pl3d .sto[data-j]{ cursor:pointer }   /* a primary's or a corner's mark tells its numbers – nothing to take: the figure's own cursor; another color's mark takes it */
+/* the xy plate lifts into xyY (wire3d's LIFT): the plate is the floor (.flr, turned as the floor turns), the solid's
+   canvases over it at 136% of its width, centred on it; the plate's hand turns it. Laid flat the plate alone shows –
+   its own marks the figure's; lifted, the solid's marks stand for them */
+.gam2d .flr{ position:absolute; inset:0 }
+.gam2d:has(.pl3d){ cursor:grab; touch-action:none } .gam2d:has(.pl3d):active{ cursor:grabbing }
+.dfig .gam2d .pl3d{ position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto; overflow:visible; pointer-events:none; cursor:inherit }
+.dfig .gam2d .pl3d :is(canvas,.p3o){ left:-18%; top:50%; translate:0 -50% }
+.gam2d .pl3d.busy::before,.gam2d .pl3d.busy::after{ content:none }
+.gam2d:not(.lift) .pl3d>*,.gam2d.lift .flr :is(.prm,.cx,.stov),.gam2d.lift~.grch{ visibility:hidden }   /* lifted, the reach's caption makes room for the floor */
 .gam2d .cx.ghost{ background:transparent; border-style:dashed; pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
 .dfig .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
 .export.dex{ background:none; border:0; padding:0; font-family:inherit; font-size:var(--t2); line-height:1.5 }   /* a props feature, not a terminal pane — the panel chrome belongs to the homepage exporters; .props i styles its label */
@@ -1392,7 +1404,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 			<button class="hib" type="button" id="heye" title="pick a color from the screen" aria-label="pick a color from the screen" data-i18n="title:ui.hero.eye aria-label:ui.hero.eye"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9M15 6l3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3z"/></svg></button>
 			<button class="hib" type="button" id="him" popovertarget="uppop" aria-expanded="false" title="read an image – its colors on every strip" aria-label="read an image" data-i18n="title:ui.hero.image-tip aria-label:ui.hero.image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></button>
 		</div>
-		<a class="hlocus" href="./" aria-label="color-space home" data-i18n="aria-label:ui.hero.home" style="--tkc:#808080"><svg aria-hidden="true" viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="M105.0 329.9L105.0 330.0L104.8 329.9L104.8 329.9L104.7 329.9L104.6 330.0L104.4 330.0L104.2 329.9L104.0 329.8L103.5 329.6L103.0 329.2L102.3 328.6L101.3 327.7L100.1 326.6L98.4 325.2L96.3 323.3L93.7 320.8L90.5 317.0L86.3 310.4L80.9 299.7L74.0 282.8L65.6 257.7L56.9 223.0L48.7 179.6L43.0 133.3L41.4 90.4L45.1 55.2L54.5 32.4L67.7 24.4L82.6 27.2L97.7 34.7L112.0 43.6L125.7 53.7L139.2 64.8L152.6 76.6L165.9 88.9L179.3 101.6L192.6 114.4L205.8 127.3L218.7 140.0L231.3 152.4L243.4 164.2L254.7 175.4L265.1 185.6L274.1 194.4L282.0 202.2L288.5 208.6L293.9 213.9L298.2 218.1L301.6 221.4L304.3 224.1L306.6 226.3L308.4 228.2L309.9 229.6L311.0 230.7L311.9 231.6L312.5 232.2L312.9 232.6L313.3 232.9L313.5 233.2L313.8 233.5L314.0 233.7L314.2 233.8L314.3 233.9L314.3 234.0Z"/><image class="all" width="320" height="352"/><image class="lim" width="320" height="352" clip-path="url(#hl-lim)"/><g class="lims"><path data-g="srgb" d="M278.9 210.1L152.0 110.6L96.0 309.6Z"/><path data-g="p3" d="M293.9 213.8L138.9 77.4L96.0 309.6Z"/><path data-g="rec2020" d="M304.3 224.1L103.4 38.0L88.9 314.8Z"/><path data-g="vis" d="M116.2 303.2L107.6 295.8L92.0 267.2L78.8 220.5L68.1 150.4L69.6 89.2L87.2 65.2L132.4 87.5L174.2 125.1L214.6 164.7L248.8 197.0L267.7 216.8L279.8 229.4Z"/><path data-g="locus" d="M105.0 329.9L105.0 330.0L104.8 329.9L104.8 329.9L104.7 329.9L104.6 330.0L104.4 330.0L104.2 329.9L104.0 329.8L103.5 329.6L103.0 329.2L102.3 328.6L101.3 327.7L100.1 326.6L98.4 325.2L96.3 323.3L93.7 320.8L90.5 317.0L86.3 310.4L80.9 299.7L74.0 282.8L65.6 257.7L56.9 223.0L48.7 179.6L43.0 133.3L41.4 90.4L45.1 55.2L54.5 32.4L67.7 24.4L82.6 27.2L97.7 34.7L112.0 43.6L125.7 53.7L139.2 64.8L152.6 76.6L165.9 88.9L179.3 101.6L192.6 114.4L205.8 127.3L218.7 140.0L231.3 152.4L243.4 164.2L254.7 175.4L265.1 185.6L274.1 194.4L282.0 202.2L288.5 208.6L293.9 213.9L298.2 218.1L301.6 221.4L304.3 224.1L306.6 226.3L308.4 228.2L309.9 229.6L311.0 230.7L311.9 231.6L312.5 232.2L312.9 232.6L313.3 232.9L313.5 233.2L313.8 233.5L314.0 233.7L314.2 233.8L314.3 233.9L314.3 234.0Z"/><text transform="translate(143.6 140.4) rotate(-74.3)" y="-4" text-anchor="middle">sRGB</text><text transform="translate(132.5 112.2) rotate(-79.5)" y="-4" text-anchor="middle">P3</text><text transform="translate(101.2 79.5) rotate(-87.0)" y="-4" text-anchor="middle">Rec. 2020</text><text transform="translate(69.1 107.5) rotate(-88.6)" y="-4" text-anchor="middle">Surface</text><text transform="translate(44.1 94.2) rotate(-88.4)" y="-4" text-anchor="middle">Light</text></g></svg><i class="cx" aria-hidden="true" style="left:41.63%;top:60.52%"></i></a>
+		<a class="hlocus" href="./" aria-label="color-space home" data-i18n="aria-label:ui.hero.home" style="--tkc:#808080"><svg aria-hidden="true" viewBox="36 18 290 318"><defs><clipPath id="hl-lim"><path/></clipPath><pattern id="hl-chk" width="12" height="12" patternUnits="userSpaceOnUse"><rect width="12" height="12"/><path d="M0 0h6v6H0zM6 6h6v6H6z"/></pattern></defs><path class="chk" d="M105.0 329.9L105.0 330.0L104.8 329.9L104.8 329.9L104.7 329.9L104.6 330.0L104.4 330.0L104.2 329.9L104.0 329.8L103.5 329.6L103.0 329.2L102.3 328.6L101.3 327.7L100.1 326.6L98.4 325.2L96.3 323.3L93.7 320.8L90.5 317.0L86.3 310.4L80.9 299.7L74.0 282.8L65.6 257.7L56.9 223.0L48.7 179.6L43.0 133.3L41.4 90.4L45.1 55.2L54.5 32.4L67.7 24.4L82.6 27.2L97.7 34.7L112.0 43.6L125.7 53.7L139.2 64.8L152.6 76.6L165.9 88.9L179.3 101.6L192.6 114.4L205.8 127.3L218.7 140.0L231.3 152.4L243.4 164.2L254.7 175.4L265.1 185.6L274.1 194.4L282.0 202.2L288.5 208.6L293.9 213.9L298.2 218.1L301.6 221.4L304.3 224.1L306.6 226.3L308.4 228.2L309.9 229.6L311.0 230.7L311.9 231.6L312.5 232.2L312.9 232.6L313.3 232.9L313.5 233.2L313.8 233.5L314.0 233.7L314.2 233.8L314.3 233.9L314.3 234.0Z"/><image class="all" width="320" height="352"/><image class="lim" width="320" height="352" clip-path="url(#hl-lim)"/><g class="lims"><path data-g="srgb" d="M278.9 210.1L152.0 110.6L96.0 309.6Z"/><path data-g="p3" d="M293.9 213.8L138.9 77.4L96.0 309.6Z"/><path data-g="rec2020" d="M304.3 224.1L103.4 38.0L88.9 314.8Z"/><path data-g="vis" d="M116.2 303.2L107.6 295.8L92.0 267.2L78.8 220.5L68.1 150.4L69.6 89.2L87.2 65.2L132.4 87.5L174.2 125.1L214.6 164.7L248.8 197.0L267.7 216.8L279.8 229.4Z"/><path data-g="locus" d="M105.0 329.9L105.0 330.0L104.8 329.9L104.8 329.9L104.7 329.9L104.6 330.0L104.4 330.0L104.2 329.9L104.0 329.8L103.5 329.6L103.0 329.2L102.3 328.6L101.3 327.7L100.1 326.6L98.4 325.2L96.3 323.3L93.7 320.8L90.5 317.0L86.3 310.4L80.9 299.7L74.0 282.8L65.6 257.7L56.9 223.0L48.7 179.6L43.0 133.3L41.4 90.4L45.1 55.2L54.5 32.4L67.7 24.4L82.6 27.2L97.7 34.7L112.0 43.6L125.7 53.7L139.2 64.8L152.6 76.6L165.9 88.9L179.3 101.6L192.6 114.4L205.8 127.3L218.7 140.0L231.3 152.4L243.4 164.2L254.7 175.4L265.1 185.6L274.1 194.4L282.0 202.2L288.5 208.6L293.9 213.9L298.2 218.1L301.6 221.4L304.3 224.1L306.6 226.3L308.4 228.2L309.9 229.6L311.0 230.7L311.9 231.6L312.5 232.2L312.9 232.6L313.3 232.9L313.5 233.2L313.8 233.5L314.0 233.7L314.2 233.8L314.3 233.9L314.3 234.0Z"/><text transform="translate(143.6 140.4) rotate(-74.3)" y="-4" text-anchor="middle">sRGB</text><text transform="translate(132.5 112.2) rotate(-79.5)" y="-4" text-anchor="middle">P3</text><text transform="translate(101.2 79.5) rotate(-87.0)" y="-4" text-anchor="middle">Rec. 2020</text><text transform="translate(69.1 107.5) rotate(-88.6)" y="-4" text-anchor="middle">Surface</text><text transform="translate(44.1 94.2) rotate(-88.4)" y="-4" text-anchor="middle">Light</text><g class="lk"><path d="M258.6 187.0L256.9 186.1L255.1 185.2L253.3 184.4L251.4 183.6L249.4 182.8L247.3 182.1L245.2 181.4L243.0 180.7L240.6 180.2L238.2 179.7L235.7 179.2L233.0 178.9L230.3 178.7L227.4 178.6L224.5 178.6L221.4 178.8L218.2 179.1L214.9 179.6L211.4 180.3L207.8 181.2L204.2 182.3L200.4 183.7L196.5 185.2L192.6 187.1L188.5 189.1L184.5 191.4L180.3 194.0L176.2 196.8L172.0 199.7L167.9 202.9L163.9 206.3L159.9 209.8L156.0 213.5L152.3 217.2L148.7 221.0L145.3 224.7L142.1 228.5L139.2 232.2L136.5 235.8L134.1 239.3M207.1 181.4L208.4 185.7M168.8 202.3L171.6 205.7M157.0 212.5L153.9 209.3"/><text x="210.2" y="192.0" text-anchor="middle" dominant-baseline="middle">A</text><text x="175.8" y="210.9" text-anchor="middle" dominant-baseline="middle">D50</text><text x="149.2" y="204.5" text-anchor="middle" dominant-baseline="middle">D65</text></g></g></svg><i class="cx" aria-hidden="true" style="left:41.63%;top:60.52%"></i></a>
 	</div>
 </section>
 <div class="hcolor" id="hcolor"><span class="cx"><span class="pstack" id="pstack"><span class="cdw" style="--sw:#808080;--swk:#fff"><input type="color" class="cd" id="cd" value="#808080" tabindex="-1" aria-hidden="true"><button class="cdb" id="cdb" type="button" aria-haspopup="listbox" aria-controls="csug" aria-label="the colors near this one" data-i18n="aria-label:ui.header.sug-tip"></button><span class="cvwarn" id="cvwarn" role="img" hidden><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h16.9a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg></span></span></span><span class="cxw"><textarea id="cval" placeholder="#808080" rows="1" spellcheck="false" autocomplete="off" autocapitalize="off" aria-label="current color – type hex, rgb(), oklch() or any CSS color, or a comma-separated list" enterkeyhint="done" aria-controls="csug" data-i18n="aria-label:ui.header.value"></textarea></span><button type="button" class="qclr" id="cvx" hidden title="clear the color" aria-label="clear the color" data-i18n="title:ui.header.clear aria-label:ui.header.clear"><svg class="ic ix" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button><span class="invite" id="invite"><input type="file" id="cvfile" accept="image/*,.heic,.heif" hidden></span><button class="palm" id="palm" type="button" hidden><span></span></button><div class="csug" id="csug" role="listbox" hidden aria-label="suggestions" data-i18n="aria-label:ui.header.sug"></div></span></div>
@@ -1612,7 +1624,8 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 	</ul>
 </section>
 
-<section class="faq" id="faq" aria-label="frequently asked questions" data-i18n="aria-label:faq.label">
+<section class="faq" id="faq" aria-labelledby="faq-title">
+	<h2 id="faq-title" data-i18n="faq.title">Questions</h2>
 	<div class="fqs">
 		<div class="fqcol">
 		<details class="fqa"><summary data-i18n="faq.what.q">What is a color space?</summary>
@@ -1714,11 +1727,13 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 import { space, meta, dirOnly, displays, clamp, classify, hueIdx, ramp, lensFor, plane, toSpace, hex, rgbOf, spaceCount, LUTOK, LUTTGT, pathToRgb, rotateHue, visibleXYZ, inVisSolid, tightGamut, xyOf } from './js/core.js'
 import LORE from './js/lore.js'
 import { primariesOf, trcOf } from './js/profile.js'
-import { definitionOf, rowsOf, ocioMatrix, formula, constants } from './js/definition.js'
-import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath, GXY, limPath, heroLocus, heroNames, heroAt, HERO_LIMS } from './js/locus.js'
+import { definitionOf, nativeOf, rowsOf, ocioMatrix, formula, constants } from './js/definition.js'
+import { mat3 } from '../math.js'
+import { footroom } from './js/footroom.js'
+import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath, GXY, unGXY, limPath, heroLocus, heroNames, heroAt, HERO_LIMS } from './js/locus.js'
 import GROUPS, { BOOKMARKS, STARTER } from './js/groups.js'
 import REACH from './js/reach.js'
-import { softGL, warmKernels, glLinking, glSerial, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
+import { plateBase, softGL, warmKernels, glLinking, glSerial, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -3209,6 +3224,14 @@ const optIcon=(fi,v)=>WHITE_XY[v]&&FACETS[fi]==='white point'?`<i class="wdot" s
 // a setting as a dropdown – Format's: a native select of the options (a group an optgroup), each {v, name, tip, group}
 const DROPS=new Map()
 const qesc=v=>String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')   // the page's own esc comes later in the module, and keeps quotes
+// a mark that tells its numbers – a primary on the xy plate, a volume's corner on the solid: another color's white dot,
+// grown into a picker of its own color when pointed at; its tip a head over rows of a label and its value
+const tellTip=(head,rows)=>` data-tip-head="${qesc(head)}" data-tip="${qesc(rows.map(([l,v])=>`${l} ${v}`).join('\u2003'))}"`   // its numbers on one line, an em space apart – as the header's readout
+const tellMark=(head,rows,hx,style='',i)=>`<i class="sto prm" style="--w:${hx};${style}"${i==null?'':` data-i="${i}"`}${tellTip(head,rows)}></i>`
+// …and another color in hand, told the same way: its value as the field says it, over its coordinates on the figure
+const stopMark=(c,j,rows,style='')=>`<i class="sto" data-j="${j}" style="--w:${hex(rgbF(c.s,c.vals))};${style}"${rows?tellTip(sayStop(c),rows):''}></i>`
+// a chromaticity's numbers, on the plate and the lifted plate alike: x, y and its luminance Y (a primary's: the share of white's light)
+const primRows=(x,y,Y)=>[['x',+x.toFixed(4)],['y',+y.toFixed(4)],['Y',+Y.toFixed(4)]]
 const dropHTML=(key,attrs,label,opts)=>{ const esc=qesc; let g=null, h=''
 	for(const o of opts){ if((o.group??null)!==g){ if(g!=null) h+='</optgroup>'; g=o.group??null; if(g!=null) h+=`<optgroup label="${esc(g)}">` }
 		h+=`<option value="${esc(String(o.v))}"${o.tip?` title="${esc(o.tip)}"`:''}>${esc(o.name)}</option>` }
@@ -3860,7 +3883,11 @@ function shaderText(s,lang){ const k=lang+':'+s
 const SZL={ 17:t('ui.lut.draft','draft'), ...Object.fromEntries(Object.entries(SIZE_LABEL).map(([n,l])=>[n,t(`editor.size.${n}`,l)])) }
 const SHAPERL=t(`editor.shaper`,SHAPER_LABEL)
 // ── the sRGB solid in this space: regular surface mesh, drag to rotate ──
-let rot3={a:-0.6,b:0.42}, mesh3=null, mesh3Rev=0, pts3=null, tris3=null, pts3S=null, pts3Map=null, pts3Unmap=null, thru3=null, mask3=null, TC=null
+// the lifted plate: Y = 1 stands LIFT_H plate-heights over its floor; its canvases (136% of the plate's width, centred on it)
+// draw a plate-height (352 of the plate's units) to the model unit, so seen from above the solid lands where the plate draws
+const LIFT_H=0.5, LIFT_SC=2*352/320/1.36
+let edge3=false   // the solid pointed at: its edges drawn
+let rot3={a:-0.6,b:0.42}, mesh3=null, mesh3Rev=0, pts3=null, tris3=null, pts3S=null, pts3Prims=null, pts3Fix=null, pts3Map=null, pts3Unmap=null, thru3=null, mask3=null, TC=null
 let hover3=null, hover3T=0
 const PLANE_SHEET_DELAY=120   // a drag passing over a plane: the slice waits for the hand to lift, polled at this beat
 // The solid starts in a subtle ambient turn. A moving release keeps that same slow pace
@@ -3915,18 +3942,52 @@ function spin3(){ cancelAnimationFrame(spinRaf); spinRaf=0
 		if(snap3||spinV3) spinRaf=requestAnimationFrame(step)
 		else spinRaf=0 }
 	spinRaf=requestAnimationFrame(step) }
+// the solid stands where the figure shown wants it: the xy plate shown, under the plate – lifted off it by a drag; else in
+// the solid's own figure (a space with no solid figure keeps it under its plate). True when it moved
+function placePl3d(){ const el=detail.querySelector('#pl3d'), gm=detail.querySelector('#gam2d'), home=detail.querySelector('.vgrp[data-f="3d"]')
+	const to=FIG==='xy'&&gm||home||gm; if(!el||!to||el.parentElement===to) return false
+	to.append(el); return true }
 function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=tris3=null; return }
-	const s=selected, cls=classify(s), P=[], T=[]
+	// under the xy plate (LIFT) the solid is the plate lifted into xyY, Y up: seen from above it IS the plate, and stays the
+	// plate till a hand tilts it. A space with primaries lifts its own RGB unit cube – in its own white, as the plate draws
+	// it (nativeOf); any other, the Limit's body. In its own figure, the solid is the Limit's body in the space's coordinates
+	const sel=selected, LIFT=!!el.closest('.gam2d'), G3=LIFT&&definitionOf(sel), L3=!!G3, s=LIFT?'xyy':sel, cls=classify(s), P=[], T=[]
+	// …a space with no primaries lifts its OWN body: its channels' box, each face's point through the space to XYZ, held to
+	// the visible (a box reaching past it – Lab's ±125 – stands on the surface solid's wall there); a one- or two-channel
+	// space has no box to lift, and lifts the Limit's body
+	const clsS=classify(sel), OWN=LIFT&&!L3&&clsS.ch.length===3
+	if(LIFT!==!!rot3.lift){ rot3=LIFT?{ a:0, b:Math.PI/2, lift:true }:{ a:-0.6, b:0.42 }; snap3=null }
+	if(LIFT) spinV3=0   // the plate held still, till a hand turns it
 	// the solid's source volume follows the gamut switch: a display cube (sRGB by
 	// default, P3/Rec.2020 widen it) or the visible gamut itself — the Rösch–MacAdam
 	// optimal-color surface, arriving as raw XYZ
-	let g3=GM   // light carries its own body now – the spectral cone up to the Y=100 lid (gl.lightSurf)
+	let g3=L3?sel:OWN?'own':GM   // light carries its own body now – the spectral cone up to the Y=100 lid (gl.lightSurf)
 	// a box-in-base space caps its view at sRGB — a wider volume decodes through
 	// out-of-base light into non-canonical junk sheets, never new shape
 	const inBase=boxInBase(s)
 	if(inBase) g3='srgb'
-	const gH=g3==='vis'||g3==='locus'   // both human-class bodies (surface zonoid, light cone) arrive as raw XYZ
-	const conv=g3==='srgb'?(v=>toSpace(s,v)):gH?(v=>s==='xyz'?v.slice():space.xyz[s](...v)):(v=>space[g3][s](...v.map(x2=>x2/255)))
+	const gH=g3==='vis'||g3==='locus'||OWN   // the human-class bodies (surface zonoid, light cone) and a space's own box arrive as raw XYZ
+	// a unit-cube point of the volume as its source: an RGB cube's code (0–255), or the own box's XYZ – with whether the
+	// visible cut it (a cut point stands on the surface solid's wall, no edge of the space's own)
+	const hueS=OWN?axes3(clsS).ai:-1   // the own box's hue channel – an angle, or a renamed wheel (Munsell's H, Coloroid's A)
+	const ftS=OWN&&footroom(space[sel],meta[sel])   // a log curve's box starts at its black: the codes under it are footroom (footroom.js)
+	const ownAt=OWN&&(()=>{ const ch=ftS?clsS.ch.map(c=>({ ...c, min:ftS.z })):clsS.ch, ctr=ch.map((c,k)=>k===hueS?null:(c.min+c.max)/2)
+		const xyzOf=v=>{ try{ const X=space[sel].xyz(...v); return X.every(isFinite)&&X[1]>=-1e-6?X:null }catch{ return null } }
+		// held to the visible – and a chroma-encoded gamma space to its base cube, as its plate is (gl.js plateBase): Cubehelix's
+		// box reaches past sRGB in the dark, colors its plate never paints
+		const bs=plateBase(sel), bR=bs&&meta[bs].range, inB=X=>{ try{ const b=space.xyz[bs](...X); return b.every((x2,k)=>{ const [l,h]=bR[k], p2=(h-l)*0.008; return isFinite(x2)&&x2>=l-p2&&x2<=h+p2 }) }catch{ return false } }
+		const held=X=>inVisSolid(...X)&&(!bs||inB(X))
+		return q=>{ const v=ch.map((c,k)=>c.min+(c.max-c.min)*q[k]); let X=xyzOf(v), cut=false
+			if(!X){ const at=t=>v.map((x2,k)=>ctr[k]==null?x2:ctr[k]+(x2-ctr[k])*t); if(!xyzOf(at(0))) return null   // past the space's own domain: toward its box's middle, the hue held
+				let lo=0, hi=1; for(let i2=0;i2<16;i2++){ const md=(lo+hi)/2; if(xyzOf(at(md))) lo=md; else hi=md }
+				X=xyzOf(at(lo)); cut=true }
+			if(!held(X)){ const Y=clamp(X[1],0,100), Gy=[Y*0.9504559,Y,Y*1.0890578]   // past the visible (or its base cube): toward the gray of its Y
+				let lo=0, hi=1; for(let i2=0;i2<16;i2++){ const md=(lo+hi)/2; if(held(Gy.map((g,k)=>g+(X[k]-g)*md))) lo=md; else hi=md }
+				X=Gy.map((g,k)=>g+(X[k]-g)*lo); cut=true }
+			return { X, cut } } })()
+	const srcAt=OWN?(q=>ownAt(q)):g3==='vis'||g3==='locus'?null:(q=>({ X:q.map(x2=>x2*255), cut:false }))
+	const lin3=v=>[v[0]/255,v[1]/255,v[2]/255]
+	const conv=L3?(v=>{ const X=mat3(G3.matrix,...lin3(v)), S3=X[0]+X[1]+X[2]; return [X[0]/S3,X[1]/S3,X[1]*100] }):g3==='srgb'?(v=>toSpace(s,v)):gH?(v=>s==='xyz'?v.slice():space.xyz[s](...v)):(v=>space[g3][s](...v.map(x2=>x2/255)))
 	// out-of-sRGB display colors desaturate toward their own luma until representable
 	// (closest ACTUAL color, hue and lightness held) — mirrors the GPU vertex rule
 	const gmap=r=>{ const lum=clamp(0.2126*r[0]+0.7152*r[1]+0.0722*r[2],0,255)
@@ -3937,7 +3998,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		// soft knee (mirrors the GPU): slightly-out barely desaturates, far-out grades
 		const ts=Math.pow(clamp(t,0,1),0.4)
 		return r.map(x2=>clamp(lum+(x2-lum)*ts,0,255)) }
-	const dispOf=g3==='srgb'?(v=>v):gH?(v=>gmap(space.xyz.rgb(...v))):(v=>gmap(space[g3].rgb(...v.map(x2=>x2/255))))
+	// the lifted plate's colors as the plate paints them: the light past sRGB's walls dropped, not dimmed toward its luma –
+	// a primary beyond sRGB stays its hue (the luma pull blacked ProPhoto's red and blue)
+	const dispOf=L3?(v=>{ const L=space.xyz.lrgb(...mat3(G3.hub,...lin3(v)).map(x2=>x2*100)).map(u=>Math.max(u,0)), m=Math.max(1,...L); return space.lrgb.rgb(...L.map(u=>u/m)) }):g3==='srgb'?(v=>v):gH?(v=>gmap(space.xyz.rgb(...v))):(v=>gmap(space[g3].rgb(...v.map(x2=>x2/255))))
 	// smooth achromatic taper (mirrors the GPU): 1 = full chroma, 0 = on the gray
 	// axis — a hard cliff saws the surface where real chroma meets a collapsed row.
 	// Box-in-base spaces collapse all-or-nothing instead: partially tapered junk
@@ -4047,6 +4110,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// The cap lattice sits 1.2% inset, below the degenerate zone, and its per-pixel
 	// roundtrip paints exactly the valid cross-section; under a closed dome it hides.
 	if(inBase&&ai!=null&&ti!=null) capMask|=1<<(ti*2+1)
+	if(LIFT) capMask=0   // the lifted plate has no range box to cut: the body stands whole on its floor
 	const norm=(v,k)=>clamp((v[k]-fmin[k])/(fmax[k]-fmin[k]),-0.2,1.2)
 	// box-in-base spaces reject past-the-box verts (solver noise, mirrors the GPU
 	// clip); everything else keeps its full shape — nothing real is ever cropped
@@ -4054,7 +4118,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		const r=(v[k]-dmin[k])/(dmax[k]-dmin[k]); return !(r>=-0.012&&r<=1.012) })):(v=>false)
 	const others=[0,1,2].filter(k=>k!==ti)
 	const hueRad=v=>(v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*2*Math.PI
-	const map3=v=>{
+	// the lifted plate's frame is the plate's own (GXY, its 352 units a model unit, its centre the axis): x and y where the
+	// plate draws them, Y = 0 its floor, Y = 100 LIFT_H over it
+	const map3=LIFT?(v=>{ const [u,w]=GXY(v); return [(v[2]/100-0.5)*LIFT_H,(u-160)/352,(w-176)/352] }):v=>{
 		if(wb){ const r=Math.max(0,1-norm(v,wI)-norm(v,bI))*0.55, h=hueRad(v)
 			return [0.5-norm(v,bI), r*Math.cos(h), r*Math.sin(h)] }
 		const y=norm(v,ti)-0.5
@@ -4065,7 +4131,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// the inverse — model coords back to channel values (the guides live in model
 	// space; membership tests live in channel space). Unclamped: beyond-range verts
 	// (the human view pierces the box) must read their true coordinates.
-	const unmap3=n=>{ const de=(f,k)=>fmin[k]+f*(fmax[k]-fmin[k])
+	const unmap3=LIFT?(n=>[...unGXY([n[1]*352+160,n[2]*352+176]),(n[0]/LIFT_H+0.5)*100]):n=>{ const de=(f,k)=>fmin[k]+f*(fmax[k]-fmin[k])
 		const v=[0,0,0]
 		if(wb){ const nB=0.5-n[0], r=Math.hypot(n[1],n[2])/0.55, nW=1-nB-r
 			let h=Math.atan2(n[2],n[1])/(2*Math.PI); if(h<0) h+=1
@@ -4141,13 +4207,17 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// membership, like the planes. Deliberately narrower than rtFaithful: merely
 	// approximate inverses (hwb's clamp, coloroid's tables) still image the body fine.
 	const FOLD3D=gH&&['hsm'].includes(s)
-	const gpu3=has3dGL(s)&&!FOLD3D
+	const gpu3=!LIFT&&has3dGL(s)&&!FOLD3D   // the lifted plate's frame is the plate's (map3), built here
 	// the GPU solid lives on ONE persistent canvas (contexts are scarce; buffers stay warm) – and so does the JS solid's
 	// WebGL1 under a software rasterizer, where the GPU one never takes it: a context there cost seconds to make, every dossier
-	if(gpu3||softGL()){ const mc=el.querySelector('.mesh3'); if(mc!==mesh3Canvas()){ mc.replaceWith(mesh3Canvas()); el.classList.add('busy') } }   // the shared canvas still holds the last solid: unseen till this one's first draw
+	{ const mc=el.querySelector('.mesh3'), sh=gpu3||softGL()
+		if(sh&&mc!==mesh3Canvas()){ mc.replaceWith(mesh3Canvas()); el.classList.add('busy') }   // the shared canvas still holds the last solid: unseen till this one's first draw
+		else if(!sh&&mc===mesh3Canvas()) mc.replaceWith(Object.assign(document.createElement('canvas'),{ className:'mesh3', width:mc.width, height:mc.height })) }   // the GPU's canvas is the GPU's: a solid built here (the lifted plate after the space's own) takes a canvas of its own
 	const build=()=>{
 	const G2=gpu3?12:64
-	if(gH){ const vsf=(g3==='locus'?lightSurf:visSurf)(gpu3?12:48), gv=vsf.G
+	if(OWN) for(let f=0;f<6;f++){ const k=f>>1, [a,b]=[0,1,2].filter(q=>q!==k)
+		face(36,(u,w)=>{ const q=[0,0,0]; q[k]=f&1; q[a]=u; q[b]=w; const o=srcAt(q); return o&&addVert(o.X) }) }
+	else if(gH){ const vsf=(g3==='locus'?lightSurf:visSurf)(gpu3?12:48), gv=vsf.G
 		face(gv,(u,w)=>{ const q=(Math.round(u*gv)*(gv+1)+Math.round(w*gv))*3
 			return addVert([vsf.pos[q],vsf.pos[q+1],vsf.pos[q+2]]) }) }
 	else for(let f=0;f<6;f++) face(G2,(u,w)=>{ const U=u*255, W=w*255
@@ -4204,16 +4274,41 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		? [cls.ch.map((c,k)=> k===ai ? win[0][k] : dmin[k]-(c.max-c.min)*0.08),
 			cls.ch.map((c,k)=> k===ai ? win[1][k] : dmax[k]+(c.max-c.min)*0.08)]
 		: win
-	mesh3={ rev:++mesh3Rev, verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
+	mesh3={ rev:++mesh3Rev, lift:LIFT, L3, verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
 		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5,
 		gpu:gpu3, g3, map:gpu3?{ gam:g3, win:winV, min:fmin, max:fmax, caps:capMask,
 			// cap planes sit at the solid's own extent — except the human view, whose
 			// cut walls are the declared box faces
 			cmin:dmin.map((x2,k)=>Math.max(x2,cls.ch[k].min)),   // cap wall clamped to the range face
 			cmax:dmax.map((x2,k)=>Math.min(x2,cls.ch[k].max)),
-			dcl:[cls.ch.map(c=>c.min),cls.ch.map(c=>c.max)], out:out3, clip:inBase,
+			// the declared box the overflow fades past – but a face not capped is no cut: a solid a hair past it (Display P3's
+			// blue face 0.07% over DCI-P3's) stays whole there, or that face drew as overflow, see-through
+			dcl:[cls.ch.map((c,k)=>capMask>>(k*2)&1?c.min:Math.min(c.min,dmin[k])),cls.ch.map((c,k)=>capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))], out:out3, clip:inBase,
 			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1, bip:cls.bips.slice(0,2).map(b2=>b2.i) }:null }
 	pts3=P; tris3=T; pts3S=s
+	// the volume's edges, each a line of points on the shape (null where it breaks): the twelve of a cube or a box – a hue
+	// channel's own edges skipped (where its angle is held, the box's seam runs over the shape's side, no edge of it), and
+	// the own box's where the visible cut it
+	mesh3.edges=srcAt&&(()=>{ const out=[], ang=k=>k===hueS
+		for(let k=0;k<3;k++){ const [a,b]=[0,1,2].filter(q=>q!==k); if(ang(a)||ang(b)) continue
+			for(const sa of [0,1]) for(const sb of [0,1]){
+				for(let i2=0;i2<=40;i2++){ const q=[0,0,0]; q[k]=i2/40; q[a]=sa; q[b]=sb; const o=srcAt(q), e=o&&!o.cut&&evalV(o.X); out.push(e?e.n:null) }
+				out.push(null) } }
+		return out })()
+	// the current color and the others in hand, in the lifted plate's frame: the space's own white (nativeOf)
+	const own3=L3&&nativeOf(sel)?.own
+	pts3Fix=own3?(v=>{ const [x,y,Y]=v; if(!(y>0)) return v; const q=own3([x*Y/y,Y,(1-x-y)*Y/y]), S3=q[0]+q[1]+q[2]; return [q[0]/S3,q[1]/S3,q[1]] }):null
+	// the volume's corners – its red, green, blue and white – where they land in this space; light's bodies have none
+	pts3Prims=gH?null:[[255,0,0],[0,255,0],[0,0,255],[255,255,255]].map(c=>{ try{ const v=conv(c); return v.every(isFinite)?v:null }catch{ return null } })
+	// …each a mark that tells where it lands: the volume's name and corner, its coordinates here – the lifted plate's, its
+	// primaries and white, as the plate marks them
+	const o3=el.querySelector('.p3o'), gn=GAMLABEL[g3], nf=(c,x)=>+x.toFixed(clamp(3-Math.floor(Math.log10(Math.abs(c.max-c.min)||1)),0,4))
+	const heads=L3?[t('ui.dossier.prim-r','red primary'),t('ui.dossier.prim-g','green primary'),t('ui.dossier.prim-b','blue primary'),t('ui.dossier.white-of','white point {w}',{w:G3.white==='ACES'?'D60':G3.white})]
+		:[t('ui.dossier.vol-r','{g} red',{g:gn}),t('ui.dossier.vol-g','{g} green',{g:gn}),t('ui.dossier.vol-b','{g} blue',{g:gn}),t('ui.dossier.vol-w','{g} white',{g:gn})]
+	// a point's numbers on this solid – the lifted plate's as the plate tells them; the corners' and the other colors' alike
+	mesh3.rows=LIFT?(v=>primRows(v[0],v[1],v[2]/100)):(v=>cls.ch.map((ch,k)=>[ch.sym,nf(ch,v[k])]))
+	if(o3){ o3._h=null; o3.innerHTML=(pts3Prims||[]).map((v,i)=>{ if(!v) return ''; const c=[0,1,2].map(k=>i===3||k===i?255:0)
+		return tellMark(heads[i],mesh3.rows(v),hex(dispOf(c)),'',i) }).join('') }
 	// ── reference frame: soft grid at nice channel stops on the far planes — the
 	// fitted box for cartesian spaces, the disc + wall for cylindrical ones ──
 	const ticks=(lo,hi,n=4)=>{ const span=hi-lo||1, mag=10**Math.floor(Math.log10(span/n))
@@ -4221,7 +4316,8 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		const out=[]; for(let v=Math.ceil(lo/step-1e-9)*step; v<=hi+span*1e-9; v+=step)
 			out.push({ v:Math.abs(v)<step/1e6?0:v, f:(v-lo)/span })
 		return out }
-	mesh3.gd=ai!=null
+	mesh3.gd=LIFT?{ kind:'lift', ty:ticks(0,1).map(t=>({ ...t, y:(t.f-0.5)*LIFT_H })) }
+		: ai!=null
 		? { kind:'cyl', R:0.55, deg:cls.ch[ai].max===360,
 			ysym:cls.ch[wb?bI:ti].sym, hsym:cls.ch[ai].sym,
 			ty:ticks(fmin[wb?bI:ti],fmax[wb?bI:ti]).map(t=>({ ...t, y:wb?0.5-t.f:t.f-0.5 })),
@@ -4229,8 +4325,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			th:(fmax[ai]-fmin[ai]===360?Array.from({length:12},(_,q)=>({ v:fmin[ai]+q*30, f:q/12 }))
 				:ticks(fmin[ai],fmax[ai],8).filter(t=>t.f<0.999)).map(t=>({ ...t, a:t.f*2*Math.PI })),
 			tr:wb?[0.25,0.5,0.75].map(f=>({ r:f*0.55 })):ticks(fmin[mi],fmax[mi]).map(t=>({ ...t, r:t.f*0.55 })) }
-		: { kind:'box', dims:[ti,others[0],others[1]].map(k=>({ sym:cls.ch[k].sym,
-			t:ticks(fmin[k],fmax[k]).map(t=>({ ...t, x:t.f-0.5 })) })) }
+		: { kind:'box', dims:[ti,others[0],others[1]].map(k=>({ sym:cls.ch[k].sym, t:ticks(fmin[k],fmax[k]).map(t=>({ ...t, x:t.f-0.5 })) })) }
 	// two fits, both computed once: r bounds any rotation (marker depth), f0 fits the
 	// spawn rotation to the FRAME alone — the scale is the frame's, mode-independent;
 	// a solid that pierces the box simply overflows into the canvas headroom
@@ -4243,11 +4338,16 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		rim.push([-0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)],[0.5,0.55*Math.cos(a2),0.55*Math.sin(a2)]) }
 	else for(let q=0;q<8;q++) rim.push([q&1?0.5:-0.5,q&2?0.5:-0.5,q&4?0.5:-0.5])
 	for(const n of rim){ const f=ext(n)*1.14; if(f>mesh3.f0) mesh3.f0=f }   // the frame + its labels stay in view
+	// the hand turns it where it stands: the solid's own box, or the plate it lies under (its own box lets the plate's marks
+	// be pointed at); another color's mark is a press that takes it, not a turn
+	const hd=LIFT?el.parentElement:el, off3=x=>{ if(x) x.onpointerdown=x.onpointermove=x.onpointerup=x.onpointercancel=x.ondblclick=x.onpointerenter=x.onpointerleave=null }
+	off3(LIFT?el:detail.querySelector('#gam2d'))   // the other place's hand let go
 	let px0=0,py0=0,mx3=0,my3=0,move3T=-Infinity,move3Dir=1
-	el.onpointerdown=e=>{ drag3=true; spinV3=0; snap3=null; move3T=-Infinity
-		px0=mx3=e.clientX; py0=my3=e.clientY; el.setPointerCapture(e.pointerId) }
-	el.onpointermove=e=>{ if(!drag3) return
-		rot3.a+=(e.clientX-px0)*0.011; rot3.b=clamp(rot3.b+(e.clientY-py0)*0.011,-Math.PI/2,Math.PI/2)
+	hd.onpointerdown=e=>{ if(e.target.closest('.sto[data-j]')) return
+		drag3=true; spinV3=0; snap3=null; move3T=-Infinity
+		px0=mx3=e.clientX; py0=my3=e.clientY; hd.setPointerCapture(e.pointerId) }
+	hd.onpointermove=e=>{ if(!drag3) return
+		rot3.a+=(e.clientX-px0)*0.011; rot3.b=clamp(rot3.b+(e.clientY-py0)*0.011,LIFT?0:-Math.PI/2,Math.PI/2)   // the plate is seen from above, never from under its floor
 		px0=e.clientX; py0=e.clientY
 		// only travel beyond a ±5px rectangle counts as motion — release jitter can't
 		// read as a fling, and the still-hold park survives a trembling hand. Timestamp
@@ -4257,7 +4357,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			mx3=e.clientX; my3=e.clientY; moved=true }
 		draw3d()
 		if(moved) move3T=performance.now() }
-	el.onpointerup=()=>{ drag3=false
+	hd.onpointerup=()=>{ if(!drag3) return; drag3=false
 		// release: near a top/front/side plane view SNAPS; a pointer held still 100ms+
 		// PARKS — an explicit "stay", for reading a view against a plane slice; anything
 		// else resumes the one ambient pace, turning the way the hand last moved.
@@ -4268,18 +4368,19 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		const now=performance.now()
 		if((cyl||Math.abs(rot3.a-na)<0.14)&&Math.abs(rot3.b-nb)<0.14){ spinV3=0
 			if(SPIN3===0){ if(!cyl) rot3.a=na; rot3.b=nb; draw3d() }   // reduced motion: no glide
-			else snap3={a:cyl?rot3.a:na,b:clamp(nb,-Math.PI/2,Math.PI/2)} }
+			else snap3={a:cyl?rot3.a:na,b:clamp(nb,LIFT?0:-Math.PI/2,Math.PI/2)} }
 		else if(now-move3T>=100) spinV3=0
 		else spinV3=SPIN3*move3Dir
 		spin3() }
-	el.onpointercancel=el.onpointerup
-	el.ondblclick=()=>{ rot3={a:-0.65,b:0.5}; snap3=null; spinV3=SPIN3; draw3d(); spin3() }
+	hd.onpointercancel=hd.onpointerup
+	hd.onpointerenter=()=>{ edge3=true; draw3d() }; hd.onpointerleave=()=>{ edge3=false; draw3d() }   // pointed at, the solid shows its edges
+	hd.ondblclick=e=>{ if(e.target.closest('.sto[data-j]')) return; rot3=LIFT?{ a:0, b:Math.PI/2, lift:true }:{a:-0.65,b:0.5}; snap3=null; spinV3=LIFT?0:SPIN3; draw3d(); spin3() }   // the plate laid flat again
 	const m=mesh3; requestAnimationFrame(()=>{ if(mesh3===m){ draw3d(); spin3() } }) }   // its first draw (the bake, the grid) a frame on: two tasks, never one long one
 	// the mesh built off the open path – the GPU's a frame after the card shows (its lattice and programs took a dossier's
 	// click 100 ms and more), the JS one's (munsell's iterative caps) a beat later; the solid pulses till then (.busy)
 	mesh3=null; el.classList.add('busy'); const tok=++wire3dTok
-	if(gpu3) requestAnimationFrame(()=>setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() }))
-	else setTimeout(()=>{ if(tok===wire3dTok&&selected===s&&open()) build() },30) }
+	if(gpu3) requestAnimationFrame(()=>setTimeout(()=>{ if(tok===wire3dTok&&selected===sel&&open()) build() }))
+	else setTimeout(()=>{ if(tok===wire3dTok&&selected===sel&&open()) build() },30) }
 function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
 	// multisampled on a GPU; a software rasterizer's multisampled context cost 2 s to create, every solid drawn this way
 	const opt={ alpha:true, antialias:!softGL(), stencil:true }, gl=cv.getContext('webgl',opt)||cv.getContext('experimental-webgl',opt)
@@ -4369,10 +4470,10 @@ function drawPtsGL(cv,m,scale3,sheet,frame){ const st=gl3d(cv); if(!st||!m.tpos.
 				gl.bufferData(gl.ARRAY_BUFFER,v,gl.DYNAMIC_DRAW)
 				gl.clear(gl.STENCIL_BUFFER_BIT)
 				gl.drawArrays(gl.TRIANGLES,0,v.length/3) }
-			const [tr,tg,tb]=frame.tint
-			rib(frame.fr,1,1,1,0.85); rib(frame.co,tr,tg,tb,1)
+			const [tr,tg,tb]=frame.tint, A=frame.al||[0.85,1,0.38,0.2]   // as drawMesh3GL: the fringe's and the core's alpha, in front then behind
+			rib(frame.fr,1,1,1,A[0]); rib(frame.co,tr,tg,tb,A[1])
 			gl.depthFunc(gl.GREATER)
-			rib(frame.fr,1,1,1,0.38); rib(frame.co,tr,tg,tb,0.2)
+			rib(frame.fr,1,1,1,A[2]); rib(frame.co,tr,tg,tb,A[3])
 			gl.depthFunc(gl.LEQUAL)
 			gl.disable(gl.STENCIL_TEST); gl.depthMask(true); gl.disable(gl.BLEND) } }
 	return true }
@@ -4393,8 +4494,13 @@ let ctr3=null, ln3=null, gu3=null
 // encoded range near black and inflated cuts (ohta's cut triangle overshot its shape).
 // Canonical coordinates only: the xyz roundtrip drops fold branches (hwb's w+b>100) —
 // skipped for approximate-inverse spaces (rtFaithful), where it would flicker on real colors.
-const inSolid3=(s,cls,g3,v)=>{ try{
+const inSolid3=(s,cls,g3,v)=>{ const gH=g3==='vis'||g3==='locus'; try{   // gH its own: wire3d's is out of reach here (read from there, it threw – every point outside)
+	if(mesh3?.L3){ const G=definitionOf(g3), [x,y,Y]=v; if(!(y>0)) return false   // the lifted plate: the space's own unit cube
+		return mat3(G.inverse,x*Y/y/100,Y/100,(1-x-y)*Y/y/100).every(u=>u>=-0.002&&u<=1.002) }
+	if(g3==='own'){ const X=space[s].xyz(...v), c=classify(selected).ch, w=space.xyz[selected](...X)   // the lifted plate's own box, held to the visible
+		return X.every(isFinite)&&inVisSolid(...X)&&c.every((ch,k)=>ch.type==='angle'||isFinite(w[k])&&w[k]>=ch.min-(ch.max-ch.min)*0.002&&w[k]<=ch.max+(ch.max-ch.min)*0.002) }
 	if(gH){ const X=s==='xyz'?v:space[s].xyz(...v)
+		if(g3==='locus'){ const Y=X[1]; return X.every(isFinite)&&Y>=0&&Y<=100.01&&inVisSolid(...X.map(c=>c*2/Math.max(Y,1e-9))) }   // light's cone: a chromaticity inside the horseshoe (seen dark, where the surface solid reaches it), any Y to the lid
 		return X.every(isFinite)&&inVisSolid(...X) }
 	const gv=g3==='srgb'?space[s].rgb(...v).map(x2=>x2/255):space[s][g3](...v)
 	if(!gv.every(x2=>isFinite(x2)&&x2>=-0.002&&x2<=1.002)) return false
@@ -4527,24 +4633,44 @@ function draw3d(){ if(!mesh3||!open()) return
 	const meshCv=el.querySelector('.mesh3'), cv=el.querySelector('.hud3'), gcv=el.querySelector('.grid3')
 	const cw=(widthOf(el)||352)*1.36
 	const bs=Math.min(Math.round(cw*(devicePixelRatio||1)),1200)
-	if(bs&&cv.width!==bs){ cv.width=cv.height=meshCv.width=meshCv.height=gcv.width=gcv.height=bs }
+	// each canvas to the backing size on its own: the mesh canvas may be the GPU's shared one, last sized for another figure –
+	// matched to the hud alone, it kept its old size, and the marker canvas (sized by it) drew the picker out of scale
+	if(bs) for(const c of [cv,meshCv,gcv]) if(c.width!==bs){ c.width=c.height=bs; c._sceneKey=c._gridKey=c._hudKey=null }
 	const ctx=cv.getContext('2d'), S2=cv.width, dp=S2/cw
 	const ca=Math.cos(rot3.a),sa=Math.sin(rot3.a),cb=Math.cos(rot3.b),sb=Math.sin(rot3.b)
 	const rot=n=>{ const y=n[0], x=n[1]??0, z=n[2]??0
 		const X1=x*ca+z*sa, Z1=-x*sa+z*ca
 		return { x:X1, y:y*cb-Z1*sb, z:y*sb+Z1*cb } }
-	const mv=valsFor(pts3S); let markerN=null
+	const mv=vals3(); let markerN=null
 	if(mv&&pts3Map) markerN=pts3Map(mv)
 	// one STATIC scale: the solid's own fit – the plates share its column, one shown at a
 	// time, so there is no neighbour's frame to match. Diagonal rotations may run into the
 	// canvas bleed and crop at the element edge — the design has always traded that for a full box.
 	const wN=mesh3.gd?.kind==='cyl'?1.02:1   // the cylinder's rim (1.1 wide) may run a hair past the plates
-	const scale3=Math.min(0.66/mesh3.f0, 1.4/wN), sc=S2*scale3/2
+	const scale3=mesh3.lift?LIFT_SC:Math.min(0.82/mesh3.f0, 1.6/wN), sc=S2*scale3/2   // the frame and its labels a little past the box, into the column's gap (the card clips at its own edge) – its marks and labels keep their size (dp)
 	meshCv._scale3=scale3; meshCv._markerDp=dp
+	// the lifted plate: the plate itself is the floor, turned as the floor turns (an orthographic plane: one affine map), the
+	// solid over it; laid flat (from above, unturned) the plate alone is the figure – its own marks, nothing drawn over them
+	if(mesh3.lift){ const gm=el.parentElement, flr=gm.querySelector('.flr'), up=Math.abs(rot3.b-Math.PI/2)>1e-3||Math.abs(Math.sin(rot3.a))>1e-3||Math.cos(rot3.a)<0
+		gm.classList.toggle('lift',up)
+		if(flr) flr.style.transform=up?`matrix(${ca},${-sa*sb},${sa},${ca*sb},0,${LIFT_H/2*cb*widthOf(el)*352/320})`:''
+		if(!up) return }
 	// the hovered plane's sheet, built (and cached) BEFORE the mesh draw — it renders
 	// inside the GL scene, depth-tested against the body
 	let sheet3=null, frame3=null, cut3=null
-	if(hover3&&hover3.i==null&&mv&&pts3Map){ const clsE=classify(pts3S)
+	// model points to clip space (null breaks a line), and a line as ribbons there – screen-true widths, the depth buffer's
+	const clip3=ns=>ns.map(n=>{ if(!n) return null; const r=rot(n); return [r.x*scale3, r.y*scale3, -0.7*r.z-0.0015] })   // z nudged viewer-ward: a line ON a face reads visible, never z-fights
+	const rib3=(C,off,hw,out=1)=>{ const V=[], px=2/S2
+		for(let k=0;k<C.length-1;k++){ const p=C[k], q=C[k+1]; if(!p||!q) continue
+			let dx=q[0]-p[0], dy=q[1]-p[1]; const L=Math.hypot(dx,dy)||1; dx/=L; dy/=L
+			const nx=-dy*out, ny=dx*out
+			const e=hw*px   // square-cap extension: joins overlap, the stencil dedups
+			const ax=p[0]-dx*e, ay=p[1]-dy*e, bx=q[0]+dx*e, by=q[1]+dy*e
+			const lo=(off-hw)*px, hi=(off+hw)*px
+			V.push(ax+nx*lo,ay+ny*lo,p[2], bx+nx*lo,by+ny*lo,q[2], ax+nx*hi,ay+ny*hi,p[2],
+				ax+nx*hi,ay+ny*hi,p[2], bx+nx*lo,by+ny*lo,q[2], bx+nx*hi,by+ny*hi,q[2]) }
+		return new Float32Array(V) }
+	if(hover3&&hover3.i==null&&mv&&pts3Map&&!mesh3.lift){ const clsE=classify(pts3S)
 		const fiE=[0,1,2].find(k=>k!==hover3.a&&k!==hover3.b)
 		// a hue×tone plane doesn't cut a FLAT sheet — swept together, hue-angle and the
 		// vertical axis trace a curved TUBE wall. Its parameter-rectangle perimeter then
@@ -4567,27 +4693,20 @@ function draw3d(){ if(!mesh3||!open()) return
 		// for the pane — the frame ghosts ONLY where the body is truly in front of it.
 		// Dark core rides the boundary; the white fringe hugs its OUTSIDE.
 		const fk=`${rot3.a},${rot3.b}|${scale3}|${S2}`
-		if(ctr3.per&&ctr3.frK!==fk){ const C=ctr3.per.map(n=>{ if(!n) return null
-				const r=rot(n); return [r.x*scale3, r.y*scale3, -0.7*r.z-0.0015] })   // z nudged viewer-ward: a frame ON a face reads visible, never z-fights
+		if(ctr3.per&&ctr3.frK!==fk){ const C=clip3(ctr3.per)
 			let ar=0
 			for(let k=0;k<C.length-1;k++){ const p=C[k], q=C[k+1]; if(p&&q) ar+=p[0]*q[1]-q[0]*p[1] }
-			const out=ar>0?-1:1, px=2/S2   // CCW loop keeps its interior on the LEFT of travel
-			const rib=(off,hw)=>{ const V=[]
-				for(let k=0;k<C.length-1;k++){ const p=C[k], q=C[k+1]; if(!p||!q) continue
-					let dx=q[0]-p[0], dy=q[1]-p[1]; const L=Math.hypot(dx,dy)||1; dx/=L; dy/=L
-					const nx=-dy*out, ny=dx*out
-					const e=hw*px   // square-cap extension: joins overlap, the stencil dedups
-					const ax=p[0]-dx*e, ay=p[1]-dy*e, bx=q[0]+dx*e, by=q[1]+dy*e
-					const lo=(off-hw)*px, hi=(off+hw)*px
-					V.push(ax+nx*lo,ay+ny*lo,p[2], bx+nx*lo,by+ny*lo,q[2], ax+nx*hi,ay+ny*hi,p[2],
-						ax+nx*hi,ay+ny*hi,p[2], bx+nx*lo,by+ny*lo,q[2], bx+nx*hi,by+ny*hi,q[2]) }
-				return new Float32Array(V) }
-			ctr3.frK=fk; ctr3.frame={ fr:rib(0.75*dp,0.75*dp), co:rib(0,0.6*dp), tint:CUT3 } }
+			const out=ar>0?-1:1   // CCW loop keeps its interior on the LEFT of travel
+			ctr3.frK=fk; ctr3.frame={ fr:rib3(C,0.75*dp,0.75*dp,out), co:rib3(C,0,0.6*dp,out), tint:CUT3 } }
 		frame3=ctr3.per?ctr3.frame:null }
+	// the solid's edges – its volume's own (a cube's twelve, a box's) – while the solid is pointed at: a gray hair, the same
+	// scene geometry as a pane's frame, so the depth buffer hides what the body stands in front of – the outer form's edges alone
+	else if(edge3&&mesh3.edges){ const C=clip3(mesh3.edges)
+		frame3={ fr:new Float32Array(0), co:rib3(C,0,0.5*dp), tint:CUT3, al:[0,0.5,0,0] } }   // the outer form's edges alone: behind the body, none
 	// The body, image cloud and histogram-conditioned sheet are scene pixels, not picker
 	// pixels. While a slider/plane drag only moves the HUD marker, keep this canvas intact:
 	// a large image cloud must never be replayed merely to move one diamond.
-	const sceneKey=`${mesh3.rev}|${rot3.a},${rot3.b}|${scale3}|${S2}|${Q}|${QM}|${HIMG?hRev:'-'}|${sheet3||frame3?ctr3?.key:''}`
+	const sceneKey=`${mesh3.rev}|${rot3.a},${rot3.b}|${scale3}|${S2}|${Q}|${QM}|${HIMG?hRev:'-'}|${sheet3||frame3?ctr3?.key:''}|${frame3?.al?'E':''}`
 	let drewGL=!!(meshCv&&meshCv._sceneKey===sceneKey)
 	let bodyM=mask3?._sceneKey===sceneKey?mask3:meshCv
 	if(!drewGL){
@@ -4617,7 +4736,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	const CUT='oklch(0.32 0.012 70)', WHT='#fff', GHOST='oklch(0.5 0.01 70/.6)'   // CUT: the hover cut weight on the near surface; WHT: everything ghosted — hidden arcs, the sheet frame, beyond-the-solid line; GHOST: the dashed guides' gray
 	const gridKey=`${mesh3.rev}|${rot3.a},${rot3.b}|${scale3}|${S2}`
 	const farC=gd?.kind==='box'?[0,1,2].map(d=>{ const dir=[0,0,0]; dir[d]=1; return rot(dir).z<0?0.5:-0.5 }):null
-	const yF=gd&&gd.kind!=='box'?(rot([1,0,0]).z<0?0.5:-0.5):-0.5
+	const yF=gd?.kind==='lift'?-LIFT_H/2:gd&&gd.kind!=='box'?(rot([1,0,0]).z<0?0.5:-0.5):-0.5
 	if(gcv._gridKey!==gridKey){ gcv._gridKey=gridKey; gx.clearRect(0,0,S2,S2)
 	const GRID='oklch(0.5 0.01 70/.15)', EDGE='oklch(0.5 0.01 70/.34)', TXT='oklch(0.5 0.01 70/.85)'
 	const fmtT=v=>String(Math.abs(v)>=1000?Math.round(v):+v.toPrecision(3))
@@ -4625,7 +4744,15 @@ function draw3d(){ if(!mesh3||!open()) return
 	gx.lineWidth=dp; gx.textAlign='center'; gx.textBaseline='middle'
 	const F9=`600 ${Math.round(9.5*dp)}px Inter,sans-serif`, F10=`700 ${Math.round(10.5*dp)}px Inter,sans-serif`
 	gx.font=F9
-	if(gd&&gd.kind==='box'){
+	if(gd?.kind==='lift'){ // the plate is the floor and its own x and y; the solid's one more axis, Y, stands at the plate frame's
+		// top left – over the plate's own y axis, behind the solid as the plate tilts back – its values on the side away from the middle
+		const up=clamp(Math.abs(cb)*4-0.15,0,1), O=v=>prj(pts3Map(v))   // opening as the floor tilts away from the eye
+		if(up>0.03){ const o0=O([0,0.9,0]), o1=O([0,0.9,100]), sd=o0.x<S2/2?-1:1, cx3=0, cy3=0.9
+			gx.globalAlpha=up; gx.strokeStyle=EDGE; gx.beginPath(); gx.moveTo(o0.x,o0.y); gx.lineTo(o1.x,o1.y); gx.stroke()
+			gx.fillStyle=TXT; gx.textAlign=sd<0?'right':'left'
+			for(const t of gd.ty) if(t.v>0){ const p=O([cx3,cy3,t.v*100]); gx.fillText(fmtT(t.v),p.x+sd*6*dp,p.y) }
+			gx.font=`italic ${F10}`; gx.textAlign='center'; gx.fillText('Y',o1.x,o1.y-12*dp); gx.font=F9; gx.globalAlpha=1 } }
+	else if(gd&&gd.kind==='box'){
 		const pt=(d,cd,e,ve,f2,vf)=>{ const n=[0,0,0]; n[d]=cd; n[e]=ve; n[f2]=vf; return n }
 		gx.strokeStyle=GRID; gx.beginPath()
 		for(let d=0;d<3;d++){ const [e,f2]=[0,1,2].filter(k=>k!==d)
@@ -4670,7 +4797,7 @@ function draw3d(){ if(!mesh3||!open()) return
 			gd.dims[d].t.forEach((t,q)=>{ if(q%lt) return
 				const p=prj(pt(d,t.x,e,best.se,f2,best.sf))
 				gx.fillText(fmtT(t.v),cl3(p.x+ox/ol*off),cl3(p.y+oy/ol*off)) })
-			const ps=prj(pt(d,0.5,e,best.se,f2,best.sf))
+			const ps=prj(pt(d,gd.dims[d].end,e,best.se,f2,best.sf))   // the sym past the max end
 			gx.font=F10; gx.fillText(gd.dims[d].sym,cl3(ps.x+ox/ol*off*2.1),cl3(ps.y+oy/ol*off*2.1)); gx.font=F9
 			gx.globalAlpha=1 } }
 	else if(gd){ // cylinder: far disc (spokes + rings) and the far half of the wall
@@ -4768,7 +4895,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	// volume: in front of the body it veils it, behind it the body wins (per pixel),
 	// and the cross-section stays a clean hole cut at the membership wall.
 	// Cylindrical spaces curve naturally: samples run through the solid's own map3.
-	if(hud&&hover3&&mv&&pts3Map){ const cls3=classify(pts3S), chs=cls3.ch
+	if(hud&&hover3&&mv&&pts3Map&&!mesh3.lift){ const cls3=classify(pts3S), chs=cls3.ch
 		const P3=v2=>{ const n=pts3Map(v2); return n.every(isFinite)?prj(n):null }
 		ctx.save(); ctx.lineJoin=ctx.lineCap='round'
 		if(hover3.i!=null){ const c=chs[hover3.i], N=72
@@ -4822,14 +4949,13 @@ function draw3d(){ if(!mesh3||!open()) return
 				ctx.strokeStyle=CUT; ctx.globalAlpha=1; ctx.lineWidth=1.2*dp; ctx.stroke(); ctx.globalAlpha=1 } }
 		ctx.restore() }
 	// the current color, oriented: dashed perpendiculars dropped onto the gridded
-	// planes — ghosting white through the body. A hovered SLIDER retires them (its
-	// own line wears the same dashes end to end); the hovered plane keeps them,
+	// planes — ghosting white through the body. A hovered slider or plane keeps them,
 	// riding above the pane film (bodyM keeps the film out of the cover mask).
 	// They ride the marker's overlay, with the marker: a held color moves them every frame
 	// without this scene (paint3dMarker) – drawn from this view's projection and body mask
 	const m3=mesh3
-	draw3d.guides=ctx=>{ if(m3!==mesh3||!gd||hover3&&hover3.i!=null) return
-		const mv=valsFor(pts3S), markerN=mv&&pts3Map?pts3Map(mv):null; if(!markerN?.every(isFinite)) return
+	draw3d.guides=ctx=>{ if(m3!==mesh3||!gd) return   // a hovered slider keeps them: its line is the solid dark one again, the drops beside it
+		const mv=vals3(), markerN=mv&&pts3Map?pts3Map(mv):null; if(!markerN?.every(isFinite)) return
 		const ghost=(draw,wa)=>ghostOn(ctx,draw,wa)
 		ctx.save(); ctx.lineWidth=dp; ctx.setLineDash([3*dp,3.5*dp])
 		const cg3=classify(pts3S)
@@ -4850,7 +4976,8 @@ function draw3d(){ if(!mesh3||!open()) return
 		const drop=n2=>{ const p=prj(n2)
 			dline(markerN,n2)
 			dotD.push(p); return p }
-		if(gd.kind==='box') for(let d=0;d<3;d++){ const n2=markerN.slice(); n2[d]=farC[d]; drop(n2) }
+		if(gd.kind==='lift') drop([yF,markerN[1],markerN[2]])   // straight down to its chromaticity on the plate
+		else if(gd.kind==='box') for(let d=0;d<3;d++){ const n2=markerN.slice(); n2[d]=farC[d]; drop(n2) }
 		else{ drop([yF,markerN[1],markerN[2]])
 			dline([yF,markerN[1],markerN[2]],[yF,0,0]) }
 		if(farD.length||dotD.length) ghost(g2=>{ g2.setLineDash([3*dp,3.5*dp]); g2.lineWidth=dp; g2.strokeStyle=GHOST
@@ -4859,23 +4986,33 @@ function draw3d(){ if(!mesh3||!open()) return
 			for(const p of dotD){ g2.beginPath(); g2.arc(p.x,p.y,2*dp,0,7); g2.fill() } },0.85)
 		ctx.restore() }
 	paint3dMarker() }
+// the current color in the solid's frame: the plotted space's values – the lifted plate's in its own white (pts3Fix)
+const vals3=()=>{ const v=valsFor(pts3S); return v&&pts3Fix?pts3Fix(v):v }
 function paint3dMarker(){ if(!mesh3||!open()||!pts3Map) return
 	const el=detail.querySelector('#pl3d'); if(el&&!seen(el,show3d)) return
+	if(mesh3.lift&&!el?.parentElement.classList.contains('lift')) return   // the plate laid flat marks its own
 	const meshCv=el?.querySelector('.mesh3'), cv=el?.querySelector('.marker3')
 	if(!el||!meshCv||!cv||!meshCv._scale3) return
 	if(cv.width!==meshCv.width){ cv.width=meshCv.width; cv.height=meshCv.height }
 	const ctx=cv.getContext('2d'), S2=cv.width; ctx.clearRect(0,0,S2,S2)
 	draw3d.guides?.(ctx)   // the dashed drops to the grid, with the marker – never left behind by a held color
-	const mv=valsFor(pts3S); if(!mv)return
+	const mv=vals3(); if(!mv)return
 	const n=pts3Map(mv); if(!n?.every(isFinite))return
 	const ca=Math.cos(rot3.a),sa=Math.sin(rot3.a),cb=Math.cos(rot3.b),sb=Math.sin(rot3.b), sc=S2*meshCv._scale3/2, dp=meshCv._markerDp||1
 	const at=n=>{ const y=n[0], x=n[1]??0, z=n[2]??0, X1=x*ca+z*sa, Z1=-x*sa+z*ca; return [S2/2+X1*sc,S2/2-(y*cb-Z1*sb)*sc] }
 	const P=v=>{ const n2=v&&pts3Map(v); return n2?.every(isFinite)?at(n2):null }
 	// the other colors in hand, a gradient's run between them – the flat white line, as on a plane
-	const run=gradIn(pts3S)
+	const fx=pts3Fix||(v=>v), run=gradIn(pts3S)?.map(fx)
 	if(run){ ctx.save(); ctx.lineCap=ctx.lineJoin='round'; ctx.strokeStyle='#fff'; ctx.globalAlpha=.85; ctx.lineWidth=dp
 		ctx.beginPath(); let q=false; for(const v of run){ const p=P(v); if(!p){ q=false; continue } q?ctx.lineTo(...p):ctx.moveTo(...p); q=true } ctx.stroke(); ctx.restore() }
-	STOPS?.forEach((c,j)=>{ if(j===STOPI) return; const p=P(valsIn(c,pts3S)); if(p) drawPicker(ctx,...p,dp,true) })
+	const pc=(d,p)=>{ d.hidden=!p; if(p){ d.style.left=p[0]/S2*100+'%'; d.style.top=p[1]/S2*100+'%' } }
+	el.querySelectorAll('.p3o .prm').forEach(d=>pc(d,P(pts3Prims?.[+d.dataset.i])))   // the volume's corners, as the xy plate marks its primaries
+	// the other colors in hand: marks of their own, as the plates' – pointed at, each tells its value and its numbers here
+	const o3=el.querySelector('.p3o'), st=[]
+	STOPS?.forEach((c,j)=>{ if(j===STOPI) return; const v=valsIn(c,pts3S), w=v&&fx(v), p=P(w); if(p) st.push([c,j,w,p]) })
+	const html=st.map(([c,j,w])=>stopMark(c,j,mesh3.rows(w))).join('')
+	if(o3._h!==html){ o3._h=html; o3.querySelectorAll('.sto[data-j]').forEach(d=>d.remove()); o3.insertAdjacentHTML('beforeend',html) }
+	o3.querySelectorAll('.sto[data-j]').forEach((d,k)=>pc(d,st[k][3]))
 	drawPicker(ctx,...at(n),dp,false,hex(RGB())) }
 function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=s   // the dossier now drawn – a name view's baked shell is no one's until built
 	figIO.disconnect(); figOwed.clear()   // the last dossier's figures, unseen or not, are no one's now
@@ -4915,10 +5052,17 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	// every view lens – limits, mode, metric – rides the header rail now; the dossier row is bare
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
-	const solidHTML=has3d?`<div class="vgrp" data-f="3d"><div class="pl3d" id="pl3d" title="${t('ui.dossier.solid-tip','its colors as a solid, a channel an axis; drag to turn it')}"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas></div></div>`:''
+	// one solid, two places (placePl3d): the solid figure's own, or under the xy plate – lifted off it into xyY by a drag
+	const pl3dHTML=`<div class="pl3d" id="pl3d" title="${t('ui.dossier.solid-tip','its colors as a solid, a channel an axis; drag to turn it')}"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas><div class="p3o"></div></div>`
+	const solidHTML=has3d?`<div class="vgrp" data-f="3d">${pl3dHTML}</div>`:''
 	const LOCUS1=s==='wavelength'   // one-way, forward-only: its reach IS the spectral locus — drawn in JS, no inverse needed
 	const FWD1=!!space[s]?.xyz     // no GL inverse ≠ no plate: a forward map is enough to SAMPLE the reach
-	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}<text class="gnm" x="316" y="14" text-anchor="end">CIE 1931 xy</text></svg><span class="cx"></span></div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
+	// the definition's corners on the plate: its red, green, blue and white, each a dot of its own color – pointed at, its
+	// chromaticity and its luminance Y, the share of white's light it carries (the matrix's middle row; white's is 1)
+	const prmHTML=G?[['r',G.primaries.r,0],['g',G.primaries.g,1],['b',G.primaries.b,2],['w',G.wxy,-1]].map(([k,xy,i])=>{ const Y=i<0?1:G.matrix[3+i], [u,v]=GXY(xy)
+		const head=i<0?t('ui.dossier.white-of','white point {w}',{w:G.white==='ACES'?'D60':G.white}):{r:t('ui.dossier.prim-r','red primary'),g:t('ui.dossier.prim-g','green primary'),b:t('ui.dossier.prim-b','blue primary')}[k]
+		return tellMark(head,primRows(xy[0],xy[1],Y),hex(rgbF('xyy',[xy[0],xy[1],Y*100])),`left:${(u/3.2).toFixed(2)}%;top:${(v/3.52).toFixed(2)}%`) }).join(''):''
+	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d"><div class="flr"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}<text class="gnm" x="316" y="14" text-anchor="end">CIE 1931 xy</text></svg>${prmHTML}<span class="cx"></span></div>${has3d?'':pl3dHTML}</div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
 	// the definition's numbers – the primaries as printed (padded with figure spaces so the points align), the matrix, the
 	// curve's formula; each label's tip says what it is. The curve's formula rides its plot (the figure's transfer), the
 	// primaries and the matrix each its record column's last item
@@ -5093,7 +5237,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	detail.querySelectorAll('.bar2').forEach(bar=>{
 		bar.addEventListener('pointerenter',()=>{ hover3={ i:+bar.dataset.i }; draw3d() })
 		bar.addEventListener('pointerleave',()=>{ hover3=null; draw3d() }) })
-	wire3d()
+	placePl3d(); wire3d()
 	paintGamut(); paintImages()
 	ric(()=>{ const row=detail.querySelector('#imgrow'); if(!row||detail._s!==s) return; row._pre=true; if(figOwed.delete(row)) paintImages() },{ timeout:1500 })   // the image panels, under the fold, drawn once the card has landed – ready before a scroll gets there
 	// hub spaces: the family list shows 8 children, the rest unfold on demand
@@ -5103,6 +5247,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	if(figseg) figseg.onclick=e=>{ const b=e.target.closest('button[data-v]'); if(!b) return; FIG=b.dataset.v; try{ localStorage.csFig=FIG }catch{}
 		detail.querySelector('#dfig').dataset.v=FIG
 		figseg.querySelectorAll('button').forEach(x=>{ const on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',String(on)) })
+		if(placePl3d()) wire3d()   // the solid moved between the figure and the plate: built again for where it now stands
 		;({ '3d':draw3d, xy:paintGamut, tc:paintTC })[FIG]() }   // a figure shown is painted at its size – hidden, it had none
 	const irow2=detail.querySelector('#imgrow')
 	if(irow2){ const nextImage=()=>{ if(!IMGS) return; imgIdx=(imgIdx+1)%IMGS.length; IMG=IMGS[imgIdx]; paintImages() }
@@ -5379,7 +5524,7 @@ function paintFwdPlate(el){ const cv=el.querySelector('canvas'), s=selected
 	gamGrid(cv); gamMarker() }
 function fwdBuild(s){ if(FWDQ.has(s)||FWD.has(s)||!space[s]?.xyz) return
 	FWDQ.add(s)
-	const cls=classify(s), dim=cls.ch.length
+	const cls=classify(s), dim=cls.ch.length, own=nativeOf(s)?.own
 	const N=dim<=1?96:dim===2?48:dim===3?15:8, total=N**dim   // ≈2–4k samples whatever the dimension
 	const st={ i:0, out:[] }
 	const step=()=>{ const t0=performance.now()
@@ -5388,6 +5533,7 @@ function fwdBuild(s){ if(FWDQ.has(s)||FWD.has(s)||!space[s]?.xyz) return
 			let ix=st.i; const v=cls.ch.map(c3=>{ const q=ix%N; ix=(ix/N)|0; return c3.min+(c3.max-c3.min)*(q+.5)/N })
 			let X; try{ X=space[s].xyz(...v) }catch{ continue }
 			if(!X.every(isFinite)) continue
+			if(own) X=own(X)
 			const s3=X[0]+X[1]+X[2]; if(!(s3>0)) continue
 			let rgb; try{ rgb=rgbF(s,v) }catch{ rgb=[128,128,128] }
 			st.out.push(X[0]/s3,X[1]/s3,...rgb.map(u2=>Math.max(0,Math.min(255,Math.round(u2))))) }
@@ -5459,6 +5605,16 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC||!seen(
 	const tn=TC.pts.length-1
 	const at=f=>{ const t=clamp(f,0,1)*tn, i=Math.floor(t); return TC.pts[i]+(TC.pts[Math.min(i+1,tn)]-TC.pts[i])*(t-i) }
 	c2.clearRect(0,0,W,H); c2.lineWidth=hair
+	// the code in equal steps, each a bar over the light it covers, in the gray that light shows: an even ramp of grays,
+	// the bars narrow where the curve spends its codes – the darks, for a gamma; evenly, for a linear space
+	if(!TC.bars){ const N=16, lv=k=>TC.lo+(TC.hi-TC.lo)*k/N, up=TC.pts[tn]>=TC.pts[0]
+		// the light a code is reached at: the samples are monotonic, either way – a binary search, then the segment's line
+		const inv=v=>{ let a=0, b=tn; while(b-a>1){ const m=(a+b)>>1; (TC.pts[m]<v)===up?a=m:b=m } const p=TC.pts[a], q=TC.pts[b]; return (a+(q===p?0:clamp((v-p)/(q-p),0,1)))/tn }
+		TC.bars=Array.from({length:N},(_,k)=>{ const f0=inv(lv(k)), f1=inv(lv(k+1)), f=inv(lv(k+.5))
+			return { x0:Math.min(f0,f1), x1:Math.max(f0,f1), top:lv(k+1), c:hex(space.lrgb.rgb(f,f,f)) } }) }
+	const px=v=>Math.round(v/hair)*hair   // on device pixels: neighbours share an edge, no seam between them
+	for(const b of TC.bars){ const x0=px(X(b.x0)), x1=px(X(b.x1)); if(x1<=x0) continue   // side by side, no gap: the ramp reads as one
+		c2.fillStyle=b.c; c2.fillRect(x0,Y(b.top),x1-x0,Y(TC.lo)-Y(b.top)) }
 	// the same soft reference grid the plates share: quarter rules, firmer frame
 	c2.strokeStyle='oklch(0.5 0.01 70/.15)'
 	for(const f of [.25,.5,.75]){ c2.beginPath(); c2.moveTo(X(f),T); c2.lineTo(X(f),H-B); c2.stroke()
@@ -5466,10 +5622,11 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC||!seen(
 	c2.strokeStyle='oklch(0.5 0.01 70/.34)'; c2.strokeRect(L+hair/2,T+hair/2,W-L-hair,H-B-T-hair)
 	c2.setLineDash([4,4]); c2.strokeStyle='oklch(0.5 0.01 70/.3)'
 	c2.beginPath(); c2.moveTo(L,H-B); c2.lineTo(W-1,T); c2.stroke(); c2.setLineDash([])
-	// the curve
-	c2.strokeStyle=ink2; c2.lineWidth=2; c2.beginPath()
-	TC.pts.forEach((v,i)=>{ const x=X(i/tn), y=Y(v); i?c2.lineTo(x,y):c2.moveTo(x,y) })
-	c2.stroke()
+	// the curve, parted from the bars by a line of paper – an ink line alone sinks into the gray of its own tone
+	const paper=(paintTC.paper??={})[th]??=getComputedStyle(document.documentElement).getPropertyValue('--paper').trim()||'#fff'
+	c2.beginPath(); TC.pts.forEach((v,i)=>{ const x=X(i/tn), y=Y(v); i?c2.lineTo(x,y):c2.moveTo(x,y) })
+	c2.strokeStyle=paper; c2.lineWidth=4; c2.stroke()
+	c2.strokeStyle=ink2; c2.lineWidth=2; c2.stroke()
 	// 18% gray – the spec anchor, a quiet hollow notch
 	c2.beginPath(); c2.arc(X(0.18),Y(at(0.18)),2.6,0,7); c2.strokeStyle=ink2; c2.lineWidth=1.1; c2.stroke()
 	// endpoint code values – snap float dust (cmyk's K lo = 1e-14) to a clean zero
@@ -5501,7 +5658,8 @@ function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el)
 	try{ xyz=master.s==='xyz'?master.vals:space[master.s].xyz(...master.vals) }catch{}
 	if(!xyz||!xyz.every(isFinite)||Math.abs(xyz[0]+xyz[1]+xyz[2])<1e-9){
 		try{ xyz=space.rgb.xyz(...rgb) }catch{ return } }
-	try{ const [fx,fy]=gamutPos(...xyOf(...xyz))
+	const own=nativeOf(selected)?.own||(v=>v)   // the plate's frame: the space's own white, as its reach is drawn (nativeOf)
+	try{ const [fx,fy]=gamutPos(...xyOf(...own(xyz)))
 		cx.style.left=(clamp(fx,0,1)*100)+'%'; cx.style.top=(clamp(fy,0,1)*100)+'%'
 		// two ways a coordinate can name no color: brighter than the MacAdam limit at
 		// its chromaticity, or (in a box-in-base space like HSI) decoding through
@@ -5515,8 +5673,9 @@ function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el)
 			cx.classList.toggle('ghost',!!bey); cx.title=bey }
 		const qfx=qTriple(Q), fr2=qfx?byteRGB(qfx(rgb)):rgb; setTk(el,hex(fr2),ink(fr2)) }catch{}   // the held picker's colors, as the planes' (detailTk)
 	// the other colors in hand on the plate, a gradient's run through them – the planes' marks
-	markStops(el,'xyz',v=>{ const q=xyOf(...v); if(!q) return [0,0,false]; const [fx,fy]=gamutPos(...q); return [clamp(fx,0,1)*100,clamp(fy,0,1)*100,true] }) }
-detail.addEventListener('click',e=>{ const d=e.target.closest?.('.gam2d .sto'); if(d) pickStop(+d.dataset.j) })   // another color's mark takes it in hand
+	markStops(el.querySelector('.flr'),'xyz',v=>{ const q=xyOf(...own(v)); if(!q) return [0,0,false]; const [fx,fy]=gamutPos(...q); return [clamp(fx,0,1)*100,clamp(fy,0,1)*100,true] },
+		v=>{ const o=own(v), q=xyOf(...o); return q&&primRows(q[0],q[1],o[1]/100) }) }
+detail.addEventListener('click',e=>{ const d=e.target.closest?.(':is(.gam2d,.pl3d) .sto[data-j]'); if(d) pickStop(+d.dataset.j) })   // another color's mark takes it in hand
 // Seven complementary specimens: exact signal, physical target, contextual perception,
 // broadcast calibration, data-map paths, emissive clipping and flat print. The same seven drive the
 // picker rail and every dossier so distributions stay comparable across families.
@@ -5926,10 +6085,10 @@ function paintCatalogGrad(ents,now=false,morph=!(PDOWN||autoColor)){ const hx=he
 // once per picker drawn, every frame of a drag
 let PK=null
 const pickerPx=()=>PK??=(cs=>{ const rem=parseFloat(cs.fontSize), px=n=>parseFloat(cs.getPropertyValue(n))*rem
-	return { dot:px('--picker-dot-size'), size:px('--picker-size'), ring:px('--picker-ring'), outline:cs.getPropertyValue('--picker-outline').trim() } })(getComputedStyle(document.documentElement))
+	return { dot:px('--picker-dot-size'), size:px('--picker-size'), ring:px('--picker-ring'), outline:cs.getPropertyValue('--picker-outline-rest').trim() } })(getComputedStyle(document.documentElement))
 const drawPicker=(ctx,x,y,k,dot=false,fill)=>{ const P=pickerPx()
 	ctx.beginPath()
-	if(dot){ ctx.arc(x,y,P.dot*k/2,0,7); ctx.fillStyle='#fff'; ctx.fill(); return }
+	if(dot){ ctx.arc(x,y,P.dot*k/2+k/4,0,7); ctx.fillStyle=P.outline; ctx.fill(); ctx.beginPath(); ctx.arc(x,y,P.dot*k/2,0,7); ctx.fillStyle='#fff'; ctx.fill(); return }   // its hair outline, as .sto's
 	const d=P.size*k, w=P.ring*k
 	if(fill){ ctx.arc(x,y,d/2-w,0,7); ctx.fillStyle=fill; ctx.fill(); ctx.beginPath() }   // the color inside the ring, the ring over its edge
 	ctx.arc(x,y,(d-w)/2,0,7); ctx.lineWidth=w; ctx.strokeStyle='#fff'; ctx.stroke()
@@ -6034,7 +6193,7 @@ function planePos(pl,cls,v){ const a=+pl.dataset.a, b=+pl.dataset.b, dossier=!!p
 // plain line in the picker's ink (--tki, the host's), as its rings are. `at` lands a coordinate of `s` on the host, in % of its box: [x, y,
 // shown]; host._marks keeps where each landed (with its coordinates) – a press reads it to take a stop, to snap to one.
 // The run breaks where it leaves the window or wraps – a hue turning past the plane's edge comes in at the other
-function markStops(host,s,at){ let ov=host._ov
+function markStops(host,s,at,rows){ let ov=host._ov   // rows: a stop's coordinates as its tip tells them – the plates' dots, pointed at
 	if(!STOPS){ if(ov){ ov.remove(); host._ov=null; host._marks=host._pts=null } return }
 	if(!ov){ ov=host._ov=document.createElement('div'); ov.className='stov'; ov.innerHTML=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path/></svg>`; host.append(ov) }
 	let d='', q=null
@@ -6043,7 +6202,7 @@ function markStops(host,s,at){ let ov=host._ov
 	ov.querySelector('path').setAttribute('d',d)
 	const marks=[], dots=[], hv=heldIn(s), hp=hv&&at(hv)
 	STOPS.forEach((c,j)=>{ if(j===STOPI) return; const v=valsIn(c,s); if(!v) return; const [x,y,on]=at(v); if(!on) return
-		marks.push({ j, x, y, v }); dots.push(`<i class="sto" data-j="${j}" style="left:${x}%;top:${y}%;--w:${hex(rgbF(c.s,c.vals))}"></i>`) })
+		marks.push({ j, x, y, v }); dots.push(stopMark(c,j,rows?.(v),`left:${x}%;top:${y}%`)) })
 	const html=dots.join(''); if(ov._h!==html){ ov._h=html; ov.querySelectorAll('.sto').forEach(d=>d.remove()); ov.insertAdjacentHTML('beforeend',html) }
 	host._marks=marks; host._pts=hp?.[2]?[...marks,{ j:STOPI, x:hp[0], y:hp[1] }]:marks }
 const planeMarks=(pl,s,cls)=>markStops(pl,s,v=>planePos(pl,cls,v))
@@ -6060,8 +6219,8 @@ const planeMarks=(pl,s,cls)=>markStops(pl,s,v=>planePos(pl,cls,v))
 		const r=h.getBoundingClientRect(), [m]=nearest(h._pts,p=>Math.hypot(r.left+p.x/100*r.width-e.clientX,r.top+p.y/100*r.height-e.clientY))
 		hotEl=h; h.classList.toggle('cold',m.j!==STOPI); h.querySelectorAll('.sto,.sts b').forEach(d=>d.classList.toggle('hot',+d.dataset.j===m.j)) },{ passive:true })
 	// the horseshoe's and the xy plate's dots are their own targets: pointed at, told the same
-	document.addEventListener('pointerover',e=>{ const d=e.target.closest?.(':is(.hlocus,.gam2d) .sto'); if(d) tell(+d.dataset.j) })
-	document.addEventListener('pointerout',e=>{ if(e.target.closest?.(':is(.hlocus,.gam2d) .sto')&&!e.relatedTarget?.closest?.(':is(.hlocus,.gam2d) .sto')) tell(null) })
+	document.addEventListener('pointerover',e=>{ const d=e.target.closest?.(':is(.hlocus,.gam2d,.pl3d) .sto[data-j]'); if(d) tell(+d.dataset.j) })
+	document.addEventListener('pointerout',e=>{ if(e.target.closest?.(':is(.hlocus,.gam2d,.pl3d) .sto[data-j]')&&!e.relatedTarget?.closest?.(':is(.hlocus,.gam2d,.pl3d) .sto[data-j]')) tell(null) })
 	document.addEventListener('pointerout',e=>{ if(!e.relatedTarget) off() }) }
 // …and on a strip or a bar: each other stop's value on its channel, a mark in the picker's ink
 // the marks are kept, moved, never rebuilt: a drag changes their places (a style write each – one element restyled), and
@@ -6523,7 +6682,7 @@ renderFast(); paintCatalogGrad()
 		const q=xyOf(...X); mk.style.display=q?'':'none'; if(!q) return
 		const [l,tp]=heroAt(q), c=RGB(); mk.style.left=l.toFixed(2)+'%'; mk.style.top=tp.toFixed(2)+'%'
 		setTk(mk,hex(c),ink(c))   // the held picker's colors on its mark, the drawing's one reader: written on the drawing, they restyled the whole svg each step of the orbit – in Safari, a third of its frame
-		markStops(box,'xyz',v=>{ const q2=xyOf(...v); return q2?[...heroAt(q2),true]:[0,0,false] }) }
+		markStops(box,'xyz',v=>{ const q2=xyOf(...v); return q2?[...heroAt(q2),true]:[0,0,false] },v=>{ const q2=xyOf(...v); return q2&&primRows(q2[0],q2[1],v[1]/100) }) }
 	heroLimit=()=>lim.setAttribute('d',LIMD(GM))   // every Limit fills its own region – Surface too, else picking it would show nothing
 	heroPaint(); heroLimit() }
 // ── the history: after the catalog, built as the reader nears it (its module off the boot path) ──

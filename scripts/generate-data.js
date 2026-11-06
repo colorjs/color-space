@@ -14,7 +14,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import space from '../index.js'
 import gamut, { whites, matrix } from '../gamuts.js'
-import { inv3 } from '../math.js'
+import { inv3, mul3 } from '../math.js'
+import { bradfordAdaptation } from '../spaces/xyz.js'
 import whitepoint from '../whitepoints.js'
 import { CMF } from '../spaces/wavelength.js'
 import { REF, TOL } from '../test/refs.js'
@@ -173,8 +174,10 @@ const data = {
 	version,
 	count: names.length,
 	spaces,
-	// each gamut's linear RGB → XYZ (row-major, white Y = 1, its own white): RP 177 from the primaries; inverse: XYZ → RGB
-	gamuts: Object.fromEntries(Object.entries(gamut).map(([k, g]) => { const m = matrix(g); return [k, { ...g, matrix: m, inverse: inv3(m) }] })),
+	// each gamut's linear RGB → XYZ (row-major, white Y = 1, its own white): RP 177 from the primaries; inverse: XYZ → RGB;
+	// hub: linear RGB → the library's hub XYZ (D65, Y = 1) – the matrix its conversion runs, Bradford-adapted where the white isn't D65
+	gamuts: Object.fromEntries(Object.entries(gamut).map(([k, g]) => { const m = matrix(g), XYZ = ([x, y]) => [x / y, 1, (1 - x - y) / y]
+		return [k, { ...g, matrix: m, inverse: inv3(m), hub: g.white === 'D65' ? m : mul3(bradfordAdaptation(XYZ(whites[g.white]), XYZ(whites.D65)), m) }] })),
 	whites,
 	whitepoints: whitepoint,
 	// CIE 1931 2° color-matching functions, 380–700 nm at 5 nm, standard ȳ(555)=1

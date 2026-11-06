@@ -13,6 +13,8 @@
 // ride the same chunks via the `lut` contract — see bindLuts.
 import { glsl, graph, chunks, luts } from '../../dist/color-space-gl.js'
 import { physBound, dirOnly, rtFaithful, space, meta, pathToRgb, classify, locus, LOCUS_EPS, d65, visSolid } from './core.js'
+import { nativeOf } from './definition.js'
+import { footroom } from './footroom.js'
 export { rtFaithful }
 import NAMES from './names.js'
 import * as PALS from './palettes.js'
@@ -1467,6 +1469,7 @@ void main() {
 		o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
 	}, null, { kind: 'mesh', label: 'cloud' })   // linked in the background like every program: an image dropped once waited out its compile
 }
+const FRAME_AL = [0.85, 1, 0.38, 0.2]   // a pane's frame: white fringe and dark core, faint where the body stands in front
 export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0, metric = 'oklab') {
 	if (!has3dGL(s)) return false
 	const gam = map?.gam ?? 'srgb'
@@ -1621,10 +1624,10 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 				gl.bufferData(gl.ARRAY_BUFFER, v, gl.DYNAMIC_DRAW)
 				gl.clear(gl.STENCIL_BUFFER_BIT)
 				gl.drawArrays(gl.TRIANGLES, 0, v.length / 3) }
-			const [tr, tg, tb] = frame.tint
-			rib(frame.fr, 1, 1, 1, 0.85); rib(frame.co, tr, tg, tb, 1)
+			const [tr, tg, tb] = frame.tint, A = frame.al || FRAME_AL   // al: the fringe's and the core's alpha in front, then behind the body
+			rib(frame.fr, 1, 1, 1, A[0]); rib(frame.co, tr, tg, tb, A[1])
 			gl.depthFunc(gl.GREATER)
-			rib(frame.fr, 1, 1, 1, 0.38); rib(frame.co, tr, tg, tb, 0.2)
+			rib(frame.fr, 1, 1, 1, A[2]); rib(frame.co, tr, tg, tb, A[3])
 			gl.depthFunc(gl.LEQUAL)
 			gl.disable(gl.STENCIL_TEST); gl.depthMask(true) } }
 	// ── the cloud, last: the image's own colours at their own coordinates. Its bake rides
@@ -1674,6 +1677,18 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 // space's reachable chromaticities rendered vivid, the rest ghosted – the
 // "shape of the gamut on the xy plane" panel of the dossier ──
 
+// a chroma-encoded gamma space's base: the first rgb cube on its path before xyz (the reach is held to it – gamutProg below,
+// and the lifted plate's own box); null for any other space
+export const plateBase = (s) => {
+	if (s === 'rgb' || meta[s]?.encoding !== 'gamma' || classify(s).archetype === 'additive') return null
+	const path = pathToRgb(s) || []
+	for (let i = 1; i < path.length; i++) {
+		const n = path[i]
+		if (n === 'xyz') return null
+		if (classify(n).archetype === 'additive') return n
+	}
+	return null
+}
 const gamutProgs = new Map()
 function gamutProg(s) {
 	if (gamutProgs.has(s)) return gamutProgs.get(s)
@@ -1685,17 +1700,17 @@ function gamutProg(s) {
 	// so bounded; a colorimetric space (xyz, oklab, lab, the CAMs – encoding
 	// linear/perceptual) spans all vision and nothing bounds it. Topology can't tell
 	// them apart (oklch/oklab/xyz carry a shortcut →rgb edge that skips xyz); encoding does.
-	let base = null
-	if (s !== 'rgb' && meta[s]?.encoding === 'gamma') { const path = pathToRgb(s) || []
-		for (let i = 1; i < path.length; i++) {
-			const n = path[i]
-			if (n === 'xyz') break
-			if (classify(n).archetype === 'additive') { base = n; break }
-		}
-	}
+	// An additive space is a cube of its own: its range alone bounds it (Display P3 rides a p3 → rgb shortcut – sRGB
+	// as its base clipped it to sRGB's triangle)
+	const base = plateBase(s)
 	let lib
 	try { lib = s === 'rgb' ? glsl('xyz', 'lrgb') : glsl(base ? [['xyz', s], [s, 'xyz'], [s, base]] : [['xyz', s], [s, 'xyz']]) } catch { gamutProgs.set(s, null); return null }
 	const S = san(s)
+	// a white not D65 is drawn in the space's own XYZ (definition.js nativeOf): a pixel's chromaticity is its own, taken
+	// to the hub before the space reads it – its primaries and white land where the specification prints them
+	const nat = nativeOf(s)
+	// a log curve's codes under its black are footroom, no color (footroom.js): its reach is its primaries' triangle
+	const ft = footroom(space[s], meta[s]), T = ft && ft.tri.flat().map(v => v.toFixed(8))
 	// declared range as literals (the gamut = what the range box can encode)
 	const range = meta[s]?.range
 	if (!range) { gamutProgs.set(s, null); return null }
@@ -1707,7 +1722,13 @@ precision highp int;
 ${lib}
 ${locusGLSL()}
 uniform vec2 uRes;
-out vec4 O;
+out vec4 O;${ft ? `
+bool inFoot(vec2 p) {   // non-negative light: inside the primaries' triangle (hub xy)
+	vec2 a = vec2(${T[0]}, ${T[1]}), b = vec2(${T[2]}, ${T[3]}), c = vec2(${T[4]}, ${T[5]});
+	float d = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
+	float l1 = ((b.y - c.y) * (p.x - c.x) + (c.x - b.x) * (p.y - c.y)) / d, l2 = ((c.y - a.y) * (p.x - c.x) + (a.x - c.x) * (p.y - c.y)) / d;
+	return l1 >= -1e-4 && l2 >= -1e-4 && 1.0 - l1 - l2 >= -1e-4;
+}` : ''}
 vec3 tosrgb(vec3 lin) {
 	vec3 a = abs(lin);
 	vec3 e = vec3(
@@ -1734,20 +1755,23 @@ void main() {
 	vec3 col = tosrgb(lin * 0.86);
 	// is this chromaticity reachable inside the space's declared range, at any luminance?
 	bool cov = false;
-	const float YQ[6] = float[6](2.0, 10.0, 25.0, 45.0, 70.0, 95.0);
+	const float YQ[6] = float[6](2.0, 10.0, 25.0, 45.0, 70.0, 95.0);${nat ? `
+	const mat3 TOHUB = mat3(${[0, 3, 6, 1, 4, 7, 2, 5, 8].map(i => nat.toHub[i].toFixed(10)).join(', ')});` : ''}
 	${s === 'rgb'
 		? `vec3 r1 = xyz_lrgb(vec3(xy.x / xy.y, 1.0, (1.0 - xy.x - xy.y) / xy.y) * 50.0);   // sRGB reaches a chromaticity iff its linear rgb is non-negative there – at any luminance, scale cancels; an absolute tolerance at low Y once let a band past the primaries in
 	cov = min(r1.x, min(r1.y, r1.z)) >= -0.001 * max(r1.x, max(r1.y, r1.z));`
 		: `for (int q = 0; q < 6; q++) {
 		float Yq = YQ[q];
-		vec3 XYZq = vec3(xy.x * Yq / xy.y, Yq, (1.0 - xy.x - xy.y) * Yq / xy.y);
+		vec3 XYZq = vec3(xy.x * Yq / xy.y, Yq, (1.0 - xy.x - xy.y) * Yq / xy.y);${nat ? `
+		XYZq = TOHUB * XYZq;` : ''}
+		vec2 hq = XYZq.xy / (XYZq.x + XYZq.y + XYZq.z);
 		${VT[d]} vq = xyz_${S}(XYZq);
-		bool ok = !(${'xyzw'.slice(0, d).split('').map(c => `isnan(${d === 1 ? 'vq' : `vq.${c}`})`).join(' || ')});
+		bool ok = !(${'xyzw'.slice(0, d).split('').map(c => `isnan(${d === 1 ? 'vq' : `vq.${c}`})`).join(' || ')})${ft ? ' && inFoot(hq)' : ''};
 		${'xyzw'.slice(0, d).split('').map((c, k) => `if (${d === 1 ? 'vq' : `vq.${c}`} < ${lo[k].toFixed(6)} || ${d === 1 ? 'vq' : `vq.${c}`} > ${hi[k].toFixed(6)}) ok = false;`).join('\n\t\t')}
 		if (ok) {   // and it must genuinely encode this chromaticity (poles lie)
 			vec3 back = ${S}_xyz(vq);
 			float sb = back.x + back.y + back.z;
-			if (sb > 0.0 && abs(back.x / sb - xy.x) < 0.004 && abs(back.y / sb - xy.y) < 0.004) {
+			if (sb > 0.0 && abs(back.x / sb - hq.x) < 0.004 && abs(back.y / sb - hq.y) < 0.004) {
 				${base ? (() => { const br = meta[base].range
 					const blo = br.map(r => (r[0] - (r[1] - r[0]) * 0.008).toFixed(4))
 					const bhi = br.map(r => (r[1] + (r[1] - r[0]) * 0.008).toFixed(4))

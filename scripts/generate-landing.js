@@ -113,6 +113,8 @@ const faqQuestions = faqMatch ? [...faqMatch[0].matchAll(/<details class="fqa"><
 	acceptedAnswer: { '@type': 'Answer', text: m[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() }
 })) : []
 const ld = { '@context': 'https://schema.org', '@graph': [
+		// the site's name as search shows it over the URL – without it, the bare domain
+		{ '@type': 'WebSite', name: 'color-space', alternateName: ['color-space.io', 'colour-space'], url: `${SITE}/` },
 	{ '@type': 'Dataset',
 		name: 'color-space — color space registry',
 		alternateName: ['colour-space', 'color-space.io'],
@@ -238,11 +240,11 @@ const spaceDoc = (html, s) => {
 	// pages ship #cat empty (no data-fp → the page rebuilds it at idle, behind the
 	// prerendered dossier bake-dossiers.js injects after this)
 	h = swap(h, /<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, '<main class="cat" id="cat"></main>')
-	h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(lut ? t('page.space.title-lut', '{name} color space – channels, ranges, conversion LUT | color-space', { name: full })
-		: rgb ? t('page.space.title-rgb', '{name} color space – primaries, XYZ matrix, conversion | color-space', { name: full })
-		: t('page.space.title', '{name} color space – channels, ranges, conversion | color-space', { name: full }))}</title>`)
+	h = swap(h, /<title>[^<]*<\/title>/, `<title>${esc(lut ? t('page.space.title-lut', '{name} Color Space: Ranges, Converter & .cube LUT', { name: full })
+		: rgb ? t('page.space.title-rgb', '{name} Color Space: Primaries, XYZ Matrix & Converter', { name: full })
+		: t('page.space.title', '{name} Color Space: Channels, Ranges & Converter', { name: full }))}</title>`)
 	h = swap(h, /<meta name="description" content="[^"]*">/, `<meta name="description" content="${esc(short)}">`)
-	h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(t('page.space.og-title', '{name} color space – color-space', { name }))}">`)
+	h = swap(h, /<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(t('page.space.og-title', '{name} Color Space', { name }))}">`)
 	h = swap(h, /<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(short)}">`)
 	h = swap(h, /<meta property="og:type" content="[^"]*">/, `<meta property="og:type" content="article">`)
 	h = h.replace(/<script type="application\/ld\+json" id="ld-dataset">[^<]*<\/script>/, '')   // a language's index already shed it
