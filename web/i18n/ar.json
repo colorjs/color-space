@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "لغة برامج التظليل",
 "ui.dossier.share": "انسخ الرابط",
 "ui.dossier.share-label": "انسخ رابط {name}",
-"ui.dossier.solid-tip": "ألوانه كمجسّم، لكل قناة محور؛ اسحب لتدويره",
+"ui.dossier.solid-of": "{g} في إحداثيات {s}",
 "ui.dossier.source": "الشيفرة المصدرية",
 "ui.dossier.source-label": "شيفرة التحويل",
 "ui.dossier.source-tip": "التنفيذ – {file} على GitHub",

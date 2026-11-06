@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "シェーダー言語",
 "ui.dossier.share": "リンクをコピー",
 "ui.dossier.share-label": "{name}のリンクをコピー",
-"ui.dossier.solid-tip": "色を立体で表示。各チャンネルが1本の軸。ドラッグで回転",
+"ui.dossier.solid-of": "{s} 座標での {g}",
 "ui.dossier.source": "ソース",
 "ui.dossier.source-label": "変換処理のコード",
 "ui.dossier.source-tip": "実装：GitHub上の{file}",

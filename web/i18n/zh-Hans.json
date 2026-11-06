@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "着色器语言",
 "ui.dossier.share": "复制链接",
 "ui.dossier.share-label": "复制 {name} 的链接",
-"ui.dossier.solid-tip": "以立体显示它的颜色，每个通道一条轴；拖动可旋转",
+"ui.dossier.solid-of": "{s} 坐标中的 {g}",
 "ui.dossier.source": "源码",
 "ui.dossier.source-label": "转换代码",
 "ui.dossier.source-tip": "实现代码——GitHub 上的 {file}",

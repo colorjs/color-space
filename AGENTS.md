@@ -19,9 +19,10 @@ an idiom, or a JS workaround on the spot instead of reusing what already exists.
    (e.g. the proprietary dossier) must read as the same component, not a cousin. Match order and
    naming; don't reorder or rename.
 
-3. **Reuse idioms; don't introduce new ones.** Established affordances: a space's name opens its dossier, a dotted hair
-   under it when pointed at (the `↗` that did this retired 2026-10: it read as leaving the site) – every link that stays on
-   the page is dotted, one that leaves the site solid, shown faint while its text or card is pointed at; the bookmark (`.bm`)
+3. **Reuse idioms; don't introduce new ones.** Established affordances: a space's name opens its dossier, the pointer
+   alone telling it (the `↗` that did this retired 2026-10: it read as leaving the site; the dotted hair, 2026-11) – a link
+   that stays on the page carries no line, the slogan's and one that leaves the site a solid hair, shown faint while its
+   text or card is pointed at, full on the link itself; the bookmark (`.bm`)
    keeps a space to compare – filled while bookmarked, leading a card's maker line on hover, the bookmarks shelf its tab;
    dim→ink on hover (opacity or `--soft`→`--ink`, as on `.mx`); `.tag` pill; the circle color mark (pickers, swatches – a rhombus read as an animation keyframe, retired 2026-10);
    the pick in `--ink`, the rest `--soft` (the family titles' way; never inverted), plus one ink mark by kind (2026-10):

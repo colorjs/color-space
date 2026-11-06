@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "lenguaje de shaders",
 "ui.dossier.share": "Copiar el enlace",
 "ui.dossier.share-label": "Copiar el enlace a {name}",
-"ui.dossier.solid-tip": "sus colores como un sólido, cada canal un eje; arrastra para girarlo",
+"ui.dossier.solid-of": "{g} en coordenadas {s}",
 "ui.dossier.source": "fuente",
 "ui.dossier.source-label": "código de conversión",
 "ui.dossier.source-tip": "la implementación: {file} en GitHub",

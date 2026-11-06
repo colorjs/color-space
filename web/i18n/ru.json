@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "язык шейдеров",
 "ui.dossier.share": "Скопировать ссылку",
 "ui.dossier.share-label": "Скопировать ссылку на {name}",
-"ui.dossier.solid-tip": "цветовое тело: каждому каналу соответствует ось; перетащите для поворота",
+"ui.dossier.solid-of": "{g} в координатах {s}",
 "ui.dossier.source": "исходный код",
 "ui.dossier.source-label": "код преобразования",
 "ui.dossier.source-tip": "реализация – {file} на GitHub",

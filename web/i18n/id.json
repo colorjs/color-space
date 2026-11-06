@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "bahasa shader",
 "ui.dossier.share": "Salin tautan",
 "ui.dossier.share-label": "Salin tautan ke {name}",
-"ui.dossier.solid-tip": "warna-warnanya sebagai bentuk 3D, satu kanal per sumbu; seret untuk memutarnya",
+"ui.dossier.solid-of": "{g} dalam koordinat {s}",
 "ui.dossier.source": "kode sumber",
 "ui.dossier.source-label": "kode konversi",
 "ui.dossier.source-tip": "implementasinya—{file} di GitHub",

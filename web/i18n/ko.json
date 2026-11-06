@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "셰이더 언어",
 "ui.dossier.share": "링크 복사",
 "ui.dossier.share-label": "{name} 링크 복사",
-"ui.dossier.solid-tip": "색을 입체로, 채널마다 축 하나. 드래그하면 회전",
+"ui.dossier.solid-of": "{s} 좌표계의 {g}",
 "ui.dossier.source": "소스",
 "ui.dossier.source-label": "변환 코드",
 "ui.dossier.source-tip": "구현 – GitHub의 {file}",

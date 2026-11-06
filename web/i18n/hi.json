@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "शेडर भाषा",
 "ui.dossier.share": "लिंक कॉपी करें",
 "ui.dossier.share-label": "{name} का लिंक कॉपी करें",
-"ui.dossier.solid-tip": "इसके रंग एक ठोस आकार में, हर चैनल एक अक्ष; घुमाने के लिए खींचें",
+"ui.dossier.solid-of": "{s} निर्देशांकों में {g}",
 "ui.dossier.source": "स्रोत कोड",
 "ui.dossier.source-label": "रूपांतरण का कोड",
 "ui.dossier.source-tip": "GitHub पर {file} का कोड",

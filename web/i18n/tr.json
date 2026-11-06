@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "shader dili",
 "ui.dossier.share": "Bağlantıyı kopyala",
 "ui.dossier.share-label": "{name} uzayının bağlantısını kopyala",
-"ui.dossier.solid-tip": "renkleri bir katı olarak, her kanal bir eksen; döndürmek için sürükleyin",
+"ui.dossier.solid-of": "{s} koordinatlarında {g}",
 "ui.dossier.source": "kaynak kod",
 "ui.dossier.source-label": "dönüşüm kodu",
 "ui.dossier.source-tip": "uygulama – GitHub’daki {file}",

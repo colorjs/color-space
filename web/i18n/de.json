@@ -1423,7 +1423,7 @@
 "ui.dossier.shader": "Shader-Sprache",
 "ui.dossier.share": "Link kopieren",
 "ui.dossier.share-label": "Link zu {name} kopieren",
-"ui.dossier.solid-tip": "seine Farben als Körper, jeder Kanal eine Achse; ziehen, um ihn zu drehen",
+"ui.dossier.solid-of": "{g} in {s}-Koordinaten",
 "ui.dossier.source": "Quelltext",
 "ui.dossier.source-label": "Quellcode der Umrechnung",
 "ui.dossier.source-tip": "die Implementierung – {file} auf GitHub",
