@@ -1184,7 +1184,7 @@ uniform vec3 uCMin, uCMax;
 uniform vec3 uDMin, uDMax;   // the DECLARED box – where the slice outline is drawn
 uniform int uOut;            // 1 → the solid pierces the declared box
 uniform int uClip;           // 1 → box-in-base space: shave past-the-box noise
-uniform int uPass;           // 0 = opaque in-box · 1 = translucent beyond-box
+uniform int uPass;           // 0 = the body, cut at the box · 2 = a cap's stencil · 3 = the hidden cut curve
 uniform ivec4 uMap;
 uniform int uHasHue;
 uniform int uQuant;          // 0 smooth · 10/20 native-channel cells · 101/102/103 safe/name/even
@@ -1221,10 +1221,9 @@ void main() {
 			if (lh < 0.45 || dot(vHueV / lh, normalize(vN.yz)) < 0.5) discard;
 		}
 	}
-	// beyond the DECLARED box the material DISSOLVES: the in-box body is covered
-	// whole (opaque pass, writes depth), and the overflow fades from near-solid at
-	// the wall to nothing within ~18% of the span (second pass, no depth write) —
-	// the full blob isn't viewable anyway; this shows where and how it continues.
+	// beyond the DECLARED box the body is CUT: a wider volume in a narrower space's
+	// coordinates is trimmed to its box – or its cylinder, the hue axis skipped – and
+	// the caps seal the cut (a dissolving shell past the walls read as a cloud, no shape)
 	float ob = -1.0;
 	if (uOut == 1) for (int k = 0; k < 3; k++) {
 		if (k == uMap.y) continue;
@@ -1270,12 +1269,6 @@ void main() {
 	// a tone) and a high ceiling for HDR/scene spaces are left alone.
 	if (uOut == 1 && (uMap.y >= 0 || uBip.x >= 0) && vF[uMap.x] < uDMin[uMap.x]) discard;
 	if ((uPass == 0 || uPass == 3) && ob > 0.0) discard;
-	if (uPass == 1) {
-		if (ob <= 0.0 || ob > 0.3) discard;   // near chroma overflow shows; far pole-fan dropped
-		float a = 1.0 - ob / 0.3;
-		O.a = a * a * 0.6;   // near-solid at the wall, DISSOLVING to nothing – a constant
-		// alpha ends the ghost in a hard angled chop at the 0.3 cutoff instead of a fade
-	}
 	// the plane∩solid CURVE, as a per-pixel test on the shape itself: a fragment lies on
 	// the cut when its held coordinate equals the plane's. fwidth sets the band's width in
 	// SCREEN pixels, so the outline rides the real tessellated edge – exactly, everywhere,
@@ -1300,9 +1293,13 @@ precision highp float;
 precision highp int;
 ${MAP_GLSL}
 in vec3 aFrac;
+uniform int uHatch;     // a trim's cap sits ON its wall: the inset (below a clip space's degenerate zone) stepped two cuts
+uniform ivec2 uCapK;    // apart at their shared edge, each outlined – a corner drawn double
 out vec3 vV;
 void main() {
-	vec3 v = uCMin + aFrac * (uCMax - uCMin);
+	vec3 f = aFrac;
+	if (uHatch == 1) f[uCapK.x] = float(uCapK.y);
+	vec3 v = uCMin + f * (uCMax - uCMin);
 	vV = v;
 	gl_Position = view_(map3_(v), 0.002);
 }`
@@ -1310,17 +1307,36 @@ void main() {
 		// pass (uPass 2) marks exactly where the eye ray is inside the sliced solid at
 		// the wall — a per-pixel inverse can pick a wrong root at a fold and either
 		// paint impossible colors or shave the true cross-section. The quad only colors.
-		const fsCapVis = gam === 'vis' && s !== src && `#version 300 es
+		const fsCapVis = (gam === 'vis' || gam === 'locus') && s !== src && `#version 300 es
 precision highp float;
 precision highp int;
-${glsl([[s, 'rgb']])}
+${glsl(gam === 'locus' ? [[s, 'rgb'], [s, 'xyz']] : [[s, 'rgb']])}
+${gam === 'locus' ? locusGLSL() : ''}
 ${SOFT_DISP}
 in vec3 vV;
+uniform ivec4 uMap;
+uniform int uHatch;   // 1: this cap is a trim – a wider volume cut at the box: soft white hatching marks it
+uniform float uPx;    // device pixels to a CSS pixel
+uniform ivec2 uCapK;  // this cap's face (axis, side)
+uniform vec3 uCMin, uCMax;   // the cap's own extent (vsCap): the hatch's frame
 out vec4 O;
-void main() {
+void main() {${gam === 'locus' ? `
+	// every real light: its chromaticity inside the locus, its Y up to the lid – a test of its own, per pixel: the parity
+	// count of the vis view miscounts a curved wall (a cylinder's) the light cone overruns on every side, and left holes
+	vec3 X = ${S}_xyz(vV); float sm = X.x + X.y + X.z;
+	if (!(sm > 0.0) || X.y < -0.05 || X.y > 100.05 || !inside(X.xy / sm)) discard;` : ''}
 	vec3 disp = ${S}_rgb(vV);
 	if (isnan(disp.x) || isnan(disp.y) || isnan(disp.z)) discard;
 	O = vec4(softDisp(disp), 1.0);
+	// the hatch lies IN the cut's own plane: its two free coordinates summed – a box face's diagonals, a cylinder's helix –
+	// a CSS pixel wide however the face is turned
+	if (uHatch == 1) {
+		float g = 0.0;
+		// 28 stripes to the box's side; the hue's turn, round a cylinder 0.55 in radius to its unit height, 2π·0.55 sides long:
+		// 97 – a whole number, so the helix closes
+		for (int j = 0; j < 3; j++) if (j != uCapK.x) g += (vV[j] - uCMin[j]) / max(uCMax[j] - uCMin[j], 1e-9) * (j == uMap.y ? 97.0 : 28.0);
+		if (abs(fract(g + 0.5) - 0.5) < fwidth(g) * 0.5 * uPx) O.rgb = mix(O.rgb, vec3(1.0), 0.3);
+	}
 }`
 		const glin = { srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gam]
 		const GLIN = glin && san(glin), G0 = san(gam === 'srgb' ? 'rgb' : gam)
@@ -1336,6 +1352,10 @@ in vec3 vV;
 uniform vec3 uMin, uMax;
 uniform ivec4 uMap;
 uniform int uDim;   // 3: the round trip's loop bound (sameGLSL)
+uniform int uHatch;   // 1: this cap is a trim – a wider volume cut at the box: soft white hatching marks it
+uniform float uPx;    // device pixels to a CSS pixel
+uniform ivec2 uCapK;  // this cap's face (axis, side)
+uniform vec3 uCMin, uCMax;   // the cap's own extent (vsCap): the hatch's frame
 out vec4 O;
 void main() {
 	vec3 xc = ${S}_xyz(vV), lin = xyz_${GLIN}(xc);
@@ -1353,9 +1373,21 @@ void main() {
 		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) { vec3 w = vV; w[k] = back[k]; if (!same_(xc, w)) discard; }   // NaN fails too; a pole stays (sameGLSL)
 	}` : `// canonical-roundtrip discard omitted: this space's inverse is approximate
 	// (see rtFaithful) — the law would speckle-discard real cap fragments`}
+	// a trim's cut on a chroma wall needs light: where its points decode to near-black it is no cross-section (Nayatani's
+	// ring round its floor – any chroma there is black)
+	if (uHatch == 1 && uCapK.x != uMap.x && (xc.y < 0.5 || max(disp.r, max(disp.g, disp.b)) < 6.0)) discard;
 	O = vec4(softDisp(disp), 1.0);
+	// the hatch lies IN the cut's own plane: its two free coordinates summed – a box face's diagonals, a cylinder's helix –
+	// a CSS pixel wide however the face is turned
+	if (uHatch == 1) {
+		float g = 0.0;
+		// 28 stripes to the box's side; the hue's turn, round a cylinder 0.55 in radius to its unit height, 2π·0.55 sides long:
+		// 97 – a whole number, so the helix closes
+		for (int j = 0; j < 3; j++) if (j != uCapK.x) g += (vV[j] - uCMin[j]) / max(uCMax[j] - uCMin[j], 1e-9) * (j == uMap.y ? 97.0 : 28.0);
+		if (abs(fract(g + 0.5) - 0.5) < fwidth(g) * 0.5 * uPx) O.rgb = mix(O.rgb, vec3(1.0), 0.3);
+	}
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uSrc', 'uN', 'uW', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uSrc', 'uN', 'uW', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites', 'uHatch', 'uPx']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = st.fsBake ? build(gl, FSQ_VS, bakeFrag(vs), uset, null, { kind: 'mesh', space: s, fs: true })   // a fragment pass (bakeRun)
 			: build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
@@ -1508,6 +1540,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		if (u.uSteps) gl.uniform1i(u.uSteps, 18)
 		if (u.uDim) gl.uniform1i(u.uDim, 3)
 		if (u.uOut) gl.uniform1i(u.uOut, map.out ? 1 : 0)
+		if (u.uPx) gl.uniform1f(u.uPx, cv.width / (cv.clientWidth || cv.width))
 		if (u.uClip) gl.uniform1i(u.uClip, map.clip ? 1 : 0)
 		gl.uniform4i(u.uMap, map.ti, map.ai ?? -1, map.mi ?? 0, 0)
 		gl.uniform2i(u.uWb, map.wI ?? -1, map.bI ?? -1)
@@ -1540,24 +1573,19 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
 	gl.uniform1i(dr.u.uPass, 0)
 	gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
-	if (map.out) {   // translucent overflow BEFORE the caps: the sealed cut faces stay
-		// crisp (no ghost film smearing beyond-the-wall colors flat onto the cut —
-		// the face-on "smush"); the caps' per-pixel validity keeps the edge-on blade honest
-		gl.uniform1i(dr.u.uPass, 1)
-		gl.depthMask(false)
-		gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
-		gl.depthMask(true)
-	}
 	const capMask = map.caps ?? 63
 	if (capMask && ps.caps && !ps.caps.bad && !ps.caps.pending) {
 		const per = st.cn / 6   // one fitted-box face per slice, in (fi, side) order
+		const capFace = (f) => { const u = ps.caps.u   // the face drawn: hatched, and seated on its wall, if a trim
+			if (u.uHatch) gl.uniform1i(u.uHatch, (map.trim ?? 0) >> f & 1)
+			if (u.uCapK) gl.uniform2i(u.uCapK, f >> 1, f & 1) }
 		const bindCaps = () => {
 			gl.useProgram(ps.caps.pr); setU(ps.caps.u); bindLuts(gl, ps.caps)
 			gl.bindBuffer(gl.ARRAY_BUFFER, st.cb)
 			gl.enableVertexAttribArray(ps.caps.aFrac); gl.vertexAttribPointer(ps.caps.aFrac, 3, gl.FLOAT, false, 0, 0)
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.ci)
 		}
-		if (gam === 'vis' || gam === 'locus') {
+		if (gam === 'vis') {
 			// human view: per pierced face, STENCIL-parity the sheet the body clipped away
 			// past that wall – pixels crossed an odd number of times are inside the solid
 			// at the cut – then paint the face quad only there. The cross-section follows
@@ -1576,7 +1604,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 				gl.stencilOp(gl.KEEP, gl.KEEP, gl.INVERT)   // parity of depth-passing crossings
 				gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
 				gl.colorMask(true, true, true, true); gl.depthMask(true)
-				bindCaps()
+				bindCaps(); capFace(f)
 				gl.stencilFunc(gl.NOTEQUAL, 0, 0xff)
 				gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP)
 				gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4)
@@ -1584,8 +1612,9 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			gl.disable(gl.STENCIL_TEST)
 		} else {
 			bindCaps()
-			for (let f = 0; f < 6; f++) if (capMask >> f & 1)
-				gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4)
+			for (let f = 0; f < 6; f++) if (capMask >> f & 1) {
+				capFace(f)
+				gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4) }
 		}
 	}
 	// the CUT's far arc: the same per-pixel band, drawn where the body covers it. The

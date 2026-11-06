@@ -1253,7 +1253,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .gxy text{ fill:var(--soft); stroke:none; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums }
 .gam2d .cx{ pointer-events:none } .gam2d .sto{ pointer-events:auto }
 :is(.gam2d,.pl3d) .sto::before{ content:''; position:absolute; left:50%; top:50%; width:var(--picker-size); height:var(--picker-size); translate:-50% -50%; border-radius:50% }   /* a mark's reach: the picker's size whether it rests small or has grown – a dot that grew under the pointer no longer slipped out from under it at its edge, the arrow and the hand by turns */
-.pl3d .sto.thru:not(:hover){ opacity:.4 }   /* a corner behind the solid: through it, faint – as a pane's frame behind the body */
+.pl3d .sto.thru:not(:hover){ opacity:.4 }
+.pl3d .sto:not(:hover){ box-shadow:0 0 0 .5px var(--picker-outline-rest) } .pl3d:hover .sto:not(:hover){ box-shadow:0 0 0 1px var(--picker-outline) }   /* the solid's marks outlined as its own picker is (drawPicker on the canvas): a crisp half-pixel ring at rest, a pixel while the solid is pointed at */   /* a corner behind the solid: through it, faint – as a pane's frame behind the body */
 @media(hover:hover){ :is(.pl,.gam2d,.pl3d,.ch,.bar2):hover :is(.sto,.sts b),.hlocus:has(.chk:hover) .sto{ box-shadow:var(--picker-shadow-on) } }   /* every mark – a primary, another color – as the picker: soft at rest, firmer while its figure is pointed at */
 .pl3d .sto{ pointer-events:auto } :is(.hlocus,.gam2d,.pl3d) .sto{ cursor:default }   /* a primary's, a white's, another color's mark: pointed at, it tells its numbers; pressed, it takes its color – the arrow, a mark on the figure, not a link */
 /* the xy plate lifts into xyY (wire3d's LIFT): the plate is the floor (.flr, turned as the floor turns), the solid's
@@ -3888,7 +3889,7 @@ const SHAPERL=t(`editor.shaper`,SHAPER_LABEL)
 // the lifted plate: Y = 1 stands LIFT_H plate-heights over its floor; its canvases (136% of the plate's width, centred on it)
 // draw a plate-height (352 of the plate's units) to the model unit, so seen from above the solid lands where the plate draws
 const LIFT_H=0.5, LIFT_SC=2*352/320/1.36
-let edge3=false   // the solid pointed at: its edges drawn
+let edge3=false   // the solid pointed at: its marks firmer
 const ROT3={a:-0.6,b:0.42}   // the solid's spawn view – and the one its scale is fitted at
 let rot3={...ROT3}, mesh3=null, mesh3Rev=0, pts3=null, tris3=null, pts3S=null, pts3Prims=null, pts3Fix=null, pts3Map=null, pts3Unmap=null, thru3=null, mask3=null, TC=null
 let hover3=null, hover3T=0
@@ -3954,27 +3955,49 @@ function placePl3d(){ const el=detail.querySelector('#pl3d'), gm=detail.querySel
 // (a log curve's black sits above code 0); null for a space of other channels
 const ownCorner=(s,i)=>{ if(classify(s).ch.map(c=>c.sym).join('')!=='RGB') return null
 	try{ const B=toSpace(s,[0,0,0]), W=toSpace(s,[255,255,255]), v=[0,1,2].map(k=>(i===3||k===i?W:B)[k]); return v.every(isFinite)?v:null }catch{ return null } }
+// the body a space's xy plate lifts into xyY – the solid whose footprint the plate draws: its own primaries' cube; else the
+// cube of the base it encodes whole (CMYK's, YCbCr's sRGB – their boxes past it are no color); else the visible solid,
+// where its box holds all of it, black aside (xyY, LogLuv – a box mapped face by face scattered its near-black over the floor); else its
+// own channel box. A one- or two-channel space (a wavelength, a temperature) has no body: its plate stays flat. Kept by space
+const LIFTS=new Map()
+const liftOf=s2=>{ if(LIFTS.has(s2)) return LIFTS.get(s2)
+	const c2=classify(s2), hI=hueIdx(c2), inR=v=>!!v&&v.length>=c2.ch.length&&c2.ch.every((c,k)=>{ const x=v[k]; if(!isFinite(x)) return false; if(k===hI) return true; const p=(c.max-c.min)*0.005; return x>=c.min-p&&x<=c.max+p })
+	const conv2=(f,v)=>{ try{ return f(v) }catch{ return null } }
+	let r=null
+	// a box reaching below its black (no log footroom – scRGB's −0.5: negative light carrying colors, IEC 61966-2-2) holds far
+	// more than its primaries' cube, and its plate draws that: it lifts what its box holds, as a space with no primaries
+	const past=()=>{ try{ const B=toSpace(s2,[0,0,0]); return !footroom(space[s2],meta[s2])&&c2.ch.some((c,k)=>B[k]-c.min>(c.max-c.min)*0.02) }catch{ return false } }
+	if(definitionOf(s2)&&!past()) r={ L3:s2 }
+	else{ const bs=plateBase(s2), bR=bs&&definitionOf(bs)&&meta[bs].range
+		if(bR){ let whole=true   // the base cube's faces, each point through to the space: inside its box, all of them
+			for(let f=0;f<6&&whole;f++) for(let i2=0;i2<=8&&whole;i2++) for(let j2=0;j2<=8&&whole;j2++){ const q=[0,0,0], k=f>>1, [a,b]=[0,1,2].filter(x=>x!==k)
+				q[k]=f&1; q[a]=i2/8; q[b]=j2/8; whole=inR(conv2(v=>space[bs][s2](...v),q.map((x,k2)=>bR[k2][0]+(bR[k2][1]-bR[k2][0])*x))) }
+			if(whole||c2.ch.length!==3) r={ L3:bs } }
+		if(!r&&c2.ch.length===3){ const vp=visSurf(10).pos; let all=true
+			// each point inside the box AND back to itself, as the plate tests its reach (a clamping conversion – RYB's – lands
+			// inside, elsewhere); black itself aside: a log luminance reaches toward it, never to it
+			const rt=X=>{ const v=conv2(x=>s2==='xyz'?x:space.xyz[s2](...x),X), B=inR(v)&&conv2(x=>s2==='xyz'?x:space[s2].xyz(...x),v); return !!B&&Math.hypot(...B.map((b,k)=>b-X[k]))<=Math.max(1,X[1])*0.01 }
+			for(let q=0;q<vp.length&&all;q+=3) if(vp[q+1]>=1) all=rt([vp[q],vp[q+1],vp[q+2]])
+			r=all?{ vis:true }:{ own:true } } }
+	LIFTS.set(s2,r); return r }
 function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=tris3=null; return }
 	// under the xy plate (LIFT) the solid is the plate lifted into xyY, Y up: seen from above it IS the plate, and stays the
-	// plate till a hand tilts it. A space with primaries lifts its own RGB unit cube – in its own white, as the plate draws
-	// it (nativeOf); any other, the Limit's body. In its own figure, the solid is the Limit's body in the space's coordinates
-	const sel=selected, LIFT=!!el.closest('.gam2d'), G3=LIFT&&definitionOf(sel), L3=!!G3, s=LIFT?'xyy':sel, cls=classify(s), P=[], T=[]
-	// …a space with no primaries lifts its OWN body: its channels' box, each face's point through the space to XYZ, held to
-	// the visible (a box reaching past it – Lab's ±125 – stands on the surface solid's wall there); a one- or two-channel
-	// space has no box to lift, and lifts the Limit's body
-	const clsS=classify(sel), OWN=LIFT&&!L3&&clsS.ch.length===3
+	// plate till a hand tilts it – the body whose footprint the plate draws. In its own figure, the solid is the Limit's body
+	// in the space's coordinates
+	const sel=selected, LIFT=!!el.closest('.gam2d'), clsS=classify(sel), s=LIFT?'xyy':sel, cls=classify(s), P=[], T=[]
+	const lift=LIFT&&liftOf(sel), LS=lift?.L3, G3=LS&&definitionOf(LS), L3=!!G3, VIS=lift?.vis, OWN=!!lift?.own
 	if(LIFT!==!!rot3.lift){ rot3=LIFT?{ a:0, b:Math.PI/2, lift:true }:{ ...ROT3 }; snap3=null }
 	if(LIFT) spinV3=0   // the plate held still, till a hand turns it
 	// the solid's source volume follows the gamut switch: a display cube (sRGB by
 	// default, P3/Rec.2020 widen it) or the visible gamut itself — the Rösch–MacAdam
 	// optimal-color surface, arriving as raw XYZ
-	let g3=L3?sel:OWN?'own':GM   // light carries its own body now – the spectral cone up to the Y=100 lid (gl.lightSurf)
+	let g3=L3?LS:VIS?'vis':OWN?'own':GM   // light carries its own body now – the spectral cone up to the Y=100 lid (gl.lightSurf)
 	// a box-in-base space caps its view at sRGB — a wider volume decodes through
 	// out-of-base light into non-canonical junk sheets, never new shape
 	const inBase=boxInBase(s)
 	if(inBase) g3='srgb'
 	// what the solid is: a volume's colors in a space's coordinates – the solid, its axes and its drag go without saying
-	{ const g=L3||OWN?disp(sel):GAMLABEL[g3], c=LIFT?'xyY':disp(sel); el.title=g===c?c:t('ui.dossier.solid-of','{g} in {s} coordinates',{ g, s:c }) }   // sRGB's own cube: its name alone
+	{ const g=L3?disp(LS):OWN?disp(sel):GAMLABEL[g3], c=LIFT?'xyY':disp(sel); el.title=g===c?c:t('ui.dossier.solid-of','{g} in {s} coordinates',{ g, s:c }) }   // sRGB's own cube: its name alone
 	const gH=g3==='vis'||g3==='locus'||OWN   // the human-class bodies (surface zonoid, light cone) and a space's own box arrive as raw XYZ
 	// a unit-cube point of the volume as its source: an RGB cube's code (0–255), or the own box's XYZ – with whether the
 	// visible cut it (a cut point stands on the surface solid's wall, no edge of the space's own)
@@ -4027,6 +4050,10 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// tone/hue/radius axes — the SAME assignment the 2D planes use (axes3), so the
 	// solid and its plane slices always agree. Renamed wheels count as the hue angle.
 	const {ai:aiX,ti,mi}=axes3(cls), ai=aiX<0?null:aiX
+	// a point the DARK taper moves toward gray (evalV, near black): its chroma collapsed, the body a needle of no width – a line
+	// ends before it. Near white or gray the taper only lands the corner ON the axis, where it is: lines run to it, corners
+	// join. An RGB's coordinates it never touches
+	const tapers=src=>(ai!=null&&mi!=null||cls.bips.length>0)&&(gH?gfVis(src):clamp((Math.max(...src)-2)/6,0,1))<1
 	// the sanity window for the cone-wall bisection: an additive space's coords can
 	// never go below the zero-light code (below-min = sign-mirrored garbage); other
 	// spaces may genuinely overflow by up to a whole span before it's junk
@@ -4110,10 +4137,15 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// (gl.js softDisp) — so the seal reads as continuous solid: no colour seam, no doubled edge.
 	// Cap every pierced face; box-in-base keeps its clips.
 	capMask=cutMask
+	let trim3=0   // the faces a wider volume was trimmed at – its cut hatched, outlined with the edges (a box-in-base's own clip is none)
+	// …but never a tone axis's floor: the body under it is discarded already (gl.js, a lightness axis's pole fan), and its
+	// cap's every point decodes to black – valid, so painted: Cubehelix's wide black disc under the solid
+	const tFloor=ti!=null&&(ai!=null||cls.bips.length)
 	cls.ch.forEach((c,k)=>{ if(k===ai) return
 		const eps3=(c.max-c.min)*0.004
-		if(dmin[k]<c.min-eps3) capMask|=1<<(k*2)
+		if(dmin[k]<c.min-eps3&&!(tFloor&&k===ti)) capMask|=1<<(k*2)
 		if(dmax[k]>c.max+eps3) capMask|=1<<(k*2+1) })
+	if(!inBase&&!LIFT) trim3=capMask&~cutMask
 	// a clip space's near-white collapse can OPEN its tone dome (HPLuv: exploding-P
 	// rows pinch to the spine, leaving the L=100 lid a hole into the shell) — seal it.
 	// The cap lattice sits 1.2% inset, below the degenerate zone, and its per-pixel
@@ -4176,19 +4208,25 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		const n=map3(v)
 		if(!n.every(isFinite)) return null
 		return { n, v } }
-	// within the declared box the overflow fades past (mesh3.map.dcl: a face not capped keeps the shape whole past it)
-	const inBox=v=>cls.ch.every((c,k)=>{ if(k===ai) return true; const p2=(c.max-c.min)*0.005
-		return v[k]>=(capMask>>(k*2)&1?c.min:Math.min(c.min,dmin[k]))-p2&&v[k]<=(capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))+p2 })
+	// the declared box the body is cut at (mesh3.map.dcl: a face not capped keeps the shape whole past it), the hue axis free
+	const bLo=cls.ch.map((c,k)=>capMask>>(k*2)&1?c.min:Math.min(c.min,dmin[k])), bHi=cls.ch.map((c,k)=>capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))
+	// in: a hair inside each wall the body was TRIMMED at (an edge there is the cut's own outline's); every other face keeps the
+	// pad outward – the solid's own extremes (a corner touching its fitted box) stay whole
+	const inBox=(v,inn=false)=>cls.ch.every((c,k)=>{ if(k===ai) return true; const p2=(c.max-c.min)*0.005, pl=inn&&trim3>>(k*2)&1?-p2:p2, ph=inn&&trim3>>(k*2+1)&1?-p2:p2
+		return v[k]>=bLo[k]-pl&&v[k]<=bHi[k]+ph })
 	const addVert=src=>{ const e=evalV(src)
 		if(!e) return null
 		let r; try{ r=dispOf(src) }catch{ return null }
-		P.push({ n:e.n, src, rgb:r.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?(((e.v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0, o:!inBox(e.v) }); return P.length-1 }   // o: overflow, faded – it hides no corner
+		P.push({ n:e.n, v:e.v, src, rgb:r.map(x2=>clamp(Math.round(x2),0,255)), h:ai!=null?(((e.v[ai]-fmin[ai])/(fmax[ai]-fmin[ai])*360%360)+360)%360:0, o:!inBox(e.v) }); return P.length-1 }   // o: past the box, cut away – it hides no corner
 	// near the gray corners hue is unstable: such a cell fans across far-apart hue angles,
 	// chording the solid with off-surface fuzz — drop it; range faces below close the caps
 	const addTri=(a,b,c)=>{ if(a==null||b==null||c==null) return
 		if(ai!=null){ const hs=[P[a].h,P[b].h,P[c].h], sp=Math.max(...hs)-Math.min(...hs)
 			const rr=Math.max(...[a,b,c].map(i2=>Math.hypot(P[i2].n[1],P[i2].n[2])))
 			if(Math.min(sp,360-sp)>60&&rr>0.08) return }
+		// the own box's floor: a cell at black's door (Y under 0.5 of 100, all three corners) has no chromaticity to speak of –
+		// its xy scatters, a ragged fringe over the plate past the body's own foot; the floor seen only from above, unseen
+		if(OWN&&[a,b,c].every(i2=>P[i2].src[1]<0.5)) return
 		T.push([a,b,c]) }
 	const d2=(a,b)=>{ const p=P[a].n, q=P[b].n
 		return (p[0]-q[0])**2+(p[1]-q[1])**2+(p[2]-q[2])**2 }
@@ -4272,9 +4310,19 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			for(let k2=0;k2<3;k2++) pcol.push((A.rgb[k2]+u*(B2.rgb[k2]-A.rgb[k2])+w*(C2.rgb[k2]-A.rgb[k2]))/255) } })
 	// the same surface as flat triangles UNDER the dots plugs sampling gaps —
 	// the far side never bleeds through, the dot texture keeps the sense of volume
-	const tpos=[], tcol=[]
-	for(const tri of T) for(const i2 of tri){ const p=P[i2]
-		tpos.push(p.n[0],p.n[1],p.n[2]); tcol.push(p.rgb[0]/255,p.rgb[1]/255,p.rgb[2]/255) }
+	// …cut at the box, as the GPU's body is: a triangle reaching past a wall clipped at it (its points along an edge, in
+	// proportion), the caps sealing the cut
+	const tpos=[], tcol=[], lerp3=(a,b,t)=>a.map((x,k)=>x+(b[k]-x)*t)
+	const cut=poly=>{ for(let k=0;k<3&&poly.length;k++){ if(k===ai) continue
+		for(const [lim,sg] of [[bLo[k],1],[bHi[k],-1]]){ const out=[], d=p=>p.v?(p.v[k]-lim)*sg:1
+			poly.forEach((p,i)=>{ const q=poly[(i+1)%poly.length], dp=d(p), dq=d(q)
+				if(dp>=0) out.push(p)
+				if((dp>=0)!==(dq>=0)){ const t=dp/(dp-dq); out.push({ v:lerp3(p.v,q.v,t), n:lerp3(p.n,q.n,t), rgb:lerp3(p.rgb,q.rgb,t) }) } })
+			poly=out } }
+		return poly }
+	for(const tri of T){ let poly=tri.map(i2=>P[i2]); if(poly.some(p=>p.o)) poly=cut(poly)
+		for(let i2=1;i2+1<poly.length;i2++) for(const p of [poly[0],poly[i2],poly[i2+1]]){
+			tpos.push(p.n[0],p.n[1],p.n[2]); tcol.push(p.rgb[0]/255,p.rgb[1]/255,p.rgb[2]/255) } }
 	// the human solid clamps GLSL divergence to its OWN measured extent, not the box±span the
 	// cube modes need: an appearance model's spectral-extreme vertex blows up in the mediump
 	// bake (cam16/ciecam02 red cusp), and against the loose box±span it bisects only to 2× the
@@ -4295,20 +4343,65 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			cmax:dmax.map((x2,k)=>Math.min(x2,cls.ch[k].max)),
 			// the declared box the overflow fades past – but a face not capped is no cut: a solid a hair past it (Display P3's
 			// blue face 0.07% over DCI-P3's) stays whole there, or that face drew as overflow, see-through
-			dcl:[cls.ch.map((c,k)=>capMask>>(k*2)&1?c.min:Math.min(c.min,dmin[k])),cls.ch.map((c,k)=>capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))], out:out3, clip:inBase,
+			dcl:[cls.ch.map((c,k)=>capMask>>(k*2)&1?c.min:Math.min(c.min,dmin[k])),cls.ch.map((c,k)=>capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))], out:out3, clip:inBase, trim:trim3,
 			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1, bip:cls.bips.slice(0,2).map(b2=>b2.i) }:null }
 	pts3=P; tris3=T; pts3S=s
 	// the volume's edges, each a line of points on the shape (null where it breaks): the twelve of a cube or a box – a hue
 	// channel's own edges skipped (where its angle is held, the box's seam runs over the shape's side, no edge of it), and
-	// the own box's where the visible cut it
+	// the own box's where the visible cut it; and none where the body tapers to gray near black (grayF: its chroma collapsed
+	// onto the axis, a needle of no width – an edge drawn down it stood past the body's foot, OKLab's below its tip)
 	mesh3.edges=srcAt&&(()=>{ const out=[], ang=k=>k===hueS
 		for(let k=0;k<3;k++){ const [a,b]=[0,1,2].filter(q=>q!==k); if(ang(a)||ang(b)) continue
 			for(const sa of [0,1]) for(const sb of [0,1]){
-				for(let i2=0;i2<=40;i2++){ const q=[0,0,0]; q[k]=i2/40; q[a]=sa; q[b]=sb; const o=srcAt(q), e=o&&!o.cut&&evalV(o.X); out.push(e?e.n:null) }
+				// lifted, an edge out of black stands on the floor – black has no chromaticity, its edges in xyY no meaning
+				if(LIFT&&[0,1].some(t=>{ const q=[0,0,0]; q[k]=t; q[a]=sa; q[b]=sb; return L3?q.every(x2=>!x2):(srcAt(q)?.X?.[1]??0)<0.5 })) continue
+				for(let i2=0;i2<=40;i2++){ const q=[0,0,0]; q[k]=i2/40; q[a]=sa; q[b]=sb; const o=srcAt(q), e=o&&!o.cut&&(LIFT||!tapers(o.X))&&evalV(o.X); out.push(e&&inBox(e.v,true)?e.n:null) }   // cut at the box, as the body – a hair inside it: the cut's own outline draws the wall
 				out.push(null) } }
 		return out })()
+	// …and the trim's outline, as edges are: geometry, depth-tested – dark, faint where the body stands in front. Where the
+	// volume's surface crosses a wall it was trimmed at (marching squares over the surface's own lattice: a cube's six faces,
+	// the visible solid's one sheet), and where two such walls meet inside it (a box's edge, a cylinder's rim)
+	const cuts3=trim3&&(()=>{ const out=[], R3=48
+		const sheets=g3==='vis'||g3==='locus'?(()=>{ const vsf=(g3==='locus'?lightSurf:visSurf)(96), gv=vsf.G   // fine: its sheet curves where a cube's faces run straight – a coarse chord sank the line under the surface
+				return [{ N:gv, at:(i,j)=>{ const q=(i*(gv+1)+j)*3; return [vsf.pos[q],vsf.pos[q+1],vsf.pos[q+2]] } }] })()
+			:[0,1,2,3,4,5].map(f=>({ N:R3, at:(i,j)=>{ const U=i/R3*255, W=j/R3*255; return [[0,U,W],[255,U,W],[U,0,W],[U,255,W],[U,W,0],[U,W,255]][f] } }))
+		const walls=[]; for(let k=0;k<3;k++) for(const sd of [0,1]) if(trim3>>(k*2+sd)&1) walls.push([k,sd,sd?bHi[k]:bLo[k]])
+		const lerp=(a,c,t)=>a.map((x,m)=>x+(c[m]-x)*t)
+		// the volume's own coordinates, unclamped (evalV holds a point past the window to its wall – a sign there means
+		// nothing, and the crossings read across it sawed the cube: Rec. 2020's surface traced inside sRGB's)
+		const raw=src=>{ if(tapers(src)) return null; try{ const v=conv(src); return v.every(isFinite)?v:null }catch{ return null } }
+		for(const F of sheets){ const G=[]
+			for(let i=0;i<=F.N;i++){ const row=[]; for(let j=0;j<=F.N;j++){ const src=F.at(i,j), v=raw(src); row.push(v&&{ v, src }) } G.push(row) }
+			for(const [k,sd,b] of walls){ const f=v=>sd?b-v[k]:v[k]-b, tol=(cls.ch[k].max-cls.ch[k].min)*0.002   // f > 0: inside the wall
+				for(let i=0;i<F.N;i++) for(let j=0;j<F.N;j++){ const C=[G[i][j],G[i+1][j],G[i+1][j+1],G[i][j+1]]; if(C.some(c=>!c)) continue
+					const d=C.map(c=>f(c.v)), pts=[]
+					if(d.every(x=>Math.abs(x)<tol*3)) continue   // the sheet lying along the wall: its crossings rounding, no cut
+					// the crossing ON the surface: bisected along the source edge through the conversion. A fold or a jump (no
+					// crossing, only a step over the wall) bisects onto the step, off the wall – dropped: no surface there to cut
+					for(let q=0;q<4;q++){ const a=C[q], c=C[(q+1)%4], da=d[q], dc=d[(q+1)%4]
+						if((da>0)===(dc>0)) continue
+						let lo=0, hi=1, v=null
+						for(let it=0;it<16;it++){ const md=(lo+hi)/2, w=raw(lerp(a.src,c.src,md)); if(!w){ v=null; break } v=w; if((f(w)>0)===(da>0)) lo=md; else hi=md }
+						const n=v&&Math.abs(f(v))<=tol&&map3(v)
+						pts.push(n&&n.every(isFinite)&&inBox(v)?n:null) }
+					// a crossing pair a cell apart, never across the solid (two crossings of a folded cell, paired wrong)
+					for(let p2=0;p2+1<pts.length;p2+=2) if(pts[p2]&&pts[p2+1]&&Math.hypot(...pts[p2].map((x,m)=>x-pts[p2+1][m]))<0.12) out.push(pts[p2],pts[p2+1],null) } } }
+		return out })()
+	// the box's own edges – two of its faces meeting, the third coordinate swept – wherever the body reaches them: the trimmed
+	// walls', and a box-in-base space's every face (its body IS its box: HSL's rims, a cylinder's top and foot) – another
+	// body only touches its untrimmed faces here and there, and its own edges draw that; the hue axis has no faces
+	const rims3=!LIFT&&!gH&&(trim3||inBase)&&(()=>{ const out=[], faces=[]
+		for(let k=0;k<3;k++) if(k!==ai) for(const sd of [0,1]){ const t=trim3>>(k*2+sd)&1
+			if(t||inBase) faces.push([k,sd?(t?bHi[k]:cls.ch[k].max):(t?bLo[k]:cls.ch[k].min)]) }
+		for(let w1=0;w1<faces.length;w1++) for(let w2=w1+1;w2<faces.length;w2++){ const [k1,b1]=faces[w1], [k2,b2]=faces[w2]; if(k1===k2) continue
+			const m=3-k1-k2, c=cls.ch[m], lo=m===ai?c.min:bLo[m], hi=m===ai?c.max:bHi[m]
+			for(let i=0;i<=96;i++){ const v=[0,0,0]; v[k1]=b1; v[k2]=b2; v[m]=lo+(hi-lo)*i/96
+				let n=null; try{ if(inGam(s,v,g3)&&space[s].rgb(...v).every(isFinite)){ const n2=map3(v); if(n2.every(isFinite)) n=n2 } }catch{} out.push(n) }
+			out.push(null) }
+		return out })()
+	if(cuts3||rims3) mesh3.edges=[...(mesh3.edges||[]),...(cuts3||[]),...(rims3||[])]
 	// the current color and the others in hand, in the lifted plate's frame: the space's own white (nativeOf)
-	const own3=L3&&nativeOf(sel)?.own
+	const own3=L3&&nativeOf(LS)?.own
 	pts3Fix=own3?(v=>{ const [x,y,Y]=v; if(!(y>0)) return v; const q=own3([x*Y/y,Y,(1-x-y)*Y/y]), S3=q[0]+q[1]+q[2]; return [q[0]/S3,q[1]/S3,q[1]] }):null
 	// the corners marked – red, green, blue and white – and only where they lie on the shape drawn. An RGB space marks its
 	// OWN: each channel at its white's code, the others at black's (a log curve's black sits above code 0), where the volume
@@ -4321,14 +4414,14 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// …each a mark that tells where it lands: the corner's name, its coordinates here – the lifted plate's, its primaries and
 	// white, as the plate marks them
 	const o3=el.querySelector('.p3o'), gn=GAMLABEL[g3], nf=(c,x)=>+x.toFixed(clamp(3-Math.floor(Math.log10(Math.abs(c.max-c.min)||1)),0,4))
-	const wOf=definitionOf(sel)?.white, prim=[t('ui.dossier.prim-r','red primary'),t('ui.dossier.prim-g','green primary'),t('ui.dossier.prim-b','blue primary'),wOf?t('ui.dossier.white-of','white point {w}',{w:wOf==='ACES'?'D60':wOf}):t('ui.dossier.white','white point')]
+	const wOf=definitionOf(L3?LS:sel)?.white, prim=[t('ui.dossier.prim-r','red primary'),t('ui.dossier.prim-g','green primary'),t('ui.dossier.prim-b','blue primary'),wOf?t('ui.dossier.white-of','white point {w}',{w:wOf==='ACES'?'D60':wOf}):t('ui.dossier.white','white point')]
 	const heads=L3||ownC?prim:[t('ui.dossier.vol-r','{g} red',{g:gn}),t('ui.dossier.vol-g','{g} green',{g:gn}),t('ui.dossier.vol-b','{g} blue',{g:gn}),t('ui.dossier.vol-w','{g} white',{g:gn})]
 	// a point's numbers on this solid – the lifted plate's as the plate tells them; the corners' and the other colors' alike
 	mesh3.rows=LIFT?(v=>primRows(v[0],v[1],v[2]/100)):(v=>cls.ch.map((ch,k)=>[ch.sym,nf(ch,v[k])]))
 	const swatch=(v,i)=>{ if(ownC) try{ return hex(gmap(space[s].rgb(...v))) }catch{ return '#fff' } return hex(dispOf([0,1,2].map(k=>i===3||k===i?255:0))) }
 	if(o3){ o3._h=null; o3.innerHTML=(pts3Prims||[]).map((v,i)=>v?tellMark(heads[i],mesh3.rows(v),swatch(v,i),'',i):'').join('') }
 	// a corner pointed at and pressed takes its color: the space's own, else the volume's (its display cube's code)
-	mesh3.take=i=>{ const v=ownCorner(sel,i); if(v) return { s:sel, vals:v }
+	mesh3.take=i=>{ const o=L3?LS:sel, v=ownCorner(o,i); if(v) return { s:o, vals:v }
 		if(!['srgb','p3','rec2020'].includes(g3)) return null; const c=[0,1,2].map(k=>i===3||k===i?1:0); return g3==='srgb'?{ s:'rgb', vals:c.map(x2=>x2*255) }:{ s:g3, vals:c } }
 	// ── reference frame: soft grid at nice channel stops on the far planes — the
 	// fitted box for cartesian spaces, the disc + wall for cylindrical ones ──
@@ -4400,7 +4493,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		else spinV3=SPIN3*move3Dir
 		spin3() }
 	hd.onpointercancel=hd.onpointerup
-	hd.onpointerenter=()=>{ edge3=true; draw3d() }; hd.onpointerleave=()=>{ edge3=false; draw3d() }   // pointed at, the solid shows its edges
+	hd.onpointerenter=()=>{ edge3=true; paint3dMarker() }; hd.onpointerleave=()=>{ edge3=false; paint3dMarker() }   // pointed at, the solid's marks firmer
 	hd.ondblclick=e=>{ if(e.target.closest('.sto:is([data-j],[data-i])')) return; rot3=LIFT?{ a:0, b:Math.PI/2, lift:true }:{a:-0.65,b:0.5}; snap3=null; spinV3=LIFT?0:SPIN3; draw3d(); spin3() }   // the plate laid flat again
 	mesh3=null; el.classList.add('busy'); const tok=++wire3dTok
 	if(gpu3) requestAnimationFrame(()=>setTimeout(()=>{ if(tok===wire3dTok&&selected===sel&&open()) build() }))
@@ -4683,7 +4776,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	// inside the GL scene, depth-tested against the body
 	let sheet3=null, frame3=null, cut3=null
 	// model points to clip space (null breaks a line), and a line as ribbons there – screen-true widths, the depth buffer's
-	const clip3=ns=>ns.map(n=>{ if(!n) return null; const r=rot(n); return [r.x*scale3, r.y*scale3, -0.7*r.z-0.0015] })   // z nudged viewer-ward: a line ON a face reads visible, never z-fights
+	const clip3=(ns,nz=0.0015)=>ns.map(n=>{ if(!n) return null; const r=rot(n); return [r.x*scale3, r.y*scale3, -0.7*r.z-nz] })   // z nudged viewer-ward: a line ON a face reads visible, never z-fights
 	const rib3=(C,off,hw,out=1)=>{ const V=[], px=2/S2
 		for(let k=0;k<C.length-1;k++){ const p=C[k], q=C[k+1]; if(!p||!q) continue
 			let dx=q[0]-p[0], dy=q[1]-p[1]; const L=Math.hypot(dx,dy)||1; dx/=L; dy/=L
@@ -4723,14 +4816,14 @@ function draw3d(){ if(!mesh3||!open()) return
 			const out=ar>0?-1:1   // CCW loop keeps its interior on the LEFT of travel
 			ctr3.frK=fk; ctr3.frame={ fr:rib3(C,0.75*dp,0.75*dp,out), co:rib3(C,0,0.6*dp,out), tint:CUT3 } }
 		frame3=ctr3.per?ctr3.frame:null }
-	// the solid's edges – its volume's own (a cube's twelve, a box's) – while the solid is pointed at: a gray hair, the same
+	// the solid's edges – its volume's own (a cube's twelve, a box's) – always: a gray hair, the same
 	// scene geometry as a pane's frame, so the depth buffer tells what the body stands in front of – those faint, as a pane's
-	else if(edge3&&mesh3.edges){ const C=clip3(mesh3.edges)
+	else if(mesh3.edges){ const C=clip3(mesh3.edges,0.012)   // an edge lies ON the body, which the GPU draws from its own conversion – a hair viewer-ward more, or it sank under the surface in stretches (HSL's top, REDLog's)
 		frame3={ fr:new Float32Array(0), co:rib3(C,0,0.5*dp), tint:CUT3, al:[0,0.5,0,0.15] } }   // in front at half, behind at 0.15 – a pane's frame's core goes 1 → 0.2
 	// The body, image cloud and histogram-conditioned sheet are scene pixels, not picker
 	// pixels. While a slider/plane drag only moves the HUD marker, keep this canvas intact:
 	// a large image cloud must never be replayed merely to move one diamond.
-	const sceneKey=`${mesh3.rev}|${rot3.a},${rot3.b}|${scale3}|${S2}|${Q}|${QM}|${HIMG?hRev:'-'}|${sheet3||frame3?ctr3?.key:''}|${frame3?.al?'E':''}`
+	const sceneKey=`${mesh3.rev}|${rot3.a},${rot3.b}|${scale3}|${S2}|${Q}|${QM}|${HIMG?hRev:'-'}|${sheet3||frame3?ctr3?.key:''}`
 	let drewGL=!!(meshCv&&meshCv._sceneKey===sceneKey)
 	let bodyM=mask3?._sceneKey===sceneKey?mask3:meshCv
 	if(!drewGL){
@@ -5104,7 +5197,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	const prmHTML=G?[['r',G.primaries.r,0],['g',G.primaries.g,1],['b',G.primaries.b,2],['w',G.wxy,-1]].map(([k,xy,i])=>{ const Y=i<0?1:G.matrix[3+i], [u,v]=GXY(xy)
 		const head=i<0?t('ui.dossier.white-of','white point {w}',{w:G.white==='ACES'?'D60':G.white}):{r:t('ui.dossier.prim-r','red primary'),g:t('ui.dossier.prim-g','green primary'),b:t('ui.dossier.prim-b','blue primary')}[k]
 		return tellMark(head,primRows(xy[0],xy[1],Y),hex(rgbF('xyy',[xy[0],xy[1],Y*100])),`left:${(u/3.2).toFixed(2)}%;top:${(v/3.52).toFixed(2)}%`,i<0?3:i) }).join(''):''
-	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d"><div class="flr"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}<text class="gnm" x="316" y="14" text-anchor="end">CIE 1931 xy</text></svg>${prmHTML}<span class="cx"></span></div>${has3d?'':pl3dHTML}</div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
+	const xyHTML=hasGamutGL(s)||LOCUS1||FWD1?`<div class="vgrp" data-f="xy"><div class="gam2d" id="gam2d"><div class="flr"><canvas width="320" height="352"></canvas><svg class="gxy" viewBox="0 0 320 352" aria-hidden="true">${locusMarks(GXY)}<text class="gnm" x="316" y="14" text-anchor="end">CIE 1931 xy</text></svg>${prmHTML}<span class="cx"></span></div>${has3d||!liftOf(s)?'':pl3dHTML}</div>${RCH?`<span class="grch tnum" title="${RCHTIP}">${t('ui.dossier.reaches','reaches {r}',{r:reachTxt})}</span>`:''}</div>`:''
 	// the definition's numbers – the primaries as printed (padded with figure spaces so the points align), the matrix, the
 	// curve's formula; each label's tip says what it is. The curve's formula rides its plot (the figure's transfer), the
 	// primaries and the matrix each its record column's last item
@@ -5717,7 +5810,7 @@ function gamMarker(fast=false){ const el=detail.querySelector('#gam2d'); if(!el)
 	markStops(el.querySelector('.flr'),'xyz',v=>{ const q=xyOf(...own(v)); if(!q) return [0,0,false]; const [fx,fy]=gamutPos(...q); return [clamp(fx,0,1)*100,clamp(fy,0,1)*100,true] },
 		v=>{ const o=own(v), q=xyOf(...o); return q&&primRows(q[0],q[1],o[1]/100) }) }
 detail.addEventListener('click',e=>{ const d=e.target.closest?.(':is(.gam2d,.pl3d) .sto[data-j]'); if(d) return pickStop(+d.dataset.j)   // another color's mark takes it in hand
-	const p=e.target.closest?.(':is(.gam2d,.pl3d) .prm[data-i]'), i=p&&+p.dataset.i, c=p&&(ownCorner(selected,i)?{ s:selected, vals:ownCorner(selected,i) }:mesh3?.take?.(i))
+	const p=e.target.closest?.(':is(.gam2d,.pl3d) .prm[data-i]'), i=p&&+p.dataset.i, o=p&&ownCorner(selected,i), c=p&&(o?{ s:selected, vals:o }:mesh3?.take?.(i))
 	if(c){ master=c; scheduleFast(); took() } })   // a primary's, a white's: its color taken
 // Seven complementary specimens: exact signal, physical target, contextual perception,
 // broadcast calibration, data-map paths, emissive clipping and flat print. The same seven drive the
