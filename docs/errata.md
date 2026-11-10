@@ -68,7 +68,7 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As implemented:** XYZ → CIELAB → `Lab_to_DIN99`. The X′ step is missing.
 - **Correct:** Cui et al. 2002 ([doi:10.1002/col.10066](https://doi.org/10.1002/col.10066)) apply X′ = 1.1·X − 0.1·Z (DIN99c) or X′ = 1.12·X − 0.12·Z (DIN99d) to the sample and to the white before CIELAB. As implemented, sRGB blue's DIN99c a99 is 31.86 instead of 14.29. For the docstring's XYZ, DIN99d a99 is 31.42 instead of 35.07.
 - **Proof:** `spaces/din99d.js:27-30` and `spaces/din99c.js:24-31`. The tests `din99d: DIN99d (Cui 2002, with X-correction)` and `bona-fide reference values` (entries `din99c`, `din99d`) pin it.
-- **Status:** found here. Reported: [colour-science/colour#1424](https://github.com/colour-science/colour/issues/1424) (2026-10-19). The colour-science source was re-checked online and 0.4.7 was run. Cui et al. 2002 is paywalled and was not re-checked online; the X′ step is also described in [de.wikipedia's DIN99 article](https://de.wikipedia.org/wiki/DIN99-Farbraum).
+- **Status:** found here. Reported: [colour-science/colour#1424](https://github.com/colour-science/colour/issues/1424) (2026-10-19); the maintainer closed it as fixed on 2026-10-26. The colour-science source was re-checked online and 0.4.7 was run. Cui et al. 2002 is paywalled and was not re-checked online; the X′ step is also described in [de.wikipedia's DIN99 article](https://de.wikipedia.org/wiki/DIN99-Farbraum).
 
 ### colour-science: ECI RGB v2, Best RGB, Don RGB 4 and Ekta Space PS 5 primaries
 
@@ -76,7 +76,7 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As implemented:** primaries are xy computed from colorant XYZ rounded to 3 decimals. For example, the ECI red is 0.670103 = 0.650/0.970.
 - **Correct:** the designers' values. eciRGB uses R(0.67, 0.33) G(0.21, 0.71) B(0.14, 0.08), the [ICC registry](https://registry.color.org/rgb-registry/ecirgb) values per ISO 22028-4. The other three use the values that [Lindbloom's table](http://www.brucelindbloom.com/WorkingSpaceInfo.html) prints and that the profiles' colorant tags give. The largest xy errors are 3.3e-4 for ECI RGB v2, 8.4e-4 for Best RGB, 4.3e-4 for Don RGB 4 and 4.8e-4 for Ekta Space PS 5.
 - **Proof:** `spaces/ecirgb.js:24-27`, `spaces/bestrgb.js:24-28`, `spaces/donrgb4.js:24-27` and `spaces/ektaspace.js:24-28` hold the designers' values. The `bona-fide reference values` entries for these spaces were computed from them. Their tolerance (0.01 + 0.2%) would also pass colour-science's stock values for three of the four spaces, so no test pins the difference yet.
-- **Status:** found here. Reported: [colour-science/colour#1425](https://github.com/colour-science/colour/issues/1425) (2026-10-19). The colour-science sources, Lindbloom's table and the ICC registry were re-checked online. The ICC profile tags were not.
+- **Status:** found here. Reported: [colour-science/colour#1425](https://github.com/colour-science/colour/issues/1425) (2026-10-19); closed on 2026-11-01 as fixed in `develop`. The colour-science sources, Lindbloom's table and the ICC registry were re-checked online. The ICC profile tags were not.
 
 ### CIE TC1-34 1998 / Fairchild: CIECAM97s Table 4.1 and its spreadsheet, eccentricity and hue quadrature from blue to red
 
@@ -92,7 +92,7 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As implemented:** when the specification gives J_HK, it computes J = J_HK − f(h)·spow(C, 0.587) from the specification's own C, before C is derived from M. Given only M, C is NaN, colour's `spow` returns 0 for it, and J = J_HK: the Helmholtz–Kohlrausch term is dropped without a warning.
 - **Correct:** C = 35·M/A_w first (it depends on M alone), then J = J_HK − f(h)·C^0.587. Under hellwig2022.js's conditions, sRGB red (XYZ 41.23908, 21.263901, 1.933082 → J_HK 53.540234, M 86.355273, h 27.402503) inverts to XYZ (50.913, 27.829, 4.031) instead of the input; with C passed as well, it returns the input to 1e-13. The docstring's own example passes C, so it does not show the fault.
 - **Proof:** `spaces/hellwig2022-hk.js` (implementation notes) inverts in closed form. The test `bona-fide reference values` (entries `hellwig2022-hk`, hellwig2022-hk → xyz) pins the inverse against coloraide 8.13.1, which derives C from M first.
-- **Status:** found here. Reported: [colour-science/colour#1423](https://github.com/colour-science/colour/issues/1423) (2026-10-19); a fix is proposed on a fork ([Rahul-cs50/colour@de3c637](https://github.com/Rahul-cs50/colour/commit/de3c63797e8d945a2115e01a4e6bf8fd06c217a8)), checked here to round-trip. colour-science 0.4.7 was run, and the develop source was re-checked online on 2026-10-19.
+- **Status:** found here. Reported: [colour-science/colour#1423](https://github.com/colour-science/colour/issues/1423) (2026-10-19), closed as completed on 2026-10-21; a fix is proposed on a fork ([Rahul-cs50/colour@de3c637](https://github.com/Rahul-cs50/colour/commit/de3c63797e8d945a2115e01a4e6bf8fd06c217a8)), checked here to round-trip. colour-science 0.4.7 was run, and the develop source was re-checked online on 2026-10-19.
 
 ### Yıldız 2026: Helmlab, §3.1 Stage 10 (neutral correction)
 
@@ -118,7 +118,32 @@ These are errors that color-space found or confirmed while implementing publishe
 - **As printed:** color(rec2020 0.6295 0.9657 0.3633).
 - **Correct:** color(rec2020 0.47428 0.52316 0.41425), by the draft's own §19 sample code (`lin_2020`/`gam_2020`, gamma 2.4) and colorjs.io 0.7.1. The printed green, 0.9657, is a near-saturated value for a color of chroma 21. The example's sRGB, display-p3, a98-rgb and prophoto-rgb values agree with the sample code to 5e-5.
 - **Proof:** none pinned in this library; `rec2020-display` is pinned to the same draft's §10.1 lime example instead.
-- **Status:** found here (2026-10-19). Reported: [w3c/csswg-drafts#14631](https://github.com/w3c/csswg-drafts/issues/14631).
+- **Status:** found here (2026-10-19). Reported: [w3c/csswg-drafts#14631](https://github.com/w3c/csswg-drafts/issues/14631); the editor answered "agreed and fixed" and closed it on 2026-10-20.
+
+### CSS Color 4 (CR Draft, 2026-11-03): §10.9 example, the XYZ forms of #7654CD
+
+- **Source:** CSS Color Module Level 4, Candidate Recommendation Draft of 3 November 2026, §10.9, the example of one color in five forms "that are exactly equivalent" ([snapshot](https://www.w3.org/TR/2026/CRD-css-color-4-20261103/#ex-xyz)).
+- **As printed:** `#7654CD` = `color(xyz-d50 0.2005 0.14089 0.4472)` = `color(xyz-d65 0.21661 0.14602 0.59452)`.
+- **Correct:** `color(xyz-d50 0.20049 0.14087 0.44708)` and `color(xyz-d65 0.21660 0.14600 0.59437)`, by the draft's own §19 sample code, colorjs.io 0.7.1 and culori 4.0.2. The printed xyz-d50 is the example's rounded `lab(44.36% 36.05 -58.99)` converted and rounded again, and the printed xyz-d65 is that rounded xyz-d50 adapted to D65: Z is off by 1.5e-4. On screen it is harmless, since the printed XYZ still round to #7654CD.
+- **Proof:** the `bona-fide reference values` row for `lab` pins the example's `lab()` form from #7654CD. The XYZ forms are not pinned.
+- **Status:** found here (2026-11-10), while turning the draft's examples into conformance rows. Reported: [w3c/csswg-drafts#14765](https://github.com/w3c/csswg-drafts/issues/14765) (2026-11-10).
+
+### CSS Color HDR 1 (Working Draft, 2026-10-26): §6.3 ICtCp example, sRGB lime
+
+- **Source:** CSS Color HDR Module Level 1, Working Draft of 26 October 2026, §6.3 "ICtCp", the first example ([snapshot](https://www.w3.org/TR/2026/WD-css-color-hdr-1-20261026/#ICtCp)).
+- **As printed:** sRGB `lime` is `ictcp(0.5393 -0.2643 -0.0625)`.
+- **Correct:** `ictcp(0.5398 -0.2812 -0.0495)`, by the draft's own sample code (`XYZ_to_ICtCp`, Yw = 203) and colorjs.io 0.7.1. The printed value decodes to about `color(srgb -0.339 1.010 0.188)`: 4° away in OKLCh hue and outside sRGB. No single change of white level reproduces it (a 100 cd/m² white gives Ct −0.2642, but I 0.4689 and Cp −0.0474). The draft's other ICtCp values agree with the sample code: `red` as `ictcp(42.8% -0.116 0.279)` (§6.1) and diffuse white as `ictcp(0.58069 0 0)` (§6.3).
+- **Proof:** none pinned for lime. The `bona-fide reference values` rows for `ictcp` pin the same draft's red and diffuse white.
+- **Status:** found here (2026-11-10). Reported: [w3c/csswg-drafts#14764](https://github.com/w3c/csswg-drafts/issues/14764) (2026-11-10).
+
+### Ottosson 2021: Okhsv and Okhsl reference code, the green branch's k4
+
+- **Source:** B. Ottosson, "Okhsv and Okhsl" (2021) and "sRGB gamut clipping" (2021): `compute_max_saturation` as printed in the [gamut clipping post](https://bottosson.github.io/posts/gamutclipping/), in [ok_color.h](https://bottosson.github.io/misc/ok_color.h) and in the color picker's [colorconversion.js](https://github.com/bottosson/bottosson.github.io/blob/d69831edb90ffdcd08b7e64da3c5405acd48ad2c/misc/colorpicker/colorconversion.js#L234).
+- **As printed:** the green branch's polynomial ends in `k4 = +0.14503204`.
+- **Correct:** −0.14503204. facelessuser, coloraide's author, reports that Ottosson's own fitting notebook prints the negative value ([color-js/color.js#765](https://github.com/color-js/color.js/issues/765)). Measured here over the branch's hues in 0.25° steps: with the minus sign the polynomial lands within 0.0023 of the root and one Halley step leaves 1e-8 of relative error, which is what the code's comment promises; as printed it misses by up to 0.146 and one step leaves up to 1.3e-3.
+- **Consequence:** code that carries the printed sign reads sRGB red as Okhsv S 99.952, magenta as 100.012, rgb(127, 50, 200) as 89.048 (88.989 with the fitted sign and with the solver run to convergence), and indigo rgb(75, 0, 130) as Okhsl S 100.18. culori 4.0.2 carries it; colorjs.io and coloraide carry the fitted sign.
+- **Proof:** `spaces/okhsl.js` (`RGBCoeff`, the fitted sign, from colorjs.io). The test `okhsv, okhsl, okhwb: pure blue, and each corner of the cube, is its hue's cusp` pins the six corners at S = 100 within 1e-3; the `bona-fide reference values` rows for `okhsv` and `okhsl` pin red and rgb(127, 50, 200) against colorjs.io 0.7.1.
+- **Status:** known. Found and analysed by facelessuser (color-js/color.js#765, 2026-08); confirmed here on 2026-11-10 against the three copies above. Not reported to the author: his repository takes no issues. Reported to culori, which carries the printed sign: [danburzo/culori#287](https://github.com/danburzo/culori/issues/287) (2026-11-10).
 
 ## Citation fixes
 

@@ -394,11 +394,13 @@ export function kind(s: ColorSpace, opts?: Pick<IccOptions, 'xyz'>): 'mntr' | 's
 export function profile(s: ColorSpace, opts?: IccOptions): Uint8Array;
 `)
 
-// ocio: an OpenColorIO 2.x colorspace entry from native transforms, or null where none is exact
+// ocio: an OpenColorIO 2.x colorspace entry from native transforms, or null where none is exact; every such entry as one config
 fs.writeFileSync(path.join(dir, 'ocio.d.ts'), banner + `import { ColorSpace } from './color-space.js';
 
 /** Render a space (object or id) as one OpenColorIO 2.x \`- !<ColorSpace>\` entry; null where OCIO's native transforms can't express it exactly. */
 export function colorspace(s: ColorSpace | string, opts?: { reference?: 'aces2065-1' | 'xyz-d65' }): string | null;
+/** Every space colorspace() carries, as one OpenColorIO config (profile 2.0, scene reference ACES2065-1) to point $OCIO at; the same bytes for the same library. */
+export function config(): string;
 `)
 
 // remove stale: wrong-extension .ts and orphans without a .js

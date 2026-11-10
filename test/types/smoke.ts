@@ -13,7 +13,7 @@ import { msl } from 'color-space/gl/msl'
 import { emit, load, NAGA_WASM, type NagaWasm } from 'color-space/gl/naga'
 import { table, verify, cube } from 'color-space/lut'
 import { clut, colorants, kind, profile } from 'color-space/icc'
-import { colorspace } from 'color-space/ocio'
+import { colorspace, config } from 'color-space/ocio'
 import gamut, { gamut as namedGamut, whites, matrix } from 'color-space/gamuts.js'
 import whitepoint, { whitepoint as namedWhitepoint } from 'color-space/whitepoints.js'
 import { cartToPolar, inv3, mat3, polarToCart, spow } from 'color-space/util.js'
@@ -72,6 +72,7 @@ const profileKind: 'mntr' | 'spac' | 'scnr' | null = kind(space.oklch, { xyz: sp
 const lut = clut(space.oklch, { xyz: space.xyz, grid: 9 })
 const cols = colorants(space.p3)
 const ocioEntry: string | null = colorspace(space.slog3, { reference: 'xyz-d65' }) ?? colorspace('acescg')
+const ocioConfig: string = config()
 
 const msg: McpMessage = { jsonrpc: '2.0', id: 1, method: 'ping' }
 if (false) handle(msg)

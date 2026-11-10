@@ -403,6 +403,24 @@ test('gl: float32 — ryb and cct-duv stay within 1e-3 of range', () => {
 	is(misses.slice(0, 12), [], `${misses.length} float32 misses`)
 })
 
+// the cusp solver's red and green branches part at the blue primary's hue (spaces/okhsl.js); float32 used to take either
+// (lavapipe: rgb→okhsl S 100, rgb→okhsv 92.40, okhsl→rgb G −110.9 at the float64 S, itself the wrong branch's 102.92)
+test('gl: float32 — the Ok pickers read pure blue as its hue\'s cusp, in every rounding mode', () => {
+	const misses = []
+	for (const b of ['okhsl', 'okhsv', 'okhwb']) {
+		const fwd = glsl('rgb', b), inv = glsl(b, 'rgb'), range = meta[b].range
+		for (const mode of F32_MODES) {
+			const to = evalGlsl32(fwd, mode)[`rgb_${b}`], back = evalGlsl32(inv, mode)[`${b}_rgb`]
+			for (const input of [[0, 0, 255], [0, 0, 128], [0, 0, 1]]) {
+				const exp = space.rgb[b](...input), got = unpack(to(pack(input))), rgb = unpack(back(pack(exp.map(Math.fround))))
+				exp.forEach((e, k) => { const rel = Math.abs(got[k] - e) / (range[k][1] - range[k][0]); if (!(rel <= 1e-4)) misses.push(`rgb→${b} ${mode} [${input}] ch${k}: ${got[k]} vs ${e}`) })
+				input.forEach((e, k) => { if (!(Math.abs(rgb[k] - e) <= 0.05)) misses.push(`${b}→rgb ${mode} [${input}] ch${k}: ${rgb[k]} vs ${e}`) })
+			}
+		}
+	}
+	is(misses.slice(0, 12), [], `${misses.length} float32 misses`)
+})
+
 // ── the lean tier: registry-free composition from imported chunks ──
 const bundle = (name) => glsl([[name, 'rgb'], ['rgb', name]])
 

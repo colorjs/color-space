@@ -4,6 +4,7 @@
 import { execFileSync } from 'node:child_process'
 import test, { is, ok } from 'tst'
 import space from '../index.js'
+import { colorspace, config } from '../ocio.js'
 
 const CLI = new URL('../cli.js', import.meta.url).pathname
 const run = (...args) => execFileSync('node', [CLI, ...args], { encoding: 'utf8' })
@@ -37,6 +38,14 @@ test('cli: cube emits a LUT', () => {
 test('cli: icc emits a profile', () => {
 	const bytes = execFileSync('node', [CLI, 'icc', 'p3'])
 	is(bytes.slice(36, 40).toString('latin1'), 'acsp')   // ICC signature at offset 36
+})
+
+test('cli: ocio prints the OpenColorIO config, or one colorspace', () => {
+	is(run('ocio'), config(), 'ocio: the whole config')
+	is(run('ocio', 'slog3'), colorspace('slog3'), 'ocio slog3: its colorspace entry')
+	let code = 0
+	try { execFileSync('node', [CLI, 'ocio', 'applelog'], { stdio: 'ignore' }) } catch (e) { code = e.status }
+	is(code, 1, 'a space with no exact colorspace fails')
 })
 
 test('cli: unknown space fails with exit 1', () => {

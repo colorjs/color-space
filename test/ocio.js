@@ -14,12 +14,19 @@
 //   aces2065-1 the library's XYZ carried to AP0 by the Academy recipe (ACESlib.Utilities_Color
 //              calculate_rgb_to_rgb_matrix), coded apart from ocio.js
 // The composed matrices are pinned to the Academy's numbers, and the near misses (what a native
-// transform almost fits) are shown to miss, so every null is earned too.
+// transform almost fits) are shown to miss, so every null is earned too. config() is pinned
+// structurally (each snippet once, roles, views and rules naming what exists, unique names), and,
+// where PyOpenColorIO imports, real OpenColorIO loads it, validates it and reproduces the library.
+import { spawnSync } from 'node:child_process'
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import test, { is, ok, throws } from 'tst'
 import space from '../index.js'
-import { colorspace } from '../ocio.js'
+import { colorspace, config } from '../ocio.js'
 import { gamut } from '../gamuts.js'
 import data from '../data.json' with { type: 'json' }
+import pkg from '../package.json' with { type: 'json' }
 
 const DATA = data.spaces
 
@@ -185,8 +192,8 @@ const KIND = (ops) => ops.find((o) => o.type !== 'MatrixTransform')?.type ?? 'Ma
 // --- tests ------------------------------------------------------------------------------------
 
 test('ocio: the supported set', () => {
-	is(IDS.length, 55, `${IDS.length} of ${Object.keys(space).length} spaces have an exact native snippet`)
-	for (const id of ['xyz', 'acescg', 'aces2065-1', 'sgamut3cine', 'slog3', 'logc3', 'logc4', 'vlog', 'log3g10', 'acescct', 'davinci', 'bmdfilm', 'rec2020', 'a98rgb', 'ecirgb', 'olog2'])
+	is(IDS.length, 58, `${IDS.length} of ${Object.keys(space).length} spaces have an exact native snippet`)
+	for (const id of ['xyz', 'acescg', 'aces2065-1', 'sgamut3cine', 'slog3', 'logc3', 'logc4', 'vlog', 'log3g10', 'acescct', 'davinci', 'bmdfilm', 'rec2020', 'a98rgb', 'ecirgb', 'olog2', 'rgb-display', 'rec709-display', 'rec2020-display'])
 		ok(IDS.includes(id), `${id} has a snippet`)
 	is(colorspace(space.slog3), colorspace('slog3'), 'space object and id give the same snippet')
 	throws(() => colorspace('slog3', { reference: 'acescg' }), /reference/, 'an unknown reference throws')
@@ -278,4 +285,120 @@ test('ocio: null where no native transform is exact', () => {
 		const { fwd, back } = errors(id, ops, libXYZ)
 		ok(fwd > 1e-6 || back > 1e-6, `${id}: best native candidate misses, code→ref ${fwd.toExponential(1)}, ref→code ${back.toExponential(1)}`)
 	}
+})
+
+// --- config(): the whole set, one file ---------------------------------------------------------
+
+// the config read back: a top-level section's lines, its colorspace entries, the names each answers to
+const CFG = config()
+const section = (k) => CFG.split(`\n${k}:\n`)[1].split('\n\n')[0].split('\n').filter((l) => !/^\s*#/.test(l))
+const ENTRIES = CFG.split('\ncolorspaces:\n')[1].trimEnd().split('\n\n').map((t) => t + '\n')
+const field = (t, k) => t.match(new RegExp(`^ {4}${k}: (.*)$`, 'm'))?.[1]
+const aliases = (t) => field(t, 'aliases')?.slice(1, -1).split(', ') ?? []
+const ROLES = Object.fromEntries(section('roles').map((l) => l.trim().split(': ')))
+const resolve = (n) => ENTRIES.find((t) => [field(t, 'name'), ...aliases(t)].some((a) => a.toLowerCase() === n.toLowerCase()))
+
+test('ocio: config() is a whole config of every snippet', () => {
+	is(config(), CFG, 'deterministic: the same bytes twice')
+	ok(CFG.startsWith('ocio_profile_version: 2\n\nenvironment: {}\n'), 'profile 2.0, the newest the transforms need; no context variables')
+	is(CFG.match(/^name: (.*)$/m)?.[1], `color-space-${pkg.version}`, 'named for the library version')
+	const desc = CFG.split('\ndescription: |\n')[1].split('\n\n')[0]
+	for (const s of [pkg.version, `${IDS.length} color spaces`, 'scene reference ACES2065-1', 'CAT02', 'Bradford', '1e-6', 'not looks', 'nothing tone mapped', 'CC0', 'https://color-space.io'])
+		ok(desc.includes(s), `description: ${s}`)
+	ok(/^[\n -~]*$/.test(CFG), 'plain ASCII throughout')
+	// every snippet once, verbatim but for its family and the alias the config adds
+	is(ENTRIES.length, IDS.length + 1, `${IDS.length} snippets and Raw`)
+	for (const id of IDS) {
+		const own = colorspace(id), name = parse(own).name, hits = ENTRIES.filter((t) => field(t, 'name') === name), fam = field(hits[0] ?? '', 'family')
+		is(hits.length, 1, `${id}: "${name}" once`)
+		is(hits[0]?.replace(/^ {4}(aliases|family): .*\n/gm, ''), own.replace(/^ {4}family: .*\n/m, ''), `${id}: colorspace()'s entry`)
+		is(resolve(id) && field(resolve(id), 'name'), name, `${id}: the id resolves to it`)
+		ok(fam && fam !== 'color-space', `${id}: family "${fam}", its atlas shelf`)
+	}
+	// OCIO resolves names and aliases ignoring case; none may answer for two colorspaces
+	const all = ENTRIES.flatMap((t) => [field(t, 'name'), ...aliases(t)]).map((n) => n.toLowerCase())
+	is(new Set(all).size, all.length, `${all.length} names and aliases, all distinct`)
+	ok(!all.some((n) => Object.hasOwn(ROLES, n)), 'no colorspace named as a role')
+	const raw = ENTRIES.find((t) => field(t, 'name') === 'Raw')
+	ok(field(raw, 'isdata') === 'true' && field(raw, 'encoding') === 'data' && !raw.includes('to_scene_reference'), 'Raw: data, no transform')
+})
+
+test('ocio: config() roles, rules and views name what it has', () => {
+	for (const [role, cs] of Object.entries(ROLES)) ok(resolve(cs), `role ${role}: ${cs}`)
+	// aces_interchange and reference are the reference itself, exact by construction
+	for (const r of ['aces_interchange', 'reference']) ok(!resolve(ROLES[r]).includes('to_scene_reference'), `${r}: no transform`)
+	is(ROLES.scene_linear, 'ACEScg', 'scene_linear: ACEScg')
+	is([ROLES.compositing_log, ROLES.color_timing], ['ACEScct', 'ACEScct'], 'compositing_log, color_timing: ACEScct')
+	is(ROLES.data, 'Raw', 'data: Raw')
+	ok(!ROLES.cie_xyz_d65_interchange, 'no cie_xyz_d65_interchange: nothing display-referred to name')
+	// file rules: the last one Default, each to a colorspace or a role
+	const rules = section('file_rules').map((l) => Object.fromEntries(l.match(/\{(.*)\}/)[1].split(/, (?=\w+:)/).map((kv) => kv.split(': '))))
+	is(rules.at(-1).name, 'Default', 'the last rule is Default')
+	is(rules.map((r) => r.name), ['EXR', 'Movies', 'Default'], 'the Academy CG config\'s three rules (cg-config-v5.0.0_aces-v2.1_ocio-v2.6)')
+	for (const r of rules) ok(resolve(r.colorspace) || ROLES[r.colorspace], `rule ${r.name}: ${r.colorspace}`)
+	// displays: Colorimetric is the display's own colorspace, Raw the data one; no view transform anywhere
+	ok(!/^(view_transforms|display_colorspaces|looks|shared_views):|^ +(from|to)_display_reference:|(\{|, )(view_transform|display_colorspace|looks):/m.test(CFG), 'no view transform, display colorspace or look')
+	const lines = section('displays'), views = {}
+	let d
+	for (const l of lines) if (/^ {2}\S.*:$/.test(l)) views[d = l.trim().slice(0, -1)] = []
+		else views[d].push(Object.fromEntries(l.match(/\{(.*)\}/)[1].split(/, (?=\w+:)/).map((kv) => kv.split(': '))))
+	ok(Object.keys(views).length >= 1, `${Object.keys(views).length} displays: ${Object.keys(views).join(', ')}`)
+	for (const [disp, vs] of Object.entries(views)) {
+		is(vs.map((v) => [v.name, v.colorspace]), [['Colorimetric', disp], ['Raw', 'Raw']], `${disp}: Colorimetric, Raw`)
+		is(field(resolve(disp), 'encoding'), 'sdr-video', `${disp}: a display encoding`)
+	}
+})
+
+// real OpenColorIO, where PyOpenColorIO imports (pip install opencolorio, its python3 first on PATH):
+// the config loads and validates, every display's views are their colorspaces (Raw the identity), and
+// each colorspace's processor, code to ACES2065-1 and back, matches the library as the evaluator above
+// does. OCIO's CPU path runs in float32, its fast pow/log approximations off (OPTIMIZATION_NONE)
+const PYOCIO = `
+import array, json, sys
+import PyOpenColorIO as O
+q = json.load(sys.stdin)
+c = O.Config.CreateFromFile(q['path'])
+c.validate()
+ref = c.getColorSpace('aces_interchange').getName()
+cpu = lambda p: p.getOptimizedCPUProcessor(O.OPTIMIZATION_NONE)
+out = {'ref': ref, 'cases': [[cpu(c.getProcessor(k['name'], ref)).applyRGB(k['codes']), cpu(c.getProcessor(ref, k['name'])).applyRGB(k['refs'])] for k in q['cases']], 'views': {}}
+probe = list(array.array('f', q['cases'][0]['refs']))
+for d in c.getDisplays():
+	for v in c.getViews(d):
+		cs = c.getDisplayViewColorSpaceName(d, v)
+		got = cpu(c.getProcessor(O.DisplayViewTransform(src=ref, display=d, view=v))).applyRGB(probe)
+		exp = probe if c.getColorSpace(cs).isData() else cpu(c.getProcessor(ref, cs)).applyRGB(probe)
+		out['views'][d + ' / ' + v] = max(abs(a - b) for a, b in zip(got, exp))
+json.dump(out, sys.stdout)
+`
+const PY = spawnSync('python3', ['-c', 'import PyOpenColorIO as O; print(O.__version__)'], { encoding: 'utf8' })
+if (PY.status !== 0) console.log('ocio: PyOpenColorIO not importable – skipping the OpenColorIO host test')
+else test(`ocio: OpenColorIO ${PY.stdout.trim()} loads config() and reproduces the library`, () => {
+	const dir = mkdtempSync(join(tmpdir(), 'color-space-ocio-')), path = join(dir, 'color-space.ocio')
+	try {
+		writeFileSync(path, CFG)
+		// OCIO reads float32: both sides get the same float32 codes and colors
+		const f32 = (v) => v.map(Math.fround)
+		const cases = IDS.map((id) => { const { name, ops } = parse(colorspace(id)), codes = grid(id, ops).map(f32); return { id, name, codes, refs: codes.map((c) => f32(libACES(id, c))) } })
+		const res = spawnSync('python3', ['-c', PYOCIO], { input: JSON.stringify({ path, cases: cases.map(({ name, codes, refs }) => ({ name, codes: codes.flat(), refs: refs.flat() })) }), encoding: 'utf8', maxBuffer: 1 << 28 })
+		is(res.status, 0, `loads and validates${res.status ? `: ${res.stderr.trim().split('\n').at(-1)}` : ''}`)
+		if (res.status) return
+		const out = JSON.parse(res.stdout), px = (a, i) => [a[3 * i], a[3 * i + 1], a[3 * i + 2]]
+		is(out.ref, 'ACES2065-1', 'aces_interchange: ACES2065-1')
+		for (const [v, e] of Object.entries(out.views)) is(e, 0, `${v}: its colorspace, bit for bit`)
+		// float32 (IEEE 754 binary32, unit roundoff u = 2⁻²⁴ ≈ 6e-8) resolves a matrix or a power to the 1e-6 bar,
+		// not a log: its decode turns a rounding of u in the code, or in the exponent built from it, into
+		// u·ln(base)/log_side_slope·|code| of the value, up to 23 u (ACEScct: ln 2 × 17.52 on codes up to 1.93),
+		// 1.4e-6, and OCIO rounds at each step and the code it returns. Log chains get float32's bar, 5e-6 as
+		// scripts/check-ocio.py sets it; their formulas are held to 1e-6 in double above
+		const err = cases.map(({ id, codes, refs }, k) => {
+			const [to, from] = out.cases[k], log = /Log/.test(KIND(parse(colorspace(id)).ops))
+			let fwd = 0, back = 0
+			codes.forEach((c, i) => { fwd = Math.max(fwd, rel(px(to, i), refs[i])); back = Math.max(back, rel(libACES(id, px(from, i)), refs[i])) })
+			return { id, fwd, back, bar: log ? 5e-6 : 1e-6 }
+		})
+		for (const { id, fwd, back, bar } of err) ok(fwd < bar && back < bar, `${id}: code→ref ${fwd.toExponential(1)}, ref→code ${back.toExponential(1)} < ${bar}`)
+		const pow = err.filter((r) => r.bar === 1e-6), log = err.filter((r) => r.bar > 1e-6), max = (rs) => Math.max(...rs.flatMap((r) => [r.fwd, r.back])).toExponential(1)
+		ok(true, `${pow.length} matrix and power chains within 1e-6 (max ${max(pow)}); ${log.length} log chains within float32's 5e-6 (max ${max(log)})`)
+	} finally { rmSync(dir, { recursive: true, force: true }) }
 })

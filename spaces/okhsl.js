@@ -288,19 +288,13 @@ function computeMaxSaturation(a, b, lmsToRgb, okCoeff) {
 	// Finds the maximum saturation possible for a given hue that fits in RGB.
 	var k0, k1, k2, k3, k4, wl, wm, ws;
 
-	if (vdot(okCoeff[0][0], [a, b]) > 1) {
-		// Red component
-		[k0, k1, k2, k3, k4] = okCoeff[0][1];
-		[wl, wm, ws] = lmsToRgb[0];
-	} else if (vdot(okCoeff[1][0], [a, b]) > 1) {
-		// Green component
-		[k0, k1, k2, k3, k4] = okCoeff[1][1];
-		[wl, wm, ws] = lmsToRgb[1];
-	} else {
-		// Blue component
-		[k0, k1, k2, k3, k4] = okCoeff[2][1];
-		[wl, wm, ws] = lmsToRgb[2];
-	}
+	// Which component goes below zero first: red's, green's or blue's. The red and green limits cross at the blue primary's hue, where
+	// red's root folds back and the two branches' cusps part by 18%. A hue within 1e-5 of the crossing (0.0003°: the constants' and
+	// float32's own precision) is the primary's, and the primary is green's cusp – so every (0, 0, b) reads s = 1.
+	var r = vdot(okCoeff[0][0], [a, b]), g = vdot(okCoeff[1][0], [a, b]);
+	var i = Math.abs(r - 1) < 1e-5 && Math.abs(g - 1) < 1e-5 ? 1 : r > 1 ? 0 : g > 1 ? 1 : 2;
+	[k0, k1, k2, k3, k4] = okCoeff[i][1];
+	[wl, wm, ws] = lmsToRgb[i];
 
 	// Approximate max saturation using a polynomial:
 	var sat = k0 + k1 * a + k2 * b + k3 * a ** 2 + k4 * a * b;

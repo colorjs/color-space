@@ -13,10 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `css.js` exports its `PREDEF`, `PCT` and `ANGLE` tables.
 - `mcp.js` exports `TOOLS` and `call(name, args)`, the tool table and its runner.
 - The site registers the MCP tools through WebMCP (`document.modelContext`), plus `show`: a space's dossier or a color, on the page.
+- `conformance.json` describes its rows (`fields`) and the spaces they use (`spaces`: channels, range, white); 59 rows for the spaces other libraries share, from CSS Color 4 and CSS Color HDR, web-platform-tests, Ottosson's Oklab table, Adobe RGB (1998), ITU-R BT.2087 and BT.2124; [docs/conformance.md](docs/conformance.md) says how to run it against any library.
+- `color-space/ocio` exports `config()`: every exact space as one OpenColorIO 2.0 config, loaded and validated by OpenColorIO 2.6; also `npx color-space ocio` and https://color-space.io/color-space.ocio. Gamma 2.2 Rec.709, Rec.1886 Rec.709 and Rec.1886 Rec.2020 join `colorspace()`, 58 spaces in all.
 
 ### Changed
 
+- The D50–D65 Bradford matrices are derived from the two whites and equal CSS Color 4's printed ones (they were 8e-8 off). Every D50 space (`lab`, `lchab`, `xyz-d50`, `prophoto`, Best, Beta, ColorMatch, Don 4, ECI, Ekta Space, Wide Gamut RGB) moves a little: across sRGB, L\* by up to 5e-6 and a\*, b\* by up to 4e-5. White is `lab(100 0 0)` to 1e-11.
 - `util.mix` takes `increasing` and `decreasing` hue arcs and a missing hue (NaN); `longer` between equal hues is the full turn, as CSS Color 4 defines it.
+
+### Fixed
+
+- Okhsv, Okhsl and Okhwb read every pure blue (0, 0, b) off its cusp: Okhsv S 108.74, Okhsl S 103 where Ottosson's code, colorjs.io and culori read 100. The GLSL and WGSL chunks took either branch in float32; they agree now.
+- `conformance.json`: the Okhsl and Okhsv rows credited to Ottosson's reference code held the library's own values; they are now computed by his code and colorjs.io 0.7.1, each named.
 
 ## [3.5.0] - 2026-10-19
 

@@ -191,13 +191,29 @@ const data = {
 
 fs.writeFileSync(path.join(root, 'data.json'), JSON.stringify(data, null, 1) + '\n')
 
-// conformance.json — the same rows alone, for any color library's own test suite
+// conformance.json — the same rows alone, for any color library's own test suite. It carries what a
+// runner needs and nothing it doesn't: the row fields, and each space the rows use, with its channels,
+// the range the tolerance is a fraction of, and its white (docs/conformance.md)
+const used = [...new Set(REF.flatMap(r => [r.f, r.t]))].sort()
 fs.writeFileSync(path.join(root, 'conformance.json'), JSON.stringify({
 	name: 'color-space conformance',
 	version,
-	about: `Cited reference conversions: space[f][t](...in) ≈ out, in each space's conventional ranges (data.json spaces[*].channels), within ${TOL} × the span of each channel of t, or a row's own tol (a number, or per channel with null for the default). kind: published, printed by the cited source; implementation, computed by the named implementation (colour-science, colorjs.io, culori …) from the cited definition; computed, plain arithmetic from the definition.`,
+	about: `Cited reference conversions to test a color library against: convert in from space f to space t and compare with out, each channel within tolerance × its span in spaces[t].range, or the row's own tol. How to run it: docs/conformance.md, https://github.com/colorjs/color-space/blob/master/docs/conformance.md`,
 	license: 'CC0-1.0',
 	tolerance: TOL,
+	fields: {
+		s: 'the space the row anchors',
+		f: 'the space in is in, a key of spaces',
+		t: 'the space out is in, a key of spaces',
+		in: 'input, one number per channel of f',
+		out: 'expected output, one number per channel of t',
+		tol: 'optional: the absolute tolerance where the source prints few digits, a number for every channel of t or one per channel (null keeps tolerance × span)',
+		src: 'the source, quoting the printed value',
+		url: 'the page that prints it',
+		kind: 'published: printed by the source; implementation: computed by the named implementation; computed: plain arithmetic from the printed definition',
+	},
+	spaces: Object.fromEntries(used.map(id => { const { title, channels, illuminant, white } = spaces[id]
+		return [id, { name: title, channels: channels.map(c => c.symbol), range: space[id].range, ...(illuminant || white) && { white: illuminant || white } }] })),
 	rows: REF,
 }, null, 1) + '\n')
 console.log(`data.json: ${names.length} spaces, ${Object.keys(gamut).length} gamuts, ${REF.length} conformance points · v${version}`)

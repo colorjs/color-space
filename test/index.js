@@ -78,6 +78,15 @@ test('integrity — data.json mirrors the live registry', async () => {
 	is(Object.keys(data.spaces).filter(n => typeof data.spaces[n].title !== 'string' || !data.spaces[n].title), [], 'every space carries its display name (title) – the site and the MCP server read it')
 })
 
+// conformance.json is the same rows plus what a runner in another language needs to read them (docs/conformance.md)
+test('integrity – conformance.json describes every space its rows use', async () => {
+	const { default: conf } = await import('../conformance.json', { with: { type: 'json' } })
+	is(conf.rows, data.conformance, 'the rows of data.json')
+	const off = ([s, v]) => JSON.stringify(conf.spaces[s]?.range) !== JSON.stringify(space[s].range) || v.length !== space[s].range.length
+	is(conf.rows.filter(r => [[r.f, r.in], [r.t, r.out]].some(off)).map(r => `${r.f}->${r.t}`), [], 'each row\'s spaces with their live ranges, one per channel')
+	is(Object.keys(conf.fields).sort(), ['f', 'in', 'kind', 'out', 's', 'src', 't', 'tol', 'url'], 'every row field described')
+})
+
 // Doc drift: hand-typed space counts rot (the audit found 151/155/156 coexisting).
 // Every count-bearing surface must state the live registry's count — adding or
 // removing a space fails this until the docs follow.
@@ -1398,6 +1407,27 @@ test("okhsv: okhsv <-> rgb", () => {
 	let arb = [51, 128, 204];
 	let hsvArb = space.rgb.okhsv(...arb);
 	is(space.okhsv.rgb(...hsvArb).map(round(0)), arb, 'Arbitrary roundtrip');
+})
+
+// The cusp solver's red and green branches part at the blue primary's hue, where red's root folds back (S 0.5876 against 0.6929).
+// Oklab's printed matrices put pure blue 6e-8 past the red limit, so every (0, 0, b) read s = 108.74 in Okhsv and 103 in Okhsl.
+// Ottosson's colorconversion.js: srgb_to_okhsv(0, 0, 255) = [0.7334778, 0.9999911, 1], srgb_to_okhsl(0, 0, 128) = [0.7334778, 0.9999977, 0.1681312].
+test("okhsv, okhsl, okhwb: pure blue, and each corner of the cube, is its hue's cusp", () => {
+	const off = []
+	for (const b of [1, 64, 128, 205, 255]) {
+		const v = space.rgb.okhsv(0, 0, b), l = space.rgb.okhsl(0, 0, b), w = space.rgb.okhwb(0, 0, b)
+		if (!(Math.abs(v[1] - 100) < 1e-3)) off.push(`okhsv s of (0, 0, ${b}): ${v[1]}`)
+		if (!(Math.abs(l[1] - 100) < 1e-3)) off.push(`okhsl s of (0, 0, ${b}): ${l[1]}`)
+		if (!(Math.abs(w[1]) < 1e-3)) off.push(`okhwb w of (0, 0, ${b}): ${w[1]}`)
+		for (const [id, c] of [['okhsv', v], ['okhsl', l], ['okhwb', w]])
+			if (!near(space[id].rgb(...c), [0, 0, b], 1e-3)) off.push(`${id} → rgb of (0, 0, ${b}): ${space[id].rgb(...c)}`)
+	}
+	for (const c of [[255, 0, 0], [255, 255, 0], [0, 255, 0], [0, 255, 255], [0, 0, 255], [255, 0, 255]]) {
+		const v = space.rgb.okhsv(...c)
+		if (!near(v.slice(1), [100, 100], 1e-3)) off.push(`okhsv of (${c}): ${v}`)
+	}
+	is(off, [], 'no blue off its cusp')
+	is(space.rgb.okhsv(0, 0, 128).map(round(3)), [264.052, 100, 47.709], 'navy: the reference code reads 264.052, 99.999, 47.709')
 })
 
 test("oklrab: oklrab <-> oklab", () => {

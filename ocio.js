@@ -1,16 +1,18 @@
 /**
- * color-space/ocio – a space as an OpenColorIO colorspace.
+ * color-space/ocio – OpenColorIO: a space as a colorspace, or every such space as a config.
  *
  * One `!<ColorSpace>` entry for the `colorspaces:` list of any OpenColorIO 2.x config
  * (Blender, Nuke, Resolve, Houdini, Maya, Unreal), its to_scene_reference built from OCIO's
  * native transforms alone: no LUT file, no BuiltinTransform name, nothing newer than OCIO 2.0.
+ * config() puts every one of them in a whole config, to point $OCIO at.
  *
  *     import space from 'color-space'
- *     import { colorspace } from 'color-space/ocio'
+ *     import { colorspace, config } from 'color-space/ocio'
  *
  *     colorspace(space.sgamut3cine)                       // S-Log3 S-Gamut3.Cine to ACES2065-1
  *     colorspace(space.logc4, { reference: 'xyz-d65' })   // to linear CIE XYZ, D65
  *     colorspace(space.applelog)                          // null: a quadratic toe has no native transform
+ *     config()                                            // the config, served as https://color-space.io/color-space.ocio
  *
  * Exact or nothing. A space gets a snippet only where OCIO's own formulas reproduce the
  * library's conversion to 1e-6 of the value (floored at 0.18, mid grey), code to reference
@@ -45,6 +47,8 @@
 import { gamut as G, whites, matrix } from './gamuts.js'
 import { mat3, mul3, inv3 } from './math.js'
 import { M_BRADFORD } from './spaces/xyz.js'
+import CATS from './web/js/categories.js'
+import pkg from './package.json' with { type: 'json' }
 
 // CAT02 cone response (CIE 159:2004; ACESlib.Utilities_Color CONE_RESP_MAT_CAT02)
 const M_CAT02 = [
@@ -144,6 +148,10 @@ const S = {
 	russellrgb: ['Russell RGB', 'russellrgb', gamma(2.2)],
 	'apple-rgb': ['Apple RGB', 'apple-rgb', gamma(1.8)],
 	colormatch: ['ColorMatch RGB', 'colormatch', gamma(1.8)],
+	// reference displays: ITU-R BT.1886 with zero black and unit white is a pure 2.4; IEC 61966-2-1's display, 2.2
+	'rgb-display': ['Gamma 2.2 Rec.709', 'srgb', gamma(2.2)],
+	'rec709-display': ['Rec.1886 Rec.709', 'srgb', gamma(2.4)],
+	'rec2020-display': ['Rec.1886 Rec.2020', 'rec2020', gamma(2.4)],
 
 	// ITU-R BT.2020 Table 4: α = 1.09929682680944, β = 0.018053968510807, 4.5 below β (the exact tangent)
 	rec2020: ['Camera Rec.2020', 'rec2020', moncurve({ gamma: 1 / 0.45, offset: 0.09929682680944, style: 'mirror' })],
@@ -236,4 +244,74 @@ export function colorspace(s, { reference = 'aces2065-1' } = {}) {
 	if (ops.length === 1) lines.push(`    to_scene_reference: ${yaml(ops[0])}`)
 	else if (ops.length) lines.push('    to_scene_reference: !<GroupTransform>', '      children:', ...ops.map((o) => `        - ${yaml(o)}`))
 	return lines.join('\n') + '\n'
+}
+
+// The config's displays, the default first: the spaces that are a standard's own reference display. Each
+// has two views, Raw (the code values) and Colorimetric: the colorspace itself, the scene reference in the
+// display's encoding. No view_transforms: in OCIO they are color renderings (ACES output transforms,
+// OOTFs), and this config renders nothing. So no display-referred colorspace either (OCIO wants view
+// transforms for one), nor the cie_xyz_d65_interchange role, which must name one
+const DISPLAYS = ['rgb-display', 'rec709-display', 'rec2020-display', 'dci-p3', 'a98rgb']
+
+/**
+ * Every space colorspace() carries, as one OpenColorIO config to point $OCIO at: profile 2.0, scene
+ * reference ACES2065-1, the atlas's families, each library id an alias, a Raw colorspace, and a
+ * colorimetric view on five reference displays. The same bytes for the same library.
+ * @returns {string} the config, YAML
+ */
+export function config() {
+	const ids = [...new Set([...CATS.flatMap((c) => c.spaces), ...Object.keys(S)])].filter((id) => Object.hasOwn(S, id))
+	const name = (id) => S[id][0]
+	// colorspace()'s entry, its family the atlas's shelf and the id an alias (OCIO matches names ignoring case)
+	const entry = (id) => colorspace(id).replace(/^ {4}family: .*\n/m, (name(id).toLowerCase() === id ? '' : `    aliases: [${id}]\n`) +
+		`    family: ${CATS.find((c) => c.spaces.includes(id))?.name ?? 'color-space'}\n`)
+	const [ACES, CG, CCT, G22, R709] = ['aces2065-1', 'acescg', 'acescct', 'rgb-display', 'rec709-display'].map(name)
+	const VIEW = JSON.stringify('The scene reference in this display\'s encoding, 1.0 at its white: a conversion, no tone mapping, no look.')
+	return [
+		'ocio_profile_version: 2',
+		'',
+		'environment: {}',   // no context variables: OCIO then caches without reading the shell's
+		`name: color-space-${pkg.version}`,
+		'description: |',
+		`  color-space ${pkg.version}: ${ids.length} color spaces as OpenColorIO colorspaces, scene reference ACES2065-1.`,
+		'  Each is built from OpenColorIO 2.0\'s native transforms (matrix, exponent, log; no LUT, no',
+		'  BuiltinTransform) and checked in double precision against the color-space library to 1e-6 of',
+		'  the value, code to reference and back. Whites adapt to the ACES white by CAT02, the Academy\'s',
+		'  IDT convention; V-Gamut and REDWideGamutRGB by Bradford, as the Academy\'s own transforms do.',
+		'  Conversions, not looks: a display\'s Colorimetric view is the scene reference in that display\'s',
+		'  encoding, 1.0 at its white, nothing tone mapped. A space whose curve OpenColorIO cannot carry',
+		'  exactly is left out, never approximated: sRGB\'s piecewise curve, Rec.709\'s camera curve, PQ,',
+		'  HLG, Canon Log and Apple Log among them.',
+		'  CC0 1.0. https://color-space.io',
+		'',
+		'roles:',
+		'  # no cie_xyz_d65_interchange: it names a display-referred colorspace, and with no view transform there is none',
+		`  aces_interchange: ${ACES}`,
+		`  color_picking: ${G22}`,
+		`  color_timing: ${CCT}`,
+		`  compositing_log: ${CCT}`,
+		'  data: Raw',
+		`  default: ${G22}`,
+		`  reference: ${ACES}`,
+		`  scene_linear: ${CG}`,
+		'',
+		'# as the Academy\'s CG config: an EXR is read as ACES2065-1, a movie as Rec.1886 Rec.709, any other file in the default display\'s encoding',
+		'file_rules:',
+		`  - !<Rule> {name: EXR, colorspace: ${ACES}, pattern: "*", extension: exr}`,
+		`  - !<Rule> {name: Movies, colorspace: ${R709}, regex: ".*\\\\.([mM][pP]4|[mM][oO][vV]|[mM][xX][fF])$"}`,
+		'  - !<Rule> {name: Default, colorspace: default}',
+		'',
+		'displays:',
+		...DISPLAYS.flatMap((id) => [`  ${name(id)}:`, `    - !<View> {name: Colorimetric, colorspace: ${name(id)}, description: ${VIEW}}`, '    - !<View> {name: Raw, colorspace: Raw}']),
+		'',
+		'colorspaces:',
+		[...ids.map(entry), [
+			'  - !<ColorSpace>',
+			'    name: Raw',
+			'    bitdepth: 32f',
+			`    description: ${JSON.stringify('Data, not color: no conversion. Normals, depth, mattes, code values as they are.')}`,
+			'    isdata: true',
+			'    encoding: data',
+		].join('\n') + '\n'].join('\n'),
+	].join('\n')
 }

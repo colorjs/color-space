@@ -3,7 +3,7 @@
 <a href="https://color-space.io/"><img src="https://raw.githubusercontent.com/colorjs/color-space/master/web/img/banner.svg" alt="the Ostwald hue circle at full color, shown continuously and in ten steps" width="100%"/></a>
 
 **Open collection of color spaces.** <br/>
-* Formulas tested against cited sources
+* Formulas tested against cited sources – [errata found in them](docs/errata.md)
 * Conventional ranges
 * JS with TypeScript types / WASM / GLSL / LUT / ICC / OCIO
 
@@ -42,10 +42,10 @@ oklch.rgb(0.65, 0.25, 180);          // matches CSS oklch(0.65 0.25 180)
 * `color-space/gl/hlsl` · `color-space/gl/msl` – HLSL (DirectX, Unity, Unreal) and Metal, written by naga from the WGSL. `await hlsl('rgb', 'oklch')`. needs the optional peer `naga-wasm` (it declares Node ≥ 24.12; CI runs it on 22, where npm only warns)
 * `color-space/lut` – `.cube` LUTs for Resolve, Premiere, OBS, ffmpeg — [verified vs ACES](docs/formula-verification.md#camera-log-verification-against-official-aces-transforms)
 * `color-space/icc` – Matrix + TRC or CLUT profiles
-* `color-space/ocio` – OpenColorIO colorspaces for Blender, Nuke, Resolve, Houdini: `colorspace(space.sgamut3cine)`, curve and matrix from native transforms, 55 spaces, each checked against the library to 1e-6
+* `color-space/ocio` – OpenColorIO colorspaces for Blender, Nuke, Resolve, Houdini: `colorspace(space.sgamut3cine)`, curve and matrix from native transforms, 58 spaces, each checked against the library to 1e-6; `config()`, or `npx color-space ocio`, is all of them as one config to point `$OCIO` at: [color-space.ocio](https://color-space.io/color-space.ocio)
 * `color-space/util` – `parse`, `format` CSS colors, `mix`, `gamut`, `visible`, `deltaE`, `contrast` (WCAG), `cvd` (color-vision simulation), `deltaE('rgb', [255, 0, 0], [250, 0, 0])`
 * `color-space/data.json` – Channels, ranges, provenance, references, graph, gamuts
-* `color-space/conformance.json` – Cited reference conversions, each with its source, to test any color library against
+* `color-space/conformance.json` – Cited reference conversions, each with its source, to test any color library against: [how to run it](docs/conformance.md)
 * `npx color-space rgb oklch 255 128 0` – CLI, no install: `convert` (default), `cube`, `icc`, `space`, `spaces`, `mcp` (MCP server for [agents](#agents))
 
 [Upgrading from v2?](docs/migration.md)

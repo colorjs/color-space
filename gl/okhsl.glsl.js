@@ -48,10 +48,13 @@ vec3 okhsl_lab_to_rgb_(vec3 c) {
 float okhsl_max_saturation_(float a, float b) {
 	float k0 = 0.0; float k1 = 0.0; float k2 = 0.0; float k3 = 0.0; float k4 = 0.0;
 	float wl = 0.0; float wm = 0.0; float ws = 0.0;
-	if (-1.8817031 * a - 0.80936501 * b > 1.0) {
+	// the limits cross at the blue primary's hue, where the branches part: within 1e-5 of the crossing the hue is the primary's, green's cusp (spaces/okhsl.js)
+	float r = -1.8817031 * a - 0.80936501 * b; float g = 1.8144408 * a - 1.19445267 * b;
+	if (abs(r - 1.0) < 1.0e-5 && abs(g - 1.0) < 1.0e-5) { r = 0.0; g = 2.0; }
+	if (r > 1.0) {
 		k0 = 1.19086277; k1 = 1.76576728; k2 = 0.59662641; k3 = 0.75515197; k4 = 0.56771245;
 		wl = 4.0767416360759583; wm = -3.3077115392580629; ws = 0.2309699031821043;
-	} else if (1.8144408 * a - 1.19445267 * b > 1.0) {
+	} else if (g > 1.0) {
 		k0 = 0.73956515; k1 = -0.45954404; k2 = 0.08285427; k3 = 0.12541073; k4 = -0.14503204;
 		wl = -1.2684379732850315; wm = 2.6097573492876882; ws = -0.3413193760026570;
 	} else {

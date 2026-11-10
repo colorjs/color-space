@@ -84,7 +84,7 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 color-space v3 includes a differential test suite (`test/reference.js`) that validates 29 spaces against colorjs.io in both directions through sRGB. This catches self-cancelling round-trip bugs (a forward and inverse error that cancel each other in A→B→A tests). The tolerance is 1/255 (sub-perceptual). Spaces covered: srgb-linear, display-p3 (+ linear), rec2020 (+ linear), a98rgb (+ linear), prophoto (+ linear), xyz-d65, xyz-d50, lab (D50), LUV, LCHuv, OKLab, OKLCH, HSL, HSV, HWB, Jzazbz, JzCzHz, ICtCp, ACEScg, ACEScc, CAM16, Rec. 2100 PQ/HLG.
 
-Separately, 178 spaces carry at least one cited input→output value from their defining document or a named reference implementation (216 rows), published as [`conformance.json`](https://color-space.io/conformance.json) for any library's own tests. Camera logs with an official Academy transform are also checked against the ACES CTLs ([formula-verification.md](formula-verification.md#camera-log-verification-against-official-aces-transforms)).
+Separately, 212 spaces carry at least one cited input→output value from their defining document or a named reference implementation (341 rows, the spaces above that every library shares among them), published as [`conformance.json`](https://color-space.io/conformance.json) for any library's own tests; [conformance.md](conformance.md) says how to run it. Camera logs with an official Academy transform are also checked against the ACES CTLs ([formula-verification.md](formula-verification.md#camera-log-verification-against-official-aces-transforms)).
 
 ---
 

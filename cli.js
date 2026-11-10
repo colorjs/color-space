@@ -6,6 +6,7 @@
  *     npx color-space rgb oklch 255 128 0    → 0.7319 0.1858 52.98   (convert is the default command)
  *     npx color-space cube slog3 rec709      → .cube LUT on stdout
  *     npx color-space icc p3 > p3.icc        → ICC profile on stdout
+ *     npx color-space ocio > color-space.ocio → OpenColorIO config on stdout
  *     npx color-space space oklch            → one space's dossier, JSON
  *     npx color-space spaces                 → the catalog
  *     npx -y color-space mcp                 → MCP stdio server (agent tools)
@@ -16,6 +17,7 @@ import data from './data.json' with { type: 'json' }
 import pkg from './package.json' with { type: 'json' }
 import { cube, channelwise } from './lut.js'
 import { profile } from './icc.js'
+import { colorspace, config } from './ocio.js'
 import { serve, serveHttp } from './mcp.js'
 
 const meta = data.spaces, names = Object.keys(space)
@@ -27,6 +29,7 @@ const usage = `color-space ${pkg.version} — ${names.length} verified color spa
   color-space <from> <to> <values…>    convert (the default command)
   color-space cube <from> <to> [size]  .cube LUT → stdout (Resolve, Premiere, OBS, ffmpeg)
   color-space icc <space>              ICC profile → stdout
+  color-space ocio [space]             OpenColorIO config → stdout, or one space's colorspace
   color-space space <name>             one space's dossier (JSON)
   color-space spaces                   list every space
   color-space mcp [--http <port>]      MCP server on stdio, or Streamable HTTP on localhost
@@ -51,6 +54,7 @@ const run = {
 		process.stdout.write(cube(f, t, { size: size ? +size : (channelwise(f, t) ? undefined : 33) }))
 	},
 	icc(name) { process.stdout.write(profile(need(name), { xyz: space.xyz })) },
+	ocio(name) { process.stdout.write(!name ? config() : colorspace(need(name)) ?? fail(`${name} has no exact OpenColorIO colorspace`)) },
 	space(name) {
 		need(name)
 		const neighbors = names.filter((to) => { const f = space[name][to]

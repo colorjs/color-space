@@ -50,22 +50,14 @@ export const bradfordAdaptation = (from, to) => {
 };
 
 /**
- * Bradford chromatic adaptation between D50 and D65 (CSS Color 4, full precision).
- * Shared so the D50-referred spaces (xyz-d50, lab-d50, prophoto) don't each carry
- * their own truncated copy.
+ * Bradford chromatic adaptation between D50 and D65, derived from the two whites' chromaticities
+ * (D65 0.3127, 0.3290; D50 0.3457, 0.3585) as CSS Color 4 derives it: its printed D65_to_D50 and
+ * D50_to_D65 matrices to the last digit, and white to white exactly. Shared so the D50-referred
+ * spaces (xyz-d50, lab, prophoto) don't each carry a typed copy.
+ * @see {@link https://www.w3.org/TR/css-color-4/#color-conversion-code}
  */
-export const bradford = {
-	D50_D65: [
-		0.9554734527042182, -0.023098536874261423, 0.0632593086610217,
-		-0.028369706963208136, 1.0099954580058226, 0.021041398966943008,
-		0.012314001688319899, -0.020507696433477912, 1.3303659366080753
-	],
-	D65_D50: [
-		1.0479298208405488, 0.022946793341019088, -0.05019222954313557,
-		0.029627815688159344, 0.990434484573249, -0.01707382502938514,
-		-0.009243058152591178, 0.015055144896577895, 0.7518742899580008
-	]
-};
+const white = (x, y) => [x / y, 1, (1 - x - y) / y], D65 = white(0.3127, 0.3290), D50 = white(0.3457, 0.3585);
+export const bradford = { D50_D65: bradfordAdaptation(D50, D65), D65_D50: bradfordAdaptation(D65, D50) };
 
 // We use D65 matrice
 // http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
