@@ -105,6 +105,7 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	// runtime modules the app imports, placed beside the flattened root
 	for (const f of ['wasm.js', 'lut.js', 'css.js', 'math.js', 'data.json']) cpSync(join(root, f), join(out, f))
 	cpSync(join(root, 'conformance.json'), join(out, 'conformance.json'))   // not imported: served for other libraries' test suites
+	writeFileSync(join(out, 'color-space.ocio'), (await import('../ocio.js')).config())   // the OpenColorIO config, every exact space: $OCIO points at it
 	mkdirSync(join(out, 'dist'), { recursive: true })
 	for (const f of ['color-space.js', 'color-space-gl.js']) cpSync(join(root, 'dist', f), join(out, 'dist', f))
 	cpSync(join(root, 'wasm'), join(out, 'wasm'), { recursive: true })
@@ -149,7 +150,7 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	// self-contained (the landing's live ICC exporter imports it) rather than flatten each dep
 	const esbuild = await import('esbuild')
 	await esbuild.build({ entryPoints: [join(root, 'icc.js')], bundle: true, format: 'esm', minify: true, outfile: join(out, 'icc.js'), logLevel: 'silent' })
-	await esbuild.build({ entryPoints: [join(root, 'ocio.js')], bundle: true, format: 'esm', minify: true, outfile: join(out, 'ocio.js'), logLevel: 'silent' })   // ocio.js too: gamuts, math and the hub's Bradford, one file
+	await esbuild.build({ stdin: { contents: "export { colorspace } from './ocio.js'", resolveDir: root }, bundle: true, format: 'esm', minify: true, outfile: join(out, 'ocio.js'), logLevel: 'silent' })   // ocio.js too, the colorspace() the page imports: gamuts, math and the hub's Bradford, one file (config() ships built, above)
 	// mcp.js for the page's WebMCP tools (js/webmcp.js imports it where the browser offers them): bundled with the shader
 	// emitters and their naga, the vendored naga-wasm as the page's GL tab loads it; what the page already serves – the
 	// library, its GL registry, data.json, lut/icc/css, the web/js data modules – stays an import of the page's own copy;
@@ -214,14 +215,14 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	// shader guard: a uniform used in a site shader but not declared in that stage silently
 	// fails to compile — undeclared uBip in fsSurf once blanked the whole 3D solid, and the
 	// library's gl tests eval chunks as JS so they can't see it. Every referenced uniform
-	// must be declared in the shader (or in MAP_GLSL when that shader interpolates it).
+	// must be declared in the shader, or in a chunk it interpolates (${MAP_GLSL}, ${EDGE_GLSL}).
 	// Match every shader by its #version header, not the assignment form, so caps built as
 	// `const fsCap = fsCapVis || glin && \`#version…\`` are covered alongside vs/fsSurf.
 	{	const gl = readFileSync(join(out, 'js/gl.js'), 'utf8')
 		const decl = (s) => [...s.matchAll(/uniform\s+(?:(?:lowp|mediump|highp)\s+)?\w+\s+([^;]+);/g)].flatMap((x) => x[1].split(',').map((t) => t.trim().replace(/\[.*$/, '')))
-		const mapU = new Set(decl(gl.match(/const MAP_GLSL = `([\s\S]*?)`/)[1]))
+		const chunk = (n) => gl.match(new RegExp('const ' + n + ' = `([\\s\\S]*?)`'))?.[1] ?? ''
 		for (const [, src] of gl.matchAll(/`(#version 300 es[\s\S]*?)`/g)) {
-			const declared = new Set([...decl(src), ...(src.includes('${MAP_GLSL}') ? mapU : [])])
+			const declared = new Set([...decl(src), ...[...src.matchAll(/\$\{([A-Z][A-Z0-9_]*)\}/g)].flatMap(([, n]) => decl(chunk(n)))])
 			const bad = [...new Set([...src.matchAll(/\bu[A-Z]\w*/g)].map((x) => x[0]))].filter((u) => !declared.has(u))
 			if (bad.length) throw new Error(`build-site: a site shader uses undeclared uniform(s): ${bad.join(', ')} — declare them in that shader stage (near: ${src.replace(/\s+/g, ' ').slice(0, 70)}…)`)
 		}
@@ -263,8 +264,9 @@ export async function buildSite({ out = site, i18n = join(root, 'web/i18n') } = 
 	// the path, so the shell alone serves the whole atlas offline) + each language's index,
 	// the shell of its /<lang>/ pages. VERSION = content hash of the set — a deploy
 	// invalidates the cache exactly when bytes change.
-	// vendor/naga-wasm (2 MB, loaded only when a shader tab opens) stays out of the precache
-	{	const skip = /\.(html|xml|txt|md)$|(^|\/)(CNAME|sw\.js)$|^vendor\/naga-wasm\//
+	// vendor/naga-wasm (2 MB, loaded only when a shader tab opens) stays out of the precache – and the spaces' share cards
+	// (img/og/<space>.jpg, 221 of them, 10 MB): a crawler's, no page shows one, and every first visit downloaded them all
+	{	const skip = /\.(html|xml|txt|md)$|(^|\/)(CNAME|sw\.js)$|^vendor\/naga-wasm\/|^img\/og\//
 		const files = []
 		const walk = (d) => { for (const f of readdirSync(join(out, d), { withFileTypes: true })) {
 			const p = d ? `${d}/${f.name}` : f.name

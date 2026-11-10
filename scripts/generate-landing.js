@@ -12,7 +12,7 @@ import { gzipSync } from 'node:zlib'
 import { buildSync } from 'esbuild'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { catHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
+import { catHTML, preHTML, sections, SPACES, DEFAULT, fpOf, disp } from '../web/js/render.js'
 import { firstPaint } from './first-paint.js'
 import { meta, spaceCount, LUTOK } from '../web/js/core.js'
 import PURPOSE, { ORDER as PORDER, TIPS as PTIPS } from '../web/js/purpose.js'
@@ -76,7 +76,7 @@ export const alternates = (i18n, s = '') => {
 // Hydration contract: the baked variant may differ from the bare template ONLY in
 // attributes — an element added or dropped under `vals` would hand the page a DOM
 // its wiring doesn't expect, and the fingerprint (bare vs bare) can't see it
-const catalog = () => { const bare = catHTML(undefined, undefined, { adapt: true }), baked = catHTML(DEFAULT, undefined, { adapt: true })   // adapt: the leads a narrow grid shows as tiles, ready in the first paint
+const catalog = () => { const bare = preHTML(), baked = preHTML(DEFAULT)   // the leads a narrow grid shows as tiles with them, ready in the first paint (render.js preHTML – the page checks the same template)
 	const shape = (h) => h.replace(/<([a-z0-9]+)(\s[^>]*)?>/gi, '<$1>')
 	if (shape(bare) !== shape(baked)) throw new Error('generate-landing: catHTML(DEFAULT) changes element structure, not just attributes — hydration would desync')
 	return `<main class="cat" id="cat" data-fp="${fpOf(bare)}">${baked}</main>` }
@@ -162,10 +162,10 @@ Tree-shaken: import oklch from 'color-space/oklch.js' (~1 kB min+gzip per space;
 Compact hub: import space from 'color-space/lite' — the 54 wasm-covered spaces in plain JS (~29 kB gzip), same two-form API
 WASM: import space, { alloc } from 'color-space/wasm' — same API, 54 spaces: scalar via true multi-value exports, buffers zero-copy via alloc(n)
 LUT export: import { cube } from 'color-space/lut' — cube(space.slog3, space.rec709) -> .cube file (3D: Resolve, Premiere, Final Cut, OBS, ffmpeg lut3d; 1D, for transfer-only pairs: Resolve, ffmpeg lut1d; { dims: 3 } forces 3D), header states its own measured deviation, ${LUTOK.size} of ${spaceCount} spaces; { shaper: true } = Resolve-flavor 1D+3D combined cube (shaped 33³ beats plain 65³ for log->display)
-OCIO export: import { colorspace } from 'color-space/ocio': colorspace(space.sgamut3cine) -> an OpenColorIO 2 ColorSpace entry (LogCamera, Exponent and Matrix transforms, no LUT file), to ACES2065-1 or { reference: 'xyz-d65' }; 53 spaces, null where OCIO's native transforms can't carry a curve exactly
+OCIO export: import { colorspace } from 'color-space/ocio': colorspace(space.sgamut3cine) -> an OpenColorIO 2 ColorSpace entry (LogCamera, Exponent and Matrix transforms, no LUT file), to ACES2065-1 or { reference: 'xyz-d65' }; 58 spaces, null where OCIO's native transforms can't carry a curve exactly; config() -> all of them as one OpenColorIO config (${SITE}/color-space.ocio)
 ICC export: import { profile } from 'color-space/icc' — profile(space.p3) -> .icc bytes; matrix+TRC display profile for RGB working spaces (colorants pinned to Lindbloom, ColorSync-verified), CLUT (mft2, Lab PCS) colour-space/input profile for everything else incl. munsell/cmyk/kelvin (lcms-verified); profile(space.lab, { xyz: space.xyz }) adds the reverse table where the inverse is continuous
 Data: color-space/data.json — the whole registry, language-neutral: per-space metadata + ranges, conversion-graph edges, gamut primaries with their RGB → XYZ matrix and its inverse (SMPTE RP 177), white points as the specs print them, whitepoints, CIE 1931 2° CMFs, cited conformance triples the test suite pins to
-Conformance: color-space/conformance.json (${SITE}/conformance.json): every cited input → output row with its source, link and kind (published, implementation, computed), each channel within 1e-4 of its span, a test oracle for any color library
+Conformance: color-space/conformance.json (${SITE}/conformance.json): every cited input → output row with its source, link and kind (published, implementation, computed), each channel within 1e-4 of its span, a test oracle for any color library – how to run it: https://github.com/colorjs/color-space/blob/master/docs/conformance.md
 Errata: https://github.com/colorjs/color-space/blob/master/docs/errata.md: errors found or confirmed in published sources, each with its proof
 MCP: npx -y color-space mcp — zero-dep stdio server; tools: convert (batches, per-channel range flags) / gamut (sRGB ⊂ Display P3 ⊂ Rec. 2020 membership) / css (CSS Color 4 strings) / space / spaces (search by name, family, purpose) / cube, so agents call the library instead of guessing color math
 Site: https://color-space.io/

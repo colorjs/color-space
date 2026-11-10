@@ -19,6 +19,11 @@ test('integrity — _site: builds complete (a page + sitemap entry per space)', 
 	try { await buildSite() } finally { delete process.env.CS_NO_DOSSIERS }
 	const missing = Object.keys(space).filter(n => !existsSync(`${site}/${n}.html`))
 	is(missing, [], 'every space has <name>.html')
+	// the prerendered catalog is the one the page looks for: its stamp is the fingerprint of render.js preHTML, the template
+	// the page hashes too – apart, the page rebuilt at every load the catalog it had just painted (2026-10-17 to 11-10)
+	const { preHTML, fpOf } = await import('../web/js/render.js')
+	is(readFileSync(`${site}/index.html`, 'utf8').match(/id="cat" data-fp="([^"]*)"/)?.[1], fpOf(preHTML()), 'the prerendered catalog carries the fingerprint of the template the page checks')
+	is(readFileSync('web/index.html', 'utf8').includes('cat.dataset.fp!==fpOf(preHTML())'), true, '…and the page checks that template')
 	const map = readFileSync(`${site}/sitemap.xml`, 'utf8')
 	const unmapped = Object.keys(space).filter(n => !map.includes(`/${n}</loc>`))
 	is(unmapped, [], 'every space is in the sitemap')

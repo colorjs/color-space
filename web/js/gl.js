@@ -850,12 +850,18 @@ vec4 view_(vec3 n, float zoff) {
 }`
 
 // soft-knee display projection — the ONE way an out-of-sRGB colour becomes a pixel
-// here: desaturate toward its own luma until representable, holding hue and
+// here: desaturate toward the gray of its own luminance until representable, holding hue and
 // lightness, instead of a flat per-channel clamp that over-saturates and hue-shifts
 // wide-gamut colours. The surface body computes this same knee in its vertex stage;
 // the caps reuse it so a sealed cut face reads the SAME colour as the wall beside it.
 const SOFT_DISP = `vec3 softDisp(vec3 disp) {
-	float lum = clamp(dot(disp, vec3(0.2126, 0.7152, 0.0722)), 0.0, 255.0);
+	// its own gray: of its luminance – read from the light, not the code values. A weighted sum of those is no lightness
+	// once one of them is negative: a deep violet's green, far under zero, took the sum to nothing and the color to black
+	// (the dark sails of every solid past sRGB's blue), and P3's red to two-thirds of its light. Held a tenth under white:
+	// at white's own luminance no color is left but white, and a light as bright as white lost its hue to it
+	vec3 u = disp / 255.0, a = abs(u);
+	float Y = clamp(dot(sign(u) * mix(a / 12.92, pow((a + 0.055) / 1.055, vec3(2.4)), step(0.04045, a)), vec3(0.2126, 0.7152, 0.0722)), 0.0, 0.9);
+	float lum = 255.0 * (Y > 0.0031308 ? 1.055 * pow(Y, 1.0 / 2.4) - 0.055 : 12.92 * Y);
 	float tq = 1.0;
 	for (int k = 0; k < 3; k++) {
 		float dv = disp[k] - lum;
@@ -1053,24 +1059,68 @@ ${MAP_GLSL}
 in vec3 aV;
 in vec3 aRgb;
 in float aBad;
+in vec3 aSrc;   // the lattice point as the volume has it: a cube's code, 0–255 – its edges are read off it (surfFS crease_)
 out vec3 vRgb;
 out vec3 vN;
 out vec2 vHueV;
 out vec3 vF;
+out vec3 vS;
 out float vBad;
+out float vSide;      // which side of a channel's void the point lies on (uSplit)
+uniform vec2 uSplit;  // a channel with a void in its range – values that name no color – and the void's middle; x < 0: none
+uniform int uPass;    // 2: a cap's count of the surface's sheets (drawMesh3GL)
 void main() {
 	vec3 v = aV;
 	vec3 n = map3_(v);
 	vF = v;
+	vS = aSrc;
+	vSide = uSplit.x >= 0.0 && v[int(uSplit.x)] < uSplit.y ? -1.0 : 1.0;
 	vRgb = aRgb;
 	vBad = aBad;
-	if (aBad > 0.5 || isnan(n.x) || isnan(n.y) || isnan(n.z)) { vBad = 1.0; gl_Position = vec4(2e4, 2e4, 2e4, 1.0); vRgb = vec3(0.0); vN = vec3(0.0); vHueV = vec2(0.0); vF = vec3(0.0); return; }
+	// vBad: 0 a point of the body · −1 one the space could not say, drawn where the bake sealed it · 1000 no point at all, thrown
+	// off screen – so much that it outweighs its neighbours' −1 and its cells stay undrawn but for a hair along their far edge
+	if (aBad > 0.5 || isnan(n.x) || isnan(n.y) || isnan(n.z)) { vBad = 1000.0; gl_Position = vec4(2e4, 2e4, 2e4, 1.0); vRgb = vec3(0.0); vN = vec3(0.0); vHueV = vec2(0.0); vF = vec3(0.0); vS = vec3(0.0); return; }
 	float h = uMap.y >= 0 ? raw_(v, uMap.y) * 6.283185307179586 : 0.0;
 	vHueV = vec2(cos(h), sin(h));
 	vN = n;
 	gl_Position = view_(n, 0.0);
+	// the count takes every sheet, however far: a volume sealed on its window's wall – light, in a display's own coordinates –
+	// stands a box's breadth past the box, beyond the depth the frame is drawn in, and clipped there it was not counted (the
+	// box's near face open). Its depth a quarter as deep, the wall's with it (vsCap): the order is the same
+	if (uPass == 2) gl_Position.z *= 0.25;
 }`
 
+
+// ── the shape's outline, per pixel: a line is a band ON the surface – where a distance to it, counted in the pixel's own
+// change of it (fwidth), runs out. It rides the body the GPU draws, meets its neighbour wherever two lines do, and ends
+// where the body ends: no polyline to chord a curve, stop short of a corner or sink under the face it lies on. Each side
+// of an edge draws its half – and where the surface ends at the edge, a silhouette, the half past it is drawn after the
+// body (INK_FS); hidden (pass 4, depth-greater) the same bands show faint through the body.
+const EDGE_GLSL = `
+uniform ivec2 uWalls;   // the box's faces (bit = axis·2 + side): x those two of which meet in an edge of the shape, y those the body was cut at
+uniform float uPx;      // device pixels to a CSS pixel
+uniform vec4 uInk;      // the outline's ink, and its strength over the body – 0, a map that asks for none: nothing drawn
+float band_(float px) { return 1.0 - smoothstep(0.5 * uPx - 0.5, 0.5 * uPx + 0.5, px); }   // half a CSS pixel a side
+// v: the point in the space's coordinates; own: the face it lies on by construction (a cap's), else -1; cut: whether the
+// surface here is the volume's own, to be cut – a cell round a point the space could not say is not
+float walls_(vec3 v, int own, bool cut) {
+	float e = 0.0, a1 = own >= 0 ? 0.0 : 1e9, a2 = 1e9;
+	for (int k = 0; k < 3; k++) {
+		if (k == uMap.y || k == own) continue;
+		float sp = uMax[k] - uMin[k], w = fwidth(v[k]);
+		if (!(w < sp * 0.2)) continue;   // a seam or a fold spikes the derivative: no line across it
+		for (int sd = 0; sd < 2; sd++) {
+			int bit = 1 << (k * 2 + sd);
+			if (((uWalls.x | uWalls.y) & bit) == 0) continue;
+			// pixels to the face – a point within a ten-thousandth of the span lies ON it (a clamped sheet, a cube in its own box)
+			float a = max(abs(v[k] - (sd == 0 ? uMin[k] : uMax[k])) - sp * 1e-4, 0.0) / max(w, sp * 1e-6);
+			if (cut && (uWalls.y & bit) != 0 && w > sp * 1e-6) e = max(e, band_(a));   // the cut: the surface crossing the face – a sheet lying along it is no line
+			if ((uWalls.x & bit) == 0) continue;
+			if (a < a1) { a2 = a1; a1 = a; } else if (a < a2) a2 = a;
+		}
+	}
+	return max(e, band_(a2));   // the box's own edge: on one face, a line's breadth from the next
+}`
 
 function mesh3Progs(st, s, gam = 'srgb') {
 	const key = s + '|' + gam
@@ -1101,11 +1151,13 @@ uniform ivec2 uWb;
 uniform ivec2 uBip;   // bipolar (opponent) channel indexes, else -1
 uniform int uClip;    // 1 → box-in-base space (all-or-nothing achromatic collapse)
 uniform vec3 uWLo, uWHi;   // sanity window for the cone-wall bisection
+uniform vec3 uNeutK, uNeutW;   // the volume's black and its white in this space: where its grays lie
 uniform int uSteps;   // its steps, 18 – a uniform, so the loop is never unrolled
 out vec3 tV;
 out vec3 tRgb;
 out float tBad;
 void main() {
+	float seal = 0.0;   // 1: the point is none of the space's – moved onto the window's wall (below)
 	${s === src ? `${VT[3]} v = ${unit};` : `// past the encodable cone the coords go non-finite (log of negative light) or
 	// fold into finite garbage (a sign-mirrored transfer, HSI's S at optimal colors),
 	// and a lone bad vertex shreds its triangles. "Bad" = outside the sanity window;
@@ -1121,9 +1173,11 @@ void main() {
 		float md = i == 0 ? 1.0 : i <= uSteps ? (lo + hi) * 0.5 : i == uSteps + 1 ? lo : 0.0;
 		vec3 vt = ${SRC}_${S}(mix(nw, aSrc, md) ${src === 'rgb' || src === 'xyz' ? '' : '/ 255.0'});
 		bool inw = vt.x > blo.x && vt.x < bhi.x && vt.y > blo.y && vt.y < bhi.y && vt.z > blo.z && vt.z < bhi.z;
-		if (i == 0) { if (inw) { v = vt; break; } }
+		if (i == 0) { if (inw) { v = vt; break; } seal = 1.0; }
 		else if (i <= uSteps) { if (inw) lo = md; else hi = md; }
 		else { v = vt; if (inw) break; }
+		// no point of the way was the space's: it lands on the spine itself, a gray – no radius, whatever the formula reads there
+		if (i == uSteps + 2 && uMap.y >= 0 && uWb.x < 0) { v[uMap.z] = 0.0; if (isnan(v[uMap.y])) v[uMap.y] = 0.0; }
 	}`}
 	// a color indistinguishable from gray (sub-integer channel delta) – or too dark
 	// to carry chroma at all (chroma ratios degenerate at black: OSA-UCS's C divides
@@ -1134,7 +1188,9 @@ void main() {
 	// to, which puts its gray axis at r=g=b – the cube's own units – so the same two
 	// factors read it. (Judging its darkness by luminance alone crushed deep saturated
 	// colours, all of which sit below Y=1, onto the axis: a flat skirt and a needle.)
-	${src === 'xyz'
+	${gam === 'locus' ? `float gf = 1.0;   // light's body is drawn as the space has it, dark lights and all – a cone pinched toward black is a
+	// needle under a flat skirt`
+		: src === 'xyz'
 		? `float t = clamp(aSrc.y / 7.0, 0.0, 1.0); float gf = t * t * (3.0 - 2.0 * t);`
 		: `float mx = max(aSrc.r, max(aSrc.g, aSrc.b));
 	float dlt = mx - min(aSrc.r, min(aSrc.g, aSrc.b));
@@ -1143,12 +1199,27 @@ void main() {
 	// (HPLuv's exploding near-white P) would land back INSIDE the box the clip
 	// guards – while whole-shape solids need the smooth taper, or the cliff where
 	// real chroma meets a collapsed row saws the surface into teeth
-	if (uClip == 1 && gf < 1.0) gf = 0.0;
+	if (uClip == 1 && gf < 1.0) { gf = 0.0; seal = 1.0; }   // …the cells round it a fan from the rim to the axis: no line of the volume's crosses them
+	// Chroma goes to none; an opponent channel to where the volume's own gray has it – its white's near white, its black's
+	// near black. Zero is that only where the space puts its grays there: Poirson–Wandell's white sits at O2 −5.3, O3 3.7,
+	// ATD95's at T 0.049, and YyCxCz's lightness, −16…100, reads as an opponent channel – taken to zero, each white corner
+	// was a spike down to the axis
 	if (gf < 1.0) {
-		if (uMap.y >= 0 && uWb.x < 0) v[uMap.z] *= gf;
-		if (uBip.x >= 0) v[uBip.x] *= gf;
-		if (uBip.y >= 0) v[uBip.y] *= gf;
+		vec3 nt = ${src === 'xyz' ? 'uNeutK' : 'mx > 127.5 ? uNeutW : uNeutK'};
+		// (all of it gone, the radius is none whatever the formula read – not a number, at Cubehelix's white – and its hue any)
+		if (uMap.y >= 0 && uWb.x < 0) { v[uMap.z] = gf > 0.0 ? v[uMap.z] * gf : 0.0; if (gf <= 0.0 && isnan(v[uMap.y])) v[uMap.y] = 0.0; }
+		if (uBip.x >= 0) v[uBip.x] = mix(nt[uBip.x], v[uBip.x], gf);
+		if (uBip.y >= 0) v[uBip.y] = mix(nt[uBip.y], v[uBip.y], gf);
 	}
+	${src === 'xyz' ? `// …and a human volume's color that is no different from gray – its white pole, its black – has no chroma to place: a
+	// formula that divides by what is left of the lightness (Cubehelix's s, by l(1 − l)) reads noise there, −4.9 at white,
+	// and the solid's top fanned out to it. By the white it integrates to its grays lie at r = g = b. A radius alone: an
+	// opponent space has its white where it is
+	if (uMap.y >= 0 && uWb.x < 0) {
+		vec3 q = aSrc / vec3(95.04559, 100.0, 108.90578); float qx = max(q.x, max(q.y, q.z));
+		float ga = qx > 1e-9 ? clamp((qx - min(q.x, min(q.y, q.z))) / qx / 0.01, 0.0, 1.0) : 0.0;
+		if (ga < 1.0) { v[uMap.z] = ga > 0.0 ? v[uMap.z] * ga : 0.0; if (isnan(v[uMap.y])) v[uMap.y] = 0.0; }
+	}` : ''}
 	// hard backstop after the bisection: an appearance model's spectral cusp can diverge in
 	// float32 faster than the 18-step bisection resolves. The window IS the sanity bound (for
 	// the human solid it is the gamut's own measured extent), so clamp to it — sealed vertices
@@ -1161,8 +1232,8 @@ void main() {
 		  // finite in-solid vertex, so the surface closes and no vertex is ever off-screen.
 		  `vec3 vc = clamp(v, uWLo, uWHi);
 	if (isnan(vc.x)) vc.x = uWLo.x; if (isnan(vc.y)) vc.y = uWLo.y; if (isnan(vc.z)) vc.z = uWLo.z;
-	tV = vc; tBad = 0.0;`
-		: `tBad = (isnan(v.x) || isnan(v.y) || isnan(v.z)) ? 1.0 : 0.0;
+	tV = vc; tBad = -seal;`
+		: `tBad = (isnan(v.x) || isnan(v.y) || isnan(v.z)) ? 1.0 : -seal;   // −1: sealed – drawn, but no edge of the volume runs through it (crease_)
 	tV = ${s !== src ? 'clamp(v, uWLo, uWHi)' : 'v'};`}
 	${src === 'rgb' ? 'tRgb = aSrc / 255.0;' : `// an out-of-sRGB vertex desaturates toward its own luma until representable — the
 	// closest ACTUAL color, hue and lightness held (vs the flat channel-clamp that
@@ -1179,23 +1250,43 @@ precision highp int;
 ${sp.length ? glsl(sp) : ''}
 ${SOFT_DISP}
 ${cls === 1 ? quant3GLSL() : ''}
-in vec3 vRgb; in vec3 vN; in vec2 vHueV; in vec3 vF; in float vBad;
+in vec3 vRgb; in vec3 vN; in vec2 vHueV; in vec3 vF; in vec3 vS; in float vBad; in float vSide;
+uniform vec3 uMin, uMax;     // the space's declared range: the box's faces
 uniform vec3 uCMin, uCMax;
 uniform vec3 uDMin, uDMax;   // the DECLARED box – where the slice outline is drawn
 uniform int uOut;            // 1 → the solid pierces the declared box
 uniform int uClip;           // 1 → box-in-base space: shave past-the-box noise
-uniform int uPass;           // 0 = the body, cut at the box · 2 = a cap's stencil · 3 = the hidden cut curve
+uniform int uPass;           // 0 = the body, cut at the box · 2 = all of it, for a cap's count · 3 = the hidden cut curve · 4 = the hidden outline · 5 = ink and depth
+uniform int uCrease;           // the volume's own edges: 1 a cube's twelve · 3 none down the needle its dark taper leaves near black
 uniform ivec4 uMap;
 uniform int uHasHue;
 uniform int uQuant;          // 0 smooth · 10/20 native-channel cells · 101/102/103 safe/name/even
 uniform int uGrid;           // optional native-coordinate contours, independent of tessellation
 uniform ivec2 uBip;   // bipolar (opponent) chroma channels, else (-1,-1) – marks a lightness-axis space
-uniform ivec2 uCapK;  // pass 2: the capped face (axis, side) whose clipped sheet is stencilled
 uniform ivec2 uCut;   // the hovered plane's HELD axis (x, -1 = none) and whether it wraps (y)
 uniform vec2 uCutV;   // that axis's held value (x) and full span (y)
+${EDGE_GLSL}
+// the volume's own edges: a cube's face meets the next where a second coordinate of its source runs out
+float crease_() {
+	if ((uCrease & 1) == 0) return 0.0;
+	vec3 q = min(vS, 255.0 - vS);
+	float d = q.x + q.y + q.z - min(q.x, min(q.y, q.z)) - max(q.x, max(q.y, q.z)), w = fwidth(d);   // the middle one: the least is the face's own, 0
+	float e = w < 48.0 ? band_(d / max(w, 1e-6)) : 0.0;   // a face shrunk to a few pixels (a pole's fan) is all edge: none there
+	return (uCrease & 2) != 0 ? e * clamp((max(vS.r, max(vS.g, vS.b)) - 2.0) / 6.0, 0.0, 1.0) : e;
+}
 out vec4 O;
 void main() {
 	if (vBad > 0.001) discard;
+	// a cell astride a channel's void joins points that no color lies between – DSH's dominant wavelength has none from its
+	// purples' −493 to the spectrum's 380, and the cells from red's end to the purples ran across the whole box, teeth along
+	// its edge: no surface
+	if (abs(vSide) < 0.999) discard;
+	// the outline: the volume's own edges, its cut at each face it was trimmed at, the box's edges the body lies along.
+	// Neither edge nor cut through a point the space could not say (the bake's vBad −1: sealed onto the window's wall, or
+	// a clip space's gray collapsed onto its axis) – the cells round it are slivers and fans, a line across them a scribble
+	// (Cineon's floor under P3's green) or a spoke over a lid (HSL's); the cap that closes the wall there draws its own
+	bool own = vBad > -0.001;
+	float eg = vBad > 1e-5 ? 0.0 : max(own ? crease_() : 0.0, walls_(vF, -1, own));   // no line on the hair a thrown point leaves
 	// ONLY a box-in-base space clips, at its declared box (tiny ε): past it lies
 	// solver wobble (okhsv S at the blue cusp) and the duplicate shell (HPLuv's
 	// beyond-safe continuum) – never real shape; the cut wall is closed by the caps.
@@ -1203,8 +1294,10 @@ void main() {
 	if (uClip == 1) {
 		for (int k = 0; k < 3; k++) {
 			if (k == uMap.y) continue;
-			float sp = (uCMax[k] - uCMin[k]) * 0.004;
-			if (vF[k] < uCMin[k] - sp || vF[k] > uCMax[k] + sp) discard;
+			// …to the wall itself where a cap seals it (uWalls.y): the cap sits ON the wall, and the body's wobble a hair past
+			// it fought the cap for the pixel – HPLuv's wall, scribbled at the hues where its gamut touches P 100
+			float sp = (uCMax[k] - uCMin[k]) * 0.004, lo = (uWalls.y >> (k * 2) & 1) != 0 ? 0.0 : sp, hi = (uWalls.y >> (k * 2 + 1) & 1) != 0 ? 0.0 : sp;
+			if (vF[k] < uCMin[k] - lo || vF[k] > uCMax[k] + hi) discard;
 		}
 		if (any(greaterThan(abs(vN), vec3(0.72)))) discard;
 	}
@@ -1221,6 +1314,8 @@ void main() {
 			if (lh < 0.45 || dot(vHueV / lh, normalize(vN.yz)) < 0.5) discard;
 		}
 	}
+	// pass 2 – every sheet of the surface, cut nowhere: a human volume's caps count them in front of each wall (drawMesh3GL)
+	if (uPass == 2) { O = vec4(1.0); return; }
 	// beyond the DECLARED box the body is CUT: a wider volume in a narrower space's
 	// coordinates is trimmed to its box – or its cylinder, the hue axis skipped – and
 	// the caps seal the cut (a dissolving shell past the walls read as a cloud, no shape)
@@ -1251,24 +1346,15 @@ void main() {
 		O.rgb *= 1.0 - ink * 0.55;
 	}
 	// the tone is clipped HARD to its range: below the floor lies OSA-UCS's chroma pole and its
-	// pass 2 – the STENCIL parity sheet for one capped face: exactly the fragments the
-	// body clips away past THAT wall (tone-floor clips included: the floor cap seals
-	// them). An eye ray crossing this sheet an odd number of times is inside the solid
-	// at the cut – the cap quad then paints only there, so the cross-section follows
-	// the sliced mesh itself, with no per-pixel inverse validity guessing.
-	if (uPass == 2) {
-		float dw = uCapK.y == 1 ? vF[uCapK.x] - uDMax[uCapK.x] : uDMin[uCapK.x] - vF[uCapK.x];
-		if (dw <= 0.0) discard;
-		O = vec4(0.0);
-		return;
-	}
 	// sign-flipped coords, above lies nothing. Only genuine CHROMA overflow haloes past the box;
 	// the cap seals the floor. (No outline crease – it read misplaced and off-colour.)
 	// clip below the tone floor only, and ONLY for spaces with a real lightness axis (polar/opponent
 	// – a hue or bipolar-chroma channel present): the dark/pole side. Additive spaces (ch0 = Red, not
 	// a tone) and a high ceiling for HDR/scene spaces are left alone.
 	if (uOut == 1 && (uMap.y >= 0 || uBip.x >= 0) && vF[uMap.x] < uDMin[uMap.x]) discard;
-	if ((uPass == 0 || uPass == 3) && ob > 0.0) discard;
+	if (ob > 0.0) discard;
+	// pass 5: this pixel's ink and its depth, for the outline's outer half (INK_FS)
+	if (uPass == 5) { float d = gl_FragCoord.z * 255.0; O = vec4(eg, floor(d) / 255.0, fract(d), 1.0); return; }
 	// the plane∩solid CURVE, as a per-pixel test on the shape itself: a fragment lies on
 	// the cut when its held coordinate equals the plane's. fwidth sets the band's width in
 	// SCREEN pixels, so the outline rides the real tessellated edge – exactly, everywhere,
@@ -1283,50 +1369,63 @@ void main() {
 	// pass 3 paints the curve ALONE, drawn depth-GREATER so it lands exactly where the body
 	// hides it: the far arc still reads, at half weight, the way a hidden line should
 	if (uPass == 3) { if (!onCut) discard; O = vec4(1.0, 1.0, 1.0, 0.38); return; }
+	// pass 4, the outline the body stands in front of: the same bands drawn depth-GREATER, faint – as a pane's frame goes
+	if (uPass == 4) { if (eg * uInk.a < 0.002) discard; O = vec4(uInk.rgb, eg * uInk.a * 0.3); return; }
+	O.rgb = mix(O.rgb, uInk.rgb, eg * uInk.a);
 	if (onCut) O = vec4(1.0, 1.0, 1.0, O.a);
 }` }
 		// caps: the space's own range-box faces. Display gamuts keep them only where
 		// the coords are in-gamut AND canonical (roundtrip), tested per PIXEL; the
-		// human view instead stencils the sliced mesh itself (see the uPass-2 parity)
+		// human volumes instead count the body's own sheets in front of each wall (the uPass-2 mask)
 		const vsCap = `#version 300 es
 precision highp float;
 precision highp int;
 ${MAP_GLSL}
 in vec3 aFrac;
-uniform int uHatch;     // a trim's cap sits ON its wall: the inset (below a clip space's degenerate zone) stepped two cuts
-uniform ivec2 uCapK;    // apart at their shared edge, each outlined – a corner drawn double
+uniform int uHatch;     // a trim reads its colors on the wall itself; a clip space's lid a step inside it (aFrac), under the
+uniform ivec2 uCapK;    // degenerate zone – HPLuv's P has no value at L 100
+uniform int uPass;      // 2: the wall's own depth, for a human volume's count – on the wall itself, no hair nearer the eye
 out vec3 vV;
 void main() {
 	vec3 f = aFrac;
 	if (uHatch == 1) f[uCapK.x] = float(uCapK.y);
 	vec3 v = uCMin + f * (uCMax - uCMin);
 	vV = v;
-	gl_Position = view_(map3_(v), 0.002);
+	// …and every cap SITS on its wall: drawn a step inside it, the body's last sliver stood over the lid – a second rim
+	v[uCapK.x] = uCapK.y == 1 ? uCMax[uCapK.x] : uCMin[uCapK.x];
+	gl_Position = view_(map3_(v), uPass == 2 ? 0.0 : 0.002);
+	if (uPass == 2) gl_Position.z *= 0.25;   // the count's depth (DRAW_VS)
 }`
-		// human-view caps carry NO per-pixel validity of their own: the stencil parity
-		// pass (uPass 2) marks exactly where the eye ray is inside the sliced solid at
-		// the wall — a per-pixel inverse can pick a wrong root at a fold and either
-		// paint impossible colors or shave the true cross-section. The quad only colors.
+		// A human volume's caps carry NO validity of their own: a mask (drawMesh3GL) holds, per pixel, whether the wall there
+		// lies inside the solid – an odd number of the body's own sheets in front of it. The cross-section then follows the
+		// lattice that is drawn, its taper and its chords with it; a test of the color at the pixel (its chromaticity inside
+		// the locus, its reach inside the solid, its coordinates round-tripped) answered for another body – the true one:
+		// specks and gaps wherever the drawn one chords a crease (HSI's hue sectors), and no cap where a space's inverse is
+		// not its forward's (Cubehelix). The quad only colors
 		const fsCapVis = (gam === 'vis' || gam === 'locus') && s !== src && `#version 300 es
 precision highp float;
 precision highp int;
-${glsl(gam === 'locus' ? [[s, 'rgb'], [s, 'xyz']] : [[s, 'rgb']])}
-${gam === 'locus' ? locusGLSL() : ''}
+${glsl([[s, 'rgb']])}
 ${SOFT_DISP}
+${MAP_GLSL}
 in vec3 vV;
-uniform ivec4 uMap;
 uniform int uHatch;   // 1: this cap is a trim – a wider volume cut at the box: soft white hatching marks it
-uniform float uPx;    // device pixels to a CSS pixel
+uniform int uPass;    // 2: its depth alone, the wall the count is taken at · 4: its outline alone, where the body hides it · 5: its ink and depth (INK_FS)
 uniform ivec2 uCapK;  // this cap's face (axis, side)
-uniform vec3 uCMin, uCMax;   // the cap's own extent (vsCap): the hatch's frame
+uniform sampler2D uMask;   // …and whether the wall is inside the solid here: this face's channel of the mask
+uniform int uMaskCh;
+${EDGE_GLSL}
 out vec4 O;
-void main() {${gam === 'locus' ? `
-	// every real light: its chromaticity inside the locus, its Y up to the lid – a test of its own, per pixel: the parity
-	// count of the vis view miscounts a curved wall (a cylinder's) the light cone overruns on every side, and left holes
-	vec3 X = ${S}_xyz(vV); float sm = X.x + X.y + X.z;
-	if (!(sm > 0.0) || X.y < -0.05 || X.y > 100.05 || !inside(X.xy / sm)) discard;` : ''}
+void main() {
+	if (uPass == 2) { O = vec4(0.0); return; }
+	if (texelFetch(uMask, ivec2(gl_FragCoord.xy), 0)[uMaskCh] < 0.5) discard;
 	vec3 disp = ${S}_rgb(vV);
 	if (isnan(disp.x) || isnan(disp.y) || isnan(disp.z)) discard;
+	// its outline: the box's own edges, where the next face meets it – its edge against the body or the air is no line it
+	// can measure (the mask decides it): INK_FS draws that from what lies beside it
+	float eg = walls_(vV, uCapK.x, true);
+	if (uPass == 5) { float d = gl_FragCoord.z * 255.0; O = vec4(eg, floor(d) / 255.0, fract(d), 0.5); return; }
+	if (uPass == 4) { if (eg * uInk.a < 0.002) discard; O = vec4(uInk.rgb, eg * uInk.a * 0.3); return; }
 	O = vec4(softDisp(disp), 1.0);
 	// the hatch lies IN the cut's own plane: its two free coordinates summed – a box face's diagonals, a cylinder's helix –
 	// a CSS pixel wide however the face is turned
@@ -1337,45 +1436,61 @@ void main() {${gam === 'locus' ? `
 		for (int j = 0; j < 3; j++) if (j != uCapK.x) g += (vV[j] - uCMin[j]) / max(uCMax[j] - uCMin[j], 1e-9) * (j == uMap.y ? 97.0 : 28.0);
 		if (abs(fract(g + 0.5) - 0.5) < fwidth(g) * 0.5 * uPx) O.rgb = mix(O.rgb, vec3(1.0), 0.3);
 	}
+	O.rgb = mix(O.rgb, uInk.rgb, eg * uInk.a);
 }`
 		const glin = { srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gam]
 		const GLIN = glin && san(glin), G0 = san(gam === 'srgb' ? 'rgb' : gam)
 		const capPairs = glin && [[s, 'rgb'], [s, 'xyz'], ['xyz', glin], [s, gam === 'srgb' ? 'rgb' : gam]]
-		if (faithful && glin) capPairs.push([gam === 'srgb' ? 'rgb' : gam, s])
+		if (glin) capPairs.push([gam === 'srgb' ? 'rgb' : gam, s])
 		const fsCap = fsCapVis || glin && `#version 300 es
 precision highp float;
 precision highp int;
 ${glsl(capPairs)}
 ${faithful ? sameGLSL(S, 'vec3') : ''}
 ${SOFT_DISP}
+${MAP_GLSL}
 in vec3 vV;
-uniform vec3 uMin, uMax;
-uniform ivec4 uMap;
 uniform int uDim;   // 3: the round trip's loop bound (sameGLSL)
 uniform int uHatch;   // 1: this cap is a trim – a wider volume cut at the box: soft white hatching marks it
-uniform float uPx;    // device pixels to a CSS pixel
+uniform float uRt;    // …held to the body by this much of the model's unit: the space's own round-trip precision
+uniform int uPass;    // 4: its outline alone, where the body hides it · 5: its ink and depth (INK_FS)
 uniform ivec2 uCapK;  // this cap's face (axis, side)
-uniform vec3 uCMin, uCMax;   // the cap's own extent (vsCap): the hatch's frame
+${EDGE_GLSL}
 out vec4 O;
 void main() {
 	vec3 xc = ${S}_xyz(vV), lin = xyz_${GLIN}(xc);
-	// pad in ENCODED units – a linear pad is several code values wide at black
+	// pad in ENCODED units – a linear pad is several code values wide at black. None for a trim: it ends where the body
+	// does, at the volume's wall itself – half a code past it is 2% of the box where a 2.2 gamma leaves zero, a flag
+	// standing over the body's edge (NTSC RGB's red corner under P3)
 	vec3 enc = mix(lin * 12.92, 1.055 * pow(max(lin, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055, step(0.0031308, lin));
-	if (!(enc.x >= -0.002 && enc.x <= 1.002 && enc.y >= -0.002 && enc.y <= 1.002 && enc.z >= -0.002 && enc.z <= 1.002)) discard;
+	float pad = uHatch == 1 ? 0.0 : 0.002;
+	if (!(enc.x >= -pad && enc.x <= 1.0 + pad && enc.y >= -pad && enc.y <= 1.0 + pad && enc.z >= -pad && enc.z <= 1.0 + pad)) discard;
 	vec3 disp = ${S}_rgb(vV);
 	if (isnan(disp.x) || isnan(disp.y) || isnan(disp.z)) discard;
 	${s === 'munsell' ? 'if (vV.z > munsell_maxc_(vV.x, vV.y) + 0.0001) discard;' : ''}
-	${faithful ? `vec3 gv = ${gam === 'srgb' ? 'clamp(disp, 0.0, 255.0)' : `clamp(${S}_${G0}(vV), 0.0, 1.0)`};
+	vec3 gv = ${gam === 'srgb' ? 'clamp(disp, 0.0, 255.0)' : `clamp(${S}_${G0}(vV), 0.0, 1.0)`};
 	vec3 back = ${G0}_${S}(gv);
-	for (int k = 0; k < uDim; k++) {
+	// A trim is the body's own cross-section: the body's coordinates of this color must land at this very place. An address
+	// the space only READS as that color is none of the body's – Nayatani's chroma wall under L 12, where any chroma decodes
+	// to the gray (a dark ring round its floor), a code under a log curve's black. By place, not by channel: a hue at no
+	// chroma is the same point. To the space's own round-trip precision (uRt, measured by the page)
+	if (uHatch == 1) { if (!(distance(map3_(back), map3_(vV)) <= uRt)) discard; }   // NaN fails too
+	${faithful ? `else for (int k = 0; k < uDim; k++) {
 		float d = abs(back[k] - vV[k]);
 		if (uMap.y == k) d = min(d, 360.0 - d);
 		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) { vec3 w = vV; w[k] = back[k]; if (!same_(xc, w)) discard; }   // NaN fails too; a pole stays (sameGLSL)
-	}` : `// canonical-roundtrip discard omitted: this space's inverse is approximate
-	// (see rtFaithful) — the law would speckle-discard real cap fragments`}
-	// a trim's cut on a chroma wall needs light: where its points decode to near-black it is no cross-section (Nayatani's
-	// ring round its floor – any chroma there is black)
-	if (uHatch == 1 && uCapK.x != uMap.x && (xc.y < 0.5 || max(disp.r, max(disp.g, disp.b)) < 6.0)) discard;
+	}` : `// a space's own lid: the canonical-roundtrip discard omitted where its inverse is approximate
+	// (see rtFaithful) – the law would speckle-discard real cap fragments`}
+	// its outline: where the cut runs out at the volume's own surface – the least of the gamut's coordinates, 0 at its
+	// wall – and where the box's next face meets it
+	float gm = min(min(enc.x, min(enc.y, enc.z)), 1.0 - max(enc.x, max(enc.y, enc.z))) + pad, gw = fwidth(gm);
+	// …crossed, not grazed: where the cut lies along the volume's own face (a log curve's floor, a channel at 0 across it)
+	// or only touches it (HPLuv's pastel wall, tangent to the gamut at six hues) that coordinate stands still while the
+	// others run on – no line there, where its noise drew a scribble
+	vec3 ew = fwidth(enc);
+	float eg = max(gw > 0.01 * max(ew.x, max(ew.y, ew.z)) ? band_(gm / gw) : 0.0, walls_(vV, uCapK.x, true));
+	if (uPass == 5) { float d = gl_FragCoord.z * 255.0; O = vec4(eg, floor(d) / 255.0, fract(d), 0.5); return; }
+	if (uPass == 4) { if (eg * uInk.a < 0.002) discard; O = vec4(uInk.rgb, eg * uInk.a * 0.3); return; }
 	O = vec4(softDisp(disp), 1.0);
 	// the hatch lies IN the cut's own plane: its two free coordinates summed – a box face's diagonals, a cylinder's helix –
 	// a CSS pixel wide however the face is turned
@@ -1386,8 +1501,9 @@ void main() {
 		for (int j = 0; j < 3; j++) if (j != uCapK.x) g += (vV[j] - uCMin[j]) / max(uCMax[j] - uCMin[j], 1e-9) * (j == uMap.y ? 97.0 : 28.0);
 		if (abs(fract(g + 0.5) - 0.5) < fwidth(g) * 0.5 * uPx) O.rgb = mix(O.rgb, vec3(1.0), 0.3);
 	}
+	O.rgb = mix(O.rgb, uInk.rgb, eg * uInk.a);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uSrc', 'uN', 'uW', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites', 'uHatch', 'uPx']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uSrc', 'uN', 'uW', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites', 'uHatch', 'uPx', 'uCrease', 'uWalls', 'uInk', 'uNeutK', 'uNeutW', 'uRt', 'uMask', 'uMaskCh', 'uSplit']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = st.fsBake ? build(gl, FSQ_VS, bakeFrag(vs), uset, null, { kind: 'mesh', space: s, fs: true })   // a fragment pass (bakeRun)
 			: build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
@@ -1400,7 +1516,7 @@ void main() {
 		// section by its coordinate center – they need this space's own inverse, a program of its own
 		const draw = cls => { const k = cls === 2 ? s : `·${cls}`
 			if (!st.draws.has(k)) { const fs = surfFS(cls), o = build(gl, DRAW_VS, fs, (o) => {
-					o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
+					o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad'); o.aSrc = gl.getAttribLocation(o.pr, 'aSrc')
 					uset(o)
 				}, null, { kind: 'mesh', space: cls === 2 ? s : undefined })
 				// Native 10/20 coloring runs space→RGB in the DRAW fragment shader. Measured
@@ -1462,10 +1578,76 @@ out vec4 O;
 void main() { O = uTint; }`
 // both link with the solid's context, in the background like every program: made at a plane's first hover, their
 // compile and link were waited out there (a status read each), up to 60 ms of the pointer's move
+// The outline's other half. A band is drawn ON the surface, so where the surface ends at the line only the half inside
+// shows – a silhouette half as heavy as an edge between two faces in view – and a cap cannot measure its own edge at
+// all where a mask decides it. So the body and its caps are drawn once more into a texture, each pixel
+// its ink, its depth and its kind (uPass 5), and each pixel takes there what its neighbours owe it, as far as the line's
+// half reaches: the body's ink over what it stands in front of and over the cap it meets; a cap's edge on both its sides,
+// where what lies beside it is nothing or lies behind. The line a pixel wide wherever it runs.
+const INK_VS = `#version 300 es
+void main() { gl_Position = vec4(gl_VertexID == 1 ? 3.0 : -1.0, gl_VertexID == 2 ? 3.0 : -1.0, 0.0, 1.0); }`
+const INK_FS = `#version 300 es
+precision highp float;
+precision highp int;
+uniform highp sampler2D uTex;   // r the ink a pixel carries · g, b its depth · a its kind: 1 the body, 0.5 a cap, 0 nothing
+uniform vec4 uInk;
+uniform float uR;               // the half line, device px
+out vec4 O;
+ivec2 p, hi;
+vec4 at_(ivec2 d) { return texelFetch(uTex, clamp(p + d, ivec2(0), hi), 0); }
+float z_(vec4 c) { return c.a > 0.25 ? c.g + c.b / 255.0 : 2.0; }
+// how much this pixel's own surface falls a pixel along d: the lesser of its two steps – the greater may be the edge itself
+float fall_(float z, ivec2 d) { float a = z_(at_(d)), b = z_(at_(-d)); return a > 1.5 || b > 1.5 ? 0.0 : min(abs(a - z), abs(z - b)); }
+void main() {
+	p = ivec2(gl_FragCoord.xy); hi = textureSize(uTex, 0) - 1;
+	vec4 c = at_(ivec2(0));
+	float z = z_(c), k = 0.0, gz = z > 1.5 ? 0.0 : max(fall_(z, ivec2(1, 0)), fall_(z, ivec2(0, 1)));
+	bool cap = c.a > 0.25 && c.a < 0.75;
+	int R = int(uR + 0.999);
+	for (int j = -R; j <= R; j++) for (int i = -R; i <= R; i++) {
+		vec4 n = at_(ivec2(i, j));
+		// apart by more than this pixel's own surface falls on the way there: an edge runs between the two
+		float zn = z_(n), w = clamp(uR + 1.0 - length(vec2(i, j)), 0.0, 1.0), by = 0.002 + 1.5 * gz * float(abs(i) + abs(j));
+		if (n.a > 0.75) { if (zn < z - by || cap && zn < z + by) k = max(k, n.r / min(uR, 1.0) * w); }   // the body's line: over what it stands in front of, and over the cap it meets
+		else if (n.a > 0.25 && zn < z - by) k = max(k, w);   // a cap's edge, the half outside it
+		if (cap && zn > z + by) k = max(k, w);               // …and the half on it
+	}
+	k = min(k, 1.0) - c.r;
+	if (k < 0.004) discard;
+	O = vec4(uInk.rgb, k * uInk.a);
+}`
+function inkTarget(st, w, h) {
+	const gl = st.gl, k = st.ink ??= { fbo: gl.createFramebuffer(), tex: gl.createTexture(), rb: gl.createRenderbuffer() }
+	if (k.w === w && k.h === h) return k
+	k.w = w; k.h = h
+	gl.bindTexture(gl.TEXTURE_2D, k.tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+	gl.bindTexture(gl.TEXTURE_2D, null)   // not left on the unit it was made on (maskTarget)
+	gl.bindRenderbuffer(gl.RENDERBUFFER, k.rb); gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, w, h)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, k.fbo)
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, k.tex, 0); gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, k.rb)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+	return k
+}
+// …and the human volumes' cap masks: a channel a count (two textures: a box's six faces, a curved one's two sides), with a depth of their own
+const MASK_UNIT = 4
+function maskTarget(st, w, h) {
+	const gl = st.gl, k = st.mask ??= { fbo: gl.createFramebuffer(), tex: [gl.createTexture(), gl.createTexture()], rb: gl.createRenderbuffer() }
+	if (k.w === w && k.h === h) return k
+	k.w = w; k.h = h
+	for (const t of k.tex) { gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST) }
+	gl.bindTexture(gl.TEXTURE_2D, null)   // not left on the unit it was made on: the count draws INTO it, and a sampler still at that unit would read it
+	gl.bindRenderbuffer(gl.RENDERBUFFER, k.rb); gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, w, h)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, k.fbo); gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, k.rb)
+	gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+	return k
+}
 const paneProgs = (st) => {
 	const gl = st.gl, locs = (o, us) => { o.aPos = gl.getAttribLocation(o.pr, 'aPos'); for (const n of us) o[n] = gl.getUniformLocation(o.pr, n); o.buf = gl.createBuffer() }
 	st.sheetP = build(gl, SHEET_VS, TINT_FS, o => locs(o, ['uRot', 'uScale', 'uTint']), null, { kind: 'mesh' })
 	st.frameP = build(gl, FRAME_VS, TINT_FS, o => locs(o, ['uTint']), null, { kind: 'mesh' })
+	st.inkP = build(gl, INK_VS, INK_FS, o => { for (const n of ['uTex', 'uInk', 'uR']) o[n] = gl.getUniformLocation(o.pr, n) }, null, { kind: 'mesh' })
 }
 
 // ── the image inside the solid: its samples as a point cloud, converted by the SAME
@@ -1550,6 +1732,13 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		// the hovered plane's cut, drawn per pixel on the surface (see fsSurf's uCut band)
 		if (u.uCut) gl.uniform2i(u.uCut, cut ? cut.axis : -1, cut && cut.wrap ? 1 : 0)
 		if (u.uCutV) gl.uniform2f(u.uCutV, cut ? cut.val : 0, cut ? cut.span : 1)
+		// the outline (EDGE_GLSL): which of the volume's edges and the box's faces draw it, and its ink
+		if (u.uCrease) gl.uniform1i(u.uCrease, map.edge ?? 0)
+		if (u.uWalls) gl.uniform2i(u.uWalls, map.edge ? map.walls ?? 0 : 0, map.edge ? (map.caps ?? 0) & ~(map.flat ?? 0) : 0)   // a face the body lies flat against is not crossed: no cut on it
+		if (u.uRt) gl.uniform1f(u.uRt, map.rt ?? 0.03)
+		if (u.uSplit) gl.uniform2f(u.uSplit, map.split?.[0] ?? -1, map.split?.[1] ?? 0)
+		if (u.uNeutK) { gl.uniform3fv(u.uNeutK, map.neut?.[0] ?? [0, 0, 0]); gl.uniform3fv(u.uNeutW, map.neut?.[1] ?? [0, 0, 0]) }
+		if (u.uInk) map.edge && map.ink ? gl.uniform4f(u.uInk, map.ink[0], map.ink[1], map.ink[2], 0.5) : gl.uniform4f(u.uInk, 0, 0, 0, 0)   // in front at half; behind the body (pass 4) at 0.15
 		gl.uniform2f(u.uRot, rot.a, rot.b)
 		gl.uniform1f(u.uScale, scale)
 	}
@@ -1562,65 +1751,98 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		gl.viewport(0, 0, cv.width, cv.height)
 		st.bakeKey = bkey
 	}
-	const bindBaked = () => bakedAttrs(gl, st.out, dr)
+	const bindBaked = () => { bakedAttrs(gl, st.out, dr)
+		if (dr.aSrc >= 0) { gl.bindBuffer(gl.ARRAY_BUFFER, hs.b); gl.enableVertexAttribArray(dr.aSrc); gl.vertexAttribPointer(dr.aSrc, 3, gl.FLOAT, false, 0, 0) } }   // each point's own address in the volume, beside what the bake made of it
 	gl.useProgram(dr.pr); setU(dr.u); bindLuts(gl, dr)
 	if (dr.u.uPalIdx) gl.uniform1i(dr.u.uPalIdx, PAL_UNIT)
 	if (dr.u.uPalSites) gl.uniform1i(dr.u.uPalSites, SITE_UNIT)
 	if (dr.u.uMetric) gl.uniform1i(dr.u.uMetric, Math.max(0, METRICS.indexOf(metric || 'oklab')))
 	if (PALETTES[quant]) bindPalette(gl, dr.u.uPalIdx, dr.u.uPalSites, quant, metric)
 	gl.uniform1i(dr.u.uHasHue, map.ai != null && map.ai >= 0 ? 1 : 0)
-	bindBaked()
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
-	gl.uniform1i(dr.u.uPass, 0)
-	gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
-	const capMask = map.caps ?? 63
-	if (capMask && ps.caps && !ps.caps.bad && !ps.caps.pending) {
-		const per = st.cn / 6   // one fitted-box face per slice, in (fi, side) order
-		const capFace = (f) => { const u = ps.caps.u   // the face drawn: hatched, and seated on its wall, if a trim
-			if (u.uHatch) gl.uniform1i(u.uHatch, (map.trim ?? 0) >> f & 1)
-			if (u.uCapK) gl.uniform2i(u.uCapK, f >> 1, f & 1) }
-		const bindCaps = () => {
-			gl.useProgram(ps.caps.pr); setU(ps.caps.u); bindLuts(gl, ps.caps)
-			gl.bindBuffer(gl.ARRAY_BUFFER, st.cb)
-			gl.enableVertexAttribArray(ps.caps.aFrac); gl.vertexAttribPointer(ps.caps.aFrac, 3, gl.FLOAT, false, 0, 0)
-			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.ci)
-		}
-		if (gam === 'vis') {
-			// human view: per pierced face, STENCIL-parity the sheet the body clipped away
-			// past that wall – pixels crossed an odd number of times are inside the solid
-			// at the cut – then paint the face quad only there. The cross-section follows
-			// the sliced mesh itself; no per-pixel inverse validity (a wrong fold root
-			// painted impossible colors or shaved the true cut).
-			gl.enable(gl.STENCIL_TEST)
-			for (let f = 0; f < 6; f++) if (capMask >> f & 1) {
-				gl.clear(gl.STENCIL_BUFFER_BIT)
-				gl.useProgram(dr.pr)
-				bindBaked()
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
-				gl.uniform1i(dr.u.uPass, 2)
-				gl.uniform2i(dr.u.uCapK, f >> 1, f & 1)
-				gl.colorMask(false, false, false, false); gl.depthMask(false)
-				gl.stencilFunc(gl.ALWAYS, 0, 0xff)
-				gl.stencilOp(gl.KEEP, gl.KEEP, gl.INVERT)   // parity of depth-passing crossings
-				gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
-				gl.colorMask(true, true, true, true); gl.depthMask(true)
-				bindCaps(); capFace(f)
-				gl.stencilFunc(gl.NOTEQUAL, 0, 0xff)
-				gl.stencilOp(gl.KEEP, gl.KEEP, gl.KEEP)
-				gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4)
-			}
-			gl.disable(gl.STENCIL_TEST)
-		} else {
-			bindCaps()
-			for (let f = 0; f < 6; f++) if (capMask >> f & 1) {
-				capFace(f)
-				gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4) }
-		}
+	// the body, and the caps that seal its cuts, as a pass draws them (uPass): 0 themselves · 4 their outline where hidden ·
+	// 5 their ink and depth (INK_FS). hollow: a space inside the volume holds no image of its surface – its caps are its body (wire3d)
+	const body = (pass) => { gl.useProgram(dr.pr); bindBaked(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
+		gl.uniform1i(dr.u.uPass, pass)
+		if (!map.hollow) gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
+		gl.uniform1i(dr.u.uPass, 0) }
+	const capMask = (map.caps ?? 63) & ~(map.flat ?? 0), capped = capMask && ps.caps && !ps.caps.bad && !ps.caps.pending   // a face the body itself lies along needs no cap: under it, its outline showed through as a second rim
+	const per = st.cn / 6   // one fitted-box face per slice, in (fi, side) order
+	const capBind = (pass) => { const u = ps.caps.u
+		gl.useProgram(ps.caps.pr); setU(u); bindLuts(gl, ps.caps)
+		gl.bindBuffer(gl.ARRAY_BUFFER, st.cb)
+		gl.enableVertexAttribArray(ps.caps.aFrac); gl.vertexAttribPointer(ps.caps.aFrac, 3, gl.FLOAT, false, 0, 0)
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.ci)
+		if (u.uPass) gl.uniform1i(u.uPass, pass)
+		if (u.uMask) gl.uniform1i(u.uMask, MASK_UNIT)
+		return u }
+	const capFace = (u, f) => {
+		if (u.uHatch) gl.uniform1i(u.uHatch, (map.trim ?? 0) >> f & 1)   // the face drawn: hatched, and its colors read on the wall itself, if a trim
+		if (u.uCapK) gl.uniform2i(u.uCapK, f >> 1, f & 1)
+		gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4) }
+	// A human volume's caps: the wall where it lies inside the solid – where the eye's ray has crossed an odd number of the
+	// body's sheets before it. Counted per face, and per SIDE of a curved one (a cylinder's wall, a cone's: its near half
+	// and its far), each against that wall's own depth, into a channel of a mask its cap then reads. One count for a whole
+	// wall – a stencil's, once – cancelled wherever both its halves were cut: a hole in each (CIELCh, the appearance models),
+	// and no cap at all where the solid overran a cylinder on every side (HSI, IHLS, HSP)
+	const sides = []   // [face, which side of it: gl.BACK or gl.FRONT culled, 0 a plane]
+	if (capped && (gam === 'vis' || gam === 'locus')) { const mk = maskTarget(st, cv.width, cv.height)
+		const curved = map.ai != null && map.ai >= 0 ? (map.wI ?? -1) >= 0 ? map.wI : map.mi ?? -1 : -1   // the axis that is a radius
+		for (let f = 0; f < 6; f++) if (capMask >> f & 1) for (const cull of f >> 1 === curved ? [gl.BACK, gl.FRONT] : [0]) sides.push([f, cull])
+		gl.bindFramebuffer(gl.FRAMEBUFFER, mk.fbo); gl.disable(gl.DITHER)
+		sides.forEach(([f, cull], i) => {
+			if (!(i & 3)) { gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, mk.tex[i >> 2], 0); gl.colorMask(true, true, true, true); gl.clear(gl.COLOR_BUFFER_BIT) }
+			gl.clear(gl.DEPTH_BUFFER_BIT)
+			// the wall's own depth, this side of it…
+			gl.colorMask(false, false, false, false); gl.disable(gl.BLEND)
+			if (cull) { gl.enable(gl.CULL_FACE); gl.cullFace(cull) }
+			capFace(capBind(2), f)
+			gl.disable(gl.CULL_FACE)
+			// …and every sheet of the body in front of it: each turns the channel over
+			gl.colorMask(i % 4 === 0, i % 4 === 1, i % 4 === 2, i % 4 === 3); gl.depthMask(false); gl.depthFunc(gl.LESS)
+			gl.enable(gl.BLEND); gl.blendFunc(gl.ONE_MINUS_DST_COLOR, gl.ZERO)
+			gl.useProgram(dr.pr); bindBaked(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
+			gl.uniform1i(dr.u.uPass, 2); gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0); gl.uniform1i(dr.u.uPass, 0)
+			gl.depthMask(true); gl.depthFunc(gl.LEQUAL) })
+		gl.colorMask(true, true, true, true); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null); q3Mode(quant) ? gl.disable(gl.DITHER) : gl.enable(gl.DITHER)
+		gl.useProgram(ps.caps.pr); gl.uniform1i(ps.caps.u.uPass, 0) }
+	const caps = (pass) => { if (!capped) return
+		const u = capBind(pass)
+		if (sides.length) { const mk = st.mask
+			sides.forEach(([f, cull], i) => {
+				gl.activeTexture(gl.TEXTURE0 + MASK_UNIT); gl.bindTexture(gl.TEXTURE_2D, mk.tex[i >> 2]); gl.activeTexture(gl.TEXTURE0)
+				gl.uniform1i(u.uMaskCh, i & 3)
+				if (cull) { gl.enable(gl.CULL_FACE); gl.cullFace(cull) }
+				capFace(u, f)
+				gl.disable(gl.CULL_FACE) })
+			gl.activeTexture(gl.TEXTURE0 + MASK_UNIT); gl.bindTexture(gl.TEXTURE_2D, null); gl.activeTexture(gl.TEXTURE0) }   // (left bound, the next frame's count would draw into a texture it reads)
+		else for (let f = 0; f < 6; f++) if (capMask >> f & 1) capFace(u, f)
+		if (u.uPass) gl.uniform1i(u.uPass, 0) }
+	body(0); caps(0)
+	// the outline's other half (INK_FS): the body and its caps once more, as ink, depth and kind, then the half lines over the frame
+	if (map.edge && map.ink && !st.inkP.pending && !st.inkP.bad) { const k = inkTarget(st, cv.width, cv.height), ip = st.inkP
+		gl.bindFramebuffer(gl.FRAMEBUFFER, k.fbo); gl.disable(gl.BLEND); gl.disable(gl.DITHER)   // the channels carry numbers here: written as they are
+		gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+		body(5); caps(5)
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.enable(gl.BLEND); gl.disable(gl.DEPTH_TEST); if (!q3Mode(quant)) gl.enable(gl.DITHER)
+		gl.useProgram(ip.pr)
+		gl.activeTexture(gl.TEXTURE0 + BAKE_UNIT); gl.bindTexture(gl.TEXTURE_2D, k.tex); gl.activeTexture(gl.TEXTURE0)
+		gl.uniform1i(ip.uTex, BAKE_UNIT); gl.uniform4f(ip.uInk, map.ink[0], map.ink[1], map.ink[2], 0.5)
+		gl.uniform1f(ip.uR, 0.5 * cv.width / (cv.clientWidth || cv.width))
+		gl.drawArrays(gl.TRIANGLES, 0, 3)
+		gl.enable(gl.DEPTH_TEST)
+	}
+	// the outline the body stands in front of: its own bands again, drawn where the depth buffer hides them – faint, as a
+	// pane's frame goes behind the body. The body's, then each cap's
+	if (map.edge) {
+		gl.depthFunc(gl.GREATER); gl.depthMask(false)
+		body(4); caps(4)
+		gl.depthFunc(gl.LEQUAL); gl.depthMask(true)
 	}
 	// the CUT's far arc: the same per-pixel band, drawn where the body covers it. The
 	// body is opaque, so a pane behind it can only wash the surface – the hidden CURVE
 	// is what carries "the plane continues through here", and it carries it precisely.
-	if (cut) {
+	if (cut && !map.hollow) {
 		gl.useProgram(dr.pr)
 		bindBaked()
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
@@ -1642,7 +1864,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			gl.uniform4f(sp.uTint, 1, 1, 1, 0.5)
 			gl.drawArrays(gl.TRIANGLES, 0, sheet.length / 3)
 			gl.depthMask(true) } }
-	if (frame) { const fp = st.frameP
+	for (const fm of [].concat(frame || [])) { const fp = st.frameP   // a pane's frame, the solid's edges where they are lines of their own (a body of light), or both
 		if (!fp.pending && !fp.bad) { gl.useProgram(fp.pr)
 			gl.bindBuffer(gl.ARRAY_BUFFER, fp.buf)
 			gl.enableVertexAttribArray(fp.aPos); gl.vertexAttribPointer(fp.aPos, 3, gl.FLOAT, false, 0, 0)
@@ -1653,10 +1875,10 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 				gl.bufferData(gl.ARRAY_BUFFER, v, gl.DYNAMIC_DRAW)
 				gl.clear(gl.STENCIL_BUFFER_BIT)
 				gl.drawArrays(gl.TRIANGLES, 0, v.length / 3) }
-			const [tr, tg, tb] = frame.tint, A = frame.al || FRAME_AL   // al: the fringe's and the core's alpha in front, then behind the body
-			rib(frame.fr, 1, 1, 1, A[0]); rib(frame.co, tr, tg, tb, A[1])
+			const [tr, tg, tb] = fm.tint, A = fm.al || FRAME_AL   // al: the fringe's and the core's alpha in front, then behind the body
+			rib(fm.fr, 1, 1, 1, A[0]); rib(fm.co, tr, tg, tb, A[1])
 			gl.depthFunc(gl.GREATER)
-			rib(frame.fr, 1, 1, 1, A[2]); rib(frame.co, tr, tg, tb, A[3])
+			rib(fm.fr, 1, 1, 1, A[2]); rib(fm.co, tr, tg, tb, A[3])
 			gl.depthFunc(gl.LEQUAL)
 			gl.disable(gl.STENCIL_TEST); gl.depthMask(true) } }
 	// ── the cloud, last: the image's own colours at their own coordinates. Its bake rides

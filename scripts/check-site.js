@@ -63,9 +63,12 @@ const errors = []
 try {
 	const page = await context.newPage()
 	page.on('pageerror', error => errors.push(error.message))
+	// the catalog the prerender painted is the one the page wires: none of #cat's own children leaves it at boot
+	await page.addInitScript(() => { globalThis.__catGone = 0; new MutationObserver(ms => { for (const m of ms) if (m.target.id === 'cat') globalThis.__catGone += m.removedNodes.length }).observe(document, { childList: true, subtree: true }) })
 	await page.goto(`${server.origin}/?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })   // ?sw: loopback skips the service worker for dev-freshness — the offline pin below needs it registered
 	await page.waitForSelector('.ent[data-s="oklch"] .nm')
 	assert.equal(await page.locator('.ent').count(), 221, 'catalog has all spaces')
+	assert.equal(await page.evaluate(() => globalThis.__catGone), 0, 'the prerendered catalog is hydrated, not rebuilt: a rebuild at every load froze the page a third of a second (render.js preHTML)')
 	assert.equal(await page.locator('#stripgl').count(), 0, 'catalog has no page-sized canvas on its scroll/input path')
 	// the row's color rests in the hero's field – its rhombus on the field's middle – and, sticky, pins in the row
 	const dockAt=()=>page.evaluate(()=>{ const c=document.querySelector('.cx .cdw').getBoundingClientRect(), f=document.getElementById('hq').getBoundingClientRect(), r=document.getElementById('strip').getBoundingClientRect()
@@ -553,6 +556,15 @@ try {
 	for(const [i,v] of [[0,'0.60'],[1,'0'],[2,'90']]) await page.locator('#bigch .nv').nth(i).fill(v)
 	await page.waitForTimeout(50)
 	await page.evaluate(()=>document.querySelector('#figseg button[data-v="tc"]').click()); await page.waitForFunction(()=>document.querySelector('#tcap').textContent.trim())   // the transfer curve shown: a figure draws where it is seen
+	// 18% gray on the curve: a mark like any color's, over the line and saying what it is – a hollow notch painted into the
+	// plot read as a dot the curve crossed out (2026-11)
+	{	await page.waitForFunction(()=>{ const g=document.querySelector('.tcvw .sto'); return g&&!g.hidden })
+		const m=await page.evaluate(()=>{ const g=document.querySelector('.tcvw .sto'); g.scrollIntoView({block:'nearest'})
+			const q=g.getBoundingClientRect(), at=document.elementFromPoint(q.x+q.width/2,q.y+q.height/2)
+			return { head:g.dataset.tipHead, tip:g.dataset.tip, left:parseFloat(g.style.left), top:parseFloat(g.style.top), over:at===g, size:q.width } })
+		const enc=+(/([\d.]+)\s*$/.exec(m.tip)||[])[1]
+		assert.ok(/18/.test(m.head)&&/18/.test(m.tip)&&enc>0&&enc<1,`the transfer curve marks 18% gray and says so (${m.head} / ${m.tip})`)
+		assert.ok(m.over&&m.size>=3&&Math.abs(m.left-(40+.18*279)/320*100)<.5&&Math.abs(m.top-(155-enc*154)/176*100)<.6,`the mark sits on the curve at linear 18%, over its line (${m.left}%, ${m.top}%, encoded ${enc})`) }
 	const smoothNeighbor=page.locator('.bar2[data-i="1"] .bgc'), smoothBefore=await smoothNeighbor.evaluate(el=>el.toDataURL()), transferBefore=await page.locator('#tcap').innerText()
 	const backPicker=page.locator(`.ent[data-s="${inSight}"] .nrg`).first(), backValues=()=>page.evaluate(s=>[...document.querySelectorAll(`.ent[data-s="${s}"] .cv`)].map(el=>el.value).join(' '),inSight), backLane=page.locator(`.ent[data-s="${inSight}"] .ch`).first()
 	const smoothL=page.locator('.bar2[data-i="0"]'), smoothLR=await smoothL.boundingBox()
@@ -754,6 +766,50 @@ try {
 	await page.locator('#cseg button[data-t="ocio"]').click()
 	assert.match(await page.locator('#snip').textContent(), /!<ColorSpace>[\s\S]*!<LogCameraTransform>[\s\S]*!<MatrixTransform>/, 'OCIO: S-Gamut3.Cine as a whole colorspace, its S-Log3 curve then its matrix')
 	await page.locator('#cseg button[data-t="js"]').click()
+	// the solid marks an RGB space's own primaries whatever the Limit – S-Gamut3.Cine's lie past every display's volume, and
+	// held to it 37 of the 92 RGB spaces showed none under any Limit. A space inside the volume (RYB) holds none of the
+	// volume's corners: its body is its own box
+	{	const [fig, gm] = await page.evaluate(() => [localStorage.csFig ?? null, localStorage.csGm ?? null])
+		const marks = async () => { await page.evaluate(() => document.querySelector('#figseg button[data-v="3d"]')?.click())
+			await page.waitForFunction(() => { const el = document.querySelector('.vgrp[data-f="3d"] #pl3d'); return el && !el.classList.contains('busy') })
+			return page.evaluate(() => document.querySelectorAll('#pl3d .p3o .prm').length) }
+		assert.equal(await marks(), 4, 'S-Gamut3.Cine: its three primaries and its white marked on the solid')
+		await page.evaluate(() => { localStorage.csGm = 'srgb' })   // the next two under sRGB, whatever Limit the checks above left
+		await page.goto(`${server.origin}/ryb?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		await page.waitForSelector('#modal:not([hidden]) #dtitle')
+		assert.equal(await marks(), 0, 'RYB: none of the volume\'s corners marked on its box')
+		const tones = async () => { const th = await page.evaluate(() => { const r = document.documentElement, was = r.dataset.theme; r.dataset.theme = 'light'; return was })   // over light paper, whatever theme the checks above left
+			const png = (await page.locator('#pl3d').screenshot()).toString('base64'); await page.evaluate((was) => { document.documentElement.dataset.theme = was }, th)
+			return page.evaluate(async (b64) => { const img = new Image(); img.src = 'data:image/png;base64,' + b64; await img.decode()
+				const c = Object.assign(document.createElement('canvas'), { width: img.width, height: img.height }), x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0)
+				const d = x.getImageData(0, 0, c.width, c.height).data; let dark = 0, vivid = 0
+				for (let i = 0; i < d.length; i += 4) { const hi = Math.max(d[i], d[i+1], d[i+2]); if (hi < 48) dark++; if (hi - Math.min(d[i], d[i+1], d[i+2]) > 80) vivid++ }
+				return [dark / (d.length / 4), vivid / (d.length / 4)] }, png) }
+		// …and that box IS drawn: its caps are its body (masked as faces the volume lies along, every one of them went, and the figure stood empty)
+		{ let ryb = await tones(); for (const end = Date.now() + 60000; ryb[1] < .1 && Date.now() < end; ryb = await tones()) await page.waitForTimeout(250)
+			assert.ok(ryb[1] >= .1, `RYB: its box drawn (colored ${(ryb[1] * 100).toFixed(1)}% of the figure)`) }
+		// OSA-UCS: the body is cut at its lightness floor – its black lies at L −13.5 under the −10 floor, and uncut the
+		// near-blacks fanned out under it, a black slab as wide as the box (14% of the figure near-black; cut, a quarter percent)
+		await page.goto(`${server.origin}/osaucs?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		await page.waitForSelector('#modal:not([hidden]) #dtitle'); await marks()
+		let tone = await tones(); for (const end = Date.now() + 60000; tone[1] < .02 && Date.now() < end; tone = await tones()) await page.waitForTimeout(250)   // its kernel links first
+		assert.ok(tone[1] >= .02 && tone[0] < .03, `OSA-UCS: its solid drawn, no slab of black under its floor (near-black ${(tone[0] * 100).toFixed(1)}%, colored ${(tone[1] * 100).toFixed(1)}%)`)
+		// Nayatani 95 under Display P3: a cut is the body's own cross-section – its chroma wall under L 12, where any chroma
+		// reads as the gray, is none of the body's, and drew a black ring round its foot (4% of the figure near-black)
+		await page.evaluate(() => { localStorage.csGm = 'p3' })
+		await page.goto(`${server.origin}/nayatani95?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		await page.waitForSelector('#modal:not([hidden]) #dtitle'); await marks()
+		tone = await tones(); for (const end = Date.now() + 60000; tone[1] < .02 && Date.now() < end; tone = await tones()) await page.waitForTimeout(250)
+		assert.ok(tone[1] >= .02 && tone[0] < .012, `Nayatani 95: its solid drawn, no black ring round its foot (near-black ${(tone[0] * 100).toFixed(1)}%, colored ${(tone[1] * 100).toFixed(1)}%)`)
+		// …and under Light: a cut is the wall where the body's own sheets say it is inside – no color read off the wall's
+		// coordinates, which under L 12 are the gray's whatever their chroma (tested by the pixel against the locus alone, the
+		// ring floated under the foot again: 6.2% of the figure near-black; 2.0% is the body's own dark lights)
+		await page.evaluate(() => { localStorage.csGm = 'locus' })
+		await page.goto(`${server.origin}/nayatani95?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		await page.waitForSelector('#modal:not([hidden]) #dtitle'); await marks()
+		tone = await tones(); for (const end = Date.now() + 60000; tone[1] < .02 && Date.now() < end; tone = await tones()) await page.waitForTimeout(250)
+		assert.ok(tone[1] >= .02 && tone[0] < .035, `Nayatani 95 under Light: its solid drawn, no black ring under its foot (near-black ${(tone[0] * 100).toFixed(1)}%, colored ${(tone[1] * 100).toFixed(1)}%)`)
+		await page.evaluate(([fig, gm]) => { for (const [k, v] of [['csFig', fig], ['csGm', gm]]) try { v == null ? localStorage.removeItem(k) : localStorage[k] = v } catch {} }, [fig, gm]) }
 	await page.goto(`${server.origin}/prophoto?sw&cb=${Date.now()}`, { waitUntil: 'networkidle' })
 	await page.waitForSelector('#modal:not([hidden]) .vgrp[data-f="tc"] .tform', { state: 'attached' })
 	assert.match(await page.locator('.vgrp[data-f="tc"] .tform').textContent(), /L = V \/ 16[\s\S]*L = V1\.8/, 'ProPhoto: the ROMM curve as its formula, a branch a line, under its plot')
@@ -1204,6 +1260,22 @@ try {
 	assert.match(await page.locator('#dtitle').innerText(), /oklab/i, 'offline navigation opens the dossier from the cached shell')
 	await context.setOffline(false)
 
+	// a hand turning the solid holds no color: with the orbit on (motion not reduced), the planes go on repainting under the
+	// turn – they stood still for its length. (In a context of its own, after the page's own held-pointer checks: a second
+	// page's orbit beside them is load on their 30 ms waits)
+	{	const tc=await browser.newContext({ viewport:{ width:1440, height:900 } }), turn=await tc.newPage(); turn.on('pageerror',e=>errors.push(e.message))
+		await turn.goto(`${server.origin}/oklch?sw&cb=${Date.now()}`,{waitUntil:'networkidle'})
+		await turn.waitForSelector('#modal:not([hidden]) #dtitle')
+		await turn.waitForFunction(()=>{ const el=document.querySelector('.vgrp[data-f="3d"] #pl3d'); return el&&!el.classList.contains('busy') },null,{timeout:60000})
+		const o0=await turn.evaluate(()=>[...document.querySelectorAll('#bigch .nv')].map(e=>e.value).join(' ')), plane=()=>turn.evaluate(()=>document.querySelector('#detail .pl canvas').toDataURL())
+		await turn.waitForFunction(o=>[...document.querySelectorAll('#bigch .nv')].map(e=>e.value).join(' ')!==o,o0,{timeout:15000})   // the orbit runs
+		const b=await turn.locator('#pl3d').boundingBox()
+		await turn.mouse.move(b.x+b.width/2,b.y+b.height/2); await turn.mouse.down(); await turn.mouse.move(b.x+b.width/2+12,b.y+b.height/2,{steps:3})
+		await turn.waitForTimeout(300); const p1=await plane()
+		for(let i=0;i<14;i++){ await turn.mouse.move(b.x+b.width/2+12+i*4,b.y+b.height/2+i%2); await turn.waitForTimeout(120) }
+		const p2=await plane(); await turn.mouse.up()
+		assert.notEqual(p2,p1,'the planes repaint while the solid is turned')
+		await tc.close() }
 	// Exercise the staged renderer directly, with a fresh module instance and no
 	// page animation. Read pixels in the draw task (WebGL clears between frames).
 	const gpu = await context.newPage()
@@ -1260,10 +1332,128 @@ try {
 			check(visible > 1000 && darkened > 100 && untouched > visible*.2, `${s}: contours missing or covering whole faces (${visible}/${darkened}/${untouched})`)
 			changed += darkened
 		}
+		// ── the solid's outline, drawn on the body per pixel (gl.js EDGE_GLSL) ──
+		const INK = [.19, .18, .16], S = cv.width, sc = 1.2, lum = p => p[0] + p[1] + p[2]
+		const shot = (s, map, r = rot, ...more) => { check(drawMesh3GL(cv, s, map, r, sc, ...more), `${s}: warmed renderer failed`)
+			const out = new Uint8Array(S*S*4); gl.readPixels(0,0,S,S,gl.RGBA,gl.UNSIGNED_BYTE,out); return out }
+		// a model point (tone, x, z: each −0.5…0.5) on the canvas, as gl.js view_ puts it; the pixel there
+		const at = ([y, x, z], r = rot) => { const ca = Math.cos(r.a), sa = Math.sin(r.a), cb = Math.cos(r.b), sb = Math.sin(r.b), X1 = x*ca + z*sa, Z1 = -x*sa + z*ca
+			return [Math.round((X1*sc*.5 + .5)*S), Math.round(((y*cb - Z1*sb)*sc*.5 + .5)*S)] }
+		const px = (buf, [x, y]) => buf.subarray((y*S + x)*4, (y*S + x)*4 + 4)
+		// darker somewhere in the 3 × 3 round a point than the same draw without its outline
+		const inked = (on, off, p) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const q = [p[0]+dx, p[1]+dy]; if (lum(px(off, q)) - lum(px(on, q)) > 24) return true } return false }
+		const until = async (ok, what) => { const end = performance.now() + 20000; while (!ok()) { check(performance.now() < end, what); await new Promise(r => requestAnimationFrame(r)) } }
+		// a body's own edges: lines, not faces – the body's coverage kept, a silhouette's line given its outer half (INK_FS:
+		// drawn on the surface alone it was half as heavy as an edge between two faces in view) within two pixels of the
+		// body, and none of it left in the next plain draw
+		const body = (buf, x, y) => { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (buf[((y+dy)*S + x + dx)*4 + 3]) return true; return false }
+		const lines = (s) => { const off = shot(s, maps[s]), on = shot(s, { ...maps[s], edge: s === 'rgb' ? 1 : 3, walls: 63, ink: INK })
+			let visible = 0, drawn = 0, outer = 0
+			for (let i = 0; i < off.length; i += 4) {
+				if (off[i+3]) { visible++; check(on[i+3] >= off[i+3], `${s}: the outline took from the surface's coverage`); if (on[i] !== off[i] || on[i+1] !== off[i+1] || on[i+2] !== off[i+2]) drawn++ }   // a silhouette's half-covered pixels may gain: the line's outer half lies over them
+				else if (on[i+3]) { outer++; check(body(off, (i/4) % S, (i/4/S) | 0), `${s}: ink away from the body`) } }
+			return { visible, drawn, outer, off } }
+		await until(() => lines('rgb').outer > 0, 'the outline\'s outer half did not become ready')
+		for (const s of ['rgb', 'oklab']) { const { visible, drawn, outer, off } = lines(s)
+			check(drawn > 100 && drawn < visible*.3 && outer > 50, `${s}: the outline missing, over whole faces, or without its outer half (${drawn} of ${visible}, ${outer} outside)`)
+			check(equal(off, shot(s, maps[s])), `${s}: the outline leaked into a plain draw`) }
+		// a space whose box is its body asks for its rims alone (edge 4, no bit 1): none of the volume's own edges cross it
+		check(equal(shot('rgb', { ...maps.rgb, edge: 4, walls: 0, ink: INK }), shot('rgb', maps.rgb)), 'a map asking for no edge of the volume drew one')
+		// an opponent channel tapers to where the volume's own gray has it, not to zero: Poirson–Wandell's white sits at O2 −5.3,
+		// O3 3.7 – tapered to zero, the cube's three edges at white ran on to (L, 0, 0), a spike through the body
+		{	const { space } = await import('/js/core.js'), pw = space['poirson-wandell'], W = space.rgb['poirson-wandell'](255, 255, 255)
+			const m = { min: pw.range.map(r => r[0]), max: pw.range.map(r => r[1]), ti: 0, bip: [1, 2], neut: [[0, 0, 0], W] }
+			const n = v => v.map((x, k) => (x - m.min[k]) / (m.max[k] - m.min[k]) - .5), a = n(W), b = n([W[0], 0, 0]), mid = at(a.map((x, k) => (x + b[k]) / 2))
+			await ready(() => drawMesh3GL(cv, 'poirson-wandell', m, rot, sc))
+			check(Math.hypot(a[1] - b[1], a[2] - b[2]) > .2, 'Poirson–Wandell\'s white is off its zero: the case this pins')
+			check(!inked(shot('poirson-wandell', { ...m, edge: 3, walls: 63, ink: INK }), shot('poirson-wandell', m), mid), 'an edge of the volume runs from white toward the opponent zero: the taper\'s spike') }
+		// a volume wider than the box, cut at all six faces (Display P3 in sRGB's coordinates): the box is closed, and its three
+		// near edges run inked from corner to corner – polylines stopped a sample short of every corner and wall
+		const box = { gam: 'p3', min: [0,0,0], max: [255,255,255], cmin: [0,0,0], cmax: [255,255,255], dcl: [[0,0,0],[255,255,255]], out: true, caps: 63, trim: 63, ti: 0 }
+		// its three far edges, hidden behind it: faint through the near faces (pass 4) – points along each, counted where inked
+		const far = (on, off) => { let n = 0; for (let k = 0; k < 3; k++) for (let j = 4; j <= 16; j++) { const q = [-.5,-.5,-.5]; q[k] = -.5 + (.03 + j*.047); if (inked(on, off, at(q))) n++ } return n }
+		const lined = { ...box, edge: 1, walls: 63, ink: INK }
+		await ready(() => drawMesh3GL(cv, 'rgb', box, rot, sc))   // its own programs: the P3 volume's bake, then its caps
+		await until(() => px(shot('rgb', box), at([.3,.3,.3]))[3] === 255, 'the cut box\'s caps did not become ready')
+		{	const off = shot('rgb', box), on = shot('rgb', lined)
+			for (let y = 0; y < S; y++) { let a = -1, b = -1; for (let x = 0; x < S; x++) if (off[(y*S + x)*4 + 3]) { if (a < 0) a = x; b = x }
+				for (let x = a; x >= 0 && x <= b; x++) check(off[(y*S + x)*4 + 3] > 0, `the cut box has a hole at ${x}, ${y}`) }
+			const gaps = []
+			for (let k = 0; k < 3; k++) for (let j = 0; j <= 20; j++) { const n = [.5,.5,.5]; n[k] = .5 - (.03 + j*.047); if (!inked(on, off, at(n))) gaps.push(`${k}:${j}`) }
+			check(inked(on, off, at([.5,.5,.5])) && !gaps.length, `the cut box's near edges are not drawn whole: gaps at ${gaps}`)
+			check(far(on, off) >= 30, `the cut box's far edges do not show through its near faces (${far(on, off)} of 39 points)`)
+			// …and stay under a hovered plane's cut
+			const cutAt = { axis: 1, val: 128, span: 255, wrap: false }
+			check(inked(shot('rgb', lined, rot, null, null, cutAt), shot('rgb', box, rot, null, null, cutAt), at([.5,.5,.2])), 'the outline left under a hovered plane')
+			// a face the body itself lies along takes no cap (flat): drawn under it, its outline showed through as a second rim
+			check(equal(shot('rgb', { ...box, flat: 63 }), shot('rgb', { ...box, caps: 0 })), 'a cap drawn on a face the body lies along') }
+		// the same box cut out of the human volumes, Light (the spectral cone) and Surface (the object-color solid): sRGB lies
+		// inside both, so the box is all caps – closed, and its near edges inked by the same per-pixel rule (their outline
+		// was polylines until 2026-11: stopped a sample short of each corner, broken where a wall curved). Each cap is the
+		// wall where an odd number of the body's sheets lie in front of it – light's, sealed a box's breadth past the box,
+		// counted however far (clipped at the frame's depth they were not, and the box's near face stood open)
+		for (const gam of ['locus', 'vis']) { const hb = { ...box, gam }, hl = { ...hb, edge: 4, walls: 63, ink: INK }
+			await ready(() => drawMesh3GL(cv, 'rgb', hb, rot, sc))
+			await until(() => px(shot('rgb', hb), at([.3,.3,.3]))[3] === 255, `${gam}: the cut box's caps did not become ready`)
+			const off = shot('rgb', hb), on = shot('rgb', hl), gaps = []
+			for (let y = 0; y < S; y++) { let a = -1, b = -1; for (let x = 0; x < S; x++) if (off[(y*S + x)*4 + 3]) { if (a < 0) a = x; b = x }
+				for (let x = a; x >= 0 && x <= b; x++) check(off[(y*S + x)*4 + 3] > 0, `${gam}: the cut box has a hole at ${x}, ${y}`) }
+			for (let k = 0; k < 3; k++) for (let j = 0; j <= 20; j++) { const n = [.5,.5,.5]; n[k] = .5 - (.03 + j*.047); if (!inked(on, off, at(n))) gaps.push(`${k}:${j}`) }
+			check(!gaps.length, `${gam}: the cut box's near edges are not drawn whole: gaps at ${gaps}`)
+			// their caps carry their own outline, far edges and all (a cap that inked none left 2 of 39)
+			check(far(on, off) >= 30, `${gam}: the cut box's far edges do not show through its near faces (${far(on, off)} of 39 points)`)
+			check(equal(off, shot('rgb', hb)), `${gam}: the outline leaked into a plain draw`) }
+		// The count is taken in front of the wall itself. The surface solid in a cylinder a tenth of OKLCh's chroma wide
+		// overruns its wall all the way round: through the middle of the figure the eye's ray enters by the near wall and
+		// leaves by the far, both inside the solid – counted in front of the body instead, the sheets before the one and past
+		// the other cancelled, and the cylinder stood open (HSI, IHLS, HSP under Surface; a hole in each cut where only part
+		// of both was, CIELCh's). (Its far side has a count of its own, for the outline it shows through: not pinned here)
+		{	const cyl = { gam: 'vis', min: [0,0,0], max: [1,.1,360], cmin: [0,0,0], cmax: [1,.1,360], dcl: [[0,0,0],[1,.1,360]], out: true, caps: 8, trim: 8, ti: 0, ai: 2, mi: 1 }
+			await ready(() => drawMesh3GL(cv, 'oklch', cyl, rot, sc))
+			await until(() => px(shot('oklch', cyl), at([.1,0,0]))[3] === 255, 'a cylinder the solid overruns on every side has no wall where the eye looks through its axis') }
+		// The gray a color past sRGB desaturates toward is the gray of its own luminance: Display P3's red, in its own cube, is
+		// drawn sRGB's red – weighed by its code values (the green one under zero) it was drawn at two-thirds of that light,
+		// and a deep violet black
+		{	const p3 = { gam: 'p3', min: [0,0,0], max: [1,1,1], ti: 0 }
+			await ready(() => drawMesh3GL(cv, 'p3', p3, rot, sc))
+			const q = px(shot('p3', p3), at([.5,-.44,-.44]))
+			check(q[3] === 255 && q[0] >= 235 && q[1] <= 40 && q[2] <= 40, `Display P3's red corner is not drawn red: ${[...q]}`) }
+		// A cell astride a void in a channel's range is no surface: DSH's cells from the spectrum's red end to its purples ran
+		// across the box, over wavelengths that name no color
+		{	const dsh = { gam: 'locus', min: [-700,0,0], max: [700,1,100], ti: 2 }, mid = at([0,0,.5])
+			await ready(() => drawMesh3GL(cv, 'dsh', dsh, rot, sc))
+			check(px(shot('dsh', dsh), mid)[3] > 0, 'DSH: no cell astride the void without the split – the case this pins')
+			const cut = shot('dsh', { ...dsh, split: [0,-56] })
+			check(px(cut, mid)[3] === 0, 'DSH: a cell drawn astride the void in its wavelengths')
+			// …and on light's lid a green of white's own luminance is drawn green: the gray it desaturates toward is held a tenth
+			// under white, where a hue is left (at white itself the lid was white: 254, 255, 254)
+			const lid = px(cut, at([.5, (530 + 700)/1400 - .5, .3]))
+			check(lid[3] === 255 && lid[1] - lid[0] > 100 && lid[1] - lid[2] > 60, `light as bright as white lost its hue: ${[...lid]}`) }
+		check(gl.getError() === gl.NO_ERROR, 'the solid\'s draws left a GL error (a mask read while it is drawn into: a feedback loop, the draw refused)')
+		// Light's body is drawn as the space has it, dark lights too – a cone pinched toward black is a needle under a flat
+		// skirt. A dark light inside the cone (sRGB blue's chromaticity at
+		// Y 1.5: OKLab 0.268, −0.019, −0.185), seen level: its row of the figure is the body's own cross-section at that lightness
+		{	const side = { a: rot.a, b: 0 }, m = { ...maps.oklab, gam: 'locus' }
+			await ready(() => drawMesh3GL(cv, 'oklab', m, side, sc))
+			check(px(shot('oklab', m, side), at([.268 - .5, -.019/.8, -.185/.8], side))[3] === 255, 'Light\'s body is pinched toward black: a dark light lies outside it') }
+		// its black corner is a real one: each face round it filled and dark – a discard meant for a lightness axis's dark
+		// ring (Nayatani's) cut a hole there, the box's far faces seen through it (CMY, NTSC RGB under Display P3)
+		{	const under = { a: rot.a + Math.PI, b: -rot.b }, off = shot('rgb', box, under)
+			for (const [i, j] of [[0,1],[0,2],[1,2]]) { const n = [-.5,-.5,-.5]; n[i] += .03; n[j] += .03; const q = px(off, at(n, under))
+				check(q[3] === 255 && lum(q) < 300, `the cut box's black corner is open on face ${i}${j}: ${[...q]}`) } }
+		// a space inside the volume draws no lattice (RYB: wire3d's hollow) – its caps are its body
+		check(shot('rgb', { ...maps.rgb, hollow: true }).every((v, i) => i % 4 !== 3 || v === 0), 'a hollow map drew the lattice')
+		// frames: one, or several – a hovered plane's and the solid's edges where they are lines
+		{	const tri = (x, y) => new Float32Array([x,y,0, x+.08,y,0, x,y+.08,0]), f = (x, y) => ({ fr: new Float32Array(0), co: tri(x, y), tint: [0,0,0], al: [0,1,0,1] })
+			const p1 = [Math.round(.06*S), Math.round(.06*S)], p2 = [Math.round(.06*S), Math.round(.94*S)]   // inside each triangle, clear of the cube
+			await until(() => px(shot('rgb', maps.rgb, rot, null, f(-.9,-.9)), p1)[3] > 0, 'the frame program did not become ready')
+			check(equal(shot('rgb', maps.rgb, rot, null, f(-.9,-.9)), shot('rgb', maps.rgb, rot, null, [f(-.9,-.9)])), 'a frame alone and a list of one draw differently')
+			const two = shot('rgb', maps.rgb, rot, null, [f(-.9,-.9), f(-.9,.86)])
+			check(px(two, p1)[3] > 0 && px(two, p2)[3] > 0, 'a list of frames did not draw each') }
 		return { samples: samples.length*2, changed }
 	})
 	assert.equal(rendering.samples, 38, 'one-pixel bar and plane quantization agree with the CPU at byte boundaries, under each palette distance')
-	assert.ok(rendering.changed > 0, 'contours preserve coverage and reset across RGB → OKLab → RGB on one canvas')
+	assert.ok(rendering.changed > 0, 'contours preserve coverage and reset across RGB → OKLab → RGB on one canvas; the solid\'s outline rides the body, a cut box closed and its edges whole')
 	await gpu.close()
 
 	// the software path itself: on a host without a GPU (this one, without CS_GL) a dossier opens through the JS painters

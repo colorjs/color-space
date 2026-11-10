@@ -210,6 +210,11 @@ const heldOrder = (ss, from) => { const met = {}, at = ss.map((s, i) => ({ s, i,
 const held = F => ({ s, i }) => `<li class="fn${F.map((f, k) => f && i >= f.at ? ` h${k + 1}` : '').join('')}">${nameLink(s)}</li>`
 const more = (c, on) => { const F = folds(c), fs = F.filter(Boolean)
 	return fs.length ? `<div class="fold"><ul class="fns">${heldOrder(c.spaces, Math.min(...fs.map(f => f.at))).map(held(F)).join('')}</ul><button type="button" class="more" aria-expanded="${on}"><span class="mo">${t('ui.fold.more', '{n} more', { n: F.map((f, k) => f ? `<i class="n${k + 1}">${f.n}</i>` : '').join('') })}</span><span class="le">${t('ui.fold.less', 'Less')}</span>${FOLD}</button></div>` : '' }
+// the catalog as the build prerenders it – the wide grid by family, the leads a narrow grid shows as tiles with it (adapt) –
+// bare, or baked with a color's values. One definition for the build's stamp (generate-landing.js) and the page's check of
+// it (ensureCat): told apart, they drifted – the page hashed the template without the lead copies, never the build's, and
+// rebuilt the catalog it had just painted at every load (2026-10-17 to 2026-11-10; a third of a second, 1.2 s on a slow device)
+export const preHTML = m => catHTML(m, undefined, { adapt: true })
 export const catHTML = (m, secs = sections, { view = 'grid', cut = 'family', sort = null, leads = LEADS, adapt = false, open = new Set() } = {}) => { let st = null
 	if (m) { const rgb = rgbF(m.s, m.vals); st = { rgb, hx: hex(rgb), ink: ink(rgb) } }
 	const by = t('ui.group.by', 'group the catalog by'), G = { family: t('ui.group.family', 'Family'), purpose: t('ui.group.purpose', 'Purpose'), era: t('ui.group.era', 'Era'), author: t('ui.group.author', 'Author'), bookmarks: t('ui.group.bookmarks', 'Bookmarks') }

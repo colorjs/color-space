@@ -1131,7 +1131,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
    its own color, the held one resting meanwhile (cold): two states, on every instrument. On the hero's
    horseshoe and the xy plate a dot is its own target, a reach round it */
 .sto,.sts b{ position:absolute; width:var(--picker-dot-size); height:var(--picker-dot-size); translate:-50% -50%; border-radius:50%; background:#fff; box-shadow:var(--picker-shadow); pointer-events:none; transition:width var(--dur-micro) var(--ease-out),height var(--dur-micro) var(--ease-out),box-shadow var(--dur-micro) var(--ease-out) }   /* the picker's own outline: a white mark parted from a white field */
-:is(.sto,.sts b).hot,:is(.hlocus,.gam2d,.pl3d) .sto:hover{ width:var(--picker-size); height:var(--picker-size); background:var(--w); border:var(--picker-ring) solid #fff; box-shadow:var(--picker-shadow-on) }
+:is(.sto,.sts b).hot,:is(.hlocus,.gam2d,.pl3d,.tcvw) .sto:hover{ width:var(--picker-size); height:var(--picker-size); background:var(--w); border:var(--picker-ring) solid #fff; box-shadow:var(--picker-shadow-on) }
 :is(.hlocus,.gam2d,.pl3d) .sto::before{ content:''; position:absolute; inset:calc(-1 * var(--s1)); border-radius:50% }
 .chs.mini .sts b:not(.hot){ width:var(--picker-dot-small-size); height:var(--picker-dot-small-size) }
 .hlocus .sto{ pointer-events:auto }
@@ -1252,11 +1252,11 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .gxy .lt path,.gxy .lw{ stroke-opacity:.5 }   /* no rim, no reference triangles: the plate's colors are the horseshoe and the space's own reach */
 .gxy text{ fill:var(--soft); stroke:none; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums }
 .gam2d .cx{ pointer-events:none } .gam2d .sto{ pointer-events:auto }
-:is(.gam2d,.pl3d) .sto::before{ content:''; position:absolute; left:50%; top:50%; width:var(--picker-size); height:var(--picker-size); translate:-50% -50%; border-radius:50% }   /* a mark's reach: the picker's size whether it rests small or has grown – a dot that grew under the pointer no longer slipped out from under it at its edge, the arrow and the hand by turns */
+:is(.gam2d,.pl3d,.tcvw) .sto::before{ content:''; position:absolute; left:50%; top:50%; width:var(--picker-size); height:var(--picker-size); translate:-50% -50%; border-radius:50% }   /* a mark's reach: the picker's size whether it rests small or has grown – a dot that grew under the pointer no longer slipped out from under it at its edge, the arrow and the hand by turns */
 .pl3d .sto.thru:not(:hover){ opacity:.4 }
 .pl3d .sto:not(:hover){ box-shadow:0 0 0 .5px var(--picker-outline-rest) } .pl3d:hover .sto:not(:hover){ box-shadow:0 0 0 1px var(--picker-outline) }   /* the solid's marks outlined as its own picker is (drawPicker on the canvas): a crisp half-pixel ring at rest, a pixel while the solid is pointed at */   /* a corner behind the solid: through it, faint – as a pane's frame behind the body */
-@media(hover:hover){ :is(.pl,.gam2d,.pl3d,.ch,.bar2):hover :is(.sto,.sts b),.hlocus:has(.chk:hover) .sto{ box-shadow:var(--picker-shadow-on) } }   /* every mark – a primary, another color – as the picker: soft at rest, firmer while its figure is pointed at */
-.pl3d .sto{ pointer-events:auto } :is(.hlocus,.gam2d,.pl3d) .sto{ cursor:default }   /* a primary's, a white's, another color's mark: pointed at, it tells its numbers; pressed, it takes its color – the arrow, a mark on the figure, not a link */
+@media(hover:hover){ :is(.pl,.gam2d,.pl3d,.tcvw,.ch,.bar2):hover :is(.sto,.sts b),.hlocus:has(.chk:hover) .sto{ box-shadow:var(--picker-shadow-on) } }   /* every mark – a primary, another color – as the picker: soft at rest, firmer while its figure is pointed at */
+:is(.pl3d,.tcvw) .sto{ pointer-events:auto } :is(.hlocus,.gam2d,.pl3d,.tcvw) .sto{ cursor:default }   /* a primary's, a white's, another color's mark: pointed at, it tells its numbers; pressed, it takes its color – the arrow, a mark on the figure, not a link */
 /* the xy plate lifts into xyY (wire3d's LIFT): the plate is the floor (.flr, turned as the floor turns), the solid's
    canvases over it at 136% of its width, centred on it; the plate's hand turns it. Laid flat the plate alone shows –
    its own marks the figure's; lifted, the solid's marks stand for them */
@@ -1706,7 +1706,7 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 			<div><p class="plab" data-i18n="ui.footer.project">Project</p><ul><li><a href="https://github.com/colorjs/color-space">GitHub</a></li><li><a href="https://www.npmjs.com/package/color-space">npm</a></li><li><a href="https://github.com/colorjs" title="the colorjs family of color packages" data-i18n="title:ui.footer.colorjs">colorjs</a></li></ul></div>
 			<div><p class="plab" data-i18n="ui.footer.research">Research</p><ul><li><button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff" data-i18n="ui.footer.cite title:ui.footer.cite-tip">Cite</button></li><li><a href="https://github.com/colorjs/color-space/issues/new?template=wrong-value.yml" data-i18n="ui.footer.report">Report an error</a></li><li><a href="https://github.com/colorjs/color-space/issues/new?template=new-space.yml" data-i18n="ui.footer.suggest">Suggest a space</a></li></ul></div>
 			<div><p class="plab" data-i18n="ui.footer.supported">Supported by</p><ul><li><a href="https://www.herodevs.com">HeroDevs</a></li><li><a href="https://thanks.dev">thanks.dev</a></li><li><a href="https://github.com/sponsors/colorjs" data-i18n="ui.footer.support">Sponsor</a></li></ul></div>
-			<div><p class="plab" data-i18n="ui.footer.checked">Checked against</p><ul><li><a href="https://colorjs.io">colorjs.io</a></li><li><a href="https://github.com/ampas/aces-dev" data-i18n="ui.footer.aces">ACES transforms</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md" data-i18n="ui.footer.verified">How it’s verified</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/errata.md" data-i18n="ui.footer.errata">Errata in sources</a></li></ul></div>
+			<div><p class="plab" data-i18n="ui.footer.checked">Checked against</p><ul><li><a href="https://colorjs.io">colorjs.io</a></li><li><a href="https://github.com/ampas/aces-dev" data-i18n="ui.footer.aces">ACES transforms</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md" data-i18n="ui.footer.verified">How it’s verified</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/errata.md" data-i18n="ui.footer.errata">Errata in sources</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/conformance.md" data-i18n="ui.footer.conformance">Conformance suite</a></li></ul></div>
 		</div>
 		<div class="fend">
 			<p class="fatlas" data-i18n="ui.footer.atlas">An open, interactive atlas of color spaces, from web to print and vision science. Started in 2016 as a collection of conversions.</p>
@@ -1751,7 +1751,7 @@ import { findNames } from './js/namesearch.js'
 import { okGrid, nearestK } from './js/nearest.js'
 import { sweeps, sweepCSS, stepped, qCells, qBarGradient, QBARN, TRIPLE, byteRGB, rgbKey, sameRGB } from './js/sweep.js'
 import { calc } from './js/calc.js'
-import { SPACES, sections, cname, geoOf as geo, kindIcon, WHITE_XY, whiteHex, unit, disp, nbh, catHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap, close, aside } from './js/render.js'
+import { SPACES, sections, cname, geoOf as geo, kindIcon, WHITE_XY, whiteHex, unit, disp, nbh, catHTML, preHTML, sorted, nextView, tagLine, pairsOf, LEADS, LIMIT, limitFor, HISTORICAL, ending, run, DEFAULT, fpOf, decOf, fmtc, rgbF, lum, ink, tagL, secName, cap, close, aside } from './js/render.js'
 import { OI, QI, LI, VI, PI, DL as DLI, BM, LINK } from './js/icons.js'
 import BARRED from './js/barred.js'
 import EDITORS, { SHAPER_LABEL, SIZE_LABEL } from './js/editors.js'
@@ -2835,7 +2835,10 @@ const cat=document.getElementById('cat')
 // or the raw web/ source, where #cat is the empty shell
 const ensureCat=()=>{ if(ensureCat.done) return; ensureCat.done=true
 	if(VIEW!=='grid'||grouping!=='family'||leadsNow()!==LEADN) return rebuild()   // the prerender is the wide grid by family; a visitor's own view, a shared cut (?g=), or a narrower grid's row replaces it (under the hero – off the first screen)
-	if(cat.dataset.fp!==fpOf(catHTML())){ cat.innerHTML=catHTML(DEFAULT); wireToc() }
+	if(cat.dataset.fp!==fpOf(preHTML())){ cat.innerHTML=catHTML(DEFAULT); wireToc() }   // preHTML: the very template the build stamped
+	// hydrated: the wide grid has no use for the lead copies a narrow first paint shows as tiles (hidden here, render.js
+	// dupTiles) – without them the catalog is the very one a rebuild makes, and every count of its cards holds
+	else for(const tl of cat.querySelectorAll('.tiles.dup')){ tl.classList.remove('dup'); for(const e of tl.querySelectorAll(':scope>.dl')) e.remove() }
 	wireCat() }   // wireCat is the hoisted function wrapping every per-ent attachment below
 // ToC: wired and laid out PRE-PAINT by the inline script after #cat (trackAct/layoutToc/
 // wireToc are its globals; applyFilter re-enters through them). Re-wire here only for the
@@ -4020,9 +4023,10 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	const srcAt=OWN?(q=>ownAt(q)):g3==='vis'||g3==='locus'?null:(q=>({ X:q.map(x2=>x2*255), cut:false }))
 	const lin3=v=>[v[0]/255,v[1]/255,v[2]/255]
 	const conv=L3?(v=>{ const X=mat3(G3.matrix,...lin3(v)), S3=X[0]+X[1]+X[2]; return [X[0]/S3,X[1]/S3,X[1]*100] }):g3==='srgb'?(v=>toSpace(s,v)):gH?(v=>s==='xyz'?v.slice():space.xyz[s](...v)):(v=>space[g3][s](...v.map(x2=>x2/255)))
-	// out-of-sRGB display colors desaturate toward their own luma until representable
-	// (closest ACTUAL color, hue and lightness held) — mirrors the GPU vertex rule
-	const gmap=r=>{ const lum=clamp(0.2126*r[0]+0.7152*r[1]+0.0722*r[2],0,255)
+	// out-of-sRGB display colors desaturate toward the gray of their own luminance until representable
+	// (closest ACTUAL color, hue and lightness held) — mirrors the GPU vertex rule (gl.js softDisp: the luminance read from
+	// the light, not the code values – their weighted sum, one of them negative, took a deep violet to black)
+	const gmap=r=>{ const L=space.rgb.lrgb(r[0],r[1],r[2]), Y=clamp(0.2126*L[0]+0.7152*L[1]+0.0722*L[2],0,0.9), lum=space.lrgb.rgb(Y,Y,Y)[0]   // …a tenth under white, where a light keeps its hue
 		let t=1
 		for(let k=0;k<3;k++){ const dv=r[k]-lum
 			if(r[k]>255) t=Math.min(t,(255-lum)/dv)
@@ -4045,7 +4049,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// smoothstep(0,7) collapses them to the black point so the solid pinches to a clean
 	// spindle, and reaches 1 by the deepest sRGB primary (blue, Y=7.2) so real colour is exact.
 	const gfVis=v=>{ const t=clamp(v[1]/7,0,1); return t*t*(3-2*t) }
-	const gfRaw=gH?gfVis:gfCube
+	const gfRaw=g3==='locus'?()=>1:gH?gfVis:gfCube   // light's body untapered (mirrors gl.js): its caps seal it as it is
 	const grayF=inBase?(v=>gfRaw(v)<1?0:1):gfRaw
 	// tone/hue/radius axes — the SAME assignment the 2D planes use (axes3), so the
 	// solid and its plane slices always agree. Renamed wheels count as the hue angle.
@@ -4053,22 +4057,38 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// a point the DARK taper moves toward gray (evalV, near black): its chroma collapsed, the body a needle of no width – a line
 	// ends before it. Near white or gray the taper only lands the corner ON the axis, where it is: lines run to it, corners
 	// join. An RGB's coordinates it never touches
-	const tapers=src=>(ai!=null&&mi!=null||cls.bips.length>0)&&(gH?gfVis(src):clamp((Math.max(...src)-2)/6,0,1))<1
-	// the sanity window for the cone-wall bisection: an additive space's coords can
-	// never go below the zero-light code (below-min = sign-mirrored garbage); other
-	// spaces may genuinely overflow by up to a whole span before it's junk
-	const win=[cls.ch.map((c,k)=>c.min-(c.max-c.min)*(k!==ai&&cls.archetype==='additive'?0.02:1)),
-		cls.ch.map(c=>c.max+(c.max-c.min))]
+	const tapering=ai!=null&&mi!=null||cls.bips.length>0, tapers=src=>tapering&&(g3==='locus'?1:gH?gfVis(src):clamp((Math.max(...src)-2)/6,0,1))<1
 	// ── two extents, one law: the FRAME is a stable reference box per space —
 	// identical across the gamut switch (grid planes, axes and scale never move) —
 	// while the SOLID is the full, never-cropped shape of the selected volume ──
 	const fmin=cls.ch.map(c=>c.min), fmax=cls.ch.map(c=>c.max)
 	const dmin=fmin.slice(), dmax=fmax.slice()   // unpadded solid extents — where caps sit
-	let capMask=0, cutMask=0, out3=false
+	let capMask=0, cutMask=0, flat3=0, hug3=false, within3=false, out3=false, scan3=null
+	// the space's coordinates back in the volume's own code (0–255) – none for a body of light, nor the lifted plate
+	const back3=gH||LIFT?null:g3==='srgb'?(v=>space[s].rgb(...v)):(v=>space[s][g3](...v).map(x2=>x2*255))
 	// hwb family: distance from gray is 1−W−B (not W) — maps the true HSV-style cone,
 	// and the non-canonical W+B>100 region collapses onto the axis (zero area)
 	const wI=cls.ch.findIndex(c=>/White/i.test(c.name)), bI=cls.ch.findIndex(c=>/Black/i.test(c.name))
 	const wb=ai!=null&&wI>=0&&bI>=0
+	// the sanity window for the cone-wall bisection: a whole span past the box on every side, junk beyond. What lies
+	// between is cut at the box and sealed there (trim3) – held instead a fiftieth under an additive space's zero, as it
+	// once was, the points moved bent every cell astride the wall: a notch in the cut (NTSC RGB's red corner under P3)
+	// …but a radius has no span under zero: a formula that divides by what a color past its range leaves (Cubehelix's s by
+	// l(1 − l), negative for a light brighter than its white) reads a negative one – none of the space's, and drawn it lay
+	// across the axis
+	const win=[cls.ch.map((c,k)=>c.min-(c.max-c.min)*(k===mi&&ai!=null&&!wb?0.02:1)),cls.ch.map(c=>c.max+(c.max-c.min))]
+	// the taper itself (mirrors the GPU bake): chroma to none, an opponent channel to where the volume's own gray has it –
+	// its white's near white, its black's near black (neut). Zero is that only where the space puts its grays there:
+	// Poirson–Wandell's white sits at O2 −5.3, O3 3.7, and YyCxCz's lightness, −16…100, reads as an opponent channel
+	const neut=[[0,0,0],gH?null:[255,255,255]].map(c=>{ let v=null; try{ v=c&&conv(c) }catch{} return cls.ch.map((_,k)=>isFinite(v?.[k])?v[k]:0) })
+	const taper=(v,gf,src)=>{ if(ai!=null&&!wb&&mi!=null){ v[mi]=gf>0?v[mi]*gf:0; if(gf<=0&&!isFinite(v[ai])) v[ai]=0 }   // all of it gone, the radius is none whatever the formula read (not a number, at Cubehelix's white)
+		const nt=neut[!gH&&Math.max(...src)>127.5?1:0]; for(const b2 of cls.bips) v[b2.i]=nt[b2.i]+(v[b2.i]-nt[b2.i])*gf }
+	// …and a human volume's color that is no different from gray – its white pole, its black – has no chroma to place: a
+	// formula that divides by what is left of the lightness (Cubehelix's s, by l(1 − l)) reads noise there, −4.9 at white,
+	// and the solid's top fanned out to it. A radius alone: an opponent space has its white where it is (mirrors gl.js)
+	const ach=(v,src)=>{ if(!gH||ai==null||wb||mi==null) return
+		const q=[src[0]/95.04559,src[1]/100,src[2]/108.90578], mx=Math.max(...q), ga=mx>1e-9?clamp((mx-Math.min(...q))/mx/0.01,0,1):0
+		if(ga<1){ v[mi]=ga>0?v[mi]*ga:0; if(!isFinite(v[ai])) v[ai]=0 } }
 	{	const cubeProbes=()=>{ const out=[]
 			for(let f=0;f<6;f++) for(let i2=0;i2<=12;i2++) for(let j2=0;j2<=12;j2++){
 				const u=i2/12*255, w=j2/12*255
@@ -4079,15 +4099,20 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			return out }
 		// mirror the mesh's achromatic taper — else near-black chroma noise
 		// (OSA-UCS's exploding ratios) inflates the extents
-		const scan=(probes,cv2,gfn)=>{ const smp=[[],[],[]], pts=[]
+		const scan=(probes,cv2,gfn)=>{ const smp=[[],[],[]], pts=[], src=[]
 			for(const pr of probes){ let v; try{ v=cv2(pr) }catch{ continue }
 				const gf2=gfn(pr)
-				if(gf2<1){ if(ai!=null&&!wb&&mi!=null) v[mi]*=gf2
-					for(const b2 of cls.bips) v[b2.i]*=gf2 }
-				if(v.every(isFinite)) pts.push(v)
+				if(gf2<1) taper(v,gf2,pr)
+				ach(v,pr)
+				if(v.every(isFinite)){ pts.push(v); src.push(pr) }
 				for(let k=0;k<3;k++) if(isFinite(v[k])) smp[k].push(v[k]) }
-			return { smp, pts } }
+			return { smp, pts, src } }
 		const solidScan=scan(gH?visProbes():cubeProbes(), conv, grayF)
+		// a space wholly INSIDE the volume – not a point of the volume's surface comes back from it as itself (RYB: the
+		// artists' gamut, a part of sRGB's; a color past it lands on its box by best fit, elsewhere) – holds no image of that
+		// surface: its body is its own box, every face a cut through the wider volume, painted as the space decodes it
+		scan3=solidScan
+		if(back3&&solidScan.pts.length) try{ within3=solidScan.pts.every((v,i)=>!(back3(v).every((x2,k)=>Math.abs(x2-solidScan.src[i][k])<3))) }catch{}
 		// the frame IS the declared channel range: the box axes match the sliders and
 		// planes exactly (a tick at the range limit sits on the box wall), so the frame
 		// measures instead of merely surrounding. The solid fills whatever part of that
@@ -4109,18 +4134,21 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			else if(lo<c.min-(c.max-c.min)*0.004||hi>c.max+(c.max-c.min)*0.004) out3=true
 			if(hi-lo<(c.max-c.min)*0.05) return
 			dmin[k]=lo; dmax[k]=hi })
-		// caps only where the solid genuinely flattens against the box — a cap on a
-		// face the solid merely touches sticks out as a nub (the Y-family boxes);
-		// polar solids need none at all (their walls and domes are the cube-surface
-		// image, while degenerate coords near white make cap roundtrips lie), and an
-		// additive cube IS its box: a cap would z-fight the surface lattice with its
-		// own Gouraud shading (scRGB's diagonal seam)
-		for(let k=0;k<3;k++){ if(ai!=null||cls.archetype==='additive') break
-			let nLo=0, nHi=0
-			for(const v of solidScan.pts){ const r=(v[k]-fmin[k])/(fmax[k]-fmin[k])
-				if(r<0.06) nLo++; else if(r>0.94) nHi++ }
-			if(nLo>=30) capMask|=1<<(k*2)
-			if(nHi>=30) capMask|=1<<(k*2+1) }
+		// the faces the solid itself lies flat against (HSV's lid, a cylinder's wall, a cube in its own box, a curve's clamp
+		// at its floor) – ON them, to the ten-thousandth of the span the shader counts as on (gl.js walls_): a body only
+		// crossing a face has a few points that near (REDLog's top under P3), one touching it at a point (HSL's lid: white
+		// alone) fewer. No cap is drawn under such a face and no cut runs on it (mesh3.map.flat)
+		// – and an AREA of it: points inside a face of the volume, not along its edges (Filmic Pro's top holds P3's
+		// yellow–white edge exactly, thirty points of a line – skipped as flat, its cut stood open)
+		const inner=gH?()=>true:p=>p.filter(x=>x===0||x===255).length===1
+		for(let k=0;k<3;k++){ if(k===ai) continue
+			const tol=(fmax[k]-fmin[k])*1e-4; let nLo=0, nHi=0
+			solidScan.pts.forEach((v,i)=>{ if(!inner(solidScan.src[i])) return; if(Math.abs(v[k]-fmin[k])<=tol) nLo++; else if(Math.abs(v[k]-fmax[k])<=tol) nHi++ })
+			if(nLo>=20) flat3|=1<<(k*2)
+			if(nHi>=20) flat3|=1<<(k*2+1) }
+		// …and whether the body IS its box: most of the volume's surface within 0.6% of a face (Okhsl's wall wobbles 0.05%
+		// about S 100) – HSL, HSV, HWB, the OK and Luv pickers. HSM's body, its box as much inside sRGB, lies nowhere near it
+		hug3=solidScan.pts.filter(v=>cls.ch.some((c,k)=>k!==ai&&Math.min(Math.abs(v[k]-fmin[k]),Math.abs(v[k]-fmax[k]))<=(fmax[k]-fmin[k])*0.006)).length>=solidScan.pts.length/2
 		// a CUT face is a slice through the solid — close it with a cap: the cap pass
 		// paints only pixels that are in-gamut and roundtrip canonically, which is
 		// exactly the cross-section (HPLuv's P=100 wall). The human view cuts at the
@@ -4138,13 +4166,22 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// Cap every pierced face; box-in-base keeps its clips.
 	capMask=cutMask
 	let trim3=0   // the faces a wider volume was trimmed at – its cut hatched, outlined with the edges (a box-in-base's own clip is none)
-	// …but never a tone axis's floor: the body under it is discarded already (gl.js, a lightness axis's pole fan), and its
-	// cap's every point decodes to black – valid, so painted: Cubehelix's wide black disc under the solid
-	const tFloor=ti!=null&&(ai!=null||cls.bips.length)
+	// …but a tone axis's floor that is a POLE – every point of it one color: black at Cubehelix's L = 0, at Nayatani's, at
+	// lαβ's far log floor – is cut and not capped: its cap's every point is valid, so painted, a wide black disc under the
+	// solid. A floor that holds colors (OSA-UCS's L = −10: its black lies at −13.5, the near-blacks under the floor a fan
+	// as wide as the box) is cut and sealed like any face
+	const pole=ti!=null&&!wb&&(ai!=null||cls.bips.length>0)&&(()=>{ try{ const at=(f,q)=>{ const v=cls.ch.map(c=>c.min)
+				if(ai!=null){ v[ai]=fmin[ai]+(fmax[ai]-fmin[ai])*q/4; if(mi!=null) v[mi]=fmin[mi]+(fmax[mi]-fmin[mi])*f }
+				else cls.bips.slice(0,2).forEach((b2,j)=>{ v[b2.i]=f*[[b2.max,0],[0,b2.max],[b2.min,0],[0,b2.min]][q][j] })
+				return space[s].rgb(...v) }
+			const o=at(0,0); return [0,1,2,3].every(q=>{ const r=at(0.3,q); return !r.every(isFinite)||r.every((x2,k)=>Math.abs(x2-o[k])<3) }) }catch{ return true } })()
+	let floor3=false   // …the pole's floor, where the body goes under it: cut, no cap
 	cls.ch.forEach((c,k)=>{ if(k===ai) return
 		const eps3=(c.max-c.min)*0.004
-		if(dmin[k]<c.min-eps3&&!(tFloor&&k===ti)) capMask|=1<<(k*2)
+		if(within3) capMask|=3<<(k*2)
+		else if(dmin[k]<c.min-eps3){ if(pole&&k===ti) floor3=true; else capMask|=1<<(k*2) }
 		if(dmax[k]>c.max+eps3) capMask|=1<<(k*2+1) })
+	if(within3) out3=true
 	if(!inBase&&!LIFT) trim3=capMask&~cutMask
 	// a clip space's near-white collapse can OPEN its tone dome (HPLuv: exploding-P
 	// rows pinch to the spine, leaving the L=100 lid a hole into the shell) — seal it.
@@ -4169,6 +4206,14 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			return [y, r*Math.cos(h), r*Math.sin(h)] }
 		return [y, norm(v,others[0])-0.5, norm(v,others[1])-0.5] }
 	pts3Map=map3
+	// how far the space's own round trip lands from where it left, over the volume's surface, in the model's units (the
+	// ninth decile): the bar a trim's cap is held to (gl.js fsCap, uRt) – 3% of the box at the least, what the GPU's
+	// single precision alone costs a long conversion (Ostwald's lid, exact here, missed a 0.6% bar there), and as wide as
+	// the space's own imprecision where that is more (Munsell's renotation lookup, ADX10's clamped density)
+	const rt3=(()=>{ if(!back3||!scan3) return 0; const e=[]
+		for(let i=0;i<scan3.pts.length;i+=8) try{ const a=map3(scan3.pts[i]), b=map3(conv(back3(scan3.pts[i]).map(x2=>clamp(x2,0,255))))
+			if(a.every(isFinite)&&b.every(isFinite)) e.push(Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2])) }catch{}
+		e.sort((x,y)=>x-y); return e.length?e[Math.floor(e.length*0.9)]:0 })()
 	// the inverse — model coords back to channel values (the guides live in model
 	// space; membership tests live in channel space). Unclamped: beyond-range verts
 	// (the human view pierces the box) must read their true coordinates.
@@ -4197,19 +4242,18 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 				let vt; try{ vt=conv(nw.map((x2,k)=>x2+(src[k]-x2)*md)) }catch{ vt=null }
 				if(vt&&inWin(vt)) lo=md; else hi=md }
 			try{ v=conv(nw.map((x2,k)=>x2+(src[k]-x2)*lo)) }catch{ return null }
+			if(lo===0&&ai!=null&&!wb&&mi!=null){ v[mi]=0; if(!isFinite(v[ai])) v[ai]=0 }   // no point of the way was the space's: it lands on the spine itself, a gray – no radius, whatever the formula reads there
 			if(!inWin(v)) return null }
 		// a sub-integer channel delta — or a color too dark to carry chroma at all — is
 		// indistinguishable from gray: taper its chroma coordinates toward the
 		// achromatic axis (mirrors the GPU vertex rule)
-		{	const gf=grayF(src)
-			if(gf<1){ if(ai!=null&&!wb&&mi!=null) v[mi]*=gf
-				for(const b2 of cls.bips) v[b2.i]*=gf } }
+		{	const gf=grayF(src); if(gf<1) taper(v,gf,src); ach(v,src) }
 		if(offFit(v)) return null
 		const n=map3(v)
 		if(!n.every(isFinite)) return null
 		return { n, v } }
 	// the declared box the body is cut at (mesh3.map.dcl: a face not capped keeps the shape whole past it), the hue axis free
-	const bLo=cls.ch.map((c,k)=>capMask>>(k*2)&1?c.min:Math.min(c.min,dmin[k])), bHi=cls.ch.map((c,k)=>capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))
+	const bLo=cls.ch.map((c,k)=>capMask>>(k*2)&1||floor3&&k===ti?c.min:Math.min(c.min,dmin[k])), bHi=cls.ch.map((c,k)=>capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))
 	// in: a hair inside each wall the body was TRIMMED at (an edge there is the cut's own outline's); every other face keeps the
 	// pad outward – the solid's own extremes (a corner touching its fitted box) stay whole
 	const inBox=(v,inn=false)=>cls.ch.every((c,k)=>{ if(k===ai) return true; const p2=(c.max-c.min)*0.005, pl=inn&&trim3>>(k*2)&1?-p2:p2, ph=inn&&trim3>>(k*2+1)&1?-p2:p2
@@ -4270,7 +4314,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	else if(gH){ const vsf=(g3==='locus'?lightSurf:visSurf)(gpu3?12:48), gv=vsf.G
 		face(gv,(u,w)=>{ const q=(Math.round(u*gv)*(gv+1)+Math.round(w*gv))*3
 			return addVert([vsf.pos[q],vsf.pos[q+1],vsf.pos[q+2]]) }) }
-	else for(let f=0;f<6;f++) face(G2,(u,w)=>{ const U=u*255, W=w*255
+	else if(!within3) for(let f=0;f<6;f++) face(G2,(u,w)=>{ const U=u*255, W=w*255
 		return addVert([[0,U,W],[255,U,W],[U,0,W],[U,255,W],[U,W,0],[U,W,255]][f]) })
 	// the cube surface misses boundary pieces that are the SPACE's own box faces (HSL's
 	// flat white L≈100 disc, HWB's pure-hue cone wall): mesh the range-box faces too,
@@ -4329,9 +4373,19 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// box — a black spike into space. dmin/dmax are the gamut the JS scan actually reached
 	// (cam16 M≈100 at the box; ral-design chroma≈205 genuinely past it), so junk clamps to the
 	// real boundary while real overflow still shows. Hue keeps the wide window (it wraps).
+	// a channel with a void in its range – a band of values that name no color (DSH's dominant wavelength, from its purples'
+	// −493 to the spectrum's 380): the body lies on both sides of it, and no cell of it across (gl.js uSplit). Read off the
+	// space itself: its mid-range color along each channel, the widest band of it that decodes to none
+	const split3=(()=>{ for(let k=0;k<cls.ch.length;k++){ if(k===ai) continue
+			const c=cls.ch[k], N=56; let best=[0,0], a=-1
+			for(let i=1;i<=N;i++){ let ok=false
+				if(i<N){ const v=cls.ch.map(c2=>(c2.min+c2.max)/2); v[k]=c.min+(c.max-c.min)*i/N; try{ ok=(s==='rgb'?v:space[s].rgb(...v)).every(isFinite) }catch{} }
+				if(!ok&&i<N){ if(a<0) a=i } else if(a>=0){ if(i-a>best[1]-best[0]&&a>1&&i<N) best=[a,i]; a=-1 } }
+			if(best[1]-best[0]>=N*0.1) return [k,c.min+(c.max-c.min)*(best[0]+best[1]-1)/2/N] }
+		return null })()
 	const winV = g3==='locus' ? win   // the light cone's measured extent is ENORMOUS (a/b in the hundreds) – the standard box±span halo keeps the overflow a readable fringe, the box caps seal the cuts
 		: gH
-		? [cls.ch.map((c,k)=> k===ai ? win[0][k] : dmin[k]-(c.max-c.min)*0.08),
+		? [cls.ch.map((c,k)=> k===ai ? win[0][k] : Math.max(dmin[k]-(c.max-c.min)*0.08,win[0][k])),   // …never under the window itself (a radius's stops at zero)
 			cls.ch.map((c,k)=> k===ai ? win[1][k] : dmax[k]+(c.max-c.min)*0.08)]
 		: win
 	mesh3={ rev:++mesh3Rev, lift:LIFT, L3, verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
@@ -4343,14 +4397,25 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			cmax:dmax.map((x2,k)=>Math.min(x2,cls.ch[k].max)),
 			// the declared box the overflow fades past – but a face not capped is no cut: a solid a hair past it (Display P3's
 			// blue face 0.07% over DCI-P3's) stays whole there, or that face drew as overflow, see-through
-			dcl:[cls.ch.map((c,k)=>capMask>>(k*2)&1?c.min:Math.min(c.min,dmin[k])),cls.ch.map((c,k)=>capMask>>(k*2+1)&1?c.max:Math.max(c.max,dmax[k]))], out:out3, clip:inBase, trim:trim3,
+			dcl:[bLo,bHi], out:out3, clip:inBase, trim:trim3, split:split3,
+			// its outline, drawn per pixel on the body (gl.js EDGE_GLSL): a display cube's twelve edges – none down the needle
+			// its dark taper leaves –, and the box's faces that meet in an edge of the shape: a cylinder's floor, lid and wall
+			// (its axis is no face), the HWB family's cone and lid (W = 0, B = 0), a box's six. A space whose box IS its body (hug3:
+			// HSL, HSV, HWB, the OK and Luv pickers) draws those rims alone: the display cube's edges crossed its lid and walls
+			// as spokes and zigzags, features of no cylinder. A body of light (gH) has no edges of its own: its cuts and the box's alone
+			edge:4|(gH||inBase&&hug3?0:1)|(tapering?2:0), ink:CUT3, neut, flat:within3?0:flat3, hollow:within3, rt:within3?9:clamp(3*rt3,0.03,0.12),   // a space inside the volume has no body to hold its caps to   // edge: 1 the volume's own edges, 2 none down its dark needle, 4 the box's; flat: the faces the body itself lies along – no cut runs on one, no cap is drawn under one (a space inside the volume has caps alone: none of its faces is the volume's)
+			walls:cls.ch.reduce((m,c,k)=>k===ai?m:m|(wb?(k===wI||k===bI?1:0):ai!=null&&k===mi?2:3)<<(k*2),0),
 			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1, bip:cls.bips.slice(0,2).map(b2=>b2.i) }:null }
 	pts3=P; tris3=T; pts3S=s
+	// The outline. The GPU draws a display volume's per pixel, on the body itself (gl.js EDGE_GLSL: mesh3.map.edge, walls) –
+	// lines built here chorded its curves, stopped a sample short of every corner and wall, and broke where a clamped sheet
+	// lay along a face (a log curve's floor, CMY's box). What follows is for the bodies drawn here – the lifted plate's, a
+	// software rasterizer's:
 	// the volume's edges, each a line of points on the shape (null where it breaks): the twelve of a cube or a box – a hue
 	// channel's own edges skipped (where its angle is held, the box's seam runs over the shape's side, no edge of it), and
 	// the own box's where the visible cut it; and none where the body tapers to gray near black (grayF: its chroma collapsed
 	// onto the axis, a needle of no width – an edge drawn down it stood past the body's foot, OKLab's below its tip)
-	mesh3.edges=srcAt&&(()=>{ const out=[], ang=k=>k===hueS
+	mesh3.edges=srcAt&&!gpu3&&!(inBase&&hug3)&&(()=>{ const out=[], ang=k=>k===hueS   // …none where the body is its box (hug3): its rims alone (rims3), as the GPU draws it
 		for(let k=0;k<3;k++){ const [a,b]=[0,1,2].filter(q=>q!==k); if(ang(a)||ang(b)) continue
 			for(const sa of [0,1]) for(const sb of [0,1]){
 				// lifted, an edge out of black stands on the floor – black has no chromaticity, its edges in xyY no meaning
@@ -4361,7 +4426,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// …and the trim's outline, as edges are: geometry, depth-tested – dark, faint where the body stands in front. Where the
 	// volume's surface crosses a wall it was trimmed at (marching squares over the surface's own lattice: a cube's six faces,
 	// the visible solid's one sheet), and where two such walls meet inside it (a box's edge, a cylinder's rim)
-	const cuts3=trim3&&(()=>{ const out=[], R3=48
+	const cuts3=trim3&&!gpu3&&(()=>{ const out=[], R3=48
 		const sheets=g3==='vis'||g3==='locus'?(()=>{ const vsf=(g3==='locus'?lightSurf:visSurf)(96), gv=vsf.G   // fine: its sheet curves where a cube's faces run straight – a coarse chord sank the line under the surface
 				return [{ N:gv, at:(i,j)=>{ const q=(i*(gv+1)+j)*3; return [vsf.pos[q],vsf.pos[q+1],vsf.pos[q+2]] } }] })()
 			:[0,1,2,3,4,5].map(f=>({ N:R3, at:(i,j)=>{ const U=i/R3*255, W=j/R3*255; return [[0,U,W],[255,U,W],[U,0,W],[U,255,W],[U,W,0],[U,W,255]][f] } }))
@@ -4390,9 +4455,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// the box's own edges – two of its faces meeting, the third coordinate swept – wherever the body reaches them: the trimmed
 	// walls', and a box-in-base space's every face (its body IS its box: HSL's rims, a cylinder's top and foot) – another
 	// body only touches its untrimmed faces here and there, and its own edges draw that; the hue axis has no faces
-	const rims3=!LIFT&&!gH&&(trim3||inBase)&&(()=>{ const out=[], faces=[]
+	const rims3=!LIFT&&!gH&&!gpu3&&(trim3||inBase&&hug3)&&(()=>{ const out=[], faces=[]   // hug3: a box-in-base body that is no box (HSM) has no rims – they stood in the air round it
 		for(let k=0;k<3;k++) if(k!==ai) for(const sd of [0,1]){ const t=trim3>>(k*2+sd)&1
-			if(t||inBase) faces.push([k,sd?(t?bHi[k]:cls.ch[k].max):(t?bLo[k]:cls.ch[k].min)]) }
+			if(t||inBase&&hug3) faces.push([k,sd?(t?bHi[k]:cls.ch[k].max):(t?bLo[k]:cls.ch[k].min)]) }
 		for(let w1=0;w1<faces.length;w1++) for(let w2=w1+1;w2<faces.length;w2++){ const [k1,b1]=faces[w1], [k2,b2]=faces[w2]; if(k1===k2) continue
 			const m=3-k1-k2, c=cls.ch[m], lo=m===ai?c.min:bLo[m], hi=m===ai?c.max:bHi[m]
 			for(let i=0;i<=96;i++){ const v=[0,0,0]; v[k1]=b1; v[k2]=b2; v[m]=lo+(hi-lo)*i/96
@@ -4403,14 +4468,16 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// the current color and the others in hand, in the lifted plate's frame: the space's own white (nativeOf)
 	const own3=L3&&nativeOf(LS)?.own
 	pts3Fix=own3?(v=>{ const [x,y,Y]=v; if(!(y>0)) return v; const q=own3([x*Y/y,Y,(1-x-y)*Y/y]), S3=q[0]+q[1]+q[2]; return [q[0]/S3,q[1]/S3,q[1]] }):null
-	// the corners marked – red, green, blue and white – and only where they lie on the shape drawn. An RGB space marks its
-	// OWN: each channel at its white's code, the others at black's (a log curve's black sits above code 0), where the volume
-	// holds them – Display P3's corners, marked in sRGB, stood in the air past its cube. Any other space marks the volume's
-	// corners, where its box keeps them (a face not capped keeps the shape whole past it, as dcl does); light's bodies have none
+	// the corners marked – red, green, blue and white. An RGB space marks its OWN: each channel at its white's code, the
+	// others at black's (a log curve's black sits above code 0) – always, whatever volume is drawn: they are the space's,
+	// points of its own frame, and one standing clear of the body says the volume ends short of it (Log3G10's three, far
+	// past P3 – held to the volume, a camera gamut showed none under any Limit). Any other space marks the VOLUME's corners,
+	// and only where its box keeps them (a face not capped keeps the shape whole past it, as dcl does) – Display P3's,
+	// marked in sRGB, stood in the air past its cube; light's bodies have none
 	const ownC=!LIFT&&!!ownCorner(s,3)
-	const corner=(c,i)=>{ if(ownC){ const v=ownCorner(s,i); return v&&inGam(s,v,g3)?v:null }
+	const corner=(c,i)=>{ if(ownC) return ownCorner(s,i)
 		try{ const v=conv(c); return v.every(isFinite)&&(LIFT||inBox(v))?v:null }catch{ return null } }
-	pts3Prims=gH&&!ownC?null:[[255,0,0],[0,255,0],[0,0,255],[255,255,255]].map(corner)
+	pts3Prims=(gH||within3)&&!ownC?null:[[255,0,0],[0,255,0],[0,0,255],[255,255,255]].map(corner)   // a space inside the volume holds none of its corners
 	// …each a mark that tells where it lands: the corner's name, its coordinates here – the lifted plate's, its primaries and
 	// white, as the plate marks them
 	const o3=el.querySelector('.p3o'), gn=GAMLABEL[g3], nf=(c,x)=>+x.toFixed(clamp(3-Math.floor(Math.log10(Math.abs(c.max-c.min)||1)),0,4))
@@ -4534,7 +4601,7 @@ function gl3d(cv){ if(cv._gl3d!==undefined) return cv._gl3d
 	return cv._gl3d={ gl, pr, pos:gl.getAttribLocation(pr,'a_pos'), rgb:gl.getAttribLocation(pr,'a_rgb'),
 		rot:gl.getUniformLocation(pr,'u_rot'), scale:gl.getUniformLocation(pr,'u_scale'), ps:gl.getUniformLocation(pr,'u_ps'), zoff:gl.getUniformLocation(pr,'u_zoff'), dim:gl.getUniformLocation(pr,'u_dim'), alpha:gl.getUniformLocation(pr,'u_alpha'),
 		pb:gl.createBuffer(), cb:gl.createBuffer(), tb:gl.createBuffer(), tcb:gl.createBuffer(), sb:gl.createBuffer(), swb:gl.createBuffer(), sn:0, mesh:null, count:0, tcount:0 } }
-function drawPtsGL(cv,m,scale3,sheet,frame){ const st=gl3d(cv); if(!st||!m.tpos.length) return false
+function drawPtsGL(cv,m,scale3,sheet,frames){ const st=gl3d(cv); if(!st||!m.tpos.length) return false
 	const { gl, pr }=st
 	if(st.mesh!==m){ gl.bindBuffer(gl.ARRAY_BUFFER,st.pb); gl.bufferData(gl.ARRAY_BUFFER,m.pos,gl.STATIC_DRAW)
 		gl.bindBuffer(gl.ARRAY_BUFFER,st.cb); gl.bufferData(gl.ARRAY_BUFFER,m.col,gl.STATIC_DRAW)
@@ -4564,8 +4631,8 @@ function drawPtsGL(cv,m,scale3,sheet,frame){ const st=gl3d(cv); if(!st||!m.tpos.
 		gl.uniform1f(st.alpha,0.5); gl.depthMask(false)
 		draw(st.sb,st.swb,gl.TRIANGLES,sheet.length/3)
 		gl.depthMask(true); gl.disable(gl.BLEND); gl.uniform1f(st.alpha,1) }
-	// the pane's frame ribbons — clip-space geometry, exactly as drawMesh3GL draws them
-	if(frame){ if(st.fpr===undefined){ const mk=(t,src)=>{ const o=gl.createShader(t); gl.shaderSource(o,src); gl.compileShader(o)
+	// the frames' ribbons – a pane's, the solid's edges – clip-space geometry, exactly as drawMesh3GL draws them
+	for(const frame of frames||[]){ if(st.fpr===undefined){ const mk=(t,src)=>{ const o=gl.createShader(t); gl.shaderSource(o,src); gl.compileShader(o)
 			return gl.getShaderParameter(o,gl.COMPILE_STATUS)?o:null }
 		const vs=mk(gl.VERTEX_SHADER,'attribute vec3 aPos; void main(){ gl_Position=vec4(aPos,1.0); }')
 		const fs=mk(gl.FRAGMENT_SHADER,'precision mediump float; uniform vec4 uTint; void main(){ gl_FragColor=uTint; }')
@@ -4774,7 +4841,7 @@ function draw3d(){ if(!mesh3||!open()) return
 		if(!up) return }
 	// the hovered plane's sheet, built (and cached) BEFORE the mesh draw — it renders
 	// inside the GL scene, depth-tested against the body
-	let sheet3=null, frame3=null, cut3=null
+	let sheet3=null, frame3=null, cut3=null, edges3=null
 	// model points to clip space (null breaks a line), and a line as ribbons there – screen-true widths, the depth buffer's
 	const clip3=(ns,nz=0.0015)=>ns.map(n=>{ if(!n) return null; const r=rot(n); return [r.x*scale3, r.y*scale3, -0.7*r.z-nz] })   // z nudged viewer-ward: a line ON a face reads visible, never z-fights
 	const rib3=(C,off,hw,out=1)=>{ const V=[], px=2/S2
@@ -4816,10 +4883,15 @@ function draw3d(){ if(!mesh3||!open()) return
 			const out=ar>0?-1:1   // CCW loop keeps its interior on the LEFT of travel
 			ctr3.frK=fk; ctr3.frame={ fr:rib3(C,0.75*dp,0.75*dp,out), co:rib3(C,0,0.6*dp,out), tint:CUT3 } }
 		frame3=ctr3.per?ctr3.frame:null }
-	// the solid's edges – its volume's own (a cube's twelve, a box's) – always: a gray hair, the same
-	// scene geometry as a pane's frame, so the depth buffer tells what the body stands in front of – those faint, as a pane's
-	else if(mesh3.edges){ const C=clip3(mesh3.edges,0.012)   // an edge lies ON the body, which the GPU draws from its own conversion – a hair viewer-ward more, or it sank under the surface in stretches (HSL's top, REDLog's)
-		frame3={ fr:new Float32Array(0), co:rib3(C,0,0.5*dp), tint:CUT3, al:[0,0.5,0,0.15] } }   // in front at half, behind at 0.15 – a pane's frame's core goes 1 → 0.2
+	// the solid's edges – its volume's own (a cube's twelve, a box's) – always, a hovered plane's frame beside them: a gray
+	// hair, the same scene geometry as a pane's frame, so the depth buffer tells what the body stands in front of – those
+	// faint, as a pane's. Lines only where the body is drawn here or is a body of light: the GPU outlines a display volume
+	// on the body itself (mesh3.map.edge)
+	if(mesh3.edges){ const ek=`${rot3.a},${rot3.b}|${scale3}|${S2}`
+		if(mesh3.ek!==ek){ mesh3.ek=ek; const C=clip3(mesh3.edges,0.012)   // an edge lies ON the body – a hair viewer-ward more, or it sank under the surface in stretches (HSL's top)
+			mesh3.er={ fr:new Float32Array(0), co:rib3(C,0,0.5*dp), tint:CUT3, al:[0,0.5,0,0.15] } }   // in front at half, behind at 0.15 – a pane's frame's core goes 1 → 0.2
+		edges3=mesh3.er }
+	const frames3=[frame3,edges3].filter(Boolean)
 	// The body, image cloud and histogram-conditioned sheet are scene pixels, not picker
 	// pixels. While a slider/plane drag only moves the HUD marker, keep this canvas intact:
 	// a large image cloud must never be replayed merely to move one diamond.
@@ -4833,7 +4905,7 @@ function draw3d(){ if(!mesh3||!open()) return
 		// its cover kept as it drew (snapshot3dMask): a cached WebGL canvas may discard its buffer after compositing, and
 		// the white through-grid would vanish under a color moving alone
 		if(drewGL) bodyM=snapshot3dMask(meshCv,sceneKey)
-		if(drewGL&&(sheet3||frame3)) mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frame3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frame3)
+		if(drewGL&&(sheet3||frames3.length)) mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frames3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frames3)
 		if(drewGL) meshCv._sceneKey=sceneKey }
 	// the hud – the grid through the body, a hovered slider's line or plane's cut – is the scene's and the hover's, not the
 	// color's: a color moving alone (the orbit, a drag) leaves it as it stands, only the marker's overlay drawn again – the
@@ -5207,7 +5279,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 		const xys=[['R',G.primaries.r],['G',G.primaries.g],['B',G.primaries.b],['W',G.wxy,G.white]], d=Math.max(...xys.flatMap(([,xy])=>xy.map(dec))), wk=G.white==='ACES'?'D60':G.white
 		const xy=v=>p(v)+(Number.isInteger(+p(v))?' ':'')+' '.repeat(d-dec(v))
 		return { prim:`<div data-k="primaries">${lab(t('ui.dossier.primaries','primaries'),t('ui.dossier.prim-tip','where its red, green, blue and white sit on the CIE xy chart, as the defining document gives them'))}<div class="xylist tnum">${xys.map(([k,v,n])=>`${n&&WHITE_XY[wk]?`<span class="wk" title="${qesc(t('ui.dossier.white','white point'))}"><i class="wdot" style="--w:${whiteHex(wk)}"></i></span>`:`<i class="csym">${k}</i>`}<span><i class="csym xk">x</i>${xy(v[0])}</span><span><i class="csym xk">y</i>${xy(v[1])}</span><span>${n||''}</span>`).join('')}</div></div>`, mtx:`<div data-k="matrix"><span class="dlab">${lab(t('ui.dossier.matrix','matrix'),t('ui.dossier.matrix-tip','the matrix that turns linear RGB into CIE XYZ: decode the curve, then XYZ = M × RGB, white Y = 1'))}<button class="cpyi" type="button" data-copy="mtxc" title="${qesc(t('ui.dossier.matrix-copy','copy the matrix, ten decimals'))}" aria-label="${qesc(t('ui.dossier.matrix-copy','copy the matrix, ten decimals'))}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="1.5"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></span><div class="mtx tnum">${G.matrix.map(v=>`<span>${(Math.abs(v)<5e-5?0:v).toFixed(4)}</span>`).join('')}</div><pre id="mtxc" hidden>${[0,3,6].map(r=>G.matrix.slice(r,r+3).map(v=>+v.toFixed(10)).join('\t')).join('\n')}</pre></div>` } })():{ prim:'', mtx:'' }
-	const tcHTML=tcurve?`<div class="vgrp" data-f="tc"><div class="tcvw"><canvas class="tcv" id="tcv" width="320" height="176"></canvas></div><span class="grch tnum" id="tcap" title="${t('ui.dossier.tcap','the current color sits on the curve at its linear luminance; the small hollow circle is 18% gray (middle gray), a fixed landmark')}"></span>${tformHTML}</div>`:''
+	const tcHTML=tcurve?`<div class="vgrp" data-f="tc"><div class="tcvw"><canvas class="tcv" id="tcv" width="320" height="176"></canvas><i class="sto prm" style="--w:${hex(space.lrgb.rgb(0.18,0.18,0.18))}" hidden></i></div><span class="grch tnum" id="tcap" title="${t('ui.dossier.tcap','the current color sits on the curve at its linear luminance')}"></span>${tformHTML}</div>`:''
 	// one figure at a time by the sliders – the switch only where there is a choice; the last one chosen leads
 	const FIGS=[['3d',solidHTML,OI.component,t('ui.dossier.fig-3d','solid')],['xy',xyHTML,OI.chromaticity,t('ui.dossier.fig-xy','chromaticity')],['tc',tcHTML,OI.gamma,t('ui.dossier.fig-tc','transfer')]].filter(f=>f[1]), fig=FIGS.find(f=>f[0]===FIG)?.[0]||FIGS[0]?.[0]
 	const figHTML=FIGS.length?`<div class="dfig" id="dfig" data-v="${fig}">${FIGS.map(f=>f[1]).join('')}</div>`:''
@@ -5719,9 +5791,10 @@ function beyondVisible(xyz){
 		const qx=gx+dx, qy=gy+dy
 		if(qx>=0&&qx<32&&qy>=0&&qy<32) m=Math.max(m,YMAXB[qy*32+qx]) }
 	return m<=0||xyz[1]>m*1.03+0.5 }
-// the transfer curve, live: the diamond is the CURRENT color's linear luminance through
-// this space's curve (the same marker every plot carries); the hollow notch is 18% gray —
-// the exposure anchor camera datasheets publish (S-Log3 → 0.411), there to verify against
+// the transfer curve, live: the picker is the CURRENT color's linear luminance through
+// this space's curve (the same marker every plot carries); the white dot is 18% gray –
+// the exposure anchor camera datasheets publish (S-Log3 → 0.411), there to verify against:
+// a mark as a plate's primary is, over the line, telling its code when pointed at
 function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC||!seen(tcv,paintTC)) return
 	// plot geometry shared with the CIE plate: 320 logical units, 40-unit left strip for
 	// the y labels, frame flush to the right edge – the two grids sit pixel-aligned.
@@ -5760,8 +5833,10 @@ function paintTC(){ const tcv=detail.querySelector('#tcv'); if(!tcv||!TC||!seen(
 	// the curve: a plain ink line – an outline is the mark of what the hand takes, and the curve is read, not taken
 	c2.beginPath(); TC.pts.forEach((v,i)=>{ const x=X(i/tn), y=Y(v); i?c2.lineTo(x,y):c2.moveTo(x,y) })
 	c2.strokeStyle=ink2; c2.lineWidth=2; c2.stroke()
-	// 18% gray – the spec anchor, a quiet hollow notch
-	c2.beginPath(); c2.arc(X(0.18),Y(at(0.18)),2.6,0,7); c2.strokeStyle=ink2; c2.lineWidth=1.1; c2.stroke()
+	// 18% gray – the spec anchor: its mark placed once a curve (the line ran through a hollow notch drawn here, crossing it out)
+	if(TC.g18==null){ const g=tcv.parentElement.querySelector('.sto'), c=TC.g18=at(0.18)
+		if(g){ g.hidden=false; g.style.left=X(0.18)/W*100+'%'; g.style.top=Y(c)/H*100+'%'
+			g.dataset.tipHead=t('ui.dossier.gray18','18% gray (middle gray)'); g.dataset.tip=t('ui.dossier.tcap-val','linear {l}% → encoded {c}',{l:18,c:+c.toPrecision(3)}) } }
 	// endpoint code values – snap float dust (cmyk's K lo = 1e-14) to a clean zero
 	const lbl=v=>String(Math.abs(v)<(TC.hi-TC.lo)*1e-6?0:+v.toPrecision(3))
 	// the y axis in its strip, left of the frame, as the xy plate's – its ends by the frame's top and foot (inside, the bars
@@ -6622,7 +6697,7 @@ function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=
 	const snip=detail.querySelector('#snip')
 	if(snip&&!PDOWN&&!light){ if(codeTab!=='gl') snip._gk=''   // any other tab rewrites the plate – the GL text must paint again on return
 		if(codeTab==='ocio'){ const cs=ocioSpace(s)   // the whole colorspace where OCIO's native transforms carry it exactly, else the matrix alone
-			plate(snip,cs?`# ${disp(s)} as an OpenColorIO 2 colorspace, scene reference ACES2065-1: paste it under colorspaces:\n# in your config. Built from OCIO's native transforms only; checked against color-space to 1e-6.\n${cs}`:ocioMatrix(s,definitionOf(s)),'py') }
+			plate(snip,cs?`# ${disp(s)} as an OpenColorIO 2 colorspace, scene reference ACES2065-1: paste it under colorspaces:\n# in your config. Built from OCIO's native transforms only; checked against color-space to 1e-6.\n# Every such space as one config, to point $OCIO at: https://color-space.io/color-space.ocio\n${cs}`:ocioMatrix(s,definitionOf(s)),'py') }
 		else if(codeTab==='embed') plate(snip,embedCode(s),'html')   // the copy icon copies it (counted as embed-copy)
 		else if(codeTab==='meta'){
 			// the space's own data.json entry – provenance, ranges, refs. COMPACT: leaf
@@ -6693,10 +6768,13 @@ const scheduleFast=(ambient=false,light=false,bars=!light)=>{ if(!ambient){ auto
 		// the planes at most every planeNext (a CPU paint's own cost), and always the last color: a change inside the wait
 		// is painted when it ends, not left on the one before
 		clearTimeout(planeTrailT); planeTrailT=0
-		if(PDOWN){ if(open()) owe(2) }
+		// a press that holds a color owns the frames, and the planes wait its release out. A hand turning the solid holds
+		// none: the orbit goes on under it, and the planes with it (they stood still for the turn's length)
+		const held=()=>PDOWN&&!drag3
+		if(held()){ if(open()) owe(2) }
 		else{ const wait=planeNext-performance.now()
 			if(wait<0) paintPlanes(true)
-			else if(wait<Infinity) planeTrailT=setTimeout(()=>{ planeTrailT=0; if(!PDOWN&&performance.now()>=planeNext) paintPlanes(true) },wait+1) } }) }
+			else if(wait<Infinity) planeTrailT=setTimeout(()=>{ planeTrailT=0; if(!held()&&performance.now()>=planeNext) paintPlanes(true) },wait+1) } }) }
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
