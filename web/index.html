@@ -1155,8 +1155,9 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .pl3d .grid3{ z-index:0 }
 .pl3d .mesh3{ z-index:1 }
 .pl3d .hud3{ z-index:2 }
-.pl3d .marker3{ z-index:3 } .pl3d .p3o{ z-index:4 } .pl3d.busy :is(canvas,.p3o){ visibility:hidden }   /* a solid not yet drawn shows nothing – never the last one's */
-.pl3d.busy::after{ content:''; position:absolute; inset:22% 18%; border-radius:50%; background:var(--hair) }   /* …but where it will stand, a soft disc, the sheen crossing it (busy) */
+.pl3d .marker3{ z-index:3 } .pl3d .p3o{ z-index:4 } .pl3d.busy :is(.mesh3,.hud3,.marker3,.p3o){ visibility:hidden }   /* a solid not yet drawn shows its grid alone – never the last one's body, nor marks on none */
+.pl3d .p3w{ display:none; position:absolute; inset:22% 18%; z-index:1; border-radius:50%; background:var(--hair) }   /* …and inside the grid, where it will stand, a soft disc, the sheen crossing it (busy) */
+.pl3d.busy .p3w{ display:block }
 /* full channel names, set along the direction of increase: x rightward, y upward */
 .pl .laby{ position:absolute; top:.175rem; left:.225rem; font-size:var(--t0); font-weight:700; pointer-events:none }
 .pl button:is(.laby,.labx){ z-index:2; padding:0; font-family:inherit; line-height:inherit; color:inherit; background:none; border:0; cursor:pointer; pointer-events:auto; text-underline-offset:var(--ulo) } .pl button:is(.laby,.labx):hover{ text-decoration:underline }   /* the dossier's: an axis's name turns it (buildDetail) – a link's underline says so */
@@ -1264,7 +1265,7 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .gam2d:has(.pl3d){ cursor:grab; touch-action:none } .gam2d:has(.pl3d):active{ cursor:grabbing }
 .dfig .gam2d .pl3d{ position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto; overflow:visible; pointer-events:none; cursor:inherit }
 .dfig .gam2d .pl3d :is(canvas,.p3o){ left:-18%; top:50%; translate:0 -50% }
-.gam2d .pl3d.busy::before,.gam2d .pl3d.busy::after{ content:none }
+.gam2d .pl3d .p3w{ display:none }   /* the plate is the figure there: no disc over it */
 .gam2d:not(.lift) .pl3d>*,.gam2d.lift .flr :is(.prm,.cx,.stov),.gam2d.lift~.grch{ visibility:hidden }   /* lifted, the reach's caption makes room for the floor */
 .gam2d .cx.ghost{ background:transparent; border-style:dashed; pointer-events:auto }   /* an impossible colour (beyond MacAdam, or decoding outside sRGB): the hollow transparent fill carries that — the border stays solid, like every other picker */
 .dfig .grch{ position:relative; left:6.25%; font-size:var(--t1); color:var(--soft); cursor:help; text-align:center }   /* plot explainers — centred under the PLOT (the plates keep a 12.5% label strip left of the frame) */
@@ -1284,12 +1285,13 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .term{ cursor:help }   /* a defined term — the help cursor is the only cue; no glyph */
 .imgrow{ display:flex; gap:var(--s2) }   /* one row, always — source + channel panels share it, shrinking together (same rule as .planes) */
 /* still landing – the plates' program linking (paintPlanes), the row reading its image (panels land one per frame), the
-   solid's lattice (wire3d): a light crosses it again and again, a transform – the compositor's to run while the page works.
+   solid's lattice and its programs (wire3d, draw3d: the disc inside its grid): a light crosses it again and again, a
+   transform – the compositor's to run while the page works.
    The opacity pulse it replaces, a blank checker dimming a little, read as a picture stuck */
-:is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy){ overflow:hidden }
-:is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy)::before{ content:''; position:absolute; inset:0; z-index:6; pointer-events:none; background:linear-gradient(100deg,transparent 25%,var(--hair) 50%,transparent 75%); animation:sheen 1.2s var(--ease-in-out) infinite }
+:is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy .p3w){ overflow:hidden }
+:is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy .p3w)::before{ content:''; position:absolute; inset:0; z-index:6; pointer-events:none; background:linear-gradient(100deg,transparent 25%,var(--hair) 50%,transparent 75%); animation:sheen 1.2s var(--ease-in-out) infinite }
 @keyframes sheen{ from{ transform:translateX(-100%) } to{ transform:translateX(100%) } }
-@media(prefers-reduced-motion:reduce){ :is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy)::before{ background:var(--hair); animation:busy 1.1s var(--ease-out) infinite alternate } }   /* still: a veil breathing in place */
+@media(prefers-reduced-motion:reduce){ :is(.planes.busy .pl,.imgrow.busy .imgp,.pl3d.busy .p3w)::before{ background:var(--hair); animation:busy 1.1s var(--ease-out) infinite alternate } }   /* still: a veil breathing in place */
 @keyframes busy{ from{ opacity:.3 } to{ opacity:.9 } }
 .imgp{ position:relative; flex:1 1 0; min-width:0 }
 @media(max-width:640px){ .imgrow{ flex-wrap:wrap } .imgrow .imgp{ flex:1 1 calc(50% - var(--s2)) } }   /* phones: two per row */
@@ -1736,7 +1738,7 @@ import { footroom } from './js/footroom.js'
 import { locusMarks, locusNames, locusFill, locusPath, gamutPath, surfacePath, GXY, unGXY, limPath, heroLocus, heroNames, heroAt, HERO_LIMS } from './js/locus.js'
 import GROUPS, { BOOKMARKS, STARTER } from './js/groups.js'
 import REACH from './js/reach.js'
-import { plateBase, softGL, warmKernels, glLinking, glSerial, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
+import { plateBase, softGL, warmKernels, glLinking, glSerial, paintPlaneGL, paintBarGL, setMeshCloud, planeGLStatus, hasPlaneGL, hasGamutGL, drawMesh3GL, mesh3Linking, has3dGL, mesh3Canvas, setGLReady, warmGL, warmMesh3, visSurf, lightSurf, paintGamutGL, paintHeroGL, gamutPos, gamutStatus, paintImageChanGL, imageChanStatus, METRICS, siteDist, rtFaithful, addPalette } from './js/gl.js'
 import { spaces as wasmSpaces } from '../wasm.js'
 import { cube as lutCube, channelwise as lutChannelwise } from '../lut.js'
 import { profile as iccProfile, kind as iccKind } from '../icc.js'
@@ -4054,10 +4056,31 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// tone/hue/radius axes — the SAME assignment the 2D planes use (axes3), so the
 	// solid and its plane slices always agree. Renamed wheels count as the hue angle.
 	const {ai:aiX,ti,mi}=axes3(cls), ai=aiX<0?null:aiX
+	// a channel with a void in its range – a band of values that name no color (DSH's dominant wavelength, from its purples'
+	// −493 to the spectrum's 360): the body is in parts, one to a band of values that do. Read off the space itself: its
+	// mid-range color along each channel, where it decodes and where not, each band's ends found to a millionth of the range.
+	// A part has faces of its own – its box's (gl.js map.parts) – and its ends meet the next part's by color, not by number:
+	// the spectrum's red end, 700, joins the purples at −493, its violet 360 at −566 – so a cell of the surface astride the
+	// void is drawn in each part up to that part's own end (gl.js uPart). Each part: its two ends, then the ends they meet
+	const split3=(()=>{ for(let k=0;k<cls.ch.length;k++){ if(k===ai) continue
+			const c=cls.ch[k], N=56, col=x=>{ const v=cls.ch.map(c2=>(c2.min+c2.max)/2); v[k]=x; return s==='rgb'?v:space[s].rgb(...v) }
+			const at=x=>{ try{ return col(x).every(isFinite) }catch{ return false } }
+			const xs=Array.from({length:N+1},(_,i)=>c.min+(c.max-c.min)*i/N), ok=xs.map(at), runs=[]
+			for(let i=0;i<=N;i++) if(ok[i]){ let j2=i; while(j2<N&&ok[j2+1]) j2++; runs.push([i,j2]); i=j2 }
+			if(runs.length<2) continue
+			const edge=(a,b)=>{ for(let n=0;n<20;n++){ const m=(a+b)/2; if(at(m)) a=m; else b=m } return a }   // a decodes, b does not
+			const parts=runs.map(([i,j2])=>[i>0?edge(xs[i],xs[i-1]):xs[i], j2<N?edge(xs[j2],xs[j2+1]):xs[j2]]).filter(p=>p[1]-p[0]>(c.max-c.min)*1e-3)   // a lone value that decodes (DSH's 0: no wavelength, a gray) is no band
+			if(parts.length<2) continue
+			const ends=parts.flatMap((p,i)=>p.map(x=>({ x, i, c:col(x) }))), far=(a,b)=>Math.hypot(...a.c.map((x,q)=>x-b.c[q]))
+			const mate=e=>ends.filter(o=>o.i!==e.i).reduce((b,o)=>far(o,e)<far(b,e)?o:b).x
+			return { k, parts:parts.map((p,i)=>[...p,mate(ends[2*i]),mate(ends[2*i+1])]) } }
+		return null })()
+	// …and that channel is no opponent one, whatever its range reads (−700…700): gray has no place on it to taper toward
+	const bips=split3?cls.bips.filter(b2=>b2.i!==split3.k):cls.bips
 	// a point the DARK taper moves toward gray (evalV, near black): its chroma collapsed, the body a needle of no width – a line
 	// ends before it. Near white or gray the taper only lands the corner ON the axis, where it is: lines run to it, corners
 	// join. An RGB's coordinates it never touches
-	const tapering=ai!=null&&mi!=null||cls.bips.length>0, tapers=src=>tapering&&(g3==='locus'?1:gH?gfVis(src):clamp((Math.max(...src)-2)/6,0,1))<1
+	const tapering=ai!=null&&mi!=null||bips.length>0, tapers=src=>tapering&&(g3==='locus'?1:gH?gfVis(src):clamp((Math.max(...src)-2)/6,0,1))<1
 	// ── two extents, one law: the FRAME is a stable reference box per space —
 	// identical across the gamut switch (grid planes, axes and scale never move) —
 	// while the SOLID is the full, never-cropped shape of the selected volume ──
@@ -4082,7 +4105,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// Poirson–Wandell's white sits at O2 −5.3, O3 3.7, and YyCxCz's lightness, −16…100, reads as an opponent channel
 	const neut=[[0,0,0],gH?null:[255,255,255]].map(c=>{ let v=null; try{ v=c&&conv(c) }catch{} return cls.ch.map((_,k)=>isFinite(v?.[k])?v[k]:0) })
 	const taper=(v,gf,src)=>{ if(ai!=null&&!wb&&mi!=null){ v[mi]=gf>0?v[mi]*gf:0; if(gf<=0&&!isFinite(v[ai])) v[ai]=0 }   // all of it gone, the radius is none whatever the formula read (not a number, at Cubehelix's white)
-		const nt=neut[!gH&&Math.max(...src)>127.5?1:0]; for(const b2 of cls.bips) v[b2.i]=nt[b2.i]+(v[b2.i]-nt[b2.i])*gf }
+		const nt=neut[!gH&&Math.max(...src)>127.5?1:0]; for(const b2 of bips) v[b2.i]=nt[b2.i]+(v[b2.i]-nt[b2.i])*gf }
 	// …and a human volume's color that is no different from gray – its white pole, its black – has no chroma to place: a
 	// formula that divides by what is left of the lightness (Cubehelix's s, by l(1 − l)) reads noise there, −4.9 at white,
 	// and the solid's top fanned out to it. A radius alone: an opponent space has its white where it is (mirrors gl.js)
@@ -4170,9 +4193,9 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// lαβ's far log floor – is cut and not capped: its cap's every point is valid, so painted, a wide black disc under the
 	// solid. A floor that holds colors (OSA-UCS's L = −10: its black lies at −13.5, the near-blacks under the floor a fan
 	// as wide as the box) is cut and sealed like any face
-	const pole=ti!=null&&!wb&&(ai!=null||cls.bips.length>0)&&(()=>{ try{ const at=(f,q)=>{ const v=cls.ch.map(c=>c.min)
+	const pole=ti!=null&&!wb&&(ai!=null||bips.length>0)&&(()=>{ try{ const at=(f,q)=>{ const v=cls.ch.map(c=>c.min)
 				if(ai!=null){ v[ai]=fmin[ai]+(fmax[ai]-fmin[ai])*q/4; if(mi!=null) v[mi]=fmin[mi]+(fmax[mi]-fmin[mi])*f }
-				else cls.bips.slice(0,2).forEach((b2,j)=>{ v[b2.i]=f*[[b2.max,0],[0,b2.max],[b2.min,0],[0,b2.min]][q][j] })
+				else bips.slice(0,2).forEach((b2,j)=>{ v[b2.i]=f*[[b2.max,0],[0,b2.max],[b2.min,0],[0,b2.min]][q][j] })
 				return space[s].rgb(...v) }
 			const o=at(0,0); return [0,1,2,3].every(q=>{ const r=at(0.3,q); return !r.every(isFinite)||r.every((x2,k)=>Math.abs(x2-o[k])<3) }) }catch{ return true } })()
 	let floor3=false   // …the pole's floor, where the body goes under it: cut, no cap
@@ -4373,16 +4396,6 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 	// box — a black spike into space. dmin/dmax are the gamut the JS scan actually reached
 	// (cam16 M≈100 at the box; ral-design chroma≈205 genuinely past it), so junk clamps to the
 	// real boundary while real overflow still shows. Hue keeps the wide window (it wraps).
-	// a channel with a void in its range – a band of values that name no color (DSH's dominant wavelength, from its purples'
-	// −493 to the spectrum's 380): the body lies on both sides of it, and no cell of it across (gl.js uSplit). Read off the
-	// space itself: its mid-range color along each channel, the widest band of it that decodes to none
-	const split3=(()=>{ for(let k=0;k<cls.ch.length;k++){ if(k===ai) continue
-			const c=cls.ch[k], N=56; let best=[0,0], a=-1
-			for(let i=1;i<=N;i++){ let ok=false
-				if(i<N){ const v=cls.ch.map(c2=>(c2.min+c2.max)/2); v[k]=c.min+(c.max-c.min)*i/N; try{ ok=(s==='rgb'?v:space[s].rgb(...v)).every(isFinite) }catch{} }
-				if(!ok&&i<N){ if(a<0) a=i } else if(a>=0){ if(i-a>best[1]-best[0]&&a>1&&i<N) best=[a,i]; a=-1 } }
-			if(best[1]-best[0]>=N*0.1) return [k,c.min+(c.max-c.min)*(best[0]+best[1]-1)/2/N] }
-		return null })()
 	const winV = g3==='locus' ? win   // the light cone's measured extent is ENORMOUS (a/b in the hundreds) – the standard box±span halo keeps the overflow a readable fringe, the box caps seal the cuts
 		: gH
 		? [cls.ch.map((c,k)=> k===ai ? win[0][k] : Math.max(dmin[k]-(c.max-c.min)*0.08,win[0][k])),   // …never under the window itself (a radius's stops at zero)
@@ -4390,14 +4403,14 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 		: win
 	mesh3={ rev:++mesh3Rev, lift:LIFT, L3, verts:P, tris:T, ev:evalV, pos:new Float32Array(ppos), col:new Float32Array(pcol),
 		tpos:new Float32Array(tpos), tcol:new Float32Array(tcol), r:0.001, f0:0.5,
-		gpu:gpu3, g3, map:gpu3?{ gam:g3, win:winV, min:fmin, max:fmax, caps:capMask,
+		gpu:gpu3, g3, map:gpu3?{ gam:g3, win:winV, min:fmin, max:fmax, caps:split3?63:capMask,   // a body in parts: every face of each part's box, where a color stands on it
 			// cap planes sit at the solid's own extent — except the human view, whose
 			// cut walls are the declared box faces
 			cmin:dmin.map((x2,k)=>Math.max(x2,cls.ch[k].min)),   // cap wall clamped to the range face
 			cmax:dmax.map((x2,k)=>Math.min(x2,cls.ch[k].max)),
 			// the declared box the overflow fades past – but a face not capped is no cut: a solid a hair past it (Display P3's
 			// blue face 0.07% over DCI-P3's) stays whole there, or that face drew as overflow, see-through
-			dcl:[bLo,bHi], out:out3, clip:inBase, trim:trim3, split:split3,
+			dcl:[bLo,bHi], out:out3, clip:inBase, trim:split3?0:trim3, split:split3?.k, parts:split3?.parts,
 			// its outline, drawn per pixel on the body (gl.js EDGE_GLSL): a display cube's twelve edges – none down the needle
 			// its dark taper leaves –, and the box's faces that meet in an edge of the shape: a cylinder's floor, lid and wall
 			// (its axis is no face), the HWB family's cone and lid (W = 0, B = 0), a box's six. A space whose box IS its body (hug3:
@@ -4405,7 +4418,7 @@ function wire3d(){ const el=detail.querySelector('#pl3d'); if(!el){ mesh3=pts3=t
 			// as spokes and zigzags, features of no cylinder. A body of light (gH) has no edges of its own: its cuts and the box's alone
 			edge:4|(gH||inBase&&hug3?0:1)|(tapering?2:0), ink:CUT3, neut, flat:within3?0:flat3, hollow:within3, rt:within3?9:clamp(3*rt3,0.03,0.12),   // a space inside the volume has no body to hold its caps to   // edge: 1 the volume's own edges, 2 none down its dark needle, 4 the box's; flat: the faces the body itself lies along – no cut runs on one, no cap is drawn under one (a space inside the volume has caps alone: none of its faces is the volume's)
 			walls:cls.ch.reduce((m,c,k)=>k===ai?m:m|(wb?(k===wI||k===bI?1:0):ai!=null&&k===mi?2:3)<<(k*2),0),
-			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1, bip:cls.bips.slice(0,2).map(b2=>b2.i) }:null }
+			ti, ai:ai??-1, mi:mi??0, wI:wb?wI:-1, bI:wb?bI:-1, bip:bips.slice(0,2).map(b2=>b2.i) }:null }
 	pts3=P; tris3=T; pts3S=s
 	// The outline. The GPU draws a display volume's per pixel, on the body itself (gl.js EDGE_GLSL: mesh3.map.edge, walls) –
 	// lines built here chorded its curves, stopped a sample short of every corner and wall, and broke where a clamped sheet
@@ -4813,7 +4826,6 @@ const boxRO=new ResizeObserver(es=>{ for(const e of es) e.target._cw=Math.round(
 const widthOf=el=>{ if(el._cw==null){ boxRO.observe(el); el._cw=el.clientWidth } return el._cw }
 function draw3d(){ if(!mesh3||!open()) return
 	const el=detail.querySelector('#pl3d'); if(!el||!seen(el,show3d)) return
-	el.classList.remove('busy')
 	const meshCv=el.querySelector('.mesh3'), cv=el.querySelector('.hud3'), gcv=el.querySelector('.grid3')
 	const cw=(widthOf(el)||352)*1.36
 	const bs=Math.min(Math.round(cw*(devicePixelRatio||1)),1200)
@@ -4838,7 +4850,7 @@ function draw3d(){ if(!mesh3||!open()) return
 	if(mesh3.lift){ const gm=el.parentElement, flr=gm.querySelector('.flr'), up=Math.abs(rot3.b-Math.PI/2)>1e-3||Math.abs(Math.sin(rot3.a))>1e-3||Math.cos(rot3.a)<0
 		gm.classList.toggle('lift',up)
 		if(flr) flr.style.transform=up?`matrix(${ca},${-sa*sb},${sa},${ca*sb},0,${LIFT_H/2*cb*widthOf(el)*352/320})`:''
-		if(!up) return }
+		if(!up){ el.classList.remove('busy'); return } }   // …and nothing of the solid's is awaited: its pulse ended here (it hung, the plate of a space with no solid – CMYK – never past this line)
 	// the hovered plane's sheet, built (and cached) BEFORE the mesh draw — it renders
 	// inside the GL scene, depth-tested against the body
 	let sheet3=null, frame3=null, cut3=null, edges3=null
@@ -4907,6 +4919,10 @@ function draw3d(){ if(!mesh3||!open()) return
 		if(drewGL) bodyM=snapshot3dMask(meshCv,sceneKey)
 		if(drewGL&&(sheet3||frames3.length)) mesh3.gpu?drawMesh3GL(meshCv,pts3S,mesh3.map,rot3,scale3,sheet3,frames3,cut3,Q,QM):drawPtsGL(meshCv,mesh3,scale3,sheet3,frames3)
 		if(drewGL) meshCv._sceneKey=sceneKey }
+	// the figure waits (.busy) till the solid itself is drawn: its lattice built here is half the wait, its programs' link
+	// on the GPU the other – and through that one the frame stood empty, as if nothing were coming. Its grid is drawn below
+	// all the same, and shows at once: the solid lands inside it, a soft disc pulsing where it will stand (.p3w)
+	el.classList.toggle('busy',!drewGL&&!!mesh3.gpu&&mesh3Linking(meshCv))
 	// the hud – the grid through the body, a hovered slider's line or plane's cut – is the scene's and the hover's, not the
 	// color's: a color moving alone (the orbit, a drag) leaves it as it stands, only the marker's overlay drawn again – the
 	// two 1000-px canvases a frame re-sent to the GPU were most of the solid's cost under the orbit
@@ -5260,7 +5276,7 @@ function buildDetail(){ const s=selected, cls=classify(s), m=meta[s]; detail._s=
 	// which ICC flavour this space gets (probe-cheap) — gates the ICC export row
 	const iccK=(()=>{ try{ return iccKind(space[s],{xyz:space.xyz}) }catch{ return null } })()
 	// one solid, two places (placePl3d): the solid figure's own, or under the xy plate – lifted off it into xyY by a drag
-	const pl3dHTML=`<div class="pl3d" id="pl3d"><canvas class="grid3" width="320" height="320"></canvas><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas><div class="p3o"></div></div>`
+	const pl3dHTML=`<div class="pl3d" id="pl3d"><canvas class="grid3" width="320" height="320"></canvas><div class="p3w"></div><canvas class="mesh3" width="320" height="320"></canvas><canvas class="hud3" width="320" height="320"></canvas><canvas class="marker3" width="320" height="320"></canvas><div class="p3o"></div></div>`
 	const solidHTML=has3d?`<div class="vgrp" data-f="3d">${pl3dHTML}</div>`:''
 	const LOCUS1=s==='wavelength'   // one-way, forward-only: its reach IS the spectral locus — drawn in JS, no inverse needed
 	const FWD1=!!space[s]?.xyz     // no GL inverse ≠ no plate: a forward map is enough to SAMPLE the reach

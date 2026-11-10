@@ -107,7 +107,9 @@ export const hasPlaneGL = s => !!G && (s === 'rgb' || !!graph[s]) && dimOf(s) >=
 // declares `uniform sampler2D <name>tex` — upload the chunk-declared data once per
 // context (RGBA32F, NEAREST — texelFetch is exact) and rebind at draw ──
 const lutTex = new WeakMap()   // gl context → { lut name: WebGLTexture }
-const lutNames = (src) => Object.keys(luts).filter(n => src.includes(n + 'tex'))
+const VR = 512, VRX = 0.75, VRY = 0.85   // the surface solid's reach by chromaticity (visReach): its texels, and the x and y they span
+const LUTS = { ...luts, visreach: { w: VR, h: VR, data: () => visReach() } }   // the library's, and the page's own
+const lutNames = (src) => Object.keys(LUTS).filter(n => src.includes(n + 'tex'))
 const LUT0 = 8   // first texture unit for LUTs — clear of the image unit
 function bindLuts(gl, st) {
 	if (!st.lutN || !st.lutN.length) return
@@ -116,7 +118,7 @@ function bindLuts(gl, st) {
 	for (let k = 0; k < st.lutN.length; k++) { const n = st.lutN[k]
 		gl.activeTexture(gl.TEXTURE0 + LUT0 + k)
 		if (cache[n]) gl.bindTexture(gl.TEXTURE_2D, cache[n])
-		else { const t = cache[n] = gl.createTexture(), l = luts[n]
+		else { const t = cache[n] = gl.createTexture(), l = LUTS[n]
 			gl.bindTexture(gl.TEXTURE_2D, t)
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, l.w, l.h, 0, gl.RGBA, gl.FLOAT, l.data())
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
@@ -788,15 +790,15 @@ function geometry() {
 			tidx.push(k, k + GRID + 1, k + 1, k + GRID + 1, k + GRID + 2, k + 1)
 		}
 	}
-	// range-box cap faces as fractional coords (inset on the fixed axis)
-	const CAP = 56, eps = 0.012
+	// range-box cap faces as fractional coords (the fixed axis on its face: vsCap's uStep says how far inside it is read)
+	const CAP = 56
 	const cpos = [], cidx = []
 	for (let fi = 0; fi < 3; fi++) for (let side = 0; side < 2; side++) {
 		const [ua, ub] = [0, 1, 2].filter(k => k !== fi)
 		const base = cpos.length / 3
 		for (let i = 0; i <= CAP; i++) for (let j = 0; j <= CAP; j++) {
 			const fr = [0, 0, 0]
-			fr[fi] = side ? 1 - eps : eps; fr[ua] = i / CAP; fr[ub] = j / CAP
+			fr[fi] = side; fr[ua] = i / CAP; fr[ub] = j / CAP
 			cpos.push(...fr)
 		}
 		for (let i = 0; i < CAP; i++) for (let j = 0; j < CAP; j++) {
@@ -953,6 +955,65 @@ export function lightSurf(G = 96) {
 	return out
 }
 
+// ── the surface solid as a table: how far it reaches along each chromaticity – the X + Y + Z of the optimal color there.
+// The solid is convex and holds black, so a color lies in it while its own X + Y + Z is no more. Read off the lattice the
+// body itself is drawn from (visSurf: each cell's plane, cut by the ray through a texel's chromaticity), so a face tested
+// by it ends where the body does – the 512 supporting planes the pickers cut by (core.js visSolid) stand 0.35 off that
+// lattice on average and 2.7 at worst (Y of white 100). A texel past the lattice's edge repeats its neighbour: the locus
+// is the test's own (inside). For a body in parts alone (fsCapOpen) ──
+let VREACH = null
+function visReach() {
+	if (VREACH) return VREACH
+	const { pos, idx } = visSurf(256), t = new Float32Array(VR * VR)   // the lattice drawn (mesh3State)
+	for (let q = 0; q < idx.length; q += 3) {
+		const P = [0, 1, 2].map(k => pos.subarray(idx[q + k] * 3, idx[q + k] * 3 + 3)), S = P.map(v => v[0] + v[1] + v[2])
+		if (S.some(v => v < 1e-6)) continue   // a cell at the black pole: a line in chromaticity, no area
+		const c = P.map((v, k) => [v[0] / S[k] / VRX * VR - 0.5, v[1] / S[k] / VRY * VR - 0.5])   // in texels, their centres at whole numbers
+		const area = (c[1][0] - c[0][0]) * (c[2][1] - c[0][1]) - (c[2][0] - c[0][0]) * (c[1][1] - c[0][1])
+		if (Math.abs(area) < 1e-12) continue
+		const e = [1, 2].map(k => [P[k][0] - P[0][0], P[k][1] - P[0][1], P[k][2] - P[0][2]])
+		const n = [e[0][1] * e[1][2] - e[0][2] * e[1][1], e[0][2] * e[1][0] - e[0][0] * e[1][2], e[0][0] * e[1][1] - e[0][1] * e[1][0]], d = n[0] * P[0][0] + n[1] * P[0][1] + n[2] * P[0][2]
+		const lo = k => Math.max(0, Math.floor(Math.min(c[0][k], c[1][k], c[2][k]))), hi = k => Math.min(VR - 1, Math.ceil(Math.max(c[0][k], c[1][k], c[2][k])))
+		for (let y = lo(1); y <= hi(1); y++) for (let x = lo(0); x <= hi(0); x++) {
+			const w0 = ((c[1][0] - x) * (c[2][1] - y) - (c[2][0] - x) * (c[1][1] - y)) / area, w1 = ((c[2][0] - x) * (c[0][1] - y) - (c[0][0] - x) * (c[2][1] - y)) / area
+			if (w0 < -1e-6 || w1 < -1e-6 || 1 - w0 - w1 < -1e-6) continue
+			const cx = (x + 0.5) / VR * VRX, cy = (y + 0.5) / VR * VRY, r = d / (n[0] * cx + n[1] * cy + n[2] * (1 - cx - cy))
+			if (r > t[y * VR + x]) t[y * VR + x] = r   // (not a NaN, nor a negative)
+		}
+	}
+	const out = new Float32Array(VR * VR * 4)
+	for (let y = 0; y < VR; y++) for (let x = 0; x < VR; x++) { let v = t[y * VR + x]
+		if (!v) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < VR && Y < VR && t[Y * VR + X] > v) v = t[Y * VR + X] }
+		out[(y * VR + x) * 4] = v }
+	return VREACH = out
+}
+const VREACH_GLSL = `uniform sampler2D visreachtex;
+float visReach_(vec2 c) {   // by chromaticity, between its four texels
+	vec2 q = c * vec2(${(VR / VRX).toFixed(4)}, ${(VR / VRY).toFixed(4)}) - 0.5; ivec2 i = clamp(ivec2(floor(q)), ivec2(0), ivec2(${VR - 2})); vec2 f = clamp(q - vec2(i), 0.0, 1.0);
+	return mix(mix(texelFetch(visreachtex, i, 0).r, texelFetch(visreachtex, i + ivec2(1, 0), 0).r, f.x), mix(texelFetch(visreachtex, i + ivec2(0, 1), 0).r, texelFetch(visreachtex, i + ivec2(1, 1), 0).r, f.x), f.y);
+}`
+
+// ── a body in parts' own lattice: the volume's, with a point ON the void wherever a cell crossed it. A cell astride the
+// void – one point on the spectrum's far red, the next among the purples – is flat between them, while a wavelength runs
+// most of its way in a sliver of the cell: cut where the flat cell reaches the part's end, the surface met its wall up to
+// a cell off the face drawn there, a hair of the inside showing between. So along every edge that crosses, the crossing
+// is found (halved 24 times, by the space's own conversion) and the nearer of its two points moved there: a point of
+// both parts, at each one's end. pts: the lattice's points in the volume's coordinates; to: those into the space's;
+// k: the split channel; parts: each one's two ends ──
+export function seamLattice(pts, idx, to, k, parts) {
+	const n = pts.length / 3, out = new Float32Array(pts), P = new Int8Array(n), on = new Uint8Array(n)
+	const of = (x, y, z) => { let v; try { v = to(x, y, z)[k] } catch { return -1 } return parts.findIndex(p => v >= p[0] && v <= p[1]) }   // −1: of no part (a gray)
+	for (let i = 0; i < n; i++) P[i] = of(pts[3 * i], pts[3 * i + 1], pts[3 * i + 2])
+	for (let q = 0; q < idx.length; q += 3) for (let e = 0; e < 3; e++) { const a = idx[q + e], b = idx[q + (e + 1) % 3]
+		if (on[a] || on[b] || P[a] < 0 || P[b] < 0 || P[a] === P[b]) continue
+		const at = t => [0, 1, 2].map(c => pts[3 * a + c] + (pts[3 * b + c] - pts[3 * a + c]) * t)
+		let lo = 0, hi = 1
+		for (let i = 0; i < 24; i++) { const m = (lo + hi) / 2; if (of(...at(m)) === P[a]) lo = m; else hi = m }
+		const w = lo + hi < 1 ? a : b
+		out.set(at((lo + hi) / 2), 3 * w); on[w] = 1 }
+	return out
+}
+
 // ── the bake as a fragment pass: transform feedback's vertex variant was built at a space's first bake, on the thread that
 // composites the screen (Metal under ANGLE), twice the cost of the same conversion drawn plainly (CAM16 0.22 s, 0.09). Where
 // float targets render (EXT_color_buffer_float), a point is a texel: read from its source texture, written to two float
@@ -1036,7 +1097,7 @@ function mesh3State(cv) {
 		vb: buf(vsf.pos), vi: ibuf(vsf.idx), vn: vsf.idx.length, vvn: vsf.pos.length / 3,
 		lb: buf(lsf.pos), li: ibuf(lsf.idx), ln: lsf.idx.length, lvn: lsf.pos.length / 3,
 		cb: buf(geo.cpos), ci: ibuf(geo.cidx), cn: geo.cidx.length,
-		pts: { srgb: geo.tpos, vis: vsf.pos, locus: lsf.pos }, src: {}, out: {}, fsBake: !!gl.getExtension('EXT_color_buffer_float') }
+		pts: { srgb: geo.tpos, vis: vsf.pos, locus: lsf.pos }, idx: { srgb: geo.tidx, vis: vsf.idx, locus: lsf.idx }, src: {}, seams: {}, out: {}, fsBake: !!gl.getExtension('EXT_color_buffer_float') }
 	// the conversion BAKE lands in st.out (v, rgb, bad a vertex – bakeRun: two float targets read into vertex buffers, or
 	// without them a transform feedback buffer sized for the larger lattice); one slot – a space/gamut switch simply rebakes
 	if (!st.fsBake) { st.out.buf = gl.createBuffer()
@@ -1066,20 +1127,41 @@ out vec2 vHueV;
 out vec3 vF;
 out vec3 vS;
 out float vBad;
-out float vSide;      // which side of a channel's void the point lies on (uSplit)
-uniform vec2 uSplit;  // a channel with a void in its range – values that name no color – and the void's middle; x < 0: none
+// A body in parts: a channel with a void in its range – values that name no color: DSH's dominant wavelength has none from
+// its purples' −493 to the spectrum's 360 – splits it, a part to each band of values that do, and each is drawn in turn.
+// A cell of the surface astride the void joins colors that ARE neighbours, on two parts: drawn as it stands it ran across
+// the box (teeth along its edge), dropped it left each part a cell short of its end – a sawtooth gap before the wall there.
+// The lattice has a point ON the void wherever a cell crossed it (seamLattice) – a point of both parts, read a hair to
+// either side of the end. So each part is drawn in a chart of its own, the next part's values carried on past its end: as
+// far past it as they lie from the end of their own that meets it (the spectrum's red end, 700, meets the purples at −493
+// – by color, not by number: the page pairs them). A seam point then stands on the end whichever side it read, and a cell
+// the seam did not reach (a fan round the volume's black, joining all its hues) is cut at the end (surfFS), not run across
+// the box. A cell wholly of the next part is none of this one's (vOut: the chart folds the far half of the next part back
+// over it). A point of no part – a gray has no wavelength, DSH reads it 0 – is no point of the body: its cells go undrawn,
+// and the faces of each part's box close it there
+uniform int uSplit;   // that channel; −1: a body in one piece
+uniform vec4 uPart;   // the part drawn – its two ends – and the ends of the next that meet them
+out float vOut;       // 1: a point of the next part
 uniform int uPass;    // 2: a cap's count of the surface's sheets (drawMesh3GL)
 void main() {
 	vec3 v = aV;
+	bool none = aBad > 0.5;
+	vOut = 0.0;
+	if (uSplit >= 0) {
+		float x = v[uSplit], m = (uPart.y - uPart.x) * 1e-4, lo = min(uPart.z, uPart.w), hi = max(uPart.z, uPart.w);
+		if (x < uPart.x - m || x > uPart.y + m) {
+			if (x < lo - m || x > hi + m) none = true;
+			else { vOut = 1.0; v[uSplit] = abs(x - uPart.z) < abs(x - uPart.w) ? uPart.x - abs(x - uPart.z) : uPart.y + abs(x - uPart.w); }
+		}
+	}
 	vec3 n = map3_(v);
 	vF = v;
 	vS = aSrc;
-	vSide = uSplit.x >= 0.0 && v[int(uSplit.x)] < uSplit.y ? -1.0 : 1.0;
 	vRgb = aRgb;
 	vBad = aBad;
 	// vBad: 0 a point of the body · −1 one the space could not say, drawn where the bake sealed it · 1000 no point at all, thrown
 	// off screen – so much that it outweighs its neighbours' −1 and its cells stay undrawn but for a hair along their far edge
-	if (aBad > 0.5 || isnan(n.x) || isnan(n.y) || isnan(n.z)) { vBad = 1000.0; gl_Position = vec4(2e4, 2e4, 2e4, 1.0); vRgb = vec3(0.0); vN = vec3(0.0); vHueV = vec2(0.0); vF = vec3(0.0); vS = vec3(0.0); return; }
+	if (none || isnan(n.x) || isnan(n.y) || isnan(n.z)) { vBad = 1000.0; gl_Position = vec4(2e4, 2e4, 2e4, 1.0); vRgb = vec3(0.0); vN = vec3(0.0); vHueV = vec2(0.0); vF = vec3(0.0); vS = vec3(0.0); vOut = 0.0; return; }
 	float h = uMap.y >= 0 ? raw_(v, uMap.y) * 6.283185307179586 : 0.0;
 	vHueV = vec2(cos(h), sin(h));
 	vN = n;
@@ -1250,7 +1332,7 @@ precision highp int;
 ${sp.length ? glsl(sp) : ''}
 ${SOFT_DISP}
 ${cls === 1 ? quant3GLSL() : ''}
-in vec3 vRgb; in vec3 vN; in vec2 vHueV; in vec3 vF; in vec3 vS; in float vBad; in float vSide;
+in vec3 vRgb; in vec3 vN; in vec2 vHueV; in vec3 vF; in vec3 vS; in float vBad; in float vOut;
 uniform vec3 uMin, uMax;     // the space's declared range: the box's faces
 uniform vec3 uCMin, uCMax;
 uniform vec3 uDMin, uDMax;   // the DECLARED box – where the slice outline is drawn
@@ -1265,6 +1347,8 @@ uniform int uGrid;           // optional native-coordinate contours, independent
 uniform ivec2 uBip;   // bipolar (opponent) chroma channels, else (-1,-1) – marks a lightness-axis space
 uniform ivec2 uCut;   // the hovered plane's HELD axis (x, -1 = none) and whether it wraps (y)
 uniform vec2 uCutV;   // that axis's held value (x) and full span (y)
+uniform int uSplit;   // a body in parts: the channel it is split along, and the part drawn (DRAW_VS)
+uniform vec4 uPart;
 ${EDGE_GLSL}
 // the volume's own edges: a cube's face meets the next where a second coordinate of its source runs out
 float crease_() {
@@ -1277,10 +1361,15 @@ float crease_() {
 out vec4 O;
 void main() {
 	if (vBad > 0.001) discard;
-	// a cell astride a channel's void joins points that no color lies between – DSH's dominant wavelength has none from its
-	// purples' −493 to the spectrum's 380, and the cells from red's end to the purples ran across the whole box, teeth along
-	// its edge: no surface
-	if (abs(vSide) < 0.999) discard;
+	// a body in parts: the part drawn ends where its values do, the surface's cells carried on past it cut there (DRAW_VS).
+	// And its foot is the floor's, not the surface's – the last thousandth over the tone's floor, where the face is read
+	// (vsCap: its step): at black every address is one color, and the volume's cells round its black corner join hues the
+	// space sets a box apart – sheets of black across the floor, past the body's own walls
+	if (uSplit >= 0) {
+		float m = (uPart.y - uPart.x) * 1e-3;   // (a point on the seam reads a hair to either side of the end: a thousandth of the part past it is still its own)
+		if (vOut > 0.999 || vF[uSplit] < uPart.x - m || vF[uSplit] > uPart.y + m) discard;
+		if (uMap.x >= 0 && vF[uMap.x] < uCMin[uMap.x] + (uCMax[uMap.x] - uCMin[uMap.x]) * 1e-3) discard;
+	}
 	// the outline: the volume's own edges, its cut at each face it was trimmed at, the box's edges the body lies along.
 	// Neither edge nor cut through a point the space could not say (the bake's vBad −1: sealed onto the window's wall, or
 	// a clip space's gray collapsed onto its axis) – the cells round it are slivers and fans, a line across them a scribble
@@ -1382,13 +1471,17 @@ precision highp float;
 precision highp int;
 ${MAP_GLSL}
 in vec3 aFrac;
-uniform int uHatch;     // a trim reads its colors on the wall itself; a clip space's lid a step inside it (aFrac), under the
-uniform ivec2 uCapK;    // degenerate zone – HPLuv's P has no value at L 100
+uniform ivec2 uCapK;    // this cap's face (axis, side)
+// How far inside its wall a cap reads its colors, of the box's breadth. A trim on the wall itself: 0. A clip space's lid a
+// step under the degenerate zone, 0.012 – HPLuv's P has no value at L 100. A face of a body in parts a thousandth: ON a
+// face where the space folds every address into one color – DSH's floor, black at any wavelength and purity – all of it
+// reads as a color of the volume, a black sheet as wide as the box; just inside it, the colors that do reach it
+uniform float uStep;
 uniform int uPass;      // 2: the wall's own depth, for a human volume's count – on the wall itself, no hair nearer the eye
 out vec3 vV;
 void main() {
 	vec3 f = aFrac;
-	if (uHatch == 1) f[uCapK.x] = float(uCapK.y);
+	f[uCapK.x] = uCapK.y == 1 ? 1.0 - uStep : uStep;
 	vec3 v = uCMin + f * (uCMax - uCMin);
 	vV = v;
 	// …and every cap SITS on its wall: drawn a step inside it, the body's last sliver stood over the lid – a second rim
@@ -1436,6 +1529,43 @@ void main() {
 		for (int j = 0; j < 3; j++) if (j != uCapK.x) g += (vV[j] - uCMin[j]) / max(uCMax[j] - uCMin[j], 1e-9) * (j == uMap.y ? 97.0 : 28.0);
 		if (abs(fract(g + 0.5) - 0.5) < fwidth(g) * 0.5 * uPx) O.rgb = mix(O.rgb, vec3(1.0), 0.3);
 	}
+	O.rgb = mix(O.rgb, uInk.rgb, eg * uInk.a);
+}`
+		// …but a body in parts – a void in one of its channels between them (DSH: its wavelengths) – is no closed surface whose
+		// sheets could be counted: its grays stand a wall (every wavelength at no purity), each part's sides are no image of
+		// the volume's surface. Each part's faces are its own box's, and a face is the body's where the color there is a real
+		// one inside the volume whose coordinates are these – a display volume's own test (fsCap), by the pixel
+		const fsCapOpen = (gam === 'vis' || gam === 'locus') && s !== src && `#version 300 es
+precision highp float;
+precision highp int;
+${glsl([[s, 'rgb'], [s, 'xyz'], ['xyz', s]])}
+${locusGLSL()}
+${gam === 'vis' ? VREACH_GLSL : ''}
+${faithful ? sameGLSL(S, 'vec3') : ''}
+${SOFT_DISP}
+${MAP_GLSL}
+in vec3 vV;
+uniform int uDim;   // 3: the round trip's loop bound (sameGLSL)
+uniform int uPass;    // 4: its outline alone, where the body hides it · 5: its ink and depth (INK_FS)
+uniform ivec2 uCapK;  // this cap's face (axis, side)
+${EDGE_GLSL}
+out vec4 O;
+void main() {
+	vec3 xc = ${S}_xyz(vV); float sm = xc.x + xc.y + xc.z;
+	if (!visXYZ(xc)) discard;   // a real color: black, or a chromaticity inside the locus (NaN fails too)
+	${gam === 'locus' ? 'if (xc.y > 100.05) discard;' : 'if (sm > 1e-6 && sm > visReach_(xc.xy / sm) * 1.002) discard;'}   // (a five-hundredth of a percent past the table left ten pixels of the inside along one seam, a fifth of a percent one)
+	vec3 disp = ${S}_rgb(vV);
+	if (isnan(disp.x) || isnan(disp.y) || isnan(disp.z)) discard;
+	${faithful ? `vec3 back = xyz_${S}(xc);
+	for (int k = 0; k < uDim; k++) {
+		float d = abs(back[k] - vV[k]);
+		if (uMap.y == k) d = min(d, 360.0 - d);
+		if (!(d <= (uMax[k] - uMin[k]) * 0.03)) { vec3 w = vV; w[k] = back[k]; if (!same_(xc, w)) discard; }   // NaN fails too; a channel with no say there (a wavelength at no purity) stays
+	}` : ''}
+	float eg = walls_(vV, uCapK.x, true);
+	if (uPass == 5) { float d = gl_FragCoord.z * 255.0; O = vec4(eg, floor(d) / 255.0, fract(d), 0.5); return; }
+	if (uPass == 4) { if (eg * uInk.a < 0.002) discard; O = vec4(uInk.rgb, eg * uInk.a * 0.3); return; }
+	O = vec4(softDisp(disp), 1.0);
 	O.rgb = mix(O.rgb, uInk.rgb, eg * uInk.a);
 }`
 		const glin = { srgb: 'lrgb', p3: 'p3-linear', rec2020: 'rec2020-linear' }[gam]
@@ -1503,7 +1633,7 @@ void main() {
 	}
 	O.rgb = mix(O.rgb, uInk.rgb, eg * uInk.a);
 }`
-		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uSrc', 'uN', 'uW', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites', 'uHatch', 'uPx', 'uCrease', 'uWalls', 'uInk', 'uNeutK', 'uNeutW', 'uRt', 'uMask', 'uMaskCh', 'uSplit']
+		const U = ['uMin', 'uMax', 'uCMin', 'uCMax', 'uDMin', 'uDMax', 'uWLo', 'uWHi', 'uSteps', 'uDim', 'uSrc', 'uN', 'uW', 'uOut', 'uClip', 'uPass', 'uMap', 'uWb', 'uBip', 'uCapK', 'uCut', 'uCutV', 'uRot', 'uScale', 'uHasHue', 'uQuant', 'uGrid', 'uMetric', 'uPalIdx', 'uPalSites', 'uHatch', 'uPx', 'uCrease', 'uWalls', 'uInk', 'uNeutK', 'uNeutW', 'uRt', 'uMask', 'uMaskCh', 'uSplit', 'uPart', 'uStep']
 		const uset = (o) => { o.u = Object.fromEntries(U.map(n => [n, gl.getUniformLocation(o.pr, n)])) }
 		const bake = st.fsBake ? build(gl, FSQ_VS, bakeFrag(vs), uset, null, { kind: 'mesh', space: s, fs: true })   // a fragment pass (bakeRun)
 			: build(gl, vs, '#version 300 es\nprecision highp float;\nvoid main() {}', (o) => {
@@ -1529,7 +1659,10 @@ void main() {
 			o.aFrac = gl.getAttribLocation(o.pr, 'aFrac'); uset(o)
 		}, null, { kind: 'mesh', space: s })
 		if (caps) caps.lutN = lutNames(fsCap)
-		out = { bake, caps, draw }
+		// the open body's, built when one is drawn (DSH under a human volume): no other space pays its link
+		let open = null
+		const capsOpen = () => open ??= fsCapOpen ? Object.assign(build(gl, vsCap, fsCapOpen, (o) => { o.aFrac = gl.getAttribLocation(o.pr, 'aFrac'); uset(o) }, null, { kind: 'mesh', space: s }), { lutN: lutNames(fsCapOpen) }) : null
+		out = { bake, caps, draw, capsOpen }
 	} catch(e) { console.warn(`color-space/gl solid ${s}:`,e.message); out = null }
 	st.progs.set(key, out)
 	return out
@@ -1683,6 +1816,8 @@ void main() {
 		o.aV = gl.getAttribLocation(o.pr, 'aV'); o.aRgb = gl.getAttribLocation(o.pr, 'aRgb'); o.aBad = gl.getAttribLocation(o.pr, 'aBad')
 	}, null, { kind: 'mesh', label: 'cloud' })   // linked in the background like every program: an image dropped once waited out its compile
 }
+/** Whether the solid last asked of this canvas went undrawn because its programs are still linking – the figure pulses till they land. */
+export const mesh3Linking = cv => !!mesh3States.get(cv)?.linking
 const FRAME_AL = [0.85, 1, 0.38, 0.2]   // a pane's frame: white fringe and dark core, faint where the body stands in front
 export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0, metric = 'oklab') {
 	if (!has3dGL(s)) return false
@@ -1692,13 +1827,23 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	const q3 = q3Mode(quant), dr = ps && ps.draw(q3 >= 101 ? 1 : q3 > 1 ? 2 : 0)
 	if (!ps || !ps.bake || ps.bake.bad || ps.bake.pending || !dr || dr.bad || dr.pending) {
 		// never show the previous space while this one compiles – clear and fall back
-		if (st) { st.gl.clearColor(0, 0, 0, 0); st.gl.clear(st.gl.COLOR_BUFFER_BIT | st.gl.DEPTH_BUFFER_BIT) }
+		if (st) { st.gl.clearColor(0, 0, 0, 0); st.gl.clear(st.gl.COLOR_BUFFER_BIT | st.gl.DEPTH_BUFFER_BIT)
+			st.linking = !!(ps && ps.bake && !ps.bake.bad && dr && !dr.bad) }   // not drawn because its programs are still linking – not because they cannot
 		return false
 	}
+	st.linking = false
 	const { gl } = st
+	const lat = gam === 'vis' || gam === 'locus' ? gam : 'srgb', parts = map.parts?.length ? map.parts : null
 	const hs = gam === 'vis' ? { b: st.vb, ib: st.vi, n: st.vn, cnt: st.vvn }
 		: gam === 'locus' ? { b: st.lb, ib: st.li, n: st.ln, cnt: st.lvn }
 		: { b: st.tb, ib: st.ti, n: st.tn, cnt: st.tvn }
+	// a body in parts is baked from a lattice of its own: the volume's, a point on the void wherever a cell crossed it (seamLattice)
+	const bkey = s + '|' + gam + (parts ? '|parts' : '')
+	const seam = parts && (st.seams[bkey] ??= (() => { const src = lat !== 'srgb' ? 'xyz' : gam === 'srgb' ? 'rgb' : gam, u = src === 'rgb' || src === 'xyz' ? 1 : 1 / 255
+		const pts = seamLattice(st.pts[lat], st.idx[lat], (x, y, z) => space[src][s](x * u, y * u, z * u), map.split, parts), b = gl.createBuffer()
+		gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, pts, gl.STATIC_DRAW)
+		return { pts, b } })())
+	if (seam) hs.b = seam.b
 	gl.viewport(0, 0, cv.width, cv.height)
 	gl.clearColor(0, 0, 0, 0); gl.clearDepth(1)
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -1736,7 +1881,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 		if (u.uCrease) gl.uniform1i(u.uCrease, map.edge ?? 0)
 		if (u.uWalls) gl.uniform2i(u.uWalls, map.edge ? map.walls ?? 0 : 0, map.edge ? (map.caps ?? 0) & ~(map.flat ?? 0) : 0)   // a face the body lies flat against is not crossed: no cut on it
 		if (u.uRt) gl.uniform1f(u.uRt, map.rt ?? 0.03)
-		if (u.uSplit) gl.uniform2f(u.uSplit, map.split?.[0] ?? -1, map.split?.[1] ?? 0)
+		if (u.uSplit) gl.uniform1i(u.uSplit, map.parts?.length ? map.split : -1)
 		if (u.uNeutK) { gl.uniform3fv(u.uNeutK, map.neut?.[0] ?? [0, 0, 0]); gl.uniform3fv(u.uNeutW, map.neut?.[1] ?? [0, 0, 0]) }
 		if (u.uInk) map.edge && map.ink ? gl.uniform4f(u.uInk, map.ink[0], map.ink[1], map.ink[2], 0.5) : gl.uniform4f(u.uInk, 0, 0, 0, 0)   // in front at half; behind the body (pass 4) at 0.15
 		gl.uniform2f(u.uRot, rot.a, rot.b)
@@ -1744,10 +1889,8 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	}
 	// ── the bake: run the conversion ONCE per (space, gamut) – {v, rgb, bad} per lattice vertex (bakeRun: a fragment pass,
 	// or transform feedback); a switch simply rebakes the slot ──
-	const bkey = s + '|' + gam
 	if (st.bakeKey !== bkey) {
-		const lat = gam === 'vis' || gam === 'locus' ? gam : 'srgb'
-		bakeRun(st, ps.bake, setU, st.fsBake ? st.src[lat] ??= bakeSrc(gl, {}, st.pts[lat]) : { buf: hs.b, n: hs.cnt }, st.out, [dr.aV, dr.aRgb, dr.aBad])
+		bakeRun(st, ps.bake, setU, !st.fsBake ? { buf: hs.b, n: hs.cnt } : seam ? seam.src ??= bakeSrc(gl, {}, seam.pts) : st.src[lat] ??= bakeSrc(gl, {}, st.pts[lat]), st.out, [dr.aV, dr.aRgb, dr.aBad])
 		gl.viewport(0, 0, cv.width, cv.height)
 		st.bakeKey = bkey
 	}
@@ -1761,22 +1904,28 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	gl.uniform1i(dr.u.uHasHue, map.ai != null && map.ai >= 0 ? 1 : 0)
 	// the body, and the caps that seal its cuts, as a pass draws them (uPass): 0 themselves · 4 their outline where hidden ·
 	// 5 their ink and depth (INK_FS). hollow: a space inside the volume holds no image of its surface – its caps are its body (wire3d)
-	const body = (pass) => { gl.useProgram(dr.pr); bindBaked(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
+	// A body in parts (map.parts: each one's two ends along the split channel, then the ends of the next they meet) is drawn
+	// part by part (DRAW_VS uPart), and takes its faces from a test by the pixel – under a human volume a program of its own (fsCapOpen)
+	const human = gam === 'vis' || gam === 'locus'
+	const body = (pass) => { if (map.hollow) return
+		gl.useProgram(dr.pr); bindBaked(); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
 		gl.uniform1i(dr.u.uPass, pass)
-		if (!map.hollow) gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
+		for (const p of parts ?? [null]) { if (p) gl.uniform4f(dr.u.uPart, p[0], p[1], p[2], p[3]); gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0) }
 		gl.uniform1i(dr.u.uPass, 0) }
-	const capMask = (map.caps ?? 63) & ~(map.flat ?? 0), capped = capMask && ps.caps && !ps.caps.bad && !ps.caps.pending   // a face the body itself lies along needs no cap: under it, its outline showed through as a second rim
+	const cp = parts && human ? ps.capsOpen() : ps.caps
+	const capMask = (map.caps ?? 63) & ~(map.flat ?? 0), capped = capMask && cp && !cp.bad && !cp.pending   // a face the body itself lies along needs no cap: under it, its outline showed through as a second rim
 	const per = st.cn / 6   // one fitted-box face per slice, in (fi, side) order
-	const capBind = (pass) => { const u = ps.caps.u
-		gl.useProgram(ps.caps.pr); setU(u); bindLuts(gl, ps.caps)
+	const capBind = (pass) => { const u = cp.u
+		gl.useProgram(cp.pr); setU(u); bindLuts(gl, cp)
 		gl.bindBuffer(gl.ARRAY_BUFFER, st.cb)
-		gl.enableVertexAttribArray(ps.caps.aFrac); gl.vertexAttribPointer(ps.caps.aFrac, 3, gl.FLOAT, false, 0, 0)
+		gl.enableVertexAttribArray(cp.aFrac); gl.vertexAttribPointer(cp.aFrac, 3, gl.FLOAT, false, 0, 0)
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, st.ci)
 		if (u.uPass) gl.uniform1i(u.uPass, pass)
 		if (u.uMask) gl.uniform1i(u.uMask, MASK_UNIT)
 		return u }
-	const capFace = (u, f) => {
-		if (u.uHatch) gl.uniform1i(u.uHatch, (map.trim ?? 0) >> f & 1)   // the face drawn: hatched, and its colors read on the wall itself, if a trim
+	const capFace = (u, f) => { const trim = (map.trim ?? 0) >> f & 1
+		if (u.uHatch) gl.uniform1i(u.uHatch, trim)   // the face drawn: hatched, if a trim
+		if (u.uStep) gl.uniform1f(u.uStep, trim ? 0 : parts ? 1e-3 : 0.012)   // …and where its colors are read (vsCap)
 		if (u.uCapK) gl.uniform2i(u.uCapK, f >> 1, f & 1)
 		gl.drawElements(gl.TRIANGLES, per, gl.UNSIGNED_INT, f * per * 4) }
 	// A human volume's caps: the wall where it lies inside the solid – where the eye's ray has crossed an odd number of the
@@ -1785,7 +1934,7 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	// wall – a stencil's, once – cancelled wherever both its halves were cut: a hole in each (CIELCh, the appearance models),
 	// and no cap at all where the solid overran a cylinder on every side (HSI, IHLS, HSP)
 	const sides = []   // [face, which side of it: gl.BACK or gl.FRONT culled, 0 a plane]
-	if (capped && (gam === 'vis' || gam === 'locus')) { const mk = maskTarget(st, cv.width, cv.height)
+	if (capped && human && !parts) { const mk = maskTarget(st, cv.width, cv.height)
 		const curved = map.ai != null && map.ai >= 0 ? (map.wI ?? -1) >= 0 ? map.wI : map.mi ?? -1 : -1   // the axis that is a radius
 		for (let f = 0; f < 6; f++) if (capMask >> f & 1) for (const cull of f >> 1 === curved ? [gl.BACK, gl.FRONT] : [0]) sides.push([f, cull])
 		gl.bindFramebuffer(gl.FRAMEBUFFER, mk.fbo); gl.disable(gl.DITHER)
@@ -1805,10 +1954,14 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 			gl.depthMask(true); gl.depthFunc(gl.LEQUAL) })
 		gl.colorMask(true, true, true, true); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null); q3Mode(quant) ? gl.disable(gl.DITHER) : gl.enable(gl.DITHER)
-		gl.useProgram(ps.caps.pr); gl.uniform1i(ps.caps.u.uPass, 0) }
+		gl.useProgram(cp.pr); gl.uniform1i(cp.u.uPass, 0) }
 	const caps = (pass) => { if (!capped) return
 		const u = capBind(pass)
-		if (sides.length) { const mk = st.mask
+		if (parts) { const k = map.split, lo = (map.cmin ?? map.min).slice(), hi = (map.cmax ?? map.max).slice()
+			for (const [a, b] of parts) { lo[k] = a; hi[k] = b   // each part's own box: its walls along the split channel where it begins and ends
+				gl.uniform3f(u.uCMin, lo[0], lo[1], lo[2]); gl.uniform3f(u.uCMax, hi[0], hi[1], hi[2])
+				for (let f = 0; f < 6; f++) if (capMask >> f & 1) capFace(u, f) } }
+		else if (sides.length) { const mk = st.mask
 			sides.forEach(([f, cull], i) => {
 				gl.activeTexture(gl.TEXTURE0 + MASK_UNIT); gl.bindTexture(gl.TEXTURE_2D, mk.tex[i >> 2]); gl.activeTexture(gl.TEXTURE0)
 				gl.uniform1i(u.uMaskCh, i & 3)
@@ -1842,15 +1995,10 @@ export function drawMesh3GL(cv, s, map, rot, scale, sheet, frame, cut, quant = 0
 	// the CUT's far arc: the same per-pixel band, drawn where the body covers it. The
 	// body is opaque, so a pane behind it can only wash the surface – the hidden CURVE
 	// is what carries "the plane continues through here", and it carries it precisely.
-	if (cut && !map.hollow) {
-		gl.useProgram(dr.pr)
-		bindBaked()
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, hs.ib)
-		gl.uniform1i(dr.u.uPass, 3)
+	if (cut) {
 		gl.depthFunc(gl.GREATER); gl.depthMask(false)
-		gl.drawElements(gl.TRIANGLES, hs.n, gl.UNSIGNED_INT, 0)
+		body(3)
 		gl.depthFunc(gl.LEQUAL); gl.depthMask(true)
-		gl.uniform1i(dr.u.uPass, 0)
 	}
 	if (sheet && sheet.length) { const sp = st.sheetP
 		if (!sp.pending && !sp.bad) { gl.useProgram(sp.pr)

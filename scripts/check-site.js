@@ -1276,6 +1276,32 @@ try {
 		const p2=await plane(); await turn.mouse.up()
 		assert.notEqual(p2,p1,'the planes repaint while the solid is turned')
 		await tc.close() }
+	// the solid's figure shows its grid at once and the solid when it lands, a disc pulsing inside the grid till then. With
+	// every program's link held unfinished for 900 ms – a slow driver's – no frame shows it neither waiting nor drawn (the
+	// pulse ended at the first draw asked for, and through the link the frame stood empty, as if nothing were coming), and
+	// through the wait the grid is in view, the last solid's canvas and its marks not
+	{	const lc=await browser.newContext({ viewport:{ width:1440, height:900 }, reducedMotion:'reduce' }), slow=await lc.newPage(); slow.on('pageerror',e=>errors.push(e.message))
+		await slow.addInitScript(()=>{ globalThis.__fig=[]; const born=new WeakMap(), P=WebGL2RenderingContext.prototype, link=P.linkProgram, get=P.getProgramParameter
+			P.linkProgram=function(pr){ born.set(pr,performance.now()); return link.call(this,pr) }
+			P.getProgramParameter=function(pr,q){ return q===0x91B1&&performance.now()-(born.get(pr)??0)<900?false:get.call(this,pr,q) }   // COMPLETION_STATUS_KHR
+			const shown=e=>!!e&&getComputedStyle(e).visibility==='visible'&&getComputedStyle(e).display!=='none'
+			const tick=()=>{ const el=document.querySelector('.vgrp[data-f="3d"] #pl3d'), q=c=>el.querySelector(c)
+				if(el) globalThis.__fig.push({ t:performance.now(), busy:el.classList.contains('busy'), drawn:!!q('.mesh3')?._sceneKey, grid:!!q('.grid3')?._gridKey&&shown(q('.grid3')), body:shown(q('.mesh3')), disc:shown(q('.p3w')) })
+				requestAnimationFrame(tick) }
+			requestAnimationFrame(tick) })
+		await slow.goto(`${server.origin}/cam16-ucs?sw&cb=${Date.now()}`,{waitUntil:'networkidle'})
+		await slow.waitForFunction(()=>globalThis.__fig.some(f=>f.drawn&&!f.busy),null,{timeout:60000})
+		const fig=await slow.evaluate(()=>globalThis.__fig), wait=fig.filter(f=>f.busy&&!f.drawn), span=a=>a.length?Math.round(a.at(-1).t-a[0].t):0
+		assert.ok(span(wait)>600,`the solid's figure waits through its programs' link (${span(wait)} ms of 900)`)
+		assert.ok(!fig.some(f=>!f.busy&&!f.drawn),'the solid\'s figure stood empty while its programs linked')
+		assert.ok(wait.every(f=>f.disc&&!f.body),'awaited, the solid\'s place is a disc – the last solid\'s canvas unseen')
+		assert.ok(span(wait.filter(f=>f.grid))>600,`the grid stands through the wait for its solid (${span(wait.filter(f=>f.grid))} ms)`)
+		assert.ok(fig.at(-1).body&&!fig.at(-1).disc,'the solid landed: its canvas in view, the disc gone')
+		// …and a space with no solid of its own – CMYK: its figure the chromaticity plate, laid flat – awaits none: the pulse
+		// ended there too (it hung: the plate's draw returns before the solid's)
+		await slow.goto(`${server.origin}/cmyk?sw&cb=${Date.now()}`,{waitUntil:'networkidle'})
+		await slow.waitForFunction(()=>{ const el=document.querySelector('#pl3d'); return el&&!el.classList.contains('busy') },null,{timeout:15000}).catch(()=>assert.fail('the plate of a space with no solid waits on one forever'))
+		await lc.close() }
 	// Exercise the staged renderer directly, with a fresh module instance and no
 	// page animation. Read pixels in the draw task (WebGL clears between frames).
 	const gpu = await context.newPage()
@@ -1419,11 +1445,13 @@ try {
 			const q = px(shot('p3', p3), at([.5,-.44,-.44]))
 			check(q[3] === 255 && q[0] >= 235 && q[1] <= 40 && q[2] <= 40, `Display P3's red corner is not drawn red: ${[...q]}`) }
 		// A cell astride a void in a channel's range is no surface: DSH's cells from the spectrum's red end to its purples ran
-		// across the box, over wavelengths that name no color
+		// across the box, over wavelengths that name no color. Its body is in parts (each: its two ends, then the ends of the
+		// next that meet them – 700 the purples' −493, by color)
+		const dshParts = [[-566.4337,-493.2499,360,700],[360,700,-566.4337,-493.2499]]
 		{	const dsh = { gam: 'locus', min: [-700,0,0], max: [700,1,100], ti: 2 }, mid = at([0,0,.5])
 			await ready(() => drawMesh3GL(cv, 'dsh', dsh, rot, sc))
 			check(px(shot('dsh', dsh), mid)[3] > 0, 'DSH: no cell astride the void without the split – the case this pins')
-			const cut = shot('dsh', { ...dsh, split: [0,-56] })
+			const cut = shot('dsh', { ...dsh, caps: 0, split: 0, parts: dshParts })
 			check(px(cut, mid)[3] === 0, 'DSH: a cell drawn astride the void in its wavelengths')
 			// …and on light's lid a green of white's own luminance is drawn green: the gray it desaturates toward is held a tenth
 			// under white, where a hue is left (at white itself the lid was white: 254, 255, 254)
@@ -1450,6 +1478,60 @@ try {
 			check(equal(shot('rgb', maps.rgb, rot, null, f(-.9,-.9)), shot('rgb', maps.rgb, rot, null, [f(-.9,-.9)])), 'a frame alone and a list of one draw differently')
 			const two = shot('rgb', maps.rgb, rot, null, [f(-.9,-.9), f(-.9,.86)])
 			check(px(two, p1)[3] > 0 && px(two, p2)[3] > 0, 'a list of frames did not draw each') }
+		// A body in parts' lattice has a point on the void wherever a cell crossed it (seamLattice): along an edge between two
+		// parts the nearer point moves onto the crossing, a point of both from then on. Three points, the channel reading
+		// part 0 left of x = 0.3 and part 1 right of it: the first moves there, alone
+		{	const { seamLattice } = await import('/js/gl.js'), two = [[0, 2], [10, 12]], tri = () => new Float32Array([0,0,0, 1,0,0, 1,1,0]), idx = new Uint32Array([0,1,2])
+			const near = (a, b) => a.length === b.length && a.every((v, i) => Math.abs(v - b[i]) < 1e-6)
+			const src = tri(), got = seamLattice(src, idx, (x) => [x < .3 ? 1 : 11], 0, two)
+			check(near(got, [.3,0,0, 1,0,0, 1,1,0]), `a lattice's point next to the void is not brought onto it: ${[...got]}`)
+			check(near(src, tri()), 'the seam was cut into the lattice given, the volume\'s own')
+			// …right of x = 0.8 the other two are the nearer, each along its own edge to the first
+			check(near(seamLattice(tri(), idx, (x) => [x < .8 ? 1 : 11], 0, two), [0,0,0, .8,0,0, .8,.8,0]), 'the nearer point of an edge astride the void is not the one moved')
+			// a point of no part – a value in the void, a conversion that throws – is no end of a crossing: nothing moves
+			check(near(seamLattice(tri(), idx, (x) => [x < .5 ? 1 : 5], 0, two), tri()), 'a point in the void moved its neighbour')
+			check(near(seamLattice(tri(), idx, (x) => { if (x > .5) throw new Error('no color'); return [1] }, 0, two), tri()), 'a point the space cannot convert moved its neighbour')
+			// a lattice all of one part, and none at all: as given
+			check(near(seamLattice(tri(), idx, () => [1], 0, two), tri()) && seamLattice(new Float32Array(0), new Uint32Array(0), () => [1], 0, two).length === 0, 'a lattice clear of the void changed') }
+		// A body in parts is as many closed solids – DSH's two, the spectrum's and the purples'. (The last of these checks, on
+		// a larger canvas: a hair is a pixel wide.)
+		{	const S = cv.width = cv.height = 768, P = (d, s, h) => [h/100 - .5, (d + 700)/1400 - .5, s - .5], red = { a: -1.25, b: .45 }, below = { a: 2.2, b: -.5 }
+			const at = ([y, x, z], r) => { const ca = Math.cos(r.a), sa = Math.sin(r.a), cb = Math.cos(r.b), sb = Math.sin(r.b), X1 = x*ca + z*sa, Z1 = -x*sa + z*ca
+				return [Math.round((X1*sc*.5 + .5)*S), Math.round(((y*cb - Z1*sb)*sc*.5 + .5)*S)] }
+			const shot = (m, r) => { check(drawMesh3GL(cv, 'dsh', m, r, sc), 'dsh: warmed renderer failed'); const out = new Uint8Array(S*S*4); gl.readPixels(0,0,S,S,gl.RGBA,gl.UNSIGNED_BYTE,out); return out }
+			const px = (buf, [x, y]) => buf.subarray((y*S + x)*4, (y*S + x)*4 + 4)
+			const { space } = await import('/js/core.js'), want = space.dsh.rgb(700, .2, 30)
+			for (const gam of ['srgb', 'vis']) { const m = { gam, min: [-700,0,0], max: [700,1,100], ti: 2, split: 0, parts: dshParts, trim: 0 }
+				await ready(() => drawMesh3GL(cv, 'dsh', m, red, sc))
+				// each part's end is a face of its own, in the colors that stand on it: the far red's, at a fifth of its purity
+				// (a display volume's test by the pixel; under a human volume a program of its own, linked when first drawn)
+				const face = () => { const q = px(shot(m, red), at(P(700, .2, 30), red)); return q[3] === 255 && want.every((v, k) => Math.abs(v - q[k]) <= 4) }
+				await until(face, `DSH under ${gam}: its far-red end has no face of its own colors`)
+				const front = shot(m, red), under = shot(m, below)
+				// …the grays' too – every wavelength at no purity
+				{	const q = px(front, at(P(600, 0, 50), red)); check(q[3] === 255 && Math.max(q[0], q[1], q[2]) - Math.min(q[0], q[1], q[2]) < 16, `DSH under ${gam}: no wall where its grays stand: ${[...q]}`) }
+				// The surface meets that face where the face ends: up each column of it no pixel is unlike both its neighbours – no
+				// blend of the two, a hair of the inside seen between. A cell astride the void is flat from the far red to the
+				// purples, while the wavelength runs most of its way in a sliver of it: cut where the flat cell reached the end,
+				// the surface stood up to a cell off the face (70 such pixels here under sRGB, 21 under Surface) – the lattice has
+				// a point on the void wherever a cell crossed it (seamLattice)
+				let odd = 0
+				for (let s = .04; s < .6; s += .004) { const [x, y0] = at(P(700, s, 2), red), [, y1] = at(P(700, s, 100), red)
+					for (let y = y0 + 1; y < y1 + 40 && y < S - 1; y++) { const c = k => [0, 1, 2].map(q => front[((y + k)*S + x)*4 + q])
+						if (![-1, 0, 1].every(k => front[((y + k)*S + x)*4 + 3])) continue
+						const a = c(-1), mid = c(0), z = c(1), az = z.map((v, q) => v - a[q]), L = az.reduce((t, v) => t + v*v, 0)
+						const t = L ? Math.max(0, Math.min(1, mid.reduce((u, v, q) => u + (v - a[q])*az[q], 0) / L)) : 0
+						if (Math.hypot(...mid.map((v, q) => v - a[q] - az[q]*t)) > 40) odd++ } }
+				check(odd <= 5, `DSH under ${gam}: the surface stands off the face at its end – ${odd} pixels of the inside between them`)
+				// its floor is the colors that reach black, not the box's: at black every wavelength and purity is one color, and
+				// the volume's cells round its black corner join hues a box apart – a black sheet across the floor, past the
+				// body's own walls (a cyan-green's floor ends at a third of its purity under sRGB: past it, seen from below, the
+				// wall behind – not black)
+				if (gam === 'srgb') { const q = px(under, at(P(500, .6, 0), below)), f = px(under, at(P(500, .2, 0), below))
+					check(!q[3] || q[0] + q[1] + q[2] > 30, `DSH: a black sheet on the floor past the body's wall: ${[...q]}`)
+					check(f[3] === 255 && f[0] + f[1] + f[2] < 30, `DSH: no floor under its body: ${[...f]}`) }
+			}
+			check(gl.getError() === gl.NO_ERROR, 'a body in parts left a GL error') }
 		return { samples: samples.length*2, changed }
 	})
 	assert.equal(rendering.samples, 38, 'one-pixel bar and plane quantization agree with the CPU at byte boundaries, under each palette distance')
