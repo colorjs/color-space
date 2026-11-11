@@ -11,51 +11,51 @@ const D=(a,b)=>{ const x=a[0]-b[0], y=a[1]-b[1], z=a[2]-b[2]; return x*x+y*y+z*z
  *  for histograms and clouds), stripped of transparent pixels. The FULL image rides along
  *  as .src (capped at 2048 — larger only spends memory no picker can aim at): the floater
  *  displays it crisp and reads exact pixels from it. */
+// A decoder is never stopped for being slow: a large image decodes for seconds, and a deadline once failed all three in
+// turn (a 100 MP PNG, 1.5 s each – "could not read that image", the file already among the recent). One silent past its
+// patience may be one that never answers (createImageBitmap under software GL): the next starts beside it, the first to
+// finish is the image, and the read fails only once every one has – or none has answered four patiences on.
 // HEIC/HEIF: only Safari decodes it natively — everywhere else a vendored libheif steps
 // in, lazy-loaded (1.4MB) only when such a file actually arrives
-const HEIC=/hei[cf]/i, BITMAP_TIMEOUT=1500
-const nativeBitmap=src=>new Promise((resolve,reject)=>{ let done=false
-	const timer=setTimeout(()=>{ done=true; reject(new Error('image bitmap decode timed out')) },BITMAP_TIMEOUT)
-	try{ createImageBitmap(src).then(bitmap=>{ if(done){ bitmap.close?.(); return }
-			done=true; clearTimeout(timer); resolve(bitmap) },error=>{ if(done)return; done=true; clearTimeout(timer); reject(error) }) }
-	catch(error){ done=true; clearTimeout(timer); reject(error) } })
-const timed=(promise,message)=>new Promise((resolve,reject)=>{ const timer=setTimeout(()=>reject(new Error(message)),BITMAP_TIMEOUT)
-	promise.then(value=>{ clearTimeout(timer); resolve(value) },error=>{ clearTimeout(timer); reject(error) }) })
+const HEIC=/hei[cf]/i
+const patience=src=>Math.min(15000,1500+(src.size||0)/2000)   // ms: 1.5 s, and a second more for every 2 MB of the file
+const nativeBitmap=src=>createImageBitmap(src)
 const codecBitmap=async src=>{ if(typeof ImageDecoder==='undefined'||!src.type) throw new Error('WebCodecs image decode unavailable')
 	const decoder=new ImageDecoder({data:src.stream(),type:src.type})
-	try{ const {image}=await timed(decoder.decode({frameIndex:0}),'WebCodecs image decode timed out')
-		const w=image.displayWidth||image.codedWidth, h=image.displayHeight||image.codedHeight
-		const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):Object.assign(document.createElement('canvas'),{width:w,height:h})
-		try{ cv.getContext('2d').drawImage(image,0,0,w,h) }finally{ image.close() }
-		return cv }finally{ decoder.close() } }
-const elementBitmap=async src=>{ const url=URL.createObjectURL(src), img=new Image(); img.decoding='async'
-	try{ img.src=url
-		if(img.decode) await timed(img.decode(),'image element decode timed out')
-		else await timed(new Promise((resolve,reject)=>{ img.onload=resolve; img.onerror=reject }),'image element decode timed out')
-		if(!img.naturalWidth||!img.naturalHeight) throw new Error('image element decoded no pixels')
-		return img } finally { URL.revokeObjectURL(url) } }
+	try{ return (await decoder.decode({frameIndex:0})).image }finally{ decoder.close() } }   // the frame outlives its decoder
+// loaded, not decode()d: Chromium's decode() refuses a large image (EncodingError) that it draws all the same
+const elementBitmap=src=>new Promise((resolve,reject)=>{ const url=URL.createObjectURL(src), img=new Image(); img.decoding='async'
+	img.close=()=>URL.revokeObjectURL(url)   // let go once drawn, as a bitmap is
+	img.onload=()=>img.naturalWidth&&img.naturalHeight?resolve(img):(img.close(),reject(new Error('image element decoded no pixels')))
+	img.onerror=()=>{ img.close(); reject(new Error('image element could not load')) }
+	img.src=url })
+const firstOf=(src,ways)=>new Promise((resolve,reject)=>{ let i=0, live=0, done=false, err, timer
+	const wait=patience(src), fail=()=>{ if(done) return; done=true; clearTimeout(timer); reject(err||new Error('image decode timed out')) }
+	const next=()=>{ clearTimeout(timer); if(done) return
+		if(i>=ways.length){ timer=setTimeout(fail,4*wait); return }
+		live++; timer=setTimeout(next,wait)
+		ways[i++](src).then(bmp=>{ if(done) return void bmp.close?.(); done=true; clearTimeout(timer); resolve(bmp) },
+			e=>{ err??=e; live--; if(i<ways.length) next(); else if(!live) fail() }) }   // one failed: the next at once – or, none left and none at work, the read has
+	next() })
 async function decodeBitmap(src){
-	let nativeError
-	try{ return await nativeBitmap(src) }catch(e){ nativeError=e }
-	try{ return await codecBitmap(src) }catch{}
-	try{ return await elementBitmap(src) }catch{
-		if(!HEIC.test(src.type||'')&&!/\.hei[cf]$/i.test(src.name||'')) throw nativeError
+	try{ return await firstOf(src,[nativeBitmap,codecBitmap,elementBitmap]) }catch(error){
+		if(!HEIC.test(src.type||'')&&!/\.hei[cf]$/i.test(src.name||'')) throw error
 		const lib=await (await import('../vendor/libheif.mjs')).default()
 		const img=new lib.HeifDecoder().decode(await src.arrayBuffer())[0]
-		if(!img) throw nativeError
+		if(!img) throw error
 		const id=new ImageData(img.get_width(),img.get_height())
-		await new Promise((res,rej)=>img.display(id,ok=>ok?res():rej(nativeError)))
+		await new Promise((res,rej)=>img.display(id,ok=>ok?res():rej(error)))
 		const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(id.width,id.height):Object.assign(document.createElement('canvas'),{width:id.width,height:id.height})
 		cv.getContext('2d').putImageData(id,0,0); return cv } }
 
 export async function sampleImage(src,S=256){
-	const bmp=await decodeBitmap(src)
-	const fsc=Math.min(1,2048/Math.max(bmp.width,bmp.height))
-	const fw=Math.max(1,Math.round(bmp.width*fsc)), fh=Math.max(1,Math.round(bmp.height*fsc))
+	const bmp=await decodeBitmap(src), bw=bmp.displayWidth||bmp.naturalWidth||bmp.width, bh=bmp.displayHeight||bmp.naturalHeight||bmp.height   // a frame's, an element's, a bitmap's or a canvas's
+	const fsc=Math.min(1,2048/Math.max(bw,bh))
+	const fw=Math.max(1,Math.round(bw*fsc)), fh=Math.max(1,Math.round(bh*fsc))
 	const full=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(fw,fh):Object.assign(document.createElement('canvas'),{width:fw,height:fh})
 	full.getContext('2d').drawImage(bmp,0,0,fw,fh)
-	const sc=Math.min(1,S/Math.max(bmp.width,bmp.height))
-	const w=Math.max(1,Math.round(bmp.width*sc)), h=Math.max(1,Math.round(bmp.height*sc))
+	const sc=Math.min(1,S/Math.max(bw,bh))
+	const w=Math.max(1,Math.round(bw*sc)), h=Math.max(1,Math.round(bh*sc))
 	const cv=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(w,h):Object.assign(document.createElement('canvas'),{width:w,height:h})
 	const cx=cv.getContext('2d',{willReadFrequently:true})
 	cx.drawImage(bmp,0,0,w,h); bmp.close?.()

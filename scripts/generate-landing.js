@@ -86,7 +86,8 @@ const catalog = () => { const bare = preHTML(), baked = preHTML(DEFAULT)   // th
 const years = SPACES.map((s) => +meta[s].year).filter(Boolean), kb = (b) => Math.round(gzipSync(b, { level: 9 }).length / 1000)
 const FACT = { nn: spaceCount, y0: Math.min(...years), y1: Math.max(...years),   // nn: the row's count
 	jskb: kb(buildSync({ entryPoints: [join(root, 'index.js')], bundle: true, minify: true, format: 'esm', write: false }).outputFiles[0].contents),
-	wakb: kb(readFileSync(join(root, 'dist/color-space.wasm'))), wan: WASM.length, wal: WASM.join(', '), ver: version }   // ver: the footer's
+	wakb: kb(readFileSync(join(root, 'dist/color-space.wasm'))), wan: WASM.length, wal: WASM.join(', '), ver: version,   // ver: the footer's
+	lc: SPACES.filter((s) => meta[s].method === 'luma-chroma').length }   // lc: the Alternatives sheet's luma–chroma count, as the data types them
 const counts = (h) => h.replace(/(<span (?:id="(?:nn|y0|y1)"|data-fact="\w+")>)[^<]*(<\/span>)/g, (m, a, b) => { const k = a.match(/"(\w+)"/)[1]
 	if (!(k in FACT)) throw new Error(`generate-landing: no fact "${k}"`); return a + FACT[k] + b })
 
@@ -99,6 +100,8 @@ const cat = catalog()
 inject(/<main class="cat" id="cat"[^>]*>[\s\S]*?<\/main>/, () => cat)
 for (const k of ['nn', 'y0', 'y1']) inject(new RegExp(`(<span id="${k}">)[^<]*(</span>)`), `$1${FACT[k]}$2`)
 html = counts(html)   // Usage's facts (data-fact)
+// the Alternatives sheet's own row names the version it compares: this one
+inject(/(<a href="https:\/\/github\.com\/colorjs\/color-space" title=")[^"·]*( · CC0-1\.0")/, `$1${version}$2`)
 // the first paint – the hero's locus, the field's swatch and hint, the row's view mark – is the source's own (web/
 // index.html, before any script, built or not): stale there, the build stops
 if (firstPaint(html) !== html) throw new Error('web/index.html: its first-paint markup is stale – run: node scripts/first-paint.js')

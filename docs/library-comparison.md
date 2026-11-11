@@ -8,7 +8,7 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 
 | | color-space | culori | colorjs.io | chroma-js | @texel/color |
 |---|---|---|---|---|---|
-| **Version compared** | 3.4 | 4.0.2 | 0.7.1 | 3.2.0 | 1.1.11 |
+| **Version compared** | 3.6 | 4.0.2 | 0.7.1 | 3.3.0 | 1.1.11 |
 | **Color spaces** | **221** | 30 | 51 | 11 | 16 |
 | **API value ranges** | Conventional per space | Mixed; RGB normalized | Mixed; RGB normalized | Mixed / CSS strings | Mostly normalized |
 | **CSS string parsing** | Yes (`color-space/util`) | Yes | Yes | Yes (but `hwb()`, `color()`) | Yes (hex, `rgb()`, `oklab()`, `oklch()`, `color()`) |
@@ -20,11 +20,11 @@ A factual comparison of JavaScript color conversion libraries. Each library has 
 | **Tree-shakeable ESM** | Yes | Yes | Yes | No | Yes |
 | **Zero dependencies** | Yes | Yes | Yes | Yes | Yes |
 | **Differential-tested vs colorjs.io** | 29 spaces, both directions | — | — | — | — |
-| **Bundle (full, min+gz)** | 70 kB¹ | 23 kB | 34 kB | 17 kB | 9 kB |
+| **Bundle (full, min+gz)** | 70 kB¹ | 23 kB | 34 kB | 18 kB | 9 kB |
 | **Batch / typed-array API** | Yes (JS + WASM) | No | No | No | No (per-color `convert` into a reused `output`) |
-| **Scalar speed, M op/s²** | 5.81 | 4.31 | 0.15 (0.5.2) | 1.17 (6 of 7) | 3.53 (3 of 7) |
+| **Scalar speed, M op/s²** | 16.01 | 10.41 | 0.27 (0.5.2) | 1.93 (6 of 7) | 10.22 (3 of 7) |
 
-Full-library min+gz, every library bundled the same way: esbuild 0.28, minified, gzip -9, 2026-10-18 (culori 4.0.2, colorjs.io 0.7.1, chroma-js 3.2.0, @texel/color 1.1.11). ¹color-space's 70 kB is **all 221 spaces** — larger than the others because it has 4–20× more spaces. But it is tree-shakeable: a single space is **about 1 kB** (median 0.96 kB; `import oklch from 'color-space/oklch.js'` → 1.4 kB; Munsell's tables 15 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle. ²Geometric mean over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), each library over the subset it implements — color-space on chroma-js's 6 is 6.75, on texel's 3 is 3.78; median of 3 runs, 2026-10-18, Node 22.22 / Apple M4 Max, timed by process CPU time; culori 4.0.2, colorjs.io 0.5.2 (the bundle row is 0.7.1's), chroma-js 3.2.0, @texel/color 1.1.11; method in [benchmark/](../benchmark/). Absolute figures move with the machine; compare ratios.
+Full-library min+gz, every library bundled the same way: esbuild 0.28, minified, gzip -9, 2026-10-18 (culori 4.0.2, colorjs.io 0.7.1, @texel/color 1.1.11; chroma-js 3.3.0 and color-space 3.6 on 2026-11-11). ¹color-space's 70 kB is **all 221 spaces** — larger than the others because it has 4–20× more spaces. But it is tree-shakeable: a single space is **about 1 kB** (median 0.96 kB; `import oklch from 'color-space/oklch.js'` → 1.4 kB; Munsell's tables 15 kB), the figure that matters in practice. culori and colorjs.io are also tree-shakeable — compare like-for-like (single import vs single import), not a single import against a full bundle. ²Geometric mean over the 7 shared `npm run benchmark` conversions (rgb ⇄ lab · hsl · oklab, rgb → p3), each library over the subset it implements — color-space on chroma-js's 6 is 17.96, on texel's 3 is 11.16; median of 6 runs, 2026-11-11, Node 25.9 / Apple M4 Max, timed by process CPU time; culori 4.0.2, colorjs.io 0.5.2 (the bundle row is 0.7.1's), chroma-js 3.3.0, @texel/color 1.1.11; method in [benchmark/](../benchmark/). Absolute figures move with the machine; compare ratios.
 
 ---
 
@@ -76,7 +76,7 @@ sRGB, linear sRGB, HSL, HSV, HWB, Lab (CIE 1976), LCH, OKLab, OKLCH, XYZ D65, Di
 
 **chroma-js** is the most ergonomic library for palette and visualization work. It includes Brewer color scales, palette generation, and a fluent API that makes common tasks (brighten, darken, mix, scale) one-liners. For data visualization tooling or quick color palette code, chroma-js is the most productive library of this group.
 
-**@texel/color** is designed for WebGL and GPU workflows where data stays normalized 0–1, and it has the smallest bundle. On the conversions it implements it runs even with color-space (3.53 M op/s over rgb ⇄ oklab and rgb → p3, color-space 3.78 on the same², within the spread of the runs: color-space leads on oklab → rgb, the other two trade places run to run); over a 1M-pixel rgb → oklab buffer its per-pixel loop runs ahead of color-space's JS batch API (4.22 vs 3.54 M px/s, medians of 3 runs the same day), and color-space's WASM kernel runs 12.12 M px/s there, 2.87× texel. It is the correct choice when 0–1 data and a minimal bundle matter more than space coverage.
+**@texel/color** is designed for WebGL and GPU workflows where data stays normalized 0–1, and it has the smallest bundle. On the conversions it implements it runs close to color-space (10.22 M op/s over rgb ⇄ oklab and rgb → p3, color-space 11.16 on the same²: color-space leads on oklab → rgb in every run, texel on rgb → oklab in four of the six, and rgb → p3 trades places); over a 1M-pixel rgb → oklab buffer its per-pixel loop runs level with color-space's JS batch API (7.79 vs 7.43 M px/s, medians of 3 runs the same day, each ahead in some), and color-space's WASM kernel runs 27.24 M px/s there, 3.50× texel. It is the correct choice when 0–1 data and a minimal bundle matter more than space coverage.
 
 ---
 
@@ -125,4 +125,4 @@ These belong to the application layer. culori, colorjs.io, and chroma-js impleme
 
 ---
 
-*Data current as of October 2026. Library space counts are best estimates from source; exact counts shift as libraries add spaces.*
+*Data current as of November 2026. Library space counts are best estimates from source; exact counts shift as libraries add spaces.*

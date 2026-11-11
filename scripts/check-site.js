@@ -303,6 +303,18 @@ try {
 	// …and the shelf tabs wait below its description, never riding up over the first family
 	assert.equal(await page.evaluate(async()=>{ const sec=document.querySelector('.sec'); scrollTo(0,sec.getBoundingClientRect().top+scrollY-innerHeight+80); await new Promise(r=>setTimeout(r,300))
 		return document.querySelector('.gtabs').getBoundingClientRect().top>=document.querySelector('.ti .tip').getBoundingClientRect().bottom-1 }), true, 'the shelf tabs stay below the first family\'s description')
+	// every family's description stands under its title wherever the rail has the room – the family on screen's and, beside
+	// its section, the coming one's; a title waiting in the stack at the foot has the next title lying over its own. Nothing
+	// switches them: they are covered and uncovered (one family's alone showed, by a class, till 2026-11)
+	assert.deepEqual(await page.evaluate(async()=>{ const secs=[...document.querySelectorAll('.sec')], tis=[...document.querySelectorAll('.ti')]
+		scrollTo(0,secs[1].getBoundingClientRect().top+scrollY-innerHeight/2); await new Promise(r=>setTimeout(r,300))
+		return tis.slice(0,4).map(t=>{ const tip=t.querySelector('.tip'), r=tip.getBoundingClientRect(); return getComputedStyle(tip).visibility==='visible'&&document.elementFromPoint(r.left+8,r.top+8)===tip }) }),
+		[true,true,false,false],'the family on screen and the one coming up both speak their description; the stack at the foot covers the waiting ones\'')
+	// …and a description in full sight is not said twice: its title's tooltip is parked, a covered one's stands
+	assert.deepEqual(await page.evaluate(()=>[...document.querySelectorAll('.ti .tn')].slice(0,4).map(b=>b.dataset.tip!=null)),[false,false,true,true],'a title tips its description only while that is covered')
+	// a title pushed off the line takes its description along
+	assert.equal(await page.evaluate(async()=>{ const sec=document.querySelectorAll('.sec')[1]; sec.scrollIntoView(); scrollBy(0,40); await new Promise(r=>setTimeout(r,300))
+		const [a,b]=document.querySelectorAll('.ti'); return a.classList.contains('past')&&getComputedStyle(a.querySelector('.tip')).visibility==='hidden'&&b.classList.contains('act')&&getComputedStyle(b.querySelector('.tip')).visibility==='visible' }),true,'the family that left the line leaves no description behind')
 	// a window too short to stack the coming titles under that line keeps the line – they wait in their flow places
 	await page.setViewportSize({ width: 1440, height: 440 }); await page.waitForTimeout(300)
 	assert.equal(await page.evaluate(async()=>{ const sec=document.querySelector('.sec'); sec.scrollIntoView(); await new Promise(r=>setTimeout(r,300))
@@ -990,6 +1002,18 @@ try {
 	await nameView.waitForFunction(()=>document.querySelector('#cd').value!=='#808080',null,{timeout:20000})   // a dossier's GL instruments make the first orbit frame late on software GL – wait for it, don't race it
 	assert.equal(await nameView.locator('#cval').inputValue(),'','the orbit stays ambient on a name view – no value asserted, no URL written')
 	assert.equal(new URL(nameView.url()).hash,'','the ambient orbit never writes the URL')
+	// under the orbit a card's fields – its planes, its bars' sweeps – go in steps, each face cross-fading into the next, not
+	// one a frame: each is a GPU kernel copied out of the shared canvas, and Safari and Firefox wait on the GPU at every copy
+	// (thirty planes and sixty sweeps a second held their main thread). The thumbs move every frame
+	{ const steps=await nameView.evaluate(async()=>{ const pl=document.querySelector('#detail .pl canvas'), bar=document.querySelector('#detail .bar2 .bgc'), nr=document.querySelector('#detail .bar2 .nrg'); let p=0, b=0, moves=0, v=nr.value
+			const onP=()=>p++, onB=()=>b++; pl.addEventListener('present',onP); bar.addEventListener('present',onB)
+			const t0=performance.now(); while(performance.now()-t0<1500){ await new Promise(r=>requestAnimationFrame(r)); if(nr.value!==v){ v=nr.value; moves++ } }
+			pl.removeEventListener('present',onP); bar.removeEventListener('present',onB)
+			const tw=pl.parentElement.querySelector('canvas.xf'), bt=bar.parentElement.querySelector('canvas.xf')
+			return { p, b, moves, twin:!!tw&&tw.width===pl.width&&tw!==pl.parentElement.querySelector('canvas'), barTwin:!!bt, checker:tw?getComputedStyle(tw).backgroundImage!=='none':false } })
+		assert.ok(steps.p>=1&&steps.p<=8&&steps.b>=1&&steps.b<=8,`the orbit's planes and bars repaint a step at a time, a few a second (${JSON.stringify(steps)})`)
+		assert.ok(steps.twin&&steps.barTwin&&steps.checker,`each field keeps its last face on a twin over it, opaque on its own checker – the step a cross-fade (${JSON.stringify(steps)})`)
+		assert.ok(steps.moves>steps.p,`the thumbs go on moving between the fields' steps (${JSON.stringify(steps)})`) }
 	// the pinned row stays over a name view's card – its Limit, Quantize and Vision reach the dossier – at the top, paper,
 	// live; closing the card leaves the first screen where it was
 	assert.deepEqual(await nameView.evaluate(()=>{ const el=document.getElementById('strip'), st=getComputedStyle(el); return [st.position,st.visibility,el.inert,Math.round(el.getBoundingClientRect().top),getComputedStyle(el.firstElementChild).backgroundColor!=='rgba(0, 0, 0, 0)'] }),['sticky','visible',false,0,true],'the row stays, live and paper, over a first-screen card')
@@ -1584,7 +1608,62 @@ try {
 		await ip.waitForFunction(() => { const d = [...document.querySelectorAll('.ent[data-s="oklch"] .pl canvas.density')]; return d.length === 3 && d.every((c) => c.style.display !== 'none') })
 		await ip.evaluate(() => document.getElementById('imgx').click())   // the image let go: its dots with it
 		assert.equal(await ip.evaluate(() => [...document.querySelectorAll('.ent[data-s="oklch"] .pl canvas.density')].every((c) => c.style.display === 'none')), true, 'an image cleared leaves no dots on a card\'s planes')
+		// a decoder slow to answer is waited for, never stopped: the first takes seconds here and there is no other to fall to
+		// (no WebCodecs, an image element that cannot load) – the image is read all the same, the field counting the seconds.
+		// A deadline of 1.5 s once failed a large image in each decoder in turn: it was never the image, yet stood among the recent
+		await ip.evaluate(() => { const orig = createImageBitmap; window.__dec = { orig, url: URL.createObjectURL, ID: window.ImageDecoder }
+			window.createImageBitmap = (src, ...r) => src instanceof Blob ? new Promise((ok) => setTimeout(ok, 2400)).then(() => orig(src, ...r)) : orig(src, ...r)
+			window.ImageDecoder = undefined; URL.createObjectURL = () => 'blob:nothing' })
+		await ip.locator('#cvfile').setInputFiles(resolve(SITE, 'img/target.jpg'))
+		assert.ok(await ip.waitForFunction(() => /\d s$/.test(document.getElementById('cval').placeholder), null, { timeout: 5000 }).then(() => true, () => false), 'an image long in the reading: the field counts its seconds')
+		assert.ok(await ip.waitForFunction(() => document.body.classList.contains('himg') && !document.getElementById('cval').readOnly, null, { timeout: 15000 }).then(() => true, () => false), 'a decoder seconds long is waited for: the image is read')
+		await ip.evaluate(() => { const d = window.__dec; window.createImageBitmap = d.orig; URL.createObjectURL = d.url; window.ImageDecoder = d.ID; delete window.__dec })
+		assert.match(await ip.evaluate(() => localStorage.csImgMru), /u:target\.jpg:/, 'an image read is kept among the recent')
+		// …and one that cannot be read says so and is not kept
+		await ip.locator('#cvfile').setInputFiles({ name: 'broken.png', mimeType: 'image/png', buffer: Buffer.from('not an image at all') })
+		await ip.waitForFunction(() => /could not read/.test(document.getElementById('toast').textContent) && !document.getElementById('cval').readOnly, null, { timeout: 30000 })
+		assert.equal(await ip.evaluate(() => /broken\.png/.test(localStorage.csImgMru)), false, 'an image that could not be read is not kept among the recent')
 		await ic.close() }
+	// a solid's caps are drawn where they lie: OSA-UCS's body crosses one wall of its box in one small patch – its other
+	// walls are not drawn, and that one over its patch alone (each cap pixel runs the space's inverse, a bisection: three
+	// whole walls of it, three passes a frame, made the solid heavy to turn). The picture is the same: the cap is there
+	{	const oc = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' }), op = await oc.newPage(), oerr = []
+		op.on('pageerror', (e) => oerr.push(e.message))
+		await op.goto(`${server.origin}/osaucs?cb=${Date.now()}#c86432`, { waitUntil: 'networkidle' })
+		await op.waitForFunction(() => { const p = document.querySelector('#pl3d'); return p && !p.classList.contains('busy') && p.querySelector('.mesh3')?.getContext('webgl2') }, null, { timeout: 60000 })
+		await op.waitForTimeout(500)
+		await op.evaluate(() => { const gl = document.querySelector('#pl3d .mesh3').getContext('webgl2'), de = gl.drawElements.bind(gl)
+			const seen = window.__caps = { draws: [], box: [], restore: () => { gl.drawElements = de } }
+			// every draw of the solid's: its index count, and – a cap's – the part of its wall it is drawn over (vsCap's uBoxLo, uBoxHi)
+			gl.drawElements = (m, n, ...a) => { const pr = gl.getParameter(gl.CURRENT_PROGRAM), lo = gl.getUniformLocation(pr, 'uBoxLo'), hi = gl.getUniformLocation(pr, 'uBoxHi')
+				seen.draws.push(n); if (lo && hi) seen.box.push([...gl.getUniform(pr, lo), ...gl.getUniform(pr, hi)]); return de(m, n, ...a) } })
+		{ const r = await op.locator('#pl3d').boundingBox(), x = r.x + r.width / 2, y = r.y + r.height / 2
+			await op.mouse.move(x, y); await op.mouse.down(); await op.evaluate(() => { window.__caps.draws.length = 0; window.__caps.box.length = 0 })
+			await op.mouse.move(x + 12, y + 4); await op.waitForTimeout(100); await op.mouse.up() }
+		const caps = await op.evaluate(() => { const seen = window.__caps; seen.restore(); delete window.__caps
+			const body = Math.max(...seen.draws), frames = seen.draws.filter((n) => n === body).length / 3 || 1, area = seen.box.map((b) => (b[3] - b[0]) * (b[4] - b[1]) * (b[5] - b[2]))
+			return { draws: seen.draws.length, capDraws: seen.draws.filter((n) => n !== body).length / frames, area: area.length ? Math.max(...area) : null } })
+		assert.ok(caps.capDraws >= 1 && caps.capDraws <= 3, `OSA-UCS's one cap is drawn once a pass – its walls that hold none, not at all (${JSON.stringify(caps)})`)
+		assert.ok(caps.area > 0 && caps.area < 0.1, `…and over its own patch of the wall alone (${JSON.stringify(caps)})`)
+		assert.deepEqual(oerr, [], 'the solid\'s caps: no page errors')
+		await oc.close() }
+	// the slogan's ways in name a colormap too: pressed, the field walks to one drawn at random, shown on the page. And the
+	// row's edge opened over it wears ONE ink its whole length – the swatches' rule on the colors averaged along it – the
+	// value's words, the row's controls and the plugins alike (each glyph once took the ink of the color under it: a line
+	// that turned from light to dark halfway across a colormap)
+	{	const sc = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), sp = await sc.newPage()
+		await sp.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
+		await sp.locator('#hsub a[data-way="colormap"]').click()
+		assert.ok(await sp.waitForFunction(() => document.querySelector('#csug .fmtr.on')?.closest('.sgr')?.querySelector('.src')?.dataset.key === 'colormap', null, { timeout: 15000 }).then(() => true, () => false), 'the slogan\'s colormap walks the field to a colormap')
+		await sp.keyboard.press('Enter'); await sp.waitForTimeout(400)
+		assert.ok(await sp.evaluate(() => document.getElementById('cval').value.split(' – ').length >= 3), 'the colormap taken is the field\'s run of colors')
+		await toCatalog(sp); await sp.mouse.move(700, 300); await sp.mouse.move(700, 1)
+		await sp.waitForFunction(() => document.querySelector('.mhead').classList.contains('wide'), null, { timeout: 5000 })
+		const one = await sp.evaluate(() => { const v = getComputedStyle(document.getElementById('cval'))
+			return { inks: [document.querySelector('.mhead'), document.getElementById('hcolor'), document.querySelector('.hplugs')].map((e) => e.style.getPropertyValue('--eink')), fill: v.backgroundImage, text: v.color } })
+		assert.ok(one.inks[0] && one.inks.every((k) => k === one.inks[0]), `the opened edge: one ink for the row, the docked color and the plugins (${JSON.stringify(one)})`)
+		assert.ok(one.fill === 'none' && /^rgb\((255, 255, 255|0, 0, 0|\d+, \d+, \d+)\)$/.test(one.text), `…and the value's words in it whole, no fill of several (${JSON.stringify(one)})`)
+		await sc.close() }
 	// …and where the browser doesn't, the page asks for none of it
 	assert.equal(await page.evaluate(() => performance.getEntriesByType('resource').some((r) => /\/(mcp|js\/webmcp)\.js/.test(r.name))), false, 'no WebMCP: neither module is fetched')
 

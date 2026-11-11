@@ -257,8 +257,8 @@ body.mopen :is(.mhead,.hcolor){ animation:none }
 .mtop{ position:fixed; z-index:calc(var(--z-modal) + 3); inset:0 0 auto; height:var(--ulw); background:var(--cur,var(--hair)); pointer-events:none } .mtop.many{ background:var(--stops) center / 100% 100% no-repeat }   /* the edge's line painted again over all – the hero's frame rising past the row, a card scrolled over it – never pointed at (the edge under it is) */
 .medge{ position:absolute; z-index:1; inset:0 0 auto; height:var(--ulw); background:var(--cur,var(--hair)); transition:height var(--dur-short) var(--ease-out) }
 /* pointed at, the edge opens to the row's height – the colors in hand the row's ground – and the row's words and marks
-   (the docked color's too) take the ink that reads on what lies under them (--eink, js: the swatches' rule), till the
-   pointer leaves the row */
+   (the docked color's too) take the one ink that reads on those colors taken together (--eink, js: the swatches' rule
+   on their average), till the pointer leaves the row */
 .mhead.wide>.medge{ z-index:0; height:100% }
 .mhead.wide .cells{ --ink:var(--eink); --body:var(--eink); --soft:color-mix(in srgb,var(--eink) 75%,transparent); --hair:color-mix(in srgb,var(--eink) 35%,transparent) } @container style(--dk:1){ .hcolor.wide>.cx>:not(#csug){ --ink:var(--eink); --body:var(--eink); --soft:color-mix(in srgb,var(--eink) 75%,transparent); --hair:color-mix(in srgb,var(--eink) 35%,transparent) } }   /* the row's edge: the current color, always, the window's width – animated while it roams */
 /* …the one color, the whole edge – its preview, nothing more; many colors, their run (below) */
@@ -323,7 +323,7 @@ body.virgin :is(.cv,.bch .nv):not(:focus){ color:var(--soft) }   /* no color cho
 /* the field's height eases in lines, not in pixels: a line more or less glides; a size change (docking) is at once,
    as its padding's is – a pixel height eased behind an instant padding swelled the frame, and the locus with it */
 .hcolor #cval{ color:var(--ink) }   /* the value in the row's ink – over the opened edge, the ink that reads on it (--eink), as the row's other words */
-@container style(--dk:1){ .hcolor.wide>.cx #cval:not(:placeholder-shown){ color:transparent; background:var(--einks); background-clip:text; caret-color:var(--eink) } }   /* over the opened edge each glyph its own ink – the color under it decides (--einks, js) – on the one text shown: the field in hand, else its one-line copy (the field itself unseen, as unopened) */ .hcolor>.cx:not(:focus-within) .cvshow{ position:absolute; display:block; box-sizing:border-box; overflow:hidden; white-space:nowrap; mask-image:linear-gradient(to right,#000 calc(100% - var(--s8)),transparent); pointer-events:none }   /* not in hand – over the hero or docked: the value on one line, faded where it runs past – a press opens it whole */
+@container style(--dk:1){ .hcolor.wide>.cx #cval:not(:placeholder-shown){ caret-color:var(--eink) } }   /* over the opened edge the value in the row's one ink (--ink there is --eink), its caret too */ .hcolor>.cx:not(:focus-within) .cvshow{ position:absolute; display:block; box-sizing:border-box; overflow:hidden; white-space:nowrap; mask-image:linear-gradient(to right,#000 calc(100% - var(--s8)),transparent); pointer-events:none }   /* not in hand – over the hero or docked: the value on one line, faded where it runs past – a press opens it whole */
 /* one input recipe, shared with the catalog's channel inputs */
 .cv,#cval{ font:inherit; font-weight:600; font-variant-numeric:tabular-nums; background:none; border:0; outline:none; padding:0 0 .2em }
 /* the current colour's chip — a rhombus wearing the slider tick's engaged ring pair at the
@@ -657,13 +657,15 @@ body.himg #imgfloat{ display:block }
 .ti .tn{ display:flex; align-items:center; gap:var(--s2); max-width:100%; min-height:var(--s8); font:inherit; font-size:var(--t3); font-weight:800; letter-spacing:-.01em; line-height:1.1; color:var(--soft); text-align:start; border:0; background:var(--paper); padding:0 0 var(--s1); cursor:pointer; transition:color var(--dur-micro) var(--ease-out) }   /* inactive families greyed; the titles narrow with the rail; a longer one (a translation) wraps, balanced – layoutToc measures each title's height */
 .ti .tt{ min-width:0; text-wrap:balance }
 .ti .fic{ display:inline-grid; place-items:center; flex:none; color:inherit } .ti .fic .ic{ --ic:18px }
-/* the family on screen speaks its description under its title, over what follows – one always shown: the moment the
-   next title reaches it, the next family is active and the description is its (trackAct), the old one gone at once, the
-   new fading in; only the shelf tabs, riding over the last family's, hide it */
-.ti .tip{ position:absolute; top:100%; inset-inline-start:0; width:calc(var(--railw) - var(--s4)); margin:0; padding-bottom:var(--s3); font-size:var(--t2); line-height:1.45; color:var(--soft); background:var(--paper); opacity:0; visibility:hidden }
-.ti .tip{ transition:opacity var(--dur-short) var(--ease-out),visibility var(--dur-short) allow-discrete }   /* the old one fades out */
-.ti.act:not(.tipoff)>.tip{ transition:opacity var(--dur-long) var(--ease-out) var(--dur-micro) }   /* the new one fades in a beat later – the two never read at once; a fade, nothing moves */
-.ti.act:not(.tipoff)>.tip{ opacity:1; visibility:visible }
+/* every family speaks its description under its title, wherever the rail has the room: none fades, none jumps from one
+   title to the next (the family on screen alone spoke its own, by a class, till 2026-11). A title coming up rides over
+   the description above it – a later title paints over an earlier one, a paper skirt over the gap it keeps (--tig,
+   layoutToc) – the waiting stack and the shelf tabs lie over theirs, and each shows again as the room opens. One with no
+   room at rest (a short family: the next title nearer than its lines) stays out – .nofit, measured – and a title pushed
+   out takes its own along (.past) */
+.ti .tip{ position:absolute; top:100%; inset-inline-start:0; width:calc(var(--railw) - var(--s4)); margin:0; padding-bottom:var(--s3); font-size:var(--t2); line-height:1.45; color:var(--soft); background:var(--paper) }
+.ti:is(.past,.nofit) .tip{ visibility:hidden }
+.ti::before,.gtabs::before{ content:''; position:absolute; inset-inline:0; bottom:100%; height:var(--tig,0px); background:var(--paper) }
 .ti .tn:hover{ color:var(--body) }
 .ti.act .tn{ color:var(--ink) }   /* the active category is black */
 .ti .tc{ margin-inline-start:var(--s1) }   /* count of spaces in the family — the sup-chip recipe (with .hq) carries the look */
@@ -787,8 +789,8 @@ body.himg #imgfloat{ display:block }
 .compare .fav{ flex:none; display:block; width:var(--s4); height:var(--s4); border-radius:var(--radius-control); object-fit:contain }
 .compare [data-t] .fl{ display:inline-flex; vertical-align:middle; width:14px; height:14px; margin-inline-end:var(--s1) } .compare [data-t] .fl svg{ display:block; width:14px; height:14px }   /* a target its Usage tab's mark */
 .compare .vsnote{ max-width:none; margin:var(--s3) 0 0; font-size:var(--t1); line-height:1.5; color:var(--soft); text-align:end }   /* the legend: small, at the sheet's right */
-.vsd>summary{ display:flex; flex-wrap:wrap; align-items:baseline; gap:var(--s2) var(--s3); list-style:none; cursor:pointer } .vsd>summary::-webkit-details-marker{ display:none } .vsd h2{ display:flex; align-items:center; gap:var(--s3) } .vsd .vsl{ flex-basis:100%; max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--soft) } .vsd>summary:hover .vsl{ color:var(--body) }   /* the sheet on request: its title the control, the fold's chevron after it – turned as it opens – and what it holds said under it */
-@media(min-width:641px){ .vsd>summary{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:var(--s8) } .vsd .vsl{ grid-column:2 } }   /* the title in the sheet's first half, what it holds in the second, its first line on the title's baseline – the free room beside the title, not a line under it (a phone: under it) */
+.vsd>summary{ display:flex; flex-direction:column; align-items:flex-start; gap:var(--s3); list-style:none; cursor:pointer } .vsd>summary::-webkit-details-marker{ display:none } .vsd h2{ display:flex; align-items:center; gap:var(--s3) } .vsd .vsl{ max-width:var(--measure); font-size:var(--t3); line-height:1.5; color:var(--soft); text-wrap:pretty } .vsd>summary:hover .vsl{ color:var(--body) }   /* the sheet on request: its title the control, the fold's chevron after it – turned as it opens – and what it holds said after it */
+@media(min-width:1080px){ .vsd>summary{ display:grid; grid-template-columns:var(--railw) minmax(0,1fr); column-gap:var(--railgap); align-items:baseline } }   /* the catalog's own two columns: the title where the rail stands, what the sheet holds on the spaces' left edge, on the title's baseline (it stood in the sheet's second half till 2026-11, on no line of the page's); narrower, no rail: under the title */
 .vsd>summary .ic{ --ic:var(--s6); color:var(--soft); transition:rotate var(--dur-short) var(--ease-out),color var(--dur-micro) var(--ease-out) } .vsd>summary:hover .ic{ color:var(--ink) } .vsd[open]>summary .ic{ rotate:180deg }
 .tbl tbody tr:last-child :is(th,td){ border-bottom:0 }   /* the next family's hair closes the table */
 .tbl .tsw{ width:6rem; padding-inline-end:0 }
@@ -1036,6 +1038,8 @@ mark{ background:color-mix(in oklab, var(--c) 28%, transparent); color:inherit; 
 .bar2{ position:relative; min-height:var(--ctl); cursor:ew-resize; touch-action:pan-y; overflow:visible; user-select:none; background:var(--checker) }   /* overflow visible so the picker shows whole at the min/max edges */
 .bar2 .bg{ position:absolute; inset:0; overflow:hidden; pointer-events:none; background-repeat:no-repeat; background-size:100% 100% }   /* the sweep + gamut mask stay clipped to the bar */
 .bar2 .bgc{ position:absolute; inset:0; width:100%; height:100%; display:none; pointer-events:none }   /* dossier GPU sweep: per-pixel gamut alpha */
+:is(.bar2,.pl) canvas.xf{ position:absolute; inset-inline-start:0; top:0; pointer-events:none; background:var(--checker) } .bar2 canvas.xf{ width:100%; height:100% }   /* a field's last face, over it for the length of the orbit's step (xfade): it wears the checker too – two opaque faces cross-fade exactly, the checker into itself; a plate's twin takes the plate's own canvas rules (its size, a disc's round) */
+.pl:is(.tric,.triw,.trid) canvas.xf{ background:none }   /* a silhouette lies on the paper, as its plate does */
 /* everything over a strip or a plane is white, lifted by the marks' shadow – one ink whatever the sweep beneath; on a
    plane's corner over paper or the void – a triangle's, a disc's corners, the checker – the page's ink there (js plateInk) */
 .bar2 .sv,.pl :is(.laby,.labx,.pmode).onf{ color:#fff }
@@ -1356,7 +1360,7 @@ pre::-webkit-scrollbar-thumb,pre::-webkit-scrollbar-track{ background:transparen
 .ftr{ display:flex; flex-direction:column; gap:var(--secp); margin-top:var(--secp); padding:var(--secp) var(--gut); color:var(--color-terminal-ink); background-color:var(--cur,var(--color-terminal-paper)); background-image:var(--wall,none); background-size:100% 25.1%; background-repeat:no-repeat; background-position:0 0,0 33.333%,0 66.667%,0 100%; transition:color var(--dur-long) var(--ease-out) }
 .fbody{ width:100%; max-width:calc(var(--maxw) - 2 * var(--gut)); margin-inline:auto }   /* the page's measure */
 .fbody{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:var(--s8) var(--s12) }   /* halves: where to go | how to get it, and who made it */
-.fend{ display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; gap:var(--s8) }   /* the maker and the license at the foot, to the right (the install command lives in Usage's JS tab) */
+.fend{ display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:var(--s8) }   /* what it is at the top, on the columns' first line; the maker and the license at the foot, to the right (the install command lives in Usage's JS tab) */
 .fatlas{ font-size:var(--t2); line-height:1.5; opacity:.72; text-align:right; max-width:31rem; margin:0; text-wrap:pretty }   /* three lines at most – wide enough for its two sentences */
 .finst{ width:min(28rem,100%) } .introcopy .finst{ margin-bottom:var(--s5) }   /* the install command, then the code */
 .finst .cpyi{ top:50%; translate:0 -50% }   /* one line of command: the copy button centred on it */
@@ -1404,7 +1408,7 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
 	<div class="hmain">
 		<div class="hplugs"><a class="tag hplug" href="https://www.figma.com/community/plugin/1691970922817908383/color-space" aria-label="Figma plugin" data-i18n="aria-label:ui.hero.plugin-label"><span class="hpi"><svg class="figma" viewBox="0 0 38 57" aria-hidden="true"><path fill="#1abcfe" d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/><path fill="#0acf83" d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 1 1-19 0z"/><path fill="#ff7262" d="M19 0v19h9.5a9.5 9.5 0 1 0 0-19H19z"/><path fill="#f24e1e" d="M0 9.5A9.5 9.5 0 0 0 9.5 19H19V0H9.5A9.5 9.5 0 0 0 0 9.5z"/><path fill="#a259ff" d="M0 28.5A9.5 9.5 0 0 0 9.5 38H19V19H9.5A9.5 9.5 0 0 0 0 28.5z"/></svg><span class="hpf" data-i18n="ui.hero.plugin-label">Figma plugin</span></span></a><a class="tag hplug" href="https://marketplace.visualstudio.com/items?itemName=colorjs.color-spaces" aria-label="VS Code extension" data-i18n="aria-label:ui.hero.vscode-label"><span class="hpi"><svg viewBox="6 6 84 84" aria-hidden="true"><path fill="#0065a9" d="M87.028 15.069 69.72 6.735a5.232 5.232 0 0 0-5.97 1.015L7.09 59.41a3.5 3.5 0 0 0 .005 5.176l4.628 4.207a3.5 3.5 0 0 0 4.47.199l68.23-51.761C86.713 15.494 90 17.127 90 20v-.2a5.25 5.25 0 0 0-2.972-4.731Z"/><path fill="#007acc" d="M87.028 80.931 69.72 89.265a5.232 5.232 0 0 1-5.97-1.015L7.09 36.59a3.5 3.5 0 0 1 .005-5.176l4.628-4.207a3.5 3.5 0 0 1 4.47-.199l68.23 51.761C86.713 80.506 90 78.873 90 76v.201a5.25 5.25 0 0 1-2.972 4.73Z"/><path fill="#1f9cf0" d="M69.72 89.266a5.235 5.235 0 0 1-5.97-1.016c1.937 1.937 5.25.565 5.25-2.175V9.925c0-2.74-3.313-4.112-5.25-2.175a5.235 5.235 0 0 1 5.97-1.016l17.305 8.322A5.25 5.25 0 0 1 90 19.787v56.426a5.25 5.25 0 0 1-2.975 4.732l-17.304 8.321Z"/></svg><span class="hpf">VS Code</span></span></a></div>
 		<div class="htitle"><a class="hmark" href="./" aria-label="color-space home" data-i18n="aria-label:ui.hero.home"><img src="./img/locus-64.png" srcset="./img/locus-64.png 64w, ./img/locus-512.png 512w" sizes="3rem" width="64" height="64" alt=""></a><span class="htt"><h1 class="hh" id="hero-t" data-i18n="ui.hero.title"><span class="hk">An open atlas of</span> Color Spaces</h1></span></div>
-		<p class="hsub" id="hsub" data-i18n="ui.hero.line">See a <a href="#hq" data-way="color">color</a>, <a href="#hq" data-way="palette">palette</a>, <a href="#hq" data-way="gradient">gradient</a> or <a href="#hq" data-way="image">image</a> in every color space. From <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>.</p>
+		<p class="hsub" id="hsub" data-i18n="ui.hero.line">See a <a href="#hq" data-way="color">color</a>, <a href="#hq" data-way="palette">palette</a>, <a href="#hq" data-way="gradient">gradient</a>, <a href="#hq" data-way="colormap">colormap</a> or <a href="#hq" data-way="image">image</a> in every color space. From <a href="#cat" data-door="family:display">web</a> to <a href="#cat" data-door="family:surface">print</a>, <a href="#cat" data-door="purpose:picking">pickers</a> to <a href="#cat" data-door="purpose:research">research</a>, <a href="#cat" data-door="era:1860"><span id="y0">1860</span></a> to <a href="#cat" data-door="era:2020"><span id="y1">2026</span></a>.</p>
 		<div class="hfield" id="hq"><label class="hql" for="cval"></label>
 			<button class="hib" type="button" id="heye" title="pick a color from the screen" aria-label="pick a color from the screen" data-i18n="title:ui.hero.eye aria-label:ui.hero.eye"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m2 22 1-1h3l9-9M3 21v-3l9-9M15 6l3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3z"/></svg></button>
 			<button class="hib" type="button" id="him" popovertarget="uppop" aria-expanded="false" title="read an image – its colors on every strip" aria-label="read an image" data-i18n="title:ui.hero.image-tip aria-label:ui.hero.image"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></button>
@@ -1425,21 +1429,27 @@ input:focus-visible{ outline:none }   /* the ink underline is the input's focus 
    not pile at the top and jump when the module lands. All queries run at call time so
    the module's fingerprint-rebuild path (fresh #cat nodes) re-enters via wireToc(). */
 let actI=-1
+const TIG=10   // the gap a rail title keeps from the one over it, in px – stacked at the foot, and pushing it off the line
+const tipPad=tip=>tip._pb??=parseFloat(getComputedStyle(tip).paddingBottom)||0   // a description's own foot: air, not lines – what lies over it covers nothing read
 const trackAct=()=>{ const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]; let k=0
-	// the rail shown: the active family is the one whose title holds the line – the one that has just pushed the last
-	// one out; before any reaches it, the first. And the moment the next title reaches the active one's description,
-	// the next is active – the description jumps to it, never a moment without one. No rail: the section past a third
-	// of the screen
-	const rail=cat.querySelector('.toc')?.offsetParent, shown=t=>!t.classList.contains('off')
-	if(rail){ k=tocIt.findIndex(shown); tocIt.forEach((t,i)=>{ if(shown(t)&&t.getBoundingClientRect().top<=(parseFloat(t.style.getPropertyValue('--ti-y'))||0)+1) k=i })
-		for(let n;(n=tocIt.findIndex((t,i)=>i>k&&shown(t)))>=0&&tocIt[k]&&n>=0;){ const tip=tocIt[k].querySelector('.tip'); if(!tip||tocIt[n].getBoundingClientRect().top>=tip.getBoundingClientRect().bottom) break; k=n } }
+	// the rail shown: the active family is the one whose title holds the line – and the next, from the moment its title
+	// reaches that one and starts to push it out. Before any reaches the line, the first. No rail: the section past a
+	// third of the screen
+	const rail=cat.querySelector('.toc')?.offsetParent, shown=t=>!t.classList.contains('off'), rs=rail?tocIt.map(t=>shown(t)?t.getBoundingClientRect():null):[]
+	const nx=i=>tocIt.findIndex((t,j)=>j>i&&shown(t))
+	if(rail){ k=tocIt.findIndex(shown); tocIt.forEach((t,i)=>{ if(rs[i]&&rs[i].top<=(parseFloat(t.style.getPropertyValue('--ti-y'))||0)+1) k=i })
+		for(let n;rs[k]&&(n=nx(k))>=0&&rs[n].top-TIG<=rs[k].bottom+1;) k=n }
 	else secEls.forEach((el,i)=>{ if(el.offsetParent&&el.getBoundingClientRect().top<=innerHeight*0.35) k=i })
 	if(secEls.length&&(rail?innerHeight+scrollY>=document.documentElement.scrollHeight-1:cat.getBoundingClientRect().bottom<=innerHeight)) k=secEls.findLastIndex(el=>el.offsetParent)   // the end reached: its last family (a short one never reaches the third, nor its title the line). With the rail, the page's end – the catalog's end is on a tall screen while the family before last still holds the line, and took its turn (Film & camera never showed its description, 2026-10)
-	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); t.classList.toggle('past',i<k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current')
-		const tn=t.querySelector('.tn'), d=tn?.dataset.tip??tn?.dataset.tipOff; if(d!=null){ if(i===k){ delete tn.dataset.tip; tn.dataset.tipOff=d } else{ tn.dataset.tip=d; delete tn.dataset.tipOff } } }) }   // the active title's description stands under it: its tip would say it twice
-	// the last family's description steps out while the shelf tabs ride over it – there is no next one to take it
-	const t=tocIt[k], tip=t?.querySelector('.tip'); if(!tip) return
-	t.classList.toggle('tipoff',(cat.querySelector('.gtabs')?.getBoundingClientRect().top??Infinity)<tip.getBoundingClientRect().bottom) }
+	if(k!==actI){ actI=k; tocIt.forEach((t,i)=>{ t.classList.toggle('act',i===k); t.classList.toggle('past',i<k); i===k?t.setAttribute('aria-current','true'):t.removeAttribute('aria-current') }) }
+	if(!rail) return
+	// a description in full sight is not said again by its title's tip: the tip stands only while its lines are covered –
+	// by the next title, by the tabs – or left out. Every read, then the writes
+	const gt=cat.querySelector('.gtabs')?.getBoundingClientRect().top??Infinity
+	const seen=tocIt.map((t,i)=>{ const tip=rs[i]&&!t.matches('.past,.nofit')&&t.querySelector('.tip'), n=nx(i)
+		return !!tip&&tip.getBoundingClientRect().bottom-tipPad(tip)<=Math.min(gt,n<0?Infinity:rs[n].top-TIG)+1 })
+	tocIt.forEach((t,i)=>{ const tn=t.querySelector('.tn'), d=tn?.dataset.tip??tn?.dataset.tipOff; if(d==null||seen[i]===(tn.dataset.tip==null)) return
+		if(seen[i]){ delete tn.dataset.tip; tn.dataset.tipOff=d } else{ tn.dataset.tip=d; delete tn.dataset.tipOff } }) }
 // stacked-sticky rail (CSS): flow position = own section's first space; sticky top+bottom insets make
 // the active title rest on the first space's line and upcoming ones wait stacked at the bottom. JS only
 // measures the ladder (per layout: the catalog's size moving re-measures it), then the browser handles
@@ -1448,14 +1458,15 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 	const cat=document.getElementById('cat'), secEls=[...cat.querySelectorAll('.sec')], tocIt=[...cat.querySelectorAll('.ti')]
 	const f0=tocIt.findIndex(t=>!t.classList.contains('off'))   // the first shown family (a filter may hide the first)
 	const pg=document.querySelector('.page'); pg.style.setProperty('--railcol',tocEl.offsetWidth+'px')
-	const sps=[...tocEl.querySelectorAll('.tsp')], G=10
+	const sps=[...tocEl.querySelectorAll('.tsp')], G=TIG
 	// READ phase first, WRITE phase after — a write between rect reads dirtied layout,
 	// forcing a full reflow of the (huge) page per section instead of one total
 	const t0=tocEl.getBoundingClientRect().top   // section offsets are scroll-independent (ent.top − toc.top)
 	const on=tocIt.map(t=>!t.classList.contains('off'))
 	const hs=tocIt.map((t,i)=>on[i]?t.offsetHeight:0)
 	const headH=Math.round((document.querySelector('.mhead')?.getBoundingClientRect().height)||0)
-	const gtH=tocEl.querySelector('.gtabs')?.offsetHeight||0
+	const gtEl=tocEl.querySelector('.gtabs'), gtH=gtEl?.offsetHeight||0, gtBox=gtEl?.parentElement
+	const tipHs=tocIt.map((t,i)=>on[i]?t.querySelector('.tip')?.offsetHeight||0:0), tipLs=tocIt.map((t,i)=>{ const tip=on[i]&&t.querySelector('.tip'); return tip?tipHs[i]-tipPad(tip):0 }), padB=parseFloat(getComputedStyle(tocEl).paddingBottom)||0   // padB: the rail's foot, where the tabs' range ends
 	// each title's BASELINE on the first visible space name's – the two set in different sizes, neither tops nor centres
 	// meet. A line's baseline read by a probe at its start: an empty inline-block's bottom is the baseline it sits on
 	// (a name's first line, the title's; a sheet's family rests on its column names). One write, the reads, one write
@@ -1483,20 +1494,22 @@ const layoutToc=()=>{ const tocEl=document.getElementById('toc'); if(!tocEl?.off
 	// a window too short for the waiting stack under the resting line keeps the line: the coming titles then wait in
 	// their flow places, not stacked at the screen's foot (their stack would lift the active title off its line)
 	const fits=f0<0||dn-hs[f0]-G<=innerHeight-(headH+rest+hs[f0])
-	const tipH=f0<0?0:tocIt[f0].querySelector('.tip')?.offsetHeight||0
 	// each range opens where the one before it ends: the first family's at the top, then under its title and description,
 	// then under each coming title in turn – the tabs' under them all
 	let rg=0
 	// …and each range ENDS where the next shown title begins: a title stays on the line until the next one, coming up
 	// from below, reaches it – then is pushed up ahead of it and out behind the row (a sticky box never leaves its range)
 	const tocH=tocEl.offsetHeight, tops=ys.map((y,i)=>y-bo[i]), nx=i=>{ for(let k=i+1;k<on.length;k++) if(on[k]) return k; return -1 }
-	tocIt.forEach((t,i)=>{ const box=t.parentElement; if(!on[i]){ sps[i].style.height='0px'; t.style.marginBottom=''; box.style.removeProperty('--rg-b'); return }
+	// a description has its room at rest when the next title – the tabs, after the last – stands clear of its lines (tipLs)
+	const gtRest=gtEl?tocH-padB-gtH-6:Infinity, nofit=tocIt.map((t,i)=>{ const k=nx(i); return on[i]&&tops[i]+hs[i]+tipLs[i]>(k>=0?tops[k]:gtRest)-G })   // gtRest: where the tabs rest at the rail's foot, their skirt's 6 over
+	tocEl.style.setProperty('--tig',G+'px'); gtEl?.style.setProperty('--tig',G+6+'px')   // the skirts: a title's over its gap, the tabs' over theirs
+	tocIt.forEach((t,i)=>{ const box=t.parentElement; t.classList.toggle('nofit',nofit[i]); if(!on[i]){ sps[i].style.height='0px'; t.style.marginBottom=''; box.style.removeProperty('--rg-b'); return }
 		const k=nx(i); if(k>=0) box.style.setProperty('--rg-b',Math.round(tocH-(tops[k]-G))+'px'); else box.style.removeProperty('--rg-b')
 		box.style.setProperty('--rg-y',rg+'px'); const top=ys[i]-bo[i]; sps[i].style.height=Math.max(0,top-rg)+'px'
-		rg=i===f0?Math.max(rg,top)+hs[i]+tipH:rg+hs[i]+G
+		rg=i===f0?Math.max(rg,top)+hs[i]+(nofit[i]?0:tipHs[i]):rg+hs[i]+G
 		t.style.setProperty('--ti-y',headH+rests[i]+'px')
 		t.style.setProperty('--ti-b',fits&&i!==f0?below[i]+'px':'auto'); t.style.marginBottom=k<0?below[i]+'px':'' })   // the first family's title arrives with its first space – it never waits in the stack above it; only the last keeps the foot's clearance (the others end at the next title)
-	tocEl.querySelector('.gtabs').parentElement.style.setProperty('--rg-y',rg+'px')
+	gtBox?.style.setProperty('--rg-y',rg+'px')
 	if(layoutToc.settled) cat.classList.add('laid')   // reveal only a ladder measured under the real fonts
 }
 layoutToc.settled=!document.fonts   // no Font Loading API → nothing to wait for
@@ -1678,18 +1691,18 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 	</div>
 </section>
 <section class="compare" id="vs" aria-labelledby="vs-t"><details class="vsd">
-	<summary><h2 id="vs-t"><span data-i18n="compare.title">Alternatives</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></h2><span class="vsl" data-i18n="compare.lede">A comparison of color-conversion libraries.</span></summary>
+	<summary><h2 id="vs-t"><span data-i18n="compare.title">Alternatives</span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></h2><span class="vsl" data-i18n="compare.lede">Where color-space stands in the field of color and its alternatives.</span></summary>
 	<div class="tblw">
 	<table class="tbl">
-		<thead><tr><th scope="col" data-i18n="compare.col.tool">Tool</th><th scope="col" title="color spaces it converts" data-i18n="compare.col.spaces title:compare.col.spaces-tip">Spaces</th><th scope="col" title="distinct camera log curves" data-i18n="compare.col.logs title:compare.col.logs-tip">Camera logs</th><th scope="col" title="luma plus two color differences: Y′CbCr, YCoCg, ICtCp – video and image codecs" data-i18n="compare.col.luma title:compare.col.luma-tip">Luma–chroma</th><th scope="col" title="the scale of sRGB channels" data-i18n="compare.col.rgb title:compare.col.rgb-tip">sRGB</th><th scope="col" title="parse: reads CSS color strings · gamut: maps colors into a gamut · CVD: color-vision-deficiency simulation" data-i18n="compare.col.kit title:compare.col.kit-tip">Toolkit</th><th scope="col" title="whole JS package, minified and gzipped (esbuild, gzip -9)" data-i18n="compare.col.size title:compare.col.size-tip">Size</th><th scope="col" title="JS calls per second against color-space, npm run benchmark (2026-10-18, its 7 shared conversions; texel over its 3, chroma-js its 6; colorjs.io through its object API)" data-i18n="compare.col.speed title:compare.col.speed-tip">Speed</th><th scope="col" title="where it runs or what it writes" data-i18n="compare.col.targets title:compare.col.targets-tip">Targets</th></tr></thead>
+		<thead><tr><th scope="col" data-i18n="compare.col.tool">Tool</th><th scope="col" title="color spaces it converts" data-i18n="compare.col.spaces title:compare.col.spaces-tip">Spaces</th><th scope="col" title="distinct camera log curves" data-i18n="compare.col.logs title:compare.col.logs-tip">Camera logs</th><th scope="col" title="luma plus two color differences: Y′CbCr, YCoCg, ICtCp – video and image codecs" data-i18n="compare.col.luma title:compare.col.luma-tip">Luma–chroma</th><th scope="col" title="the scale of sRGB channels" data-i18n="compare.col.rgb title:compare.col.rgb-tip">sRGB</th><th scope="col" title="parse: reads CSS color strings · gamut: maps colors into a gamut · CVD: color-vision-deficiency simulation" data-i18n="compare.col.kit title:compare.col.kit-tip">Toolkit</th><th scope="col" title="whole JS package, minified and gzipped (esbuild, gzip -9)" data-i18n="compare.col.size title:compare.col.size-tip">Size</th><th scope="col" title="JS calls per second against color-space, npm run benchmark (2026-11-11, its 7 shared conversions; texel over its 3, chroma-js its 6; colorjs.io through its object API)" data-i18n="compare.col.speed title:compare.col.speed-tip">Speed</th><th scope="col" title="where it runs or what it writes" data-i18n="compare.col.targets title:compare.col.targets-tip">Targets</th></tr></thead>
 		<tbody>
-		<tr><th scope="row"><a href="https://github.com/colorjs/color-space" title="3.3.0 · CC0-1.0"><img class="fav" src="./img/locus-64.png" alt="" width="16" height="16" loading="lazy"><span>color-space</span></a></th><td>205</td><td>31</td><td>16</td><td>0–255</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>ΔE</code> <code>contrast</code> <code>CVD</code></div></td><td>62 kB</td><td><span class="sbar" style="--v:1.000" role="img" title="5.81 M op/s" aria-label="5.81 M op/s"></span></td><td data-t="js wasm gl lut icc ocio mcp figma vscode cli web">JS, WASM, GL, LUT, ICC, OCIO, MCP, Figma, VS Code, CLI, web</td></tr>
-		<tr><th scope="row"><a href="https://culorijs.org" title="4.0.2 · MIT"><img class="fav" src="./img/fav/culori.png" alt="" width="16" height="16" loading="lazy"><span>culori</span></a></th><td>30</td><td>–</td><td>1</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>gamut</code> <code>ΔE</code> <code>contrast</code> <code>CVD</code></div></td><td>23 kB</td><td><span class="sbar" style="--v:0.742" role="img" title="4.31 M op/s – color-space 5.81" aria-label="4.31 M op/s – color-space 5.81"></span></td><td data-t="js">JS</td></tr>
-		<tr><th scope="row"><a href="https://colorjs.io" title="0.7.1 · MIT"><img class="fav" src="./img/fav/colorjs.svg" alt="" width="16" height="16" loading="lazy"><span>colorjs.io</span></a></th><td>51</td><td>–</td><td>–</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>gamut</code> <code>ΔE</code> <code>contrast</code></div></td><td>34 kB</td><td><span class="sbar" style="--v:0.026" role="img" title="0.15 M op/s, its object API – color-space 5.81" aria-label="0.15 M op/s, its object API – color-space 5.81"></span></td><td data-t="js web">JS, web</td></tr>
-		<tr><th scope="row"><a href="https://gka.github.io/chroma.js/" title="3.2.0 · BSD-3-Clause, Apache-2.0"><i class="fav"></i><span>chroma-js</span></a></th><td>11</td><td>–</td><td>–</td><td>0–255</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>ΔE</code> <code>contrast</code> <code>palettes</code></div></td><td>17 kB</td><td><span class="sbar" style="--v:0.173" role="img" title="1.17 M op/s on its 6 – color-space 6.75 on them" aria-label="1.17 M op/s on its 6 – color-space 6.75 on them"></span></td><td data-t="js">JS</td></tr>
-		<tr><th scope="row"><a href="https://github.com/texel-org/color" title="1.1.11 · MIT"><i class="fav"></i><span>@texel/color</span></a></th><td>16</td><td>–</td><td>–</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>gamut</code> <code>ΔE</code></div></td><td>9 kB</td><td><span class="sbar" style="--v:0.934" role="img" title="3.53 M op/s on its 3 – color-space 3.78 on them" aria-label="3.53 M op/s on its 3 – color-space 3.78 on them"></span></td><td data-t="js">JS</td></tr>
+		<tr><th scope="row"><a href="https://github.com/colorjs/color-space" title="3.6.0 · CC0-1.0"><img class="fav" src="./img/locus-64.png" alt="" width="16" height="16" loading="lazy"><span>color-space</span></a></th><td><span data-fact="nn">221</span></td><td>31</td><td><span data-fact="lc">16</span></td><td>0–255</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>ΔE</code> <code>contrast</code> <code>CVD</code></div></td><td><span data-fact="jskb">70</span> kB</td><td><span class="sbar" style="--v:1.000" role="img" title="16.01 M op/s" aria-label="16.01 M op/s"></span></td><td data-t="js wasm gl lut icc ocio mcp figma vscode cli web">JS, WASM, GL, LUT, ICC, OCIO, MCP, Figma, VS Code, CLI, web</td></tr>
+		<tr><th scope="row"><a href="https://culorijs.org" title="4.0.2 · MIT"><img class="fav" src="./img/fav/culori.png" alt="" width="16" height="16" loading="lazy"><span>culori</span></a></th><td>30</td><td>–</td><td>1</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>gamut</code> <code>ΔE</code> <code>contrast</code> <code>CVD</code></div></td><td>23 kB</td><td><span class="sbar" style="--v:0.650" role="img" title="10.41 M op/s – color-space 16.01" aria-label="10.41 M op/s – color-space 16.01"></span></td><td data-t="js">JS</td></tr>
+		<tr><th scope="row"><a href="https://colorjs.io" title="0.7.1 · MIT"><img class="fav" src="./img/fav/colorjs.svg" alt="" width="16" height="16" loading="lazy"><span>colorjs.io</span></a></th><td>51</td><td>–</td><td>–</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>gamut</code> <code>ΔE</code> <code>contrast</code></div></td><td>34 kB</td><td><span class="sbar" style="--v:0.017" role="img" title="0.27 M op/s, its object API – color-space 16.01" aria-label="0.27 M op/s, its object API – color-space 16.01"></span></td><td data-t="js web">JS, web</td></tr>
+		<tr><th scope="row"><a href="https://gka.github.io/chroma.js/" title="3.3.0 · BSD-3-Clause, Apache-2.0"><i class="fav"></i><span>chroma-js</span></a></th><td>11</td><td>–</td><td>–</td><td>0–255</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>ΔE</code> <code>contrast</code> <code>palettes</code></div></td><td>18 kB</td><td><span class="sbar" style="--v:0.107" role="img" title="1.93 M op/s on its 6 – color-space 17.96 on them" aria-label="1.93 M op/s on its 6 – color-space 17.96 on them"></span></td><td data-t="js">JS</td></tr>
+		<tr><th scope="row"><a href="https://github.com/texel-org/color" title="1.1.11 · MIT"><i class="fav"></i><span>@texel/color</span></a></th><td>16</td><td>–</td><td>–</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>gamut</code> <code>ΔE</code></div></td><td>9 kB</td><td><span class="sbar" style="--v:0.916" role="img" title="10.22 M op/s on its 3 – color-space 11.16 on them" aria-label="10.22 M op/s on its 3 – color-space 11.16 on them"></span></td><td data-t="js">JS</td></tr>
 		<tr><th scope="row"><a href="https://www.colour-science.org/" title="0.4.7 · BSD-3-Clause"><img class="fav" src="./img/fav/colour-science.png" alt="" width="16" height="16" loading="lazy"><span>colour-science</span></a></th><td>128</td><td>24</td><td>6</td><td>0–1</td><td class="kit"><div><code>ΔE</code> <code>CVD</code></div></td><td>–</td><td>–</td><td data-t="py lut">Python, LUT</td></tr>
-		<tr><th scope="row"><a href="https://facelessuser.github.io/coloraide/" title="8.13.1 · MIT"><img class="fav" src="./img/fav/coloraide.png" alt="" width="16" height="16" loading="lazy"><span>ColorAide</span></a></th><td>77</td><td>–</td><td>–</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>gamut</code> <code>ΔE</code> <code>contrast</code> <code>CVD</code> <code>palettes</code></div></td><td>–</td><td>–</td><td data-t="py">Python</td></tr>
+		<tr><th scope="row"><a href="https://facelessuser.github.io/coloraide/" title="8.14.1 · MIT"><img class="fav" src="./img/fav/coloraide.png" alt="" width="16" height="16" loading="lazy"><span>ColorAide</span></a></th><td>77</td><td>–</td><td>–</td><td>0–1</td><td class="kit"><div><code>parse</code> <code>mix</code> <code>gamut</code> <code>ΔE</code> <code>contrast</code> <code>CVD</code> <code>palettes</code></div></td><td>–</td><td>–</td><td data-t="py">Python</td></tr>
 		<tr><th scope="row"><a href="https://zeileis.codeberg.page/colorspace/" title="2.1-4 · BSD-3-Clause"><img class="fav" src="./img/fav/r-colorspace.png" alt="" width="16" height="16" loading="lazy"><span>colorspace (R)</span></a></th><td>9</td><td>–</td><td>–</td><td>0–1</td><td class="kit"><div><code>mix</code> <code>contrast</code> <code>CVD</code> <code>palettes</code></div></td><td>–</td><td>–</td><td data-t="r web">R, web</td></tr>
 		<tr><th scope="row"><a href="https://opencolorio.org/" title="2.6.0 · BSD-3-Clause"><img class="fav" src="./img/fav/opencolorio.png" alt="" width="16" height="16" loading="lazy"><span>OpenColorIO</span></a></th><td>57</td><td>11</td><td>–</td><td>0–1</td><td class="kit"><div><code>gamut</code></div></td><td>–</td><td>–</td><td data-t="cpp py gl lut icc">C++, Python, GL, LUT, ICC</td></tr>
 		<tr><th scope="row"><a href="http://www.brucelindbloom.com/index.html?ColorCalculator.html"><img class="fav" src="./img/fav/lindbloom.png" alt="" width="16" height="16" loading="lazy"><span>Bruce Lindbloom</span></a></th><td>22</td><td>–</td><td>–</td><td>0–1, 0–255</td><td class="kit"><div><code>ΔE</code></div></td><td>–</td><td>–</td><td data-t="web">web</td></tr>
@@ -1697,7 +1710,7 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 		</tbody>
 	</table>
 	</div>
-	<p class="vsnote" data-i18n="compare.note">From each project's own source, package or page, 2026-10-18.</p>
+	<p class="vsnote" data-i18n="compare.note">From each project's own source, package or page, 2026-11-11.</p>
 </details></section>
 
 </div>
@@ -1706,9 +1719,9 @@ code --add-mcp '{"name":"color-space","command":"npx","args":["-y","color-space"
 	<div class="fbody">
 		<div class="fcols">
 			<div><p class="plab" data-i18n="ui.footer.project">Project</p><ul><li><a href="https://github.com/colorjs/color-space">GitHub</a></li><li><a href="https://www.npmjs.com/package/color-space">npm</a></li><li><a href="https://github.com/colorjs" title="the colorjs family of color packages" data-i18n="title:ui.footer.colorjs">colorjs</a></li></ul></div>
-			<div><p class="plab" data-i18n="ui.footer.research">Research</p><ul><li><button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff" data-i18n="ui.footer.cite title:ui.footer.cite-tip">Cite</button></li><li><a href="https://github.com/colorjs/color-space/issues/new?template=wrong-value.yml" data-i18n="ui.footer.report">Report an error</a></li><li><a href="https://github.com/colorjs/color-space/issues/new?template=new-space.yml" data-i18n="ui.footer.suggest">Suggest a space</a></li></ul></div>
+			<div><p class="plab" data-i18n="ui.footer.research">Research</p><ul><li><button class="cite" type="button" popovertarget="citep" title="cite color-space – BibTeX and APA, from CITATION.cff" data-i18n="ui.footer.cite title:ui.footer.cite-tip">Cite</button></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md" data-i18n="ui.footer.verified">How it’s verified</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/errata.md" data-i18n="ui.footer.errata">Errata in sources</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/conformance.md" data-i18n="ui.footer.conformance">Conformance suite</a></li></ul></div>
 			<div><p class="plab" data-i18n="ui.footer.supported">Supported by</p><ul><li><a href="https://www.herodevs.com">HeroDevs</a></li><li><a href="https://thanks.dev">thanks.dev</a></li><li><a href="https://github.com/sponsors/colorjs" data-i18n="ui.footer.support">Sponsor</a></li></ul></div>
-			<div><p class="plab" data-i18n="ui.footer.checked">Checked against</p><ul><li><a href="https://colorjs.io">colorjs.io</a></li><li><a href="https://github.com/ampas/aces-dev" data-i18n="ui.footer.aces">ACES transforms</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/formula-verification.md" data-i18n="ui.footer.verified">How it’s verified</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/errata.md" data-i18n="ui.footer.errata">Errata in sources</a></li><li><a href="https://github.com/colorjs/color-space/blob/master/docs/conformance.md" data-i18n="ui.footer.conformance">Conformance suite</a></li></ul></div>
+			<div><p class="plab" data-i18n="ui.footer.checked">Checked against</p><ul><li><a href="https://colorjs.io">colorjs.io</a></li><li><a href="https://github.com/ampas/aces-dev" data-i18n="ui.footer.aces">ACES transforms</a></li></ul></div>
 		</div>
 		<div class="fend">
 			<p class="fatlas" data-i18n="ui.footer.atlas">An open, interactive atlas of color spaces, from web to print and vision science. Started in 2016 as a collection of conversions.</p>
@@ -1808,10 +1821,10 @@ const autoStep=t=>{ if(!autoColor) return
 	// a second's leap (ΔE OK 0.037 across a 1 s stall, measured; 0.009 now – the 300 ms after it)
 	if(dt>4*AUTO_FRAME&&!PICK&&!autoHold) autoStart+=dt-AUTO_FRAME   // a held orbit keeps its own clock (PICK, autoHold)
 	if(PICK) autoStart+=dt
-	// every frame the color moves – the thumbs, the markers, the numbers glide (a light frame), and an open card's bars with
-	// them, backed off or not: a GPU sweep each, never stepped (a step cross-faded had its half-clear faces stack denser).
-	// The paint that costs, a step at the pace: under a card thirty a second – the planes, the solid, the figure – the
-	// catalog round it on its own tier (catalogBehind); on the catalog twenty steps a second, its strips' cost
+	// every frame the color moves – the thumbs, the markers, the numbers glide (a light frame). The paint that costs, a step
+	// at the pace: under a card thirty a second – the solid, the figure, the code – its fields (the planes, the bars' sweeps)
+	// and the catalog round it a tier slower, cross-faded (scheduleFast's FADE, catalogBehind); on the catalog twenty steps
+	// a second, its strips' cost
 	else if(!autoHold){ const card=open(), gap=Math.max(autoGap,card?AUTO_CARD:AUTO_FRAME), full=t-autoLast>=gap; if(full) autoLast=t
 		const elapsed=t-autoStart, w=clamp(elapsed/AUTO_FADE,0,1), h=elapsed/AUTO_PERIOD*360%360, r=h*Math.PI/180
 		// BREATHING wheel: L and C swell on 2- and 3-cycle waves over one revolution –
@@ -1931,9 +1944,13 @@ if(cvalEl){
 		return !!p }
 	// an image taken: its prominent colors – three to five, near twins folded (js/extract.js), most present first – the
 	// field's palette; what the field held kept among the recent
-	// an image being read: the field empty, saying so, not to be typed in – then its text back as it was
-	let unread=null
-	document.addEventListener('imgbusy',e=>{ if(e.detail){ unread??={ v:cvalEl.value, p:cvalEl.placeholder }; cvalEl.value=''; cvalEl.placeholder=t('ui.img.reading','reading the image…') }
+	// an image being read: the field empty, saying so, not to be typed in – then its text back as it was. A large one
+	// decodes for seconds and a browser's decoder tells no share of it done: the field counts the seconds it has taken
+	let unread=null, readT=0
+	document.addEventListener('imgbusy',e=>{ clearInterval(readT)
+		if(e.detail){ unread??={ v:cvalEl.value, p:cvalEl.placeholder }; cvalEl.value=''
+			const say=cvalEl.placeholder=t('ui.img.reading','reading the image…'), t0=performance.now()
+			readT=setInterval(()=>{ cvalEl.placeholder=`${say} ${Math.round((performance.now()-t0)/1000)} s`; fitVal() },1000) }
 		else if(unread){ cvalEl.value=unread.v; cvalEl.placeholder=unread.p; unread=null }
 		cvalEl.readOnly=e.detail; e.detail?cvalEl.setAttribute('aria-busy','true'):cvalEl.removeAttribute('aria-busy')
 		cxEl.classList.toggle('busy',e.detail); cxEl.classList.toggle('empty',!cvalEl.value.trim()&&!virginNow()); fitVal() })
@@ -2245,7 +2262,7 @@ if(cvalEl){
 		master={ s:'rgb', vals:[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)) }
 		scheduleFast(); if(open()) queuePlaneSettle() })
 	const walk=b=>{ sugEl.querySelectorAll('.fmtr').forEach(r=>{ r.classList.toggle('on',r===b); r.setAttribute('aria-selected',r===b) }); sugEl.querySelector('.hot')?.classList.remove('hot'); ghostOf([]); peek(b) }   // a row walked to: lit, and shown on the page and in the field – the greyed-in name giving way to its text
-	// the promise's first words are the field's ways in: a color, a palette, a gradient – the field taken, the first row of
+	// the promise's first words are the field's ways in: a color, a palette, a gradient, a colormap – the field taken, the first row of
 	// that kind walked to once the lists have landed (with nothing typed, the one drawn; with a color in hand, the one round
 	// it); an image, the stripe under its button
 	const hsubEl=document.getElementById('hsub')
@@ -2349,24 +2366,18 @@ const fitMoving=()=>{ twin.textContent=(cvalEl.value||cvalEl.placeholder||' ')+'
 const fitField=()=>{ const b=[...hqEl.querySelectorAll('.hib')].find(b=>b.offsetParent); if(b){ hcolorEl.style.setProperty('--hqw',hqEl.getBoundingClientRect().width+'px'); hcolorEl.style.setProperty('--hfw',Math.max(0,b.getBoundingClientRect().left-cxEl.getBoundingClientRect().left)+'px') } fitVal() }   // no hero shown (an embed): nothing to fit to
 new ResizeObserver(fitField).observe(hqEl)
 // the row's edge pointed at opens to the row's height (.wide) – the colors in hand as the row's ground – and what sits on
-// it takes the ink that reads there: the swatches' rule (ink) on the colors under it, the row's controls and the docked
-// color each their own stretch of the edge; shut once the pointer leaves the row
-{	const edgeEl=stripEl.querySelector('.medge'), cellsEl=stripEl.querySelector('.cells'), plugsEl=document.querySelector('.hplugs')
+// it takes ONE ink, the row's whole length: the swatches' rule (ink) on the colors in hand averaged along the edge – the
+// row's controls, the docked color's words, the plugins alike. Each stretch once took its own and the value's words each
+// glyph's own: a palette's or a gradient's line turned from light to dark halfway (till 2026-11). Shut once the pointer
+// leaves the row
+{	const edgeEl=stripEl.querySelector('.medge'), plugsEl=document.querySelector('.hplugs')
 	// the edge's color at f of the window's width: a gradient's run, a list's bands, else the one color (the hue wheel round
 	// it zoomed to it, its lightness and chroma all along)
 	const at=f=>{ if(GRAD){ const p=gradIn('rgb'); return p[Math.round(f*(p.length-1))] }
 		if(STOPS){ const c=STOPS[Math.min(STOPS.length-1,f*STOPS.length|0)]; return rgbF(c.s,c.vals) } return RGB() }
-	const inkOver=(x0,x1)=>{ const m=[0,0,0]; for(let k=0;k<9;k++){ const c=at(clamp((x0+(x1-x0)*k/8)/innerWidth,0,1)); for(let j=0;j<3;j++) m[j]+=c[j]/9 } return ink(m) }
+	const inkOver=()=>{ const m=[0,0,0], N=32; for(let k=0;k<=N;k++){ const c=at(k/N); for(let j=0;j<3;j++) m[j]+=c[j]/(N+1) } return ink(m) }
 	const shut=()=>{ for(const el of [stripEl,hcolorEl,plugsEl]) el?.classList.remove('wide') }
-	edgeEl.addEventListener('pointerenter',()=>{ const ks=[...cellsEl.children].filter(e=>e.offsetParent&&!e.matches('.fill')).map(e=>e.getBoundingClientRect()), cx=cxEl.getBoundingClientRect()
-		if(ks.length) stripEl.style.setProperty('--eink',inkOver(Math.min(...ks.map(r=>r.left)),Math.max(...ks.map(r=>r.right))))
-		hcolorEl.style.setProperty('--eink',inkOver(cx.left,cx.right)); stripEl.classList.add('wide'); hcolorEl.classList.add('wide')
-		if(plugsEl){ const p=plugsEl.getBoundingClientRect(); plugsEl.style.setProperty('--eink',inkOver(p.left,p.right)); plugsEl.classList.add('wide') }   // the plugins over the opened edge too, in the ink that reads on its color under them
-		// the value's own words, each glyph the ink that reads on the color right under it – a colormap's dark ends and light
-		// middle under one line of text: the ink in steps along the value's box (--einks, the text's fill)
-		const v=cvalEl.getBoundingClientRect(), N=48; let st=[], prev=null
-		for(let k=0;k<=N;k++){ const c=ink(at(clamp((v.left+v.width*k/N)/innerWidth,0,1))); if(c!==prev){ if(prev) st.push(`${prev} ${(k/N*100).toFixed(1)}%`,`${c} ${(k/N*100).toFixed(1)}%`); prev=c } }
-		hcolorEl.style.setProperty('--einks',`linear-gradient(90deg,${[ink(at(clamp(v.left/innerWidth,0,1))),...st,prev].join(',')})`) })
+	edgeEl.addEventListener('pointerenter',()=>{ const e=inkOver(); for(const el of [stripEl,hcolorEl,plugsEl]){ el?.style.setProperty('--eink',e); el?.classList.add('wide') } })
 	addEventListener('pointermove',e=>{ if(stripEl.classList.contains('wide')&&e.clientY>stripEl.getBoundingClientRect().bottom) shut() },{ passive:true })
 	document.documentElement.addEventListener('pointerleave',shut) }
 // the hero field's image button opens the sample stripe (a popover under it), not the file chooser; the chooser is the
@@ -2458,12 +2469,11 @@ const dropImg=e=>[...(e.dataTransfer?.items||[])].some(x=>x.kind==='file'&&x.typ
 // histogram and scope, the bitmap the dossier's lens decomposes, and the row's rhombus
 const takeImage=(f,key)=>{ if(!f||!(/^image\//.test(f.type)||/\.hei[cf]$/i.test(f.name||''))) return   // HEIC often arrives typeless
 	upOpen(false)   // an image through ANY door retires the stripe with its button (body.himg hides the seat)
-	// …and takes its place at the head of the stripe's memory. A stripe pick carries its
-	// own key (no re-store); a fresh file keys on name+size, so the same file re-dropped
-	// moves forward instead of duplicating
-	if(!key){ key='u:'+(f.name||'image')+':'+(f.size||0); idbPut(key,f); track(EVENT.drop()) }   // a fresh image of the visitor's own (drop, paste, picker) – counted by name only, never the file
-	mruBump(key)
-	palFromImage(f) }
+	// …and, once read, takes its place at the head of the stripe's memory – one that could not be read is not kept (it
+	// once stood among the recent, never having become the image). A stripe pick carries its own key (no re-store); a
+	// fresh file keys on name+size, so the same file re-dropped moves forward instead of duplicating
+	const fresh=!key; if(fresh){ key='u:'+(f.name||'image')+':'+(f.size||0); track(EVENT.drop()) }   // a fresh image of the visitor's own (drop, paste, picker) – counted by name only, never the file
+	palFromImage(f).then(read=>{ if(!read) return; if(fresh) idbPut(key,f); mruBump(key) }) }
 // a large photo or a HEIC decodes for seconds: the field says so meanwhile (imgbusy), and has its text back before the
 // image's colors take it – what it held goes to the recent as with any other change
 const imgBusy=on=>{ IMGBUSY=on; document.dispatchEvent(new CustomEvent('imgbusy',{ detail:on })) }
@@ -2484,7 +2494,7 @@ async function palFromImage(f){ let pal=null; imgBusy(true)
 	finally{ imgBusy(false) }
 	if(!pal) return
 	document.dispatchEvent(new CustomEvent('imgpal',{ detail:pal }))   // its colors in hand (the field's, js: imgpal)
-	toast(t('ui.toast.img-pal','the image\'s colors, and its histogram')) }
+	toast(t('ui.toast.img-pal','the image\'s colors, and its histogram')); return true }
 let dragN=0
 addEventListener('dragenter',e=>{ if(!dropImg(e)) return; dragN++; if(dropEl) dropEl.hidden=false })
 addEventListener('dragleave',()=>{ if(dragN&&!--dragN&&dropEl) dropEl.hidden=true })
@@ -6069,6 +6079,27 @@ function paintPlaneDensityLayer(pl,s,a,b,cls,w,h){ const dc=planeDensity(pl,s,a,
 // overlays never join that work. JS is only the no-WebGL2 fallback.
 const planeMs={}
 let planeNext=0, planeLiveNext=0, planeLiveCursor=0, planesLive=false, planeSettleToken=0
+// Under the orbit a card's fields – its planes, its bars' sweeps – go a step every BEHIND_MS, as the rows round the card
+// do, each face cross-fading into the next; the thumbs, the markers and the numbers move every frame. The fields are GPU
+// kernels, but each is copied out of the shared GL canvas into its own 2D one, and in Safari and Firefox that copy waits
+// for the kernel and reads its pixels back: thirty planes and sixty sweeps a second held their main thread (OSA-UCS,
+// whose inverse runs some two hundred evaluations a pixel: 860 ms of every 3 s in Playwright's WebKit on an M4 Max, 44 ms
+// at this pace). A color in hand paints its fields at once.
+// FADE, the frame's order to them: 0 at once · >0 a step, cross-faded over that many ms · <0 the orbit between two steps
+let FADE=0, fieldAt=-Infinity
+// a field's last face kept on a twin canvas over it, going clear through the step as the new one stands whole under it.
+// Each wears the checker itself, so both are opaque and the two sum to one face all the way through (half-clear faces
+// laid over each other stack denser – the bars' steps once did, 2026-10). Asked before the field is repainted (a GPU
+// field's copy lands at its task's end); ms not above 0 lets the twin go
+const xfade=(cv,ms)=>{ let tw=cv._xf
+	if(!(ms>0)){ if(tw?._on){ tw._on=false; tw._fade?.cancel(); tw.style.display='none' } return }
+	if(tw?._on&&tw._at===fieldAt||!cv.width||!cv.height) return   // asked again within the step (the planes re-placing their marks): the face kept is the step's first
+	if(!tw){ tw=cv._xf=document.createElement('canvas'); tw.className='xf'; tw.setAttribute('aria-hidden','true'); cv.after(tw) }
+	if(tw.width!==cv.width||tw.height!==cv.height){ tw.width=cv.width; tw.height=cv.height }
+	const x=tw.getContext('2d',{ colorSpace:cv.getContext('2d')?.getContextAttributes?.().colorSpace||'srgb' }); if(!x) return
+	x.clearRect(0,0,tw.width,tw.height); x.drawImage(cv,0,0)
+	tw._on=true; tw._at=fieldAt; tw.style.display=''; tw._fade?.cancel()
+	tw._fade=tw.animate({ opacity:[1,0] },{ duration:ms, fill:'forwards' }) }
 function queuePlaneSettle(){ const token=++planeSettleToken; planeNext=Infinity
 	setTimeout(()=>ric(()=>{ if(token!==planeSettleToken) return
 		if(!open()||isBarred(selected)){ planeNext=0; return }
@@ -6178,6 +6209,7 @@ function paintPlanes(fast,livePick=false){ if(!open()||isBarred(selected)||detai
 		// equilateral silhouettes: the CANVAS takes the triangle's own bounding ratio (√3/2)
 		// inside the unchanged square box, so every side measures equal on screen
 		const resW=tri===3?Math.round(res*0.8660254):res, resH=tri===1?Math.round(res*0.8660254):res
+		xfade(cv,FADE)   // the orbit's step: the face it leaves kept over it – before a new size clears it
 		if(cv.width!==resW||cv.height!==resH){ cv.width=resW; cv.height=resH }
 		if(!(canGL&&paintPlaneGL(cv,s,vals,a,b,pol||tri?[cls.ch[a].min,cls.ch[a].max]:rx,pol||tri?[cls.ch[b].min,cls.ch[b].max]:ry,GM,glq,pol,tri,QM,PDOWN||!HIMG&&!qTriple(Q))))   // in a drag, copied out with the task's other kernels; at rest under a snapping lens (its marker reads the painted field) or an image, at once
 			plane(cv.getContext('2d'),res,s,vals,a,b,rx,ry,true,GM,q)
@@ -6254,6 +6286,13 @@ const RAMP_GUIDES=48
 // the layers' fade is one CSS constant: read once – a getComputedStyle per strip forced a style pass per strip
 let gbgMs
 const transitionMs=el=>{ const d=getComputedStyle(el).transitionDuration.split(',')[0].trim(); return parseFloat(d)*(d.endsWith('ms')?1:1000)||0 }
+// the layers whose fade has ended – an end heard, a timer run – settle a frame's worth together: every one asked whether
+// it still runs first (one style pass for all), then every write. Asked and dropped one by one, each ask flushed the
+// styles the drop before it had dirtied – sixty strips round a card, four steps a second
+const gbgEnded=new Set(); let gbgRaf=0
+const gbgSettle=()=>{ gbgRaf=0; const jobs=[...gbgEnded]; gbgEnded.clear()
+	const runs=jobs.map(j=>j.next.isConnected&&j.next.getAnimations().find(a=>a.transitionProperty==='opacity'&&a.playState==='running'))
+	jobs.forEach((j,i)=>runs[i]?runs[i].finished.then(j.finish,j.finish):j.drop()) }
 // a new layer fades in from its @starting-style – no forced reflow per strip to arm the transition
 // morph: true, the page's cross-fade (--dur-short, eased out); a number, a cross-fade of that many ms, linear – the rows
 // round a card (catalogBehind), each face crossing over the last in their step's time, the next coming as it lands
@@ -6268,14 +6307,14 @@ const setCatalogGradient=(ch,bg,morph=true)=>{ if(!morph){ ch.style.background=b
 	// done only once this layer stands whole: a fade started late, or over again (a busy frame, a style flushed mid-fade),
 	// is waited out – an end heard or a timer run while it still stood clear dropped the faces under it, and the strip
 	// flashed the bare panel (a card scrolled under the orbit: its plates painting in, the rows round it a step each 250 ms)
-	const finish=()=>{ if(done)return
-		const run=next.isConnected&&next.getAnimations().find(a=>a.transitionProperty==='opacity'&&a.playState==='running')
-		if(run){ run.finished.then(finish,finish); return }
+	// – asked of all the frame's ended layers together (gbgSettle)
+	const drop=()=>{ if(done)return
 		done=true; next.removeEventListener('transitionend',onend); clearTimeout(next._timer)
 		const stack=ch._gradStack, i=stack?.indexOf(next)??-1; if(i<0)return
 		// Once this opaque checker-backed layer reaches 1, everything below it is
 		// visually covered. Newer in-flight layers remain exactly where they are.
 		stack.slice(0,i).forEach(el=>{ clearTimeout(el._timer); el.remove() }); ch._gradStack=stack.slice(i) }
+	const job={ next, drop }, finish=job.finish=()=>{ if(done)return; gbgEnded.add(job); gbgRaf||=requestAnimationFrame(gbgSettle) }
 	const onend=e=>{ if(e.propertyName==='opacity') finish() }
 	next.addEventListener('transitionend',onend)
 	const ms=typeof morph==='number'?morph:gbgMs??=transitionMs(next); if(ms) next._timer=setTimeout(finish,ms*2); else finish() }
@@ -6387,7 +6426,7 @@ const paintCatalogThrottledValues=()=>{ const wait=CATALOG_VALUE_THROTTLE-(perfo
 // (renderFast), their strips and numbers a step every 250 ms (BEHIND_MS), the strips cross-fading, the last color always landing – the orbit's and a
 // hand's in the card alike, the strips from the pool, a drag's included (they once waited for its release: the rows round
 // the card stood still, then leapt); the card's close catches all of it up (closeModal)
-const BEHIND_MS=250   // the rows round a card a step every quarter second: their thumbs carry the motion every frame, each strip cross-fading into its next over the step – a glide, not a jump
+const BEHIND_MS=250   // the rows round a card, and under the orbit the card's own fields, a step every quarter second: their thumbs carry the motion every frame, each face cross-fading into its next over the step – a glide, not a jump
 let behindT=0, behindLast=0, behindSeen=null   // behindSeen: the catalog shows round the card – a phone's sheet hides it whole (CSS), asked once a card
 addEventListener('resize',()=>{ behindSeen=behindRows=null })   // a turned phone may show it again
 const behindShown=()=>behindSeen??=getComputedStyle(cat).visibility!=='hidden'   // asked once a card: a phone's sheet hides the catalog whole (CSS)
@@ -6628,6 +6667,7 @@ function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=
 	// (a bar being dragged keeps its background frozen so it never shifts under the pointer)
 	const barGM=gmFor(cls)   // the one sweep-lens rule — see gmFor
 	const barGL=planeGLStatus(s,barGM,Q??0)==='ready'
+	const hold=FADE<0&&barGL   // the orbit between two steps of its fields: a GPU sweep keeps its face (a CSS one, cheap, moves with every frame)
 	const hpb=HIMG?histC.get(s):null
 	detail.querySelectorAll('.bar2').forEach(bar=>{ const i=+bar.dataset.i, c=cls.ch[i]; stripMarks(bar,s,i); if(!PDOWN&&!light) barInk(bar)
 		// the image's distribution, in the dossier's own lane – same curve as the catalog's
@@ -6638,8 +6678,9 @@ function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=
 			if(h._p!==p){ h._p=p
 				if(p){ h.firstChild.style.webkitMaskImage=p; h.firstChild.style.maskImage=p }
 				h.style.display=p?'':'none' } }
-		if(bar!==dragBar&&bars){ let bg
+		if(bar!==dragBar&&bars&&!hold){ let bg
 			const bgel=bar.querySelector('.bg'), bgc=bar.querySelector('.bgc')
+			xfade(bgc,barGL?FADE:0)
 			// Every lens paints through the same GPU kernel as the planes: numeric cell
 			// centers, exact web/name/even regions, and per-pixel gamut treatment. The
 			// CSS branch is only the no-WebGL/compile-moment fallback.
@@ -6647,7 +6688,7 @@ function renderFast(solid=true,light=false,bars=!light){ if(STOPS) STOPS[STOPI]=
 				bgc.style.display='block'
 				bgel.style.backgroundImage='none'; bgel.style.webkitMaskImage=bgel.style.maskImage='none' }
 			else{
-				bgc.style.display='none'
+				bgc.style.display='none'; xfade(bgc,0)
 				if(typeof Q==='number') bg=stepped(qCells(s,shown,i,c,Q,barGM))   // flat cells, lens alpha at each centre – like the GL bars
 				else if(qTriple(Q)) bg=qBarGradient(s,shown,i,c,qTriple(Q),barGM)
 				// the lens rides IN the ramp (ghost alpha, void transparency) over the bar's
@@ -6777,10 +6818,13 @@ let raf, settleT, planeTrailT=0, rfFull=false, rfBars=false
 const scheduleFast=(ambient=false,light=false,bars=!light)=>{ if(!ambient){ autoColor=false }
 	rfFull||=!light; rfBars||=bars   // a frame asked in full stays full, whatever light one comes after it before it runs; one with the card's bars, its bars
 	cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{ const full=rfFull, bars=rfBars; rfFull=rfBars=false
-		renderFast(true,!full,bars); if(!full) return
+		// the orbit under a card: its fields a step every BEHIND_MS, cross-faded (FADE, xfade) – whether the frame is full or light
+		const now=performance.now(), orbit=autoColor&&open(), step=orbit&&now-fieldAt>=BEHIND_MS; if(step) fieldAt=now
+		FADE=orbit?step?BEHIND_MS:-1:0
+		renderFast(true,!full,bars); if(!full&&!step){ FADE=0; return }
 		// the settle is for a color at rest: the orbit never rests – a frame late past the settle would repaint every row
 		// in full under a color the next step replaces, and that repaint makes the next frame late (a 1 s stall, looping)
-		clearTimeout(settleT); settleT=setTimeout(()=>{ if(PDOWN) owe(1); else if(!open()&&!autoColor) settleCatalog() },CURRENT_SETTLE)
+		if(full){ clearTimeout(settleT); settleT=setTimeout(()=>{ if(PDOWN) owe(1); else if(!open()&&!autoColor) settleCatalog() },CURRENT_SETTLE) }
 		// the planes at most every planeNext (a CPU paint's own cost), and always the last color: a change inside the wait
 		// is painted when it ends, not left on the one before
 		clearTimeout(planeTrailT); planeTrailT=0
@@ -6788,9 +6832,11 @@ const scheduleFast=(ambient=false,light=false,bars=!light)=>{ if(!ambient){ auto
 		// none: the orbit goes on under it, and the planes with it (they stood still for the turn's length)
 		const held=()=>PDOWN&&!drag3
 		if(held()){ if(open()) owe(2) }
+		else if(orbit){ if(step&&now>=planeNext) paintPlanes(true) }   // the orbit's planes at their step, with the bars'
 		else{ const wait=planeNext-performance.now()
 			if(wait<0) paintPlanes(true)
-			else if(wait<Infinity) planeTrailT=setTimeout(()=>{ planeTrailT=0; if(!held()&&performance.now()>=planeNext) paintPlanes(true) },wait+1) } }) }
+			else if(wait<Infinity) planeTrailT=setTimeout(()=>{ planeTrailT=0; if(!held()&&performance.now()>=planeNext) paintPlanes(true) },wait+1) }
+		FADE=0 }) }
 
 // theme: init happens inline in <head> (pre-paint); this only toggles + persists
 const thm=document.getElementById('thm')
