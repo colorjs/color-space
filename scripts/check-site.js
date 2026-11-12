@@ -1301,16 +1301,23 @@ try {
 		assert.notEqual(p2,p1,'the planes repaint while the solid is turned')
 		await tc.close() }
 	// the solid's figure shows its grid at once and the solid when it lands, a disc pulsing inside the grid till then. With
-	// every program's link held unfinished for 900 ms – a slow driver's – no frame shows it neither waiting nor drawn (the
-	// pulse ended at the first draw asked for, and through the link the frame stood empty, as if nothing were coming), and
-	// through the wait the grid is in view, the last solid's canvas and its marks not
+	// every program's link held unfinished – a slow driver's – till 900 ms after the grid is drawn, no frame shows it neither
+	// waiting nor drawn (the pulse ended at the first draw asked for, and through the link the frame stood empty, as if
+	// nothing were coming), and through the wait the grid is in view, the last solid's canvas and its marks not. (Held 900 ms
+	// from each program's own link, the wait was whatever of them a host left once the page had booted and drawn the grid:
+	// 0.45 s on the runner that builds the site, under the 0.6 asked – two deploys failed on it)
 	{	const lc=await browser.newContext({ viewport:{ width:1440, height:900 }, reducedMotion:'reduce' }), slow=await lc.newPage(); slow.on('pageerror',e=>errors.push(e.message))
-		await slow.addInitScript(()=>{ globalThis.__fig=[]; const born=new WeakMap(), P=WebGL2RenderingContext.prototype, link=P.linkProgram, get=P.getProgramParameter
-			P.linkProgram=function(pr){ born.set(pr,performance.now()); return link.call(this,pr) }
-			P.getProgramParameter=function(pr,q){ return q===0x91B1&&performance.now()-(born.get(pr)??0)<900?false:get.call(this,pr,q) }   // COMPLETION_STATUS_KHR
+		await slow.addInitScript(()=>{ globalThis.__fig=[]; let gridAt=Infinity, linked=false; const P=WebGL2RenderingContext.prototype, get=P.getProgramParameter, link=P.linkProgram, fence=P.fenceSync, sync=P.getSyncParameter, links=new WeakSet(), held=()=>performance.now()-gridAt<900
+			P.getProgramParameter=function(pr,q){ return q===0x91B1&&held()?false:get.call(this,pr,q) }   // COMPLETION_STATUS_KHR, where the host has it…
+			// …and the fence after a link (gl.js track), on every host: unsignaled as long
+			P.linkProgram=function(pr){ linked=true; return link.call(this,pr) }
+			P.fenceSync=function(...a){ const f=fence.apply(this,a); if(linked&&f) links.add(f); linked=false; return f }
+			P.getSyncParameter=function(f,q){ return q===0x9114&&links.has(f)&&held()?0x9118:sync.call(this,f,q) }   // SYNC_STATUS: UNSIGNALED
 			const shown=e=>!!e&&getComputedStyle(e).visibility==='visible'&&getComputedStyle(e).display!=='none'
 			const tick=()=>{ const el=document.querySelector('.vgrp[data-f="3d"] #pl3d'), q=c=>el.querySelector(c)
-				if(el) globalThis.__fig.push({ t:performance.now(), busy:el.classList.contains('busy'), drawn:!!q('.mesh3')?._sceneKey, grid:!!q('.grid3')?._gridKey&&shown(q('.grid3')), body:shown(q('.mesh3')), disc:shown(q('.p3w')) })
+				if(el){ const f={ t:performance.now(), busy:el.classList.contains('busy'), drawn:!!q('.mesh3')?._sceneKey, grid:!!q('.grid3')?._gridKey&&shown(q('.grid3')), body:shown(q('.mesh3')), disc:shown(q('.p3w')) }
+					if(f.grid&&gridAt===Infinity) gridAt=f.t
+					globalThis.__fig.push(f) }
 				requestAnimationFrame(tick) }
 			requestAnimationFrame(tick) })
 		await slow.goto(`${server.origin}/cam16-ucs?sw&cb=${Date.now()}`,{waitUntil:'networkidle'})
@@ -1644,7 +1651,7 @@ try {
 				seen.draws.push({ n, reads: !!at('uWallC'), asks: !!at('uStep') && !at('uWallC'), box: lo && hi ? [...gl.getUniform(pr, lo), ...gl.getUniform(pr, hi)] : null }); return de(m, n, ...a) } })
 		{ const r = await op.locator('#pl3d').boundingBox(), x = r.x + r.width / 2, y = r.y + r.height / 2
 			await op.mouse.move(x, y); await op.mouse.down(); await op.evaluate(() => { window.__caps.draws.length = 0 })
-			await op.mouse.move(x + 12, y + 4); await op.waitForTimeout(100); await op.mouse.up() }
+			await op.mouse.move(x + 12, y + 4); await op.waitForFunction(() => window.__caps.draws.some((d) => d.reads), null, { timeout: 30000 }).catch(() => {}); await op.waitForTimeout(100); await op.mouse.up() }   // a turned frame drawn, however slow the host
 		const caps = await op.evaluate(() => { const seen = window.__caps; seen.restore(); delete window.__caps
 			const cap = seen.draws.filter((d) => d.reads), body = seen.draws.filter((d) => !d.reads && !d.asks), big = Math.max(0, ...body.map((d) => d.n))
 			const frames = big ? body.filter((d) => d.n === big).length / 3 : cap.length / 18, area = cap.map(({ box: b }) => (b[3] - b[0]) * (b[4] - b[1]) * (b[5] - b[2]))
@@ -1662,6 +1669,8 @@ try {
 		await sp.goto(`${server.origin}/?cb=${Date.now()}`, { waitUntil: 'networkidle' })
 		await sp.locator('#hsub a[data-way="colormap"]').click()
 		assert.ok(await sp.waitForFunction(() => document.querySelector('#csug .fmtr.on')?.closest('.sgr')?.querySelector('.src')?.dataset.key === 'colormap', null, { timeout: 15000 }).then(() => true, () => false), 'the slogan\'s colormap walks the field to a colormap')
+		await sp.waitForTimeout(400)   // …and stays there: no later landing of the lists draws the ways again over it
+		assert.equal(await sp.evaluate(() => document.querySelector('#csug .fmtr.on')?.closest('.sgr')?.querySelector('.src')?.dataset.key), 'colormap', 'the colormap walked to stays walked to')
 		await sp.keyboard.press('Enter'); await sp.waitForTimeout(400)
 		assert.ok(await sp.evaluate(() => document.getElementById('cval').value.split(' – ').length >= 3), 'the colormap taken is the field\'s run of colors')
 		await toCatalog(sp); await sp.mouse.move(700, 300); await sp.mouse.move(700, 1)

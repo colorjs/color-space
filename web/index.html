@@ -2018,9 +2018,12 @@ if(cvalEl){
 	// the sets beyond the page's own: Sanzo Wada's combinations (A Dictionary of Color Combinations, 1933 – Matt
 	// DesLauriers' data), the colormaps and the palettes of js/sets.js (both the build's), Lospec's palettes of two to
 	// four (js/lospec.js, scripts/fetch-lospec.js) – with color-name-list, on the first focus
-	let WADA=null, SETS=null, LOSPEC=null, RAMP=null, RAMPS=null
-	const meodai=()=>Promise.all([loadMeodai(),RAMP||import('./js/wijffelaars.js').then(m=>{ RAMP=m }).catch(()=>{}),WADA||import('./js/wada.js').then(m=>{ WADA=m }).catch(()=>{}),LOSPEC||import('./js/lospec.js').then(m=>{ LOSPEC=m.default }).catch(()=>{}),SETS||import('./js/sets.js').then(m=>{ SETS=m.default }).catch(()=>{})])
-		.then(()=>{ if(!cvalEl.value.trim()) sugDraw=null; if(document.activeElement===cvalEl&&!sugEl.hidden) suggest(!!cvalEl.value.trim()&&cvalEl._typed) })   // the ways in drawn again from the lists landed
+	// One landing, whoever asks while it is on its way – the pointer coming to the slogan, the field's focus, the press on a
+	// way in – and one drawing of the ways from it: each asker's own drew them again, and whichever came last wiped the row
+	// the slogan had just walked to (a way pressed opened the list and lit nothing, two times in three)
+	let WADA=null, SETS=null, LOSPEC=null, RAMP=null, RAMPS=null, landing=null
+	const meodai=()=>landing??=Promise.all([loadMeodai(),RAMP||import('./js/wijffelaars.js').then(m=>{ RAMP=m }).catch(()=>{}),WADA||import('./js/wada.js').then(m=>{ WADA=m }).catch(()=>{}),LOSPEC||import('./js/lospec.js').then(m=>{ LOSPEC=m.default }).catch(()=>{}),SETS||import('./js/sets.js').then(m=>{ SETS=m.default }).catch(()=>{})])
+		.then(()=>{ landing=null; if(!cvalEl.value.trim()) sugDraw=null; if(document.activeElement===cvalEl&&!sugEl.hidden) suggest(!!cvalEl.value.trim()&&cvalEl._typed) })   // the ways in drawn again from the lists landed
 	const COLORS=k=>k==='names'?Object.entries(NAMES):k==='meodai'?MEODAI:PALDATA[k]||[]
 	const LISTS=()=>[['names',COLORS('names')],['meodai',MEODAI],['tailwind',PALDATA.tailwind]]
 	const MAPSOF=k=>k==='matplotlib'?MAPS:k==='wijffelaars'?rampSet():SETS?.[k]||[]
