@@ -1624,28 +1624,35 @@ try {
 		await ip.waitForFunction(() => /could not read/.test(document.getElementById('toast').textContent) && !document.getElementById('cval').readOnly, null, { timeout: 30000 })
 		assert.equal(await ip.evaluate(() => /broken\.png/.test(localStorage.csImgMru)), false, 'an image that could not be read is not kept among the recent')
 		await ic.close() }
-	// a solid's caps are drawn where they lie: OSA-UCS's body crosses one wall of its box in one small patch – its other
-	// walls are not drawn, and that one over its patch alone (each cap pixel runs the space's inverse, a bisection: three
-	// whole walls of it, three passes a frame, made the solid heavy to turn). The picture is the same: the cap is there
-	{	const oc = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' }), op = await oc.newPage(), oerr = []
+	// a solid's caps are read, not computed: which of a wall's colors stand in the volume is the same from every view, so each
+	// wall is asked once – the space's own inverse a texel, into two textures – and a turned frame only reads them, by one
+	// program for every space (asked by the pixel, three passes a frame: OSA-UCS's bisection held a turned frame 11 ms of GPU
+	// on an M4 Max, RYB's six walls 12, DSH's twelve 20). And drawn where they lie: OSA-UCS's body crosses one wall of its box
+	// in one small patch – its other walls are not drawn, and that one over its patch alone; RYB, inside its volume, is its
+	// six walls whole. The picture is the same: the cap is there (RYB's box: the tones above)
+	for (const [id, lo, hi, most] of [['osaucs', 1, 3, 0.1], ['ryb', 18, 18, 1]]) {
+		const oc = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' }), op = await oc.newPage(), oerr = []
 		op.on('pageerror', (e) => oerr.push(e.message))
-		await op.goto(`${server.origin}/osaucs?cb=${Date.now()}#c86432`, { waitUntil: 'networkidle' })
+		await op.goto(`${server.origin}/${id}?cb=${Date.now()}#c86432`, { waitUntil: 'networkidle' })
 		await op.waitForFunction(() => { const p = document.querySelector('#pl3d'); return p && !p.classList.contains('busy') && p.querySelector('.mesh3')?.getContext('webgl2') }, null, { timeout: 60000 })
 		await op.waitForTimeout(500)
 		await op.evaluate(() => { const gl = document.querySelector('#pl3d .mesh3').getContext('webgl2'), de = gl.drawElements.bind(gl)
-			const seen = window.__caps = { draws: [], box: [], restore: () => { gl.drawElements = de } }
-			// every draw of the solid's: its index count, and – a cap's – the part of its wall it is drawn over (vsCap's uBoxLo, uBoxHi)
-			gl.drawElements = (m, n, ...a) => { const pr = gl.getParameter(gl.CURRENT_PROGRAM), lo = gl.getUniformLocation(pr, 'uBoxLo'), hi = gl.getUniformLocation(pr, 'uBoxHi')
-				seen.draws.push(n); if (lo && hi) seen.box.push([...gl.getUniform(pr, lo), ...gl.getUniform(pr, hi)]); return de(m, n, ...a) } })
+			const seen = window.__caps = { draws: [], restore: () => { gl.drawElements = de } }
+			// every draw of the solid's: its index count; whether its program reads a wall (CAP_FS's uWallC) or asks one (a wall
+			// program: WALL_VS's uStep, no uWallC); and – a cap's – the part of its wall it is drawn over (uBoxLo, uBoxHi)
+			gl.drawElements = (m, n, ...a) => { const pr = gl.getParameter(gl.CURRENT_PROGRAM), at = (k) => gl.getUniformLocation(pr, k), lo = at('uBoxLo'), hi = at('uBoxHi')
+				seen.draws.push({ n, reads: !!at('uWallC'), asks: !!at('uStep') && !at('uWallC'), box: lo && hi ? [...gl.getUniform(pr, lo), ...gl.getUniform(pr, hi)] : null }); return de(m, n, ...a) } })
 		{ const r = await op.locator('#pl3d').boundingBox(), x = r.x + r.width / 2, y = r.y + r.height / 2
-			await op.mouse.move(x, y); await op.mouse.down(); await op.evaluate(() => { window.__caps.draws.length = 0; window.__caps.box.length = 0 })
+			await op.mouse.move(x, y); await op.mouse.down(); await op.evaluate(() => { window.__caps.draws.length = 0 })
 			await op.mouse.move(x + 12, y + 4); await op.waitForTimeout(100); await op.mouse.up() }
 		const caps = await op.evaluate(() => { const seen = window.__caps; seen.restore(); delete window.__caps
-			const body = Math.max(...seen.draws), frames = seen.draws.filter((n) => n === body).length / 3 || 1, area = seen.box.map((b) => (b[3] - b[0]) * (b[4] - b[1]) * (b[5] - b[2]))
-			return { draws: seen.draws.length, capDraws: seen.draws.filter((n) => n !== body).length / frames, area: area.length ? Math.max(...area) : null } })
-		assert.ok(caps.capDraws >= 1 && caps.capDraws <= 3, `OSA-UCS's one cap is drawn once a pass – its walls that hold none, not at all (${JSON.stringify(caps)})`)
-		assert.ok(caps.area > 0 && caps.area < 0.1, `…and over its own patch of the wall alone (${JSON.stringify(caps)})`)
-		assert.deepEqual(oerr, [], 'the solid\'s caps: no page errors')
+			const cap = seen.draws.filter((d) => d.reads), body = seen.draws.filter((d) => !d.reads && !d.asks), big = Math.max(0, ...body.map((d) => d.n))
+			const frames = big ? body.filter((d) => d.n === big).length / 3 : cap.length / 18, area = cap.map(({ box: b }) => (b[3] - b[0]) * (b[4] - b[1]) * (b[5] - b[2]))
+			return { draws: seen.draws.length, asked: seen.draws.filter((d) => d.asks).length, frames, capDraws: cap.length / (frames || 1), area: area.length ? Math.max(...area) : null } })
+		assert.equal(caps.asked, 0, `${id}: a turned frame asks no wall again – its caps are read from what the walls answered once (${JSON.stringify(caps)})`)
+		assert.ok(caps.frames >= 1 && caps.capDraws >= lo && caps.capDraws <= hi, `${id}: each wall that holds a cap is drawn once a pass – one that holds none, not at all (${JSON.stringify(caps)})`)
+		assert.ok(caps.area > 0 && caps.area <= most, `${id}: …and over its own part of the wall alone (${JSON.stringify(caps)})`)
+		assert.deepEqual(oerr, [], `${id}: the solid's caps: no page errors`)
 		await oc.close() }
 	// the slogan's ways in name a colormap too: pressed, the field walks to one drawn at random, shown on the page. And the
 	// row's edge opened over it wears ONE ink its whole length – the swatches' rule on the colors averaged along it – the
